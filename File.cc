@@ -215,9 +215,6 @@ void File ::Open(int fileLen, char *fName) {
   // actually do the open
   myFilDes = open(fName, mode, S_IRUSR | S_IWUSR);
 
-#ifdef verbose
-  cout << "Opening file " << fName << " with " << curLength << " pages.\n";
-#endif
 
   // see if there was an error
   if (myFilDes < 0) {
@@ -234,6 +231,10 @@ void File ::Open(int fileLen, char *fName) {
   } else {
     curLength = 0;
   }
+
+  #ifdef verbose
+    cout << "Opening file " << fName << " with " << curLength << " pages.\n";
+  #endif
 }
 
 off_t File ::GetLength() { return curLength; }
