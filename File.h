@@ -42,6 +42,9 @@ public:
 	// empty it out
 	void EmptyItOut ();
 
+	// Get number of records
+	int GetNumRecords();
+
 };
 
 
@@ -76,9 +79,7 @@ public:
 
 	// closes the file and returns the file length (in number of pages)
 	int Close ();
-
 };
-
 
 
 #endif
