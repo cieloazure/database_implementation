@@ -24,6 +24,7 @@ private:
 	fstream metadata_file;
 	int current_page_index;
 	fType type;
+	Record* current_record;
 
 public:
 	DBFile (); 
