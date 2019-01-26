@@ -37,7 +37,7 @@ public:
 	// read the next record from a page and return it;
 	// returns 1 if a read was successful
 	// returns 0 if no more records were left on the page to read
-	int ReadNext(Record *nextOne, int offset);
+	int ReadNext(Record &nextOne, int offset);
 
 	// this appends the record to the end of a page.  The return value
 	// is a one on success and a aero if there is no more space

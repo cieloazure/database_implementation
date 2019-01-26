@@ -114,7 +114,7 @@ int DBFile::Open(const char *f_path) {
   }
 }
 
-/* void DBFile::MoveFirst() {
+void DBFile::MoveFirst() {
   if (current_write_page_index >= 0) {
     current_read_page_index = -1;
     int num_records = 0;
@@ -138,7 +138,7 @@ int DBFile::Open(const char *f_path) {
       current_read_page_offset = -1;
     }
   }
-} */
+}
 
 int DBFile::Close() {
   try {
@@ -217,7 +217,7 @@ void DBFile::Add(Record &rec) {
   }
 }
 
-/* int DBFile::GetNext(Record &fetchme) {
+int DBFile::GetNext(Record &fetchme) {
   // If records in all pages have been read
   if (current_read_page_index > current_write_page_index) {
     return 0;
@@ -227,7 +227,20 @@ void DBFile::Add(Record &rec) {
   Page *readPage = new Page();
   persistent_file  ->  GetPage(readPage, current_read_page_index);
 
+  current_read_page_offset++;
+  if(current_read_page_offset >= readPage -> GetNumRecords()){
+    current_read_page_index++;
+    if(current_read_page_index > current_write_page_index){
+      return 0;
+    }
+    current_read_page_offset = 0;
+    persistent_file -> GetPage(readPage, current_read_page_index);
+  }else{
+    readPage -> ReadNext(fetchme, current_read_page_offset);
+  }
+  return 1;
 
+  /*
   // Next record in the page
   current_read_page_offset++;
 
@@ -247,8 +260,11 @@ void DBFile::Add(Record &rec) {
   } else {
     return 1;
   }
+  */
+
+  return 1;
 }
- */
+
 int DBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {}
 
 char *DBFile::GetMetaDataFileName(const char *file_path) {
