@@ -65,6 +65,9 @@ public:
 	// prints the contents of the record; this requires
 	// that the schema also be given so that the record can be interpreted
 	void Print (Schema *mySchema);
+
+	// Gets size of record in integer
+	size_t GetRecordSize();
 };
 
 #endif

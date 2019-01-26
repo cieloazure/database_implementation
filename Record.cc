@@ -362,5 +362,8 @@ void Record :: Print (Schema *mySchema) {
 	cout << "\n";
 }
 
-
-
+size_t Record::GetRecordSize(){
+	size_t record_size;
+	memcpy(&record_size, bits, sizeof(int));
+	return record_size;
+}

@@ -108,9 +108,26 @@ int main() {
 
   DBFile* heapFile = new DBFile();
   fType f = heap;
-  // heapFile -> Create("test.tbl", heap, NULL);
-  // heapFile -> Close();
+  heapFile -> Create("test.tbl", heap, NULL);
+  
+  FILE *tableFile = fopen(
+      "/Users/akashshingte/Projects/Cpp/DBI - Assignment "
+      "1/data_files/lineitem.tbl",
+      "r");
 
+  Record temp;
+  Schema mySchema("catalog", "lineitem");
+  for(int i = 0; i < 10; i++){
+    temp.SuckNextRecord(&mySchema, tableFile);
+    heapFile -> Add(temp);
+  }
+
+  heapFile -> Close();
+  
   heapFile -> Open("test.tbl");
+  Record temp2;
+  while(heapFile -> GetNext(temp2) != 0){
+    temp2.Print(&mySchema);
+  }
   heapFile -> Close();
 }

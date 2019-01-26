@@ -20,11 +20,14 @@ class DBFile {
 private:
 
 	const char* file_path;
-	File *persistent_file;
-	fstream metadata_file;
-	int current_page_index;
 	fType type;
-	Record* current_record;
+	File *persistent_file;
+	int metadata_file_descriptor;
+
+	int current_write_page_index;
+	int current_read_page_index;
+	int current_read_page_offset;
+
 
 public:
 	DBFile (); 
@@ -41,6 +44,7 @@ public:
 	int GetNext (Record &fetchme, CNF &cnf, Record &literal);
 
 private:
-	const string GetMetaDataFileName(const char *file_path);
+	//const string GetMetaDataFileName(const char *file_path);
+	char* GetMetaDataFileName(const char *file_path);
 };
 #endif

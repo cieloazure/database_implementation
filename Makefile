@@ -52,3 +52,4 @@ clean:
 	rm -f lex.yy.c
 	rm -f y.tab.h
 	rm -f *.header
+	rm -f *.tbl

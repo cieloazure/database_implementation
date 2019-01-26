@@ -55,6 +55,27 @@ int Page ::GetFirst(Record *firstOne) {
   return 1;
 }
 
+int Page :: ReadNext(Record *nextOne, int offset) {
+    myRecs -> MoveToStart();
+
+    // Check if there is record to be read
+    if(!myRecs -> RightLength()){
+      return 0;
+    }
+
+    if(myRecs -> RightLength() > offset + 1){
+      return 0;
+    }
+
+    // set nextOne to the advanced position
+    nextOne = myRecs -> Current(offset);
+
+    myRecs -> MoveToFinish();
+
+    return 1;
+}
+
+
 int Page ::Append(Record *addMe) {
   char *b = addMe->GetBits();
 
