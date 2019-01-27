@@ -8,6 +8,7 @@
 		"files.associations": {
 			"string": "cpp",
 			"fstream": "cpp"
-		}
+		},
+		"editor.formatOnSave": true
 	}
 }

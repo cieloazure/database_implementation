@@ -1,4 +1,5 @@
 #include "DBFile.h"
+#include <unistd.h>
 #include "Comparison.h"
 #include "ComparisonEngine.h"
 #include "Defs.h"
@@ -6,14 +7,6 @@
 #include "Record.h"
 #include "Schema.h"
 #include "TwoWayList.h"
-
-#include <fcntl.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <iostream>
 
 // stub file .. replace it with your own DBFile.cc
 
@@ -31,7 +24,7 @@ int DBFile::Create(const char *f_path, fType f_type, void *startup) {
     file_path = f_path;
 
     // Open persistent file
-    persistent_file -> Open(0, (char *)file_path);
+    persistent_file->Open(0, (char *)file_path);
 
     // Set current page index to -1 as no pages exist yet
     current_write_page_index = -1;
@@ -75,7 +68,7 @@ int DBFile::Open(const char *f_path) {
     file_path = f_path;
 
     // Open persistent file
-    persistent_file -> Open(1, (char *)file_path);
+    persistent_file->Open(1, (char *)file_path);
 
     // Open metadata file
     int mode = O_RDWR;
@@ -94,7 +87,7 @@ int DBFile::Open(const char *f_path) {
     lseek(metadata_file_descriptor, 0, SEEK_SET);
 
     // Initialize variables from meta data file
-    // Current Meta Data variables  -> 
+    // Current Meta Data variables  ->
     read(metadata_file_descriptor, &type, sizeof(fType));
     // It is a heap file
     if (type == 0) {
@@ -122,11 +115,12 @@ void DBFile::MoveFirst() {
            current_read_page_index <= current_write_page_index) {
       current_read_page_index++;
       Page *check_page = new Page();
-      persistent_file  ->  GetPage(check_page, current_read_page_index);
-      num_records = check_page  ->  GetNumRecords();
+      persistent_file->GetPage(check_page, current_read_page_index);
+      num_records = check_page->GetNumRecords();
     }
 
-    if (num_records <= 0 || current_read_page_index > current_write_page_index) {
+    if (num_records <= 0 ||
+        current_read_page_index > current_write_page_index) {
       // None of the pages have records hence resetting the
       // current_write_page_index as well
       current_write_page_index = -1;
@@ -143,7 +137,7 @@ void DBFile::MoveFirst() {
 int DBFile::Close() {
   try {
     // Close the persistent file
-    persistent_file -> Close();
+    persistent_file->Close();
 
     // Close the metadata file
     close(metadata_file_descriptor);
@@ -182,22 +176,22 @@ void DBFile::Add(Record &rec) {
     current_read_page_offset = -1;
 
     Page *new_page = new Page();
-    if (new_page  ->  Append(&rec) == 0) {
+    if (new_page->Append(&rec) == 0) {
       cerr << "Page Full! Likely an error as we just created a page";
     }
     add_me = new_page;
   } else {
     // Pages have been alloted; Check if last page has space
     Page *fetched_page = new Page();
-    persistent_file  ->  GetPage(fetched_page, current_write_page_index);
+    persistent_file->GetPage(fetched_page, current_write_page_index);
 
     // The fetched page is full
     // Allocate a new page
-    if (fetched_page  ->  Append(&rec) == 0) {
-      persistent_file  ->  AddPage(fetched_page, current_write_page_index);
+    if (fetched_page->Append(&rec) == 0) {
+      persistent_file->AddPage(fetched_page, current_write_page_index);
       current_write_page_index++;
       Page *new_page = new Page();
-      if (new_page  ->  Append(&rec) == 0) {
+      if (new_page->Append(&rec) == 0) {
         cerr << "Page full! Likely an error as we just created a page";
       }
       add_me = new_page;
@@ -207,7 +201,7 @@ void DBFile::Add(Record &rec) {
   }
 
   // Add the new or last page in the persistent file
-  persistent_file  ->  AddPage(add_me, current_write_page_index);
+  persistent_file->AddPage(add_me, current_write_page_index);
 
   // If a new page was required
   if (prev_write_page_index != current_write_page_index) {
@@ -225,18 +219,18 @@ int DBFile::GetNext(Record &fetchme) {
 
   // Get the Page current_read_page_index from the file
   Page *readPage = new Page();
-  persistent_file  ->  GetPage(readPage, current_read_page_index);
+  persistent_file->GetPage(readPage, current_read_page_index);
 
   current_read_page_offset++;
-  if(current_read_page_offset >= readPage -> GetNumRecords()){
+  if (current_read_page_offset >= readPage->GetNumRecords()) {
     current_read_page_index++;
-    if(current_read_page_index > current_write_page_index){
+    if (current_read_page_index > current_write_page_index) {
       return 0;
     }
     current_read_page_offset = 0;
-    persistent_file -> GetPage(readPage, current_read_page_index);
-  }else{
-    readPage -> ReadNext(fetchme, current_read_page_offset);
+    persistent_file->GetPage(readPage, current_read_page_index);
+  } else {
+    readPage->ReadNext(fetchme, current_read_page_offset);
   }
   return 1;
 
