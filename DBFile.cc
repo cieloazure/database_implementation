@@ -1,5 +1,4 @@
 #include "DBFile.h"
-#include <unistd.h>
 #include "Comparison.h"
 #include "ComparisonEngine.h"
 #include "Defs.h"
@@ -7,6 +6,7 @@
 #include "Record.h"
 #include "Schema.h"
 #include "TwoWayList.h"
+#include <unistd.h>
 
 // stub file .. replace it with your own DBFile.cc
 

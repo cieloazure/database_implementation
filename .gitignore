@@ -1,3 +1,9 @@
 DBI Project 1
 
 googletest/
+
+*.o
+
+*.h
+*.tbl
+*.header

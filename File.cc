@@ -2,12 +2,12 @@
 #include "TwoWayList.cc"
 
 #include <fcntl.h>
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <iostream>
 
 Page ::Page() {
   curSizeInBytes = sizeof(int);
@@ -28,7 +28,8 @@ void Page ::EmptyItOut() {
   // get rid of all of the records
   while (1) {
     Record temp;
-    if (!GetFirst(&temp)) break;
+    if (!GetFirst(&temp))
+      break;
   }
 
   // reset the page size
@@ -55,12 +56,11 @@ int Page ::GetFirst(Record *firstOne) {
   return 1;
 }
 
-int Page :: ReadNext(Record &nextOne, int offset) {
+int Page ::ReadNext(Record &nextOne, int offset) {
   myRecs->MoveToStart();
-  nextOne = *(myRecs -> Current(offset));
+  nextOne = *(myRecs->Current(offset));
   return 1;
 }
-
 
 int Page ::Append(Record *addMe) {
   char *b = addMe->GetBits();
@@ -222,7 +222,6 @@ void File ::Open(int fileLen, char *fName) {
   // actually do the open
   myFilDes = open(fName, mode, S_IRUSR | S_IWUSR);
 
-
   // see if there was an error
   if (myFilDes < 0) {
     cerr << "BAD!  Open did not work for " << fName << "\n";
@@ -239,9 +238,9 @@ void File ::Open(int fileLen, char *fName) {
     curLength = 0;
   }
 
-  #ifdef verbose
-    cout << "Opening file " << fName << " with " << curLength << " pages.\n";
-  #endif
+#ifdef verbose
+  cout << "Opening file " << fName << " with " << curLength << " pages.\n";
+#endif
 }
 
 off_t File ::GetLength() { return curLength; }
