@@ -1,4 +1,5 @@
 #include "DBFile.h"
+#include <unistd.h>
 #include "Comparison.h"
 #include "ComparisonEngine.h"
 #include "Defs.h"
@@ -6,14 +7,10 @@
 #include "Record.h"
 #include "Schema.h"
 #include "TwoWayList.h"
-#include <unistd.h>
 
 // stub file .. replace it with your own DBFile.cc
 
-DBFile::DBFile() {
-  // dbFileInstance = new File();
-  persistent_file = new File();
-}
+DBFile::DBFile() { persistent_file = new File(); }
 
 int DBFile::Create(const char *f_path, fType f_type, void *startup) {
   try {
@@ -221,9 +218,14 @@ int DBFile::GetNext(Record &fetchme) {
   Page *readPage = new Page();
   persistent_file->GetPage(readPage, current_read_page_index);
 
+  // Increment to get the next record on the page no `current_read_page_index`
   current_read_page_offset++;
+  // If there are no more records on the page `current_read_page_index` get next
+  // page
   if (current_read_page_offset >= readPage->GetNumRecords()) {
     current_read_page_index++;
+    // If there are no more pages remaining in the file
+    // All records have been read
     if (current_read_page_index > current_write_page_index) {
       return 0;
     }
@@ -232,30 +234,6 @@ int DBFile::GetNext(Record &fetchme) {
   } else {
     readPage->ReadNext(fetchme, current_read_page_offset);
   }
-  return 1;
-
-  /*
-  // Next record in the page
-  current_read_page_offset++;
-
-  // read next record from the fetched page
-  while (readPage  ->  ReadNext(&fetchme, current_read_page_offset) == 0 &&
-         current_read_page_index <= current_write_page_index) {
-    current_read_page_index++;
-    if (current_read_page_offset > 0) {
-      current_read_page_offset = 0;
-    }
-    persistent_file  ->  GetPage(readPage, current_read_page_index);
-  }
-
-  // If no more records in any pages are remaining
-  if (current_read_page_index > current_write_page_index) {
-    return 0;
-  } else {
-    return 1;
-  }
-  */
-
   return 1;
 }
 

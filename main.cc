@@ -1,12 +1,12 @@
 
+#include <stdlib.h>
+#include <iostream>
 #include "DBFile.h"
 #include "Record.h"
-#include <iostream>
-#include <stdlib.h>
 using namespace std;
 
 extern "C" {
-int yyparse(void); // defined in y.tab.c
+int yyparse(void);  // defined in y.tab.c
 }
 
 extern struct AndList *final;
@@ -110,13 +110,14 @@ int main() {
   fType f = heap;
   heapFile->Create("test.tbl", heap, NULL);
 
-  FILE *tableFile = fopen("/Users/akashshingte/Projects/Cpp/DBI - Assignment "
-                          "1/data_files/lineitem.tbl",
-                          "r");
+  FILE *tableFile = fopen(
+      "/Users/akashshingte/Projects/Cpp/DBI - Assignment "
+      "1/data_files/lineitem.tbl",
+      "r");
 
   Record temp;
   Schema mySchema("catalog", "lineitem");
-  for (int i = 0; i < 2500; i++) {
+  for (int i = 0; i < 10; i++) {
     temp.SuckNextRecord(&mySchema, tableFile);
     heapFile->Add(temp);
   }
@@ -126,7 +127,12 @@ int main() {
   heapFile->Open("test.tbl");
   Record temp2;
   while (heapFile->GetNext(temp2) != 0) {
-    // temp2.Print(&mySchema);
+    temp2.Print(&mySchema);
+  }
+  cout << "-------MOVING FIRST-----------" << endl;
+  heapFile->MoveFirst();
+  while (heapFile->GetNext(temp2) != 0) {
+    temp2.Print(&mySchema);
   }
   heapFile->Close();
 }

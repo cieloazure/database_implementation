@@ -41,7 +41,6 @@ class DBFile {
   int GetNext(Record &fetchme, CNF &cnf, Record &literal);
 
  private:
-  // const string GetMetaDataFileName(const char *file_path);
   char *GetMetaDataFileName(const char *file_path);
 };
 #endif
