@@ -34,7 +34,7 @@ class DBFile {
 
   modeType mode; /* The mode of the file right now i.e. reading or writing */
 
-  bool is_open;
+  bool is_open; /* A Flag variable to indicate whether a file is open or not */
 
  public:
   /*
@@ -47,6 +47,11 @@ class DBFile {
   */
   DBFile();
 
+  /*
+  Destructor
+
+  Destroys the internal structures of the object
+  */
   ~DBFile();
 
   /*
