@@ -1,4 +1,7 @@
 #include "DBFile.h"
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include "Comparison.h"
 #include "ComparisonEngine.h"
@@ -15,9 +18,7 @@ DBFile::DBFile() {
   is_open = false;
 }
 
-DBFile::~DBFile() {
-  delete persistent_file;
-}
+DBFile::~DBFile() { delete persistent_file; }
 
 int DBFile::Create(const char *f_path, fType f_type, void *startup) {
   try {

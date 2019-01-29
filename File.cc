@@ -2,12 +2,12 @@
 #include "TwoWayList.cc"
 
 #include <fcntl.h>
-#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <iostream>
 
 Page ::Page() {
   curSizeInBytes = sizeof(int);
@@ -28,8 +28,7 @@ void Page ::EmptyItOut() {
   // get rid of all of the records
   while (1) {
     Record temp;
-    if (!GetFirst(&temp))
-      break;
+    if (!GetFirst(&temp)) break;
   }
 
   // reset the page size
@@ -225,7 +224,10 @@ void File ::Open(int fileLen, char *fName) {
   // see if there was an error
   if (myFilDes < 0) {
     cerr << "BAD!  Open did not work for " << fName << "\n";
-    exit(1);
+    string err = "BAD! Open did not work for";
+    err += fName;
+    err += "\n";
+    throw runtime_error(err);
   }
 
   // read in the buffer if needed
