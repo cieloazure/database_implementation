@@ -34,6 +34,8 @@ class DBFile {
 
   modeType mode; /* The mode of the file right now i.e. reading or writing */
 
+  bool is_open;
+
  public:
   /*
   Constructor
@@ -44,6 +46,8 @@ class DBFile {
     - `dirty`: A flag which indicates whether a write has occured or not
   */
   DBFile();
+
+  ~DBFile();
 
   /*
   Create(const char *f_path, fType f_type, void *startup)
@@ -86,6 +90,8 @@ class DBFile {
   Returns : None
   */
   int Close();
+
+  /* To be implemented */
   void Load(Schema &myschema, const char *loadpath);
 
   /*
@@ -130,6 +136,8 @@ class DBFile {
             `0` : no records are left
    */
   int GetNext(Record &fetchme);
+
+  /* To be implemented */
   int GetNext(Record &fetchme, CNF &cnf, Record &literal);
 
  private:
@@ -137,5 +145,6 @@ class DBFile {
   int FlushBufferToPage(Page *buffer, Page *flush_to_page,
                         bool empty_flush_to_page_flag);
   void FlushBuffer();
+  void CheckIfFilePresent();
 };
 #endif

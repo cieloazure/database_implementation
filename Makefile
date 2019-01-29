@@ -1,4 +1,5 @@
-CC = g++ -O2 -Wno-deprecated 
+#CC = g++ -O2 -Wno-deprecated 
+CC = clang++ -fsanitize=address -O1 -fno-omit-frame-pointer -g 
 
 tag = -i
 

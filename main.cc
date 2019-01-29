@@ -115,24 +115,59 @@ int main() {
       "1/data_files/lineitem.tbl",
       "r");
 
-  Record temp;
+  Record *temp = new Record();
   Schema mySchema("catalog", "lineitem");
   for (int i = 0; i < 10; i++) {
-    temp.SuckNextRecord(&mySchema, tableFile);
-    heapFile->Add(temp);
+    temp->SuckNextRecord(&mySchema, tableFile);
+    heapFile->Add(*temp);
   }
 
   heapFile->Close();
 
   heapFile->Open("test.tbl");
-  Record temp2;
-  while (heapFile->GetNext(temp2) != 0) {
-    temp2.Print(&mySchema);
+  Record *temp2 = new Record();
+  while (heapFile->GetNext(*temp2) != 0) {
+    temp2->Print(&mySchema);
   }
   cout << "-------MOVING FIRST-----------" << endl;
   heapFile->MoveFirst();
-  while (heapFile->GetNext(temp2) != 0) {
-    temp2.Print(&mySchema);
+  while (heapFile->GetNext(*temp2) != 0) {
+    temp2->Print(&mySchema);
   }
   heapFile->Close();
+  heapFile->Open("test.tbl");
+  for (int i = 0; i < 10; i++) {
+    if (i % 2 == 0) {
+      temp->SuckNextRecord(&mySchema, tableFile);
+      heapFile->Add(*temp);
+    } else {
+      heapFile->GetNext(*temp2);
+      temp2->Print(&mySchema);
+    }
+  }
+  delete temp;
+  delete temp2;
+  heapFile->Close();
+  /*
+  DBFile *heapFile = new DBFile();
+  Record *temp = new Record();
+  Schema mySchema("catalog", "lineitem");
+  FILE *tableFile = fopen(
+      "/Users/akashshingte/Projects/Cpp/DBI - Assignment "
+      "1/data_files/lineitem.tbl",
+      "r");
+  fType f = heap;
+  heapFile->Create("test.tbl", heap, NULL);
+  if (heapFile->GetNext(*temp)) {
+    temp->Print(&mySchema);
+  }
+  temp->SuckNextRecord(&mySchema, tableFile);
+  heapFile->Add(*temp);
+  // if (heapFile->GetNext(*temp)) {
+  //   temp->Print(&mySchema);
+  // }
+  fclose(tableFile);
+  heapFile->Close();
+  delete temp;
+  */
 }

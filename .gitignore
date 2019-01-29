@@ -7,3 +7,5 @@ googletest/
 *.h
 *.tbl
 *.header
+lex.yy.c
+y.tab.c

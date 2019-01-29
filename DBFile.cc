@@ -12,6 +12,11 @@ DBFile::DBFile() {
   persistent_file = new File();
   buffer = new Page();
   dirty = false;
+  is_open = false;
+}
+
+DBFile::~DBFile() {
+  delete persistent_file;
 }
 
 int DBFile::Create(const char *f_path, fType f_type, void *startup) {
@@ -51,6 +56,7 @@ int DBFile::Create(const char *f_path, fType f_type, void *startup) {
     write(metadata_file_descriptor, &current_write_page_index, sizeof(int));
 
     // No exception occured
+    is_open = true;
     return 1;
   } catch (runtime_error &e) {
     cerr << e.what() << endl;
@@ -98,6 +104,7 @@ int DBFile::Open(const char *f_path) {
     }
 
     // No exception occured
+    is_open = true;
     return 1;
   } catch (invalid_argument &e) {
     cerr << e.what() << endl;
@@ -108,6 +115,7 @@ int DBFile::Open(const char *f_path) {
 }
 
 void DBFile::MoveFirst() {
+  CheckIfFilePresent();
   if (current_write_page_index >= 0) {
     current_read_page_index = -1;
     int num_records = 0;
@@ -136,6 +144,7 @@ void DBFile::MoveFirst() {
 
 int DBFile::Close() {
   try {
+    CheckIfFilePresent();
     if (dirty) {
       FlushBuffer();
     }
@@ -158,12 +167,16 @@ int DBFile::Close() {
     file_path = NULL;
 
     return 1;
+  } catch (runtime_error r) {
+    cerr << "Trying to close a file which is not opened";
+    return 0;
   } catch (...) {
     return 0;
   }
 }
 
 void DBFile::Add(Record &rec) {
+  CheckIfFilePresent();
   // If it is not dirty empty out all the records read
   if (!dirty) {
     buffer->EmptyItOut();
@@ -220,6 +233,7 @@ void DBFile::FlushBuffer() {
 }
 
 int DBFile::GetNext(Record &fetchme) {
+  CheckIfFilePresent();
   if (dirty) {
     FlushBuffer();
     dirty = false;
@@ -282,4 +296,12 @@ int DBFile::FlushBufferToPage(Page *buffer, Page *flush_to_page,
     }
   }
   return 1;
+}
+
+void DBFile::CheckIfFilePresent() {
+  if (!is_open) {
+    throw runtime_error(
+        "File destination is not open or created, Please create a file or open "
+        "an existing one");
+  }
 }
