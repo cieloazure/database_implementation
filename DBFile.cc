@@ -197,7 +197,6 @@ void DBFile::Add(Record &rec) {
 }
 
 void DBFile::FlushBuffer() {
-  // This page will be added with the new record
   int prev_write_page_index = current_write_page_index;
 
   Page *flush_to_page = new Page();

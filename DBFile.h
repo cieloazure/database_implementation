@@ -88,6 +88,9 @@ class DBFile {
   Arguments: None
 
   Returns : None
+
+  Throws: runtime_error : If an attempt is made to close a file which is not
+  open or created
   */
   int Close();
 
@@ -101,7 +104,10 @@ class DBFile {
 
   Argument: None
 
-  Returns None
+  Returns: None
+
+  Throws: runtime_error : If an attempt is made to move to the first record of a
+  file which is not opened or created
   */
   void MoveFirst();
 
@@ -117,6 +123,9 @@ class DBFile {
     record will be consumed after this operation
 
     Returns: None
+
+    Throws: runtime_error : If an attempt is made to add a record to a file
+    which is not opened or created
    */
   void Add(Record &addme);
 
@@ -134,6 +143,9 @@ class DBFile {
         - Integer: Indicating whether any records are left.
             `1` : records are left
             `0` : no records are left
+
+    Throws: runtime_error : If an attempt is made to get the next record from a
+    file which is not opened or created
    */
   int GetNext(Record &fetchme);
 
@@ -141,10 +153,15 @@ class DBFile {
   int GetNext(Record &fetchme, CNF &cnf, Record &literal);
 
  private:
-  char *GetMetaDataFileName(const char *file_path);
-  int FlushBufferToPage(Page *buffer, Page *flush_to_page,
-                        bool empty_flush_to_page_flag);
-  void FlushBuffer();
-  void CheckIfFilePresent();
+  char *GetMetaDataFileName(
+      const char *file_path); /* Create a name of the metadata file based on the
+                                 file opened */
+  int FlushBufferToPage(
+      Page *buffer,
+      Page *flush_to_page, /* Move all records from buffer to flush_to_page */
+      bool empty_flush_to_page_flag);
+  void FlushBuffer(); /* Logic to manage the instance variables when a buffer is
+                         flushed */
+  void CheckIfFilePresent(); /* Check if a file is opened */
 };
 #endif
