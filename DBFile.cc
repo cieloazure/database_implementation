@@ -1,4 +1,7 @@
 #include "DBFile.h"
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include "Comparison.h"
 #include "ComparisonEngine.h"
@@ -15,9 +18,7 @@ DBFile::DBFile() {
   is_open = false;
 }
 
-DBFile::~DBFile() {
-  delete persistent_file;
-}
+DBFile::~DBFile() { delete persistent_file; }
 
 int DBFile::Create(const char *f_path, fType f_type, void *startup) {
   try {
@@ -86,7 +87,7 @@ int DBFile::Open(const char *f_path) {
       string err("Metadata file for ");
       err += file_path;
       err += " does not exist\n";
-      throw invalid_argument(err);
+      throw runtime_error(err);
     }
 
     // Read the current_page_index from metadata file
@@ -106,7 +107,7 @@ int DBFile::Open(const char *f_path) {
     // No exception occured
     is_open = true;
     return 1;
-  } catch (invalid_argument &e) {
+  } catch (runtime_error &e) {
     cerr << e.what() << endl;
     return 0;
   } catch (...) {
@@ -117,6 +118,7 @@ int DBFile::Open(const char *f_path) {
 void DBFile::MoveFirst() {
   CheckIfFilePresent();
   if (current_write_page_index >= 0) {
+    // Set current_read_page_index
     current_read_page_index = -1;
     int num_records = 0;
     while (num_records <= 0 &&
@@ -127,6 +129,7 @@ void DBFile::MoveFirst() {
       num_records = check_page->GetNumRecords();
     }
 
+    // Set other instance variables
     if (num_records <= 0 ||
         current_read_page_index > current_write_page_index) {
       // None of the pages have records hence resetting the
@@ -234,6 +237,8 @@ void DBFile::FlushBuffer() {
 
 int DBFile::GetNext(Record &fetchme) {
   CheckIfFilePresent();
+  // If the buffer is dirty the records are to be written out to file before
+  // being read
   if (dirty) {
     FlushBuffer();
     dirty = false;
@@ -285,6 +290,7 @@ char *DBFile::GetMetaDataFileName(const char *file_path) {
 
 int DBFile::FlushBufferToPage(Page *buffer, Page *flush_to_page,
                               bool empty_flush_to_page_flag) {
+  // Is it a new page and hence previous flush has already been written to file
   if (empty_flush_to_page_flag) {
     flush_to_page->EmptyItOut();
   }

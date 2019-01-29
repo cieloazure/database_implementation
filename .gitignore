@@ -9,3 +9,4 @@ googletest/
 *.header
 lex.yy.c
 y.tab.c
+*.out

@@ -1,11 +1,15 @@
-#CC = g++ -O2 -Wno-deprecated 
-CC = clang++ -fsanitize=address -O1 -fno-omit-frame-pointer -g 
+#CC = clang++ -fsanitize=address -O1 -fno-omit-frame-pointer -g 
+CC = g++ -O2 -Wno-deprecated 
+TEST = g++ -std=c++11 -stdlib=libc++ 
 
 tag = -i
 
 ifdef linux
 tag = -n
 endif
+
+gtest_main.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o DBFileTest.o y.tab.o lex.yy.o gtest_main.o 
+	$(TEST) -o gtest_main.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o DBFileTest.o y.tab.o lex.yy.o gtest_main.o -ll -lgtest -lpthread  
 
 test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o
 	$(CC) -o test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o -ll
@@ -45,6 +49,12 @@ y.tab.o: Parser.y
 lex.yy.o: Lexer.l
 	lex  Lexer.l
 	gcc  -c lex.yy.c
+
+gtest_main.o: gtest_main.cc
+	$(TEST) -g -c gtest_main.cc
+
+DBFileTest.o: DBFileTest.cc
+	$(TEST) -g -c DBFileTest.cc
 
 clean: 
 	rm -f *.o
