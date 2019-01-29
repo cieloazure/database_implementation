@@ -8,9 +8,11 @@
 #include "Schema.h"
 #include "TwoWayList.h"
 
-// stub file .. replace it with your own DBFile.cc
-
-DBFile::DBFile() { persistent_file = new File(); }
+DBFile::DBFile() {
+  persistent_file = new File();
+  buffer = new Page();
+  dirty = false;
+}
 
 int DBFile::Create(const char *f_path, fType f_type, void *startup) {
   try {
@@ -24,6 +26,7 @@ int DBFile::Create(const char *f_path, fType f_type, void *startup) {
     persistent_file->Open(0, (char *)file_path);
 
     // Set current page index to -1 as no pages exist yet
+    // -1 represents an invalid value
     current_write_page_index = -1;
     current_read_page_index = -1;
     current_read_page_offset = -1;
@@ -133,6 +136,9 @@ void DBFile::MoveFirst() {
 
 int DBFile::Close() {
   try {
+    if (dirty) {
+      FlushBuffer();
+    }
     // Close the persistent file
     persistent_file->Close();
 
@@ -158,10 +164,27 @@ int DBFile::Close() {
 }
 
 void DBFile::Add(Record &rec) {
+  // If it is not dirty empty out all the records read
+  if (!dirty) {
+    buffer->EmptyItOut();
+    mode = w;
+  }
+
+  // If The buffer is full: Flush the buffer to persistent storage
+  // Else: just append to the buffer and set dirty variable
+  if (buffer->Append(&rec) == 0) {
+    FlushBuffer();
+    dirty = false;
+  } else {
+    dirty = true;
+  }
+}
+
+void DBFile::FlushBuffer() {
   // This page will be added with the new record
-  Page *add_me;
   int prev_write_page_index = current_write_page_index;
 
+  Page *flush_to_page = new Page();
   // Check if any pages have been alloted before
   if (current_write_page_index < 0) {
     // No pages have been alloted before
@@ -171,36 +194,24 @@ void DBFile::Add(Record &rec) {
     // Set read page and read index
     current_read_page_index = current_write_page_index;
     current_read_page_offset = -1;
-
-    Page *new_page = new Page();
-    if (new_page->Append(&rec) == 0) {
-      cerr << "Page Full! Likely an error as we just created a page";
-    }
-    add_me = new_page;
   } else {
     // Pages have been alloted; Check if last page has space
-    Page *fetched_page = new Page();
-    persistent_file->GetPage(fetched_page, current_write_page_index);
-
-    // The fetched page is full
-    // Allocate a new page
-    if (fetched_page->Append(&rec) == 0) {
-      persistent_file->AddPage(fetched_page, current_write_page_index);
-      current_write_page_index++;
-      Page *new_page = new Page();
-      if (new_page->Append(&rec) == 0) {
-        cerr << "Page full! Likely an error as we just created a page";
-      }
-      add_me = new_page;
-    } else {
-      add_me = fetched_page;
-    }
+    persistent_file->GetPage(flush_to_page, current_write_page_index);
   }
 
-  // Add the new or last page in the persistent file
-  persistent_file->AddPage(add_me, current_write_page_index);
+  // Flush buffer to pages till the buffer is empty
+  // The file page size may be smaller than the buffer page size hence
+  // The entire buffer may not fit on the page
+  bool empty_flush_to_page_flag = false;
+  while (FlushBufferToPage(buffer, flush_to_page, empty_flush_to_page_flag) ==
+         0) {
+    persistent_file->AddPage(flush_to_page, current_write_page_index);
+    current_write_page_index++;
+    empty_flush_to_page_flag = true;
+  }
 
-  // If a new page was required
+  persistent_file->AddPage(flush_to_page, current_write_page_index);
+  // If new page(s) was required
   if (prev_write_page_index != current_write_page_index) {
     // Update the metadata for the file
     lseek(metadata_file_descriptor, sizeof(int), SEEK_SET);
@@ -209,20 +220,29 @@ void DBFile::Add(Record &rec) {
 }
 
 int DBFile::GetNext(Record &fetchme) {
+  if (dirty) {
+    FlushBuffer();
+    dirty = false;
+  }
+
   // If records in all pages have been read
-  if (current_read_page_index > current_write_page_index) {
+  if (current_read_page_index < 0 ||
+      current_read_page_index > current_write_page_index) {
     return 0;
   }
 
   // Get the Page current_read_page_index from the file
-  Page *readPage = new Page();
-  persistent_file->GetPage(readPage, current_read_page_index);
+  if (mode == w) {
+    persistent_file->GetPage(buffer, current_read_page_index);
+    mode = r;
+  }
 
   // Increment to get the next record on the page no `current_read_page_index`
   current_read_page_offset++;
   // If there are no more records on the page `current_read_page_index` get next
   // page
-  if (current_read_page_offset >= readPage->GetNumRecords()) {
+  while (current_read_page_offset >= buffer->GetNumRecords() &&
+         current_read_page_index <= current_write_page_index) {
     current_read_page_index++;
     // If there are no more pages remaining in the file
     // All records have been read
@@ -230,14 +250,15 @@ int DBFile::GetNext(Record &fetchme) {
       return 0;
     }
     current_read_page_offset = 0;
-    persistent_file->GetPage(readPage, current_read_page_index);
-  } else {
-    readPage->ReadNext(fetchme, current_read_page_offset);
+    persistent_file->GetPage(buffer, current_read_page_index);
   }
+
+  // Read the next record now from appropriate page
+  buffer->ReadNext(fetchme, current_read_page_offset);
   return 1;
 }
 
-int DBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {}
+int DBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) { return 0; }
 
 char *DBFile::GetMetaDataFileName(const char *file_path) {
   string f_path_str(file_path);
@@ -246,4 +267,19 @@ char *DBFile::GetMetaDataFileName(const char *file_path) {
   string metadata_file_name =
       f_path_str.substr(0, dot_pos) + metadata_file_extension;
   return (char *)metadata_file_name.c_str();
+}
+
+int DBFile::FlushBufferToPage(Page *buffer, Page *flush_to_page,
+                              bool empty_flush_to_page_flag) {
+  if (empty_flush_to_page_flag) {
+    flush_to_page->EmptyItOut();
+  }
+
+  Record to_be_copied;
+  while (buffer->GetFirst(&to_be_copied) != 0) {
+    if (flush_to_page->Append(&to_be_copied) == 0) {
+      return 0;
+    }
+  }
+  return 1;
 }
