@@ -1,6 +1,6 @@
 #CC = clang++ -fsanitize=address -O1 -fno-omit-frame-pointer -g 
 CC = g++ -O2 -Wno-deprecated 
-TEST = g++ -std=c++11 -stdlib=libc++ 
+TEST = g++ -O2 -Wno-deprecated -std=c++11 -stdlib=libc++ 
 
 tag = -i
 
@@ -9,13 +9,13 @@ tag = -n
 endif
 
 gtest_main.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o DBFileTest.o y.tab.o lex.yy.o gtest_main.o 
-	$(TEST) -o gtest_main.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o DBFileTest.o y.tab.o lex.yy.o gtest_main.o -ll -lgtest -lpthread  
+	$(TEST) -o gtest_main.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o DBFileTest.o y.tab.o lex.yy.o gtest_main.o -lfl -lgtest -lpthread  
 
 test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o
-	$(CC) -o test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o -ll
+	$(CC) -o test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o -lfl
 	
 main: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o main.o 
-	$(CC) -o main Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o main.o -ll
+	$(CC) -o main Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o main.o -lfl
 	
 test.o: test.cc
 	$(CC) -g -c test.cc
@@ -43,7 +43,7 @@ Schema.o: Schema.cc
 	
 y.tab.o: Parser.y
 	yacc -d Parser.y
-	sed $(tag)  -e "s/  __attribute__ ((__unused__))$$/# ifndef __cplusplus\n  __attribute__ ((__unused__));\n# endif/" y.tab.c
+	sed $(tag)  y.tab.c -e "s/  __attribute__ ((__unused__))$$/# ifndef __cplusplus\n  __attribute__ ((__unused__));\n# endif/" 
 	g++ -c y.tab.c
 
 lex.yy.o: Lexer.l
