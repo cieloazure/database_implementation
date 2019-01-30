@@ -1,9 +1,9 @@
 #include "Record.h"
 
-#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
 
 Record ::Record() { bits = NULL; }
 
@@ -15,7 +15,6 @@ Record ::~Record() {
 }
 
 int Record ::SuckNextRecord(Schema *mySchema, FILE *textFile) {
-
   // this is temporary storage
   char *space = new (std::nothrow) char[PAGE_SIZE];
   if (space == NULL) {
@@ -30,8 +29,7 @@ int Record ::SuckNextRecord(Schema *mySchema, FILE *textFile) {
   }
 
   // clear out the present record
-  if (bits != NULL)
-    delete[] bits;
+  if (bits != NULL) delete[] bits;
   bits = NULL;
 
   int n = mySchema->GetNumAtts();
@@ -43,7 +41,6 @@ int Record ::SuckNextRecord(Schema *mySchema, FILE *textFile) {
 
   // loop through all of the attributes
   for (int i = 0; i < n; i++) {
-
     // first we suck in the next attribute value
     int len = 0;
     while (1) {
@@ -73,7 +70,6 @@ int Record ::SuckNextRecord(Schema *mySchema, FILE *textFile) {
       currentPosInRec += sizeof(int);
 
     } else if (atts[i].myType == Double) {
-
       // make sure that we are starting at a double-aligned position;
       // if not, then we put some extra space in there
       while (currentPosInRec % sizeof(double) != 0) {
@@ -85,7 +81,6 @@ int Record ::SuckNextRecord(Schema *mySchema, FILE *textFile) {
       currentPosInRec += sizeof(double);
 
     } else if (atts[i].myType == String) {
-
       // align things to the size of an integer if needed
       if (len % sizeof(int) != 0) {
         len += sizeof(int) - (len % sizeof(int));
@@ -122,7 +117,6 @@ void Record ::SetBits(char *bits) {
 char *Record ::GetBits(void) { return bits; }
 
 void Record ::CopyBits(char *bits, int b_len) {
-
   delete[] this->bits;
 
   this->bits = new (std::nothrow) char[b_len];
@@ -303,13 +297,11 @@ void Record ::MergeRecords(Record *left, Record *right, int numAttsLeft,
 }
 
 void Record ::Print(Schema *mySchema) {
-
   int n = mySchema->GetNumAtts();
   Attribute *atts = mySchema->GetAtts();
 
   // loop through all of the attributes
   for (int i = 0; i < n; i++) {
-
     // print the attribute name
     cout << atts[i].name << ": ";
 

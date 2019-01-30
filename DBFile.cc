@@ -11,6 +11,8 @@
 #include "Schema.h"
 #include "TwoWayList.h"
 
+extern struct AndList *final;
+
 DBFile::DBFile() {
   persistent_file = new File();
   buffer = new Page();
@@ -150,6 +152,7 @@ int DBFile::Close() {
     CheckIfFilePresent();
     if (dirty) {
       FlushBuffer();
+      dirty = false;
     }
     // Close the persistent file
     persistent_file->Close();
@@ -276,7 +279,18 @@ int DBFile::GetNext(Record &fetchme) {
   return 1;
 }
 
-int DBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) { return 0; }
+int DBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal,
+                    Schema &mySchema) {
+  while (GetNext(fetchme) != 0) {
+    ComparisonEngine comp;
+    if (comp.Compare(&fetchme, &literal, &cnf)) {
+      return 1;
+    } else {
+      continue;
+    }
+  }
+  return 0;
+}
 
 char *DBFile::GetMetaDataFileName(const char *file_path) {
   string f_path_str(file_path);

@@ -106,6 +106,7 @@ int main() {
 
   */
 
+  /*
   DBFile *heapFile = new DBFile();
   fType f = heap;
   heapFile->Create("test.tbl", heap, NULL);
@@ -148,6 +149,7 @@ int main() {
   delete temp;
   delete temp2;
   heapFile->Close();
+  */
   /*
   DBFile *heapFile = new DBFile();
   Record *temp = new Record();
@@ -170,4 +172,52 @@ int main() {
   heapFile->Close();
   delete temp;
   */
+
+  DBFile *heapFile = new DBFile();
+  fType f = heap;
+  heapFile->Create("test.tbl", heap, NULL);
+
+  FILE *tableFile = fopen(
+      "/Users/akashshingte/Projects/Cpp/DBI - Assignment "
+      "1/data_files/lineitem.tbl",
+      "r");
+
+  Record *temp = new Record();
+  Schema mySchema("catalog", "lineitem");
+  for (int i = 0; i < 50; i++) {
+    temp->SuckNextRecord(&mySchema, tableFile);
+    heapFile->Add(*temp);
+  }
+
+  heapFile->Close();
+  // try to parse the CNF
+  cout << "Enter in your CNF: ";
+  if (yyparse() != 0) {
+    cout << "Can't parse your CNF.\n";
+    exit(1);
+  }
+
+  // suck up the schema from the file
+  Schema lineitem("catalog", "lineitem");
+
+  // grow the CNF expression from the parse tree
+  CNF myComparison;
+  Record literal;
+  myComparison.GrowFromParseTree(final, &lineitem, literal);
+
+  // print out the comparison to the screen
+  myComparison.Print();
+
+  cout << "Get next with  comparision" << endl;
+  heapFile->Open("test.tbl");
+  Record *temp3 = new Record();
+  for (int i = 0; i < 10; i++) {
+    int status = heapFile->GetNext(*temp3, myComparison, literal, mySchema);
+    cout << status << endl;
+    if(status != 0){
+      temp3->Print(&mySchema);
+    }
+  }
+  // temp3->Print(&mySchema);
+  heapFile->Close();
 }

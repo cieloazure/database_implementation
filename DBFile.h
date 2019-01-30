@@ -150,7 +150,7 @@ class DBFile {
   int GetNext(Record &fetchme);
 
   /* To be implemented */
-  int GetNext(Record &fetchme, CNF &cnf, Record &literal);
+  int GetNext(Record &fetchme, CNF &cnf, Record &literal, Schema &mySchema);
 
  private:
   char *GetMetaDataFileName(
