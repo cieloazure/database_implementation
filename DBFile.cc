@@ -69,7 +69,18 @@ int DBFile::Create(const char *f_path, fType f_type, void *startup) {
   }
 }
 
-void DBFile::Load(Schema &f_schema, const char *loadpath) {}
+void DBFile::Load(Schema &f_schema, const char *loadpath) {
+  Record *temp = new Record();
+  FILE *table_file = fopen(loadpath, "r");
+
+  int count = 0;
+  while (temp->SuckNextRecord(&f_schema, table_file) == 1) {
+    count++;
+    Add(*temp);
+  }
+  cout << "Loaded " << count << " records" << endl;
+  cout << "Total pages: " << current_write_page_index << endl;
+}
 
 int DBFile::Open(const char *f_path) {
   try {
