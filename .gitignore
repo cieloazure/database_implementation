@@ -10,3 +10,4 @@ googletest/
 lex.yy.c
 y.tab.c
 *.out
+*.txt

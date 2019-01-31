@@ -29,8 +29,9 @@ class DBFile {
   int current_read_page_offset; /* The record # in the page to be read */
 
   Page *buffer; /* A buffer to manage read/write operations */
-  bool dirty;   /* A flag describing whether the buffer is to be written to disk
-                   or no */
+
+  bool dirty; /* A flag describing whether the buffer is to be written to disk
+                 or no */
 
   modeType mode; /* The mode of the file right now i.e. reading or writing */
 
@@ -93,6 +94,9 @@ class DBFile {
   Arguments: None
 
   Returns : None
+
+  Throws: runtime_error : If an attempt is made to close a file which is not
+  open or created
   */
   int Close();
 
@@ -106,7 +110,10 @@ class DBFile {
 
   Argument: None
 
-  Returns None
+  Returns: None
+
+  Throws: runtime_error : If an attempt is made to move to the first record of a
+  file which is not opened or created
   */
   void MoveFirst();
 
@@ -122,6 +129,9 @@ class DBFile {
     record will be consumed after this operation
 
     Returns: None
+
+    Throws: runtime_error : If an attempt is made to add a record to a file
+    which is not opened or created
    */
   void Add(Record &addme);
 
@@ -139,17 +149,25 @@ class DBFile {
         - Integer: Indicating whether any records are left.
             `1` : records are left
             `0` : no records are left
+
+    Throws: runtime_error : If an attempt is made to get the next record from a
+    file which is not opened or created
    */
   int GetNext(Record &fetchme);
 
   /* To be implemented */
-  int GetNext(Record &fetchme, CNF &cnf, Record &literal);
+  int GetNext(Record &fetchme, CNF &cnf, Record &literal, Schema &mySchema);
 
  private:
-  char *GetMetaDataFileName(const char *file_path);
-  int FlushBufferToPage(Page *buffer, Page *flush_to_page,
-                        bool empty_flush_to_page_flag);
-  void FlushBuffer();
-  void CheckIfFilePresent();
+  char *GetMetaDataFileName(
+      const char *file_path); /* Create a name of the metadata file based on the
+                                 file opened */
+  int FlushBufferToPage(
+      Page *buffer,
+      Page *flush_to_page, /* Move all records from buffer to flush_to_page */
+      bool empty_flush_to_page_flag);
+  void FlushBuffer(); /* Logic to manage the instance variables when a buffer is
+                         flushed */
+  void CheckIfFilePresent(); /* Check if a file is opened */
 };
 #endif

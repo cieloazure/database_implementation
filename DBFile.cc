@@ -11,6 +11,8 @@
 #include "Schema.h"
 #include "TwoWayList.h"
 
+extern struct AndList *final;
+
 DBFile::DBFile() {
   persistent_file = new File();
   buffer = new Page();
@@ -67,7 +69,18 @@ int DBFile::Create(const char *f_path, fType f_type, void *startup) {
   }
 }
 
-void DBFile::Load(Schema &f_schema, const char *loadpath) {}
+void DBFile::Load(Schema &f_schema, const char *loadpath) {
+  Record *temp = new Record();
+  FILE *table_file = fopen(loadpath, "r");
+
+  int count = 0;
+  while (temp->SuckNextRecord(&f_schema, table_file) == 1) {
+    count++;
+    Add(*temp);
+  }
+  cout << "Loaded " << count << " records" << endl;
+  cout << "Total pages: " << current_write_page_index << endl;
+}
 
 int DBFile::Open(const char *f_path) {
   try {
@@ -97,11 +110,23 @@ int DBFile::Open(const char *f_path) {
     // Current Meta Data variables  ->
     read(metadata_file_descriptor, &type, sizeof(fType));
     // It is a heap file
-    if (type == 0) {
-      // Read the current_write_page_index from metadata file and set the
-      // instance variable
-      read(metadata_file_descriptor, &current_write_page_index, sizeof(int));
-      MoveFirst();
+    switch (type) {
+      case heap:
+        // Read the current_write_page_index from metadata file and set the
+        // instance variable
+        read(metadata_file_descriptor, &current_write_page_index, sizeof(int));
+        MoveFirst();
+        break;
+
+      case sorted:
+        break;
+
+      case tree:
+        break;
+
+      default:
+        string err = "File type is invalid";
+        throw runtime_error(err);
     }
 
     // No exception occured
@@ -150,6 +175,7 @@ int DBFile::Close() {
     CheckIfFilePresent();
     if (dirty) {
       FlushBuffer();
+      dirty = false;
     }
     // Close the persistent file
     persistent_file->Close();
@@ -197,7 +223,6 @@ void DBFile::Add(Record &rec) {
 }
 
 void DBFile::FlushBuffer() {
-  // This page will be added with the new record
   int prev_write_page_index = current_write_page_index;
 
   Page *flush_to_page = new Page();
@@ -277,7 +302,18 @@ int DBFile::GetNext(Record &fetchme) {
   return 1;
 }
 
-int DBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) { return 0; }
+int DBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal,
+                    Schema &mySchema) {
+  while (GetNext(fetchme) != 0) {
+    ComparisonEngine comp;
+    if (comp.Compare(&fetchme, &literal, &cnf)) {
+      return 1;
+    } else {
+      continue;
+    }
+  }
+  return 0;
+}
 
 char *DBFile::GetMetaDataFileName(const char *file_path) {
   string f_path_str(file_path);

@@ -62,7 +62,7 @@ TEST(DBFileTest, OpenSuccess) {
   }
 }
 
-TEST(DBFileTest, OpenFailure) {
+TEST(DBFileTest, OpenFailureMissingMetadataFile) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
   if (heapFile->Create("gtest.tbl", t, NULL)) {
@@ -72,4 +72,18 @@ TEST(DBFileTest, OpenFailure) {
   }
 }
 
+TEST(DBFileTest, OpenFailureOnInvalidFileTypeInMetadataFile) {
+  DBFile *heapFile = new DBFile();
+  fType t = heap;
+  if (heapFile->Create("gtest.tbl", t, NULL)) {
+    heapFile->Close();
+    int fd = open("gtest.header", O_RDWR, S_IRUSR | S_IWUSR);
+    lseek(fd, 0, SEEK_SET);
+    int invalid_value = 4;
+    write(fd, &invalid_value, sizeof(fType));
+    ASSERT_FALSE(heapFile->Open("gtest.tbl"));
+  }
+}
+
+TEST(DBFileTest, MoveFirst) {}
 }  // namespace
