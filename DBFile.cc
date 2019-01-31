@@ -110,11 +110,23 @@ int DBFile::Open(const char *f_path) {
     // Current Meta Data variables  ->
     read(metadata_file_descriptor, &type, sizeof(fType));
     // It is a heap file
-    if (type == 0) {
-      // Read the current_write_page_index from metadata file and set the
-      // instance variable
-      read(metadata_file_descriptor, &current_write_page_index, sizeof(int));
-      MoveFirst();
+    switch (type) {
+      case heap:
+        // Read the current_write_page_index from metadata file and set the
+        // instance variable
+        read(metadata_file_descriptor, &current_write_page_index, sizeof(int));
+        MoveFirst();
+        break;
+
+      case sorted:
+        break;
+
+      case tree:
+        break;
+
+      default:
+        string err = "File type is invalid";
+        throw runtime_error(err);
     }
 
     // No exception occured

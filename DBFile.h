@@ -29,12 +29,13 @@ class DBFile {
   int current_read_page_offset; /* The record # in the page to be read */
 
   Page *buffer; /* A buffer to manage read/write operations */
-  bool dirty;   /* A flag describing whether the buffer is to be written to disk
-                   or no */
+
+  bool dirty; /* A flag describing whether the buffer is to be written to disk
+                 or no */
 
   modeType mode; /* The mode of the file right now i.e. reading or writing */
 
-  bool is_open;
+  bool is_open; /* Flag to indicate whether is file is opened or not */
 
  public:
   /*
