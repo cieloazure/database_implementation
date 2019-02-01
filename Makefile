@@ -64,3 +64,6 @@ clean:
 	rm -f y.tab.h
 	rm -f *.header
 	rm -f *.tbl
+	rm -f *.gcda
+	rm -f *.gcov
+	rm -f *.gcno

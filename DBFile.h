@@ -22,11 +22,11 @@ class DBFile {
   int metadata_file_descriptor; /* Metadata file which has information about the
                                    file */
 
-  int current_write_page_index; /* The page to which next record is to be added
-                                   to */
-  int current_read_page_index;  /* The page from which next record is to be
+  off_t current_write_page_index; /* The page to which next record is to be
+                                   added to */
+  off_t current_read_page_index;  /* The page from which next record is to be
                                    read*/
-  int current_read_page_offset; /* The record # in the page to be read */
+  int current_read_page_offset;   /* The record # in the page to be read */
 
   Page *buffer; /* A buffer to manage read/write operations */
 
@@ -169,5 +169,7 @@ class DBFile {
   void FlushBuffer(); /* Logic to manage the instance variables when a buffer is
                          flushed */
   void CheckIfFilePresent(); /* Check if a file is opened */
+  bool CheckIfCorrectFileType(fType type);
+  bool CheckIfFileNameIsValid(const char *file_name);
 };
 #endif
