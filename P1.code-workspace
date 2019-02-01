@@ -7,7 +7,8 @@
 	"settings": {
 		"files.associations": {
 			"string": "cpp",
-			"fstream": "cpp"
+			"fstream": "cpp",
+			"stdexcept": "cpp"
 		},
 		"editor.formatOnSave": true
 	}
