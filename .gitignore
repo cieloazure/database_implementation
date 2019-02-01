@@ -1,0 +1,12 @@
+
+*.o
+*.out
+y.tab.c
+lex.yy.c
+y.tab.h
+*.header
+*.tbl
+*.gcda
+*.gcov
+*.gcno
+*.bin
