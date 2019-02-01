@@ -13,13 +13,12 @@
 
 extern struct AndList *final;
 
-DBFile::DBFile() {}
+DBFile::DBFile() { Instantiate(); }
 
 DBFile::~DBFile() { delete persistent_file; }
 
 int DBFile::Create(const char *f_path, fType f_type, void *startup) {
   try {
-    Instantiate();
     // Set the type of file
     type = f_type;
     CheckIfCorrectFileType(type);
@@ -70,7 +69,6 @@ int DBFile::Create(const char *f_path, fType f_type, void *startup) {
 
 int DBFile::Open(const char *f_path) {
   try {
-    Instantiate();
     // Set the file_path for persistent file
     file_path = f_path;
     CheckIfFileNameIsValid(f_path);
@@ -218,12 +216,12 @@ void DBFile::Add(Record &rec) {
 
   // If The buffer is full: Flush the buffer to persistent storage
   // Else: just append to the buffer and set dirty variable
-  cout << buffer->GetNumRecords() << endl;
+  // cout << buffer->GetNumRecords() << endl;
   dirty = true;
   if (buffer->Append(&rec) == 0) {
     FlushBuffer();
     buffer->Append(&rec);
-  } 
+  }
 }
 
 void DBFile::FlushBuffer() {
@@ -251,15 +249,16 @@ void DBFile::FlushBuffer() {
   while (FlushBufferToPage(buffer, flush_to_page, empty_flush_to_page_flag) ==
          0) {
     persistent_file->AddPage(flush_to_page, current_write_page_index);
-    cout << "--------- Number of records in " << current_write_page_index
-         << "  " << flush_to_page->GetNumRecords() << endl;
+    // cout << "--------- Number of records in " << current_write_page_index
+    //  << "  " << flush_to_page->GetNumRecords() << endl;
     current_write_page_index++;
     empty_flush_to_page_flag = true;
   }
 
   persistent_file->AddPage(flush_to_page, current_write_page_index);
-  cout << "--------- Number of records in " << current_write_page_index << "  "
-       << flush_to_page->GetNumRecords() << endl;
+  // cout << "--------- Number of records in " << current_write_page_index << "
+  // "
+  //  << flush_to_page->GetNumRecords() << endl;
   // If new page(s) was required
   if (prev_write_page_index != current_write_page_index) {
     // Update the metadata for the file
