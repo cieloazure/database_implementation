@@ -358,9 +358,16 @@ void DBFile::CheckIfFilePresent() {
 bool DBFile::CheckIfCorrectFileType(fType type) {
   switch (type) {
     case heap:
-    case sorted:
-    case tree:
       return true;
+      break;
+    case sorted:
+      cout << "Sorted Files: Not implemented yet! Coming soon " << endl;
+      exit(0);
+      break;
+    case tree:
+      cout << "Tree Files: Not implemented yet! Coming soon " << endl;
+      exit(0);
+      break;
     default:
       throw runtime_error("File type is incorrect or not supported");
   }
