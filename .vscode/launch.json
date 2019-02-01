@@ -8,7 +8,7 @@
             "name": "(lldb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/gtest_main.out",
+            "program": "${workspaceFolder}/test.out",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

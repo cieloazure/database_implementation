@@ -12,7 +12,7 @@
 #include "TwoWayList.h"
 
 typedef enum { heap, sorted, tree } fType;
-typedef enum { r, w } modeType;
+typedef enum { reading, writing, idle } modeType;
 
 class DBFile {
  private:
@@ -36,6 +36,8 @@ class DBFile {
   modeType mode; /* The mode of the file right now i.e. reading or writing */
 
   bool is_open; /* A Flag variable to indicate whether a file is open or not */
+
+  int count;
 
  public:
   /*
@@ -156,7 +158,7 @@ class DBFile {
   int GetNext(Record &fetchme);
 
   /* To be implemented */
-  int GetNext(Record &fetchme, CNF &cnf, Record &literal, Schema &mySchema);
+  int GetNext(Record &fetchme, CNF &cnf, Record &literal);
 
  private:
   char *GetMetaDataFileName(
@@ -171,5 +173,6 @@ class DBFile {
   void CheckIfFilePresent(); /* Check if a file is opened */
   bool CheckIfCorrectFileType(fType type);
   bool CheckIfFileNameIsValid(const char *file_name);
+  void Instantiate();
 };
 #endif
