@@ -26,9 +26,11 @@ int DBFile::Create(const char *f_path, fType f_type, void *startup) {
   try {
     // Set the type of file
     type = f_type;
+    CheckIfCorrectFileType(type);
 
     // Set file_path for persistent file
     file_path = f_path;
+    CheckIfFileNameIsValid(f_path);
 
     // Open persistent file
     persistent_file->Open(0, (char *)file_path);
@@ -56,7 +58,7 @@ int DBFile::Create(const char *f_path, fType f_type, void *startup) {
     // Write current_page_index to meta data file
     lseek(metadata_file_descriptor, 0, SEEK_SET);
     write(metadata_file_descriptor, &type, sizeof(fType));
-    write(metadata_file_descriptor, &current_write_page_index, sizeof(int));
+    write(metadata_file_descriptor, &current_write_page_index, sizeof(off_t));
 
     // No exception occured
     is_open = true;
@@ -86,6 +88,7 @@ int DBFile::Open(const char *f_path) {
   try {
     // Set the file_path for persistent file
     file_path = f_path;
+    CheckIfFileNameIsValid(f_path);
 
     // Open persistent file
     persistent_file->Open(1, (char *)file_path);
@@ -109,12 +112,14 @@ int DBFile::Open(const char *f_path) {
     // Initialize variables from meta data file
     // Current Meta Data variables  ->
     read(metadata_file_descriptor, &type, sizeof(fType));
+    CheckIfCorrectFileType(type);
     // It is a heap file
     switch (type) {
       case heap:
         // Read the current_write_page_index from metadata file and set the
         // instance variable
-        read(metadata_file_descriptor, &current_write_page_index, sizeof(int));
+        read(metadata_file_descriptor, &current_write_page_index,
+             sizeof(off_t));
         MoveFirst();
         break;
 
@@ -163,7 +168,7 @@ void DBFile::MoveFirst() {
       current_read_page_index = -1;
       current_read_page_offset = -1;
       lseek(metadata_file_descriptor, sizeof(int), SEEK_SET);
-      write(metadata_file_descriptor, &current_write_page_index, sizeof(int));
+      write(metadata_file_descriptor, &current_write_page_index, sizeof(off_t));
     } else {
       current_read_page_offset = -1;
     }
@@ -256,7 +261,7 @@ void DBFile::FlushBuffer() {
   if (prev_write_page_index != current_write_page_index) {
     // Update the metadata for the file
     lseek(metadata_file_descriptor, sizeof(int), SEEK_SET);
-    write(metadata_file_descriptor, &current_write_page_index, sizeof(int));
+    write(metadata_file_descriptor, &current_write_page_index, sizeof(off_t));
   }
 }
 
@@ -345,5 +350,25 @@ void DBFile::CheckIfFilePresent() {
     throw runtime_error(
         "File destination is not open or created, Please create a file or open "
         "an existing one");
+  }
+}
+
+bool DBFile::CheckIfCorrectFileType(fType type) {
+  switch (type) {
+    case heap:
+    case sorted:
+    case tree:
+      return true;
+    default:
+      throw runtime_error("File type is incorrect or not supported");
+  }
+}
+
+bool DBFile::CheckIfFileNameIsValid(const char *file_name) {
+  // TODO: check for file extension?
+  if (file_name == NULL || *file_name == '\0') {
+    throw runtime_error("File name is invalid");
+  } else {
+    return true;
   }
 }

@@ -226,9 +226,7 @@ int main() {
   fType f = heap;
   heapFile->Create("test.tbl", heap, NULL);
 
-  const char *loadpath =
-      "/Users/akashshingte/Projects/Cpp/DBI - Assignment "
-      "1/data_files/lineitem.tbl";
+  const char *loadpath = "data_files/lineitem.tbl";
 
   Schema mySchema("catalog", "lineitem");
   heapFile->Load(mySchema, loadpath);

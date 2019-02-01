@@ -1,6 +1,6 @@
 #CC = clang++ -fsanitize=address -O1 -fno-omit-frame-pointer -g 
-CC = g++ -O2 -Wno-deprecated 
-TEST = g++ -std=c++11 -stdlib=libc++ 
+CC = g++ -O2 -Wno-deprecated -fprofile-arcs -ftest-coverage 
+TEST = g++ -std=c++11 -stdlib=libc++ -fprofile-arcs -ftest-coverage 
 
 tag = -i
 
@@ -64,3 +64,6 @@ clean:
 	rm -f y.tab.h
 	rm -f *.header
 	rm -f *.tbl
+	rm -f *.gcda
+	rm -f *.gcov
+	rm -f *.gcno
