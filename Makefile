@@ -1,6 +1,6 @@
 #CC = clang++ -fsanitize=address -O1 -fno-omit-frame-pointer -g 
-CC = g++ -O2 -Wno-deprecated 
-TEST = g++ -O2 -Wno-deprecated -std=c++11 -stdlib=libc++ 
+CC = g++ -O2 -Wno-deprecated -fprofile-arcs -ftest-coverage 
+TEST = g++ -std=c++11 -stdlib=libc++ -fprofile-arcs -ftest-coverage 
 
 tag = -i
 
@@ -43,7 +43,7 @@ Schema.o: Schema.cc
 	
 y.tab.o: Parser.y
 	yacc -d Parser.y
-	sed $(tag)  -e "s/  __attribute__ ((__unused__))$$/# ifndef __cplusplus\n  __attribute__ ((__unused__));\n# endif/" y.tab.c 
+	sed $(tag)  -e "s/  __attribute__ ((__unused__))$$/# ifndef __cplusplus\n  __attribute__ ((__unused__));\n# endif/" y.tab.c
 	g++ -c y.tab.c
 
 lex.yy.o: Lexer.l
@@ -64,3 +64,6 @@ clean:
 	rm -f y.tab.h
 	rm -f *.header
 	rm -f *.tbl
+	rm -f *.gcda
+	rm -f *.gcov
+	rm -f *.gcno

@@ -1,13 +1,13 @@
 #include "test.h"
-#include "DBFile.h"
 #include <iostream>
+#include "DBFile.h"
 
 // make sure that the file path/dir information below is correct
-const char *dbfile_dir = ""; // dir where binary heap files should be stored
-const char *tpch_dir =
-    "/cise/tmp/dbi_sp11/DATA/10M/";   // dir where dbgen tpch files (extension
-                                      // *.tbl) can be found
-const char *catalog_path = "catalog"; // full path of the catalog file
+const char *dbfile_dir = "";  // dir where binary heap files should be stored
+const char *tpch_dir = "data_files/";
+// "/cise/tmp/dbi_sp11/DATA/10M/";   // dir where dbgen tpch files (extension
+// *.tbl) can be found
+const char *catalog_path = "catalog";  // full path of the catalog file
 
 using namespace std;
 
@@ -15,12 +15,11 @@ relation *rel;
 
 // load from a tpch file
 void test1() {
-
   DBFile dbfile;
   cout << " DBFile will be created at " << rel->path() << endl;
   dbfile.Create(rel->path(), heap, NULL);
 
-  char tbl_path[100]; // construct path of the tpch flat text file
+  char tbl_path[100];  // construct path of the tpch flat text file
   sprintf(tbl_path, "%s%s.tbl", tpch_dir, rel->name());
   cout << " tpch file will be loaded from " << tbl_path << endl;
 
@@ -30,7 +29,6 @@ void test1() {
 
 // sequential scan of a DBfile
 void test2() {
-
   DBFile dbfile;
   dbfile.Open(rel->path());
   dbfile.MoveFirst();
@@ -40,7 +38,7 @@ void test2() {
   int counter = 0;
   while (dbfile.GetNext(temp) == 1) {
     counter += 1;
-    temp.Print(rel->schema());
+    // temp.Print(rel->schema());
     if (counter % 10000 == 0) {
       cout << counter << "\n";
     }
@@ -51,7 +49,6 @@ void test2() {
 
 // scan of a DBfile and apply a filter predicate
 void test3() {
-
   cout << " Filter with CNF for : " << rel->name() << "\n";
 
   CNF cnf;
@@ -77,7 +74,6 @@ void test3() {
 }
 
 int main() {
-
   setup(catalog_path, dbfile_dir, tpch_dir);
 
   void (*test)();

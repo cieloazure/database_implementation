@@ -13,22 +13,20 @@
 
 extern struct AndList *final;
 
-DBFile::DBFile() {
-  persistent_file = new File();
-  buffer = new Page();
-  dirty = false;
-  is_open = false;
-}
+DBFile::DBFile() {}
 
 DBFile::~DBFile() { delete persistent_file; }
 
 int DBFile::Create(const char *f_path, fType f_type, void *startup) {
   try {
+    Instantiate();
     // Set the type of file
     type = f_type;
+    CheckIfCorrectFileType(type);
 
     // Set file_path for persistent file
     file_path = f_path;
+    CheckIfFileNameIsValid(f_path);
 
     // Open persistent file
     persistent_file->Open(0, (char *)file_path);
@@ -40,9 +38,9 @@ int DBFile::Create(const char *f_path, fType f_type, void *startup) {
     current_read_page_offset = -1;
 
     // Open metadata file
-    int mode = O_TRUNC | O_RDWR | O_CREAT;
+    int file_mode = O_TRUNC | O_RDWR | O_CREAT;
     metadata_file_descriptor =
-        open(GetMetaDataFileName(file_path), mode, S_IRUSR | S_IWUSR);
+        open(GetMetaDataFileName(file_path), file_mode, S_IRUSR | S_IWUSR);
 
     // Check if the metadata file has opened
     if (metadata_file_descriptor < 0) {
@@ -56,10 +54,11 @@ int DBFile::Create(const char *f_path, fType f_type, void *startup) {
     // Write current_page_index to meta data file
     lseek(metadata_file_descriptor, 0, SEEK_SET);
     write(metadata_file_descriptor, &type, sizeof(fType));
-    write(metadata_file_descriptor, &current_write_page_index, sizeof(int));
+    write(metadata_file_descriptor, &current_write_page_index, sizeof(off_t));
 
     // No exception occured
     is_open = true;
+    mode = idle;
     return 1;
   } catch (runtime_error &e) {
     cerr << e.what() << endl;
@@ -69,31 +68,20 @@ int DBFile::Create(const char *f_path, fType f_type, void *startup) {
   }
 }
 
-void DBFile::Load(Schema &f_schema, const char *loadpath) {
-  Record *temp = new Record();
-  FILE *table_file = fopen(loadpath, "r");
-
-  int count = 0;
-  while (temp->SuckNextRecord(&f_schema, table_file) == 1) {
-    count++;
-    Add(*temp);
-  }
-  cout << "Loaded " << count << " records" << endl;
-  cout << "Total pages: " << current_write_page_index << endl;
-}
-
 int DBFile::Open(const char *f_path) {
   try {
+    Instantiate();
     // Set the file_path for persistent file
     file_path = f_path;
+    CheckIfFileNameIsValid(f_path);
 
     // Open persistent file
     persistent_file->Open(1, (char *)file_path);
 
     // Open metadata file
-    int mode = O_RDWR;
+    int file_mode = O_RDWR;
     metadata_file_descriptor =
-        open(GetMetaDataFileName(file_path), mode, S_IRUSR | S_IWUSR);
+        open(GetMetaDataFileName(file_path), file_mode, S_IRUSR | S_IWUSR);
 
     // Check if the metadata file exists
     if (metadata_file_descriptor < 0) {
@@ -109,12 +97,15 @@ int DBFile::Open(const char *f_path) {
     // Initialize variables from meta data file
     // Current Meta Data variables  ->
     read(metadata_file_descriptor, &type, sizeof(fType));
+    CheckIfCorrectFileType(type);
+    is_open = true;
     // It is a heap file
     switch (type) {
       case heap:
         // Read the current_write_page_index from metadata file and set the
         // instance variable
-        read(metadata_file_descriptor, &current_write_page_index, sizeof(int));
+        read(metadata_file_descriptor, &current_write_page_index,
+             sizeof(off_t));
         MoveFirst();
         break;
 
@@ -128,9 +119,7 @@ int DBFile::Open(const char *f_path) {
         string err = "File type is invalid";
         throw runtime_error(err);
     }
-
     // No exception occured
-    is_open = true;
     return 1;
   } catch (runtime_error &e) {
     cerr << e.what() << endl;
@@ -162,8 +151,8 @@ void DBFile::MoveFirst() {
       current_write_page_index = -1;
       current_read_page_index = -1;
       current_read_page_offset = -1;
-      lseek(metadata_file_descriptor, sizeof(int), SEEK_SET);
-      write(metadata_file_descriptor, &current_write_page_index, sizeof(int));
+      lseek(metadata_file_descriptor, sizeof(fType), SEEK_SET);
+      write(metadata_file_descriptor, &current_write_page_index, sizeof(off_t));
     } else {
       current_read_page_offset = -1;
     }
@@ -204,22 +193,37 @@ int DBFile::Close() {
   }
 }
 
+void DBFile::Load(Schema &f_schema, const char *loadpath) {
+  Record *temp = new Record();
+  FILE *table_file = fopen(loadpath, "r");
+
+  count = 0;
+  while (temp->SuckNextRecord(&f_schema, table_file) == 1) {
+    if (temp != NULL) {
+      count++;
+      Add(*temp);
+    }
+  }
+  FlushBuffer();
+  cout << "Loaded " << count << " records" << endl;
+}
+
 void DBFile::Add(Record &rec) {
   CheckIfFilePresent();
   // If it is not dirty empty out all the records read
   if (!dirty) {
     buffer->EmptyItOut();
-    mode = w;
+    mode = writing;
   }
 
   // If The buffer is full: Flush the buffer to persistent storage
   // Else: just append to the buffer and set dirty variable
+  cout << buffer->GetNumRecords() << endl;
+  dirty = true;
   if (buffer->Append(&rec) == 0) {
     FlushBuffer();
-    dirty = false;
-  } else {
-    dirty = true;
-  }
+    buffer->Append(&rec);
+  } 
 }
 
 void DBFile::FlushBuffer() {
@@ -247,17 +251,38 @@ void DBFile::FlushBuffer() {
   while (FlushBufferToPage(buffer, flush_to_page, empty_flush_to_page_flag) ==
          0) {
     persistent_file->AddPage(flush_to_page, current_write_page_index);
+    cout << "--------- Number of records in " << current_write_page_index
+         << "  " << flush_to_page->GetNumRecords() << endl;
     current_write_page_index++;
     empty_flush_to_page_flag = true;
   }
 
   persistent_file->AddPage(flush_to_page, current_write_page_index);
+  cout << "--------- Number of records in " << current_write_page_index << "  "
+       << flush_to_page->GetNumRecords() << endl;
   // If new page(s) was required
   if (prev_write_page_index != current_write_page_index) {
     // Update the metadata for the file
-    lseek(metadata_file_descriptor, sizeof(int), SEEK_SET);
-    write(metadata_file_descriptor, &current_write_page_index, sizeof(int));
+    lseek(metadata_file_descriptor, sizeof(fType), SEEK_SET);
+    write(metadata_file_descriptor, &current_write_page_index, sizeof(off_t));
   }
+}
+
+int DBFile::FlushBufferToPage(Page *buffer, Page *flush_to_page,
+                              bool empty_flush_to_page_flag) {
+  // Is it a new page and hence previous flush has already been written to file
+  if (empty_flush_to_page_flag) {
+    flush_to_page->EmptyItOut();
+  }
+
+  Record to_be_copied;
+  while (buffer->GetFirst(&to_be_copied) != 0) {
+    if (flush_to_page->Append(&to_be_copied) == 0) {
+      buffer->Append(&to_be_copied);
+      return 0;
+    }
+  }
+  return 1;
 }
 
 int DBFile::GetNext(Record &fetchme) {
@@ -276,9 +301,9 @@ int DBFile::GetNext(Record &fetchme) {
   }
 
   // Get the Page current_read_page_index from the file
-  if (mode == w) {
+  if (mode == writing || mode == idle) {
     persistent_file->GetPage(buffer, current_read_page_index);
-    mode = r;
+    mode = reading;
   }
 
   // Increment to get the next record on the page no `current_read_page_index`
@@ -302,8 +327,7 @@ int DBFile::GetNext(Record &fetchme) {
   return 1;
 }
 
-int DBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal,
-                    Schema &mySchema) {
+int DBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
   while (GetNext(fetchme) != 0) {
     ComparisonEngine comp;
     if (comp.Compare(&fetchme, &literal, &cnf)) {
@@ -324,26 +348,38 @@ char *DBFile::GetMetaDataFileName(const char *file_path) {
   return (char *)metadata_file_name.c_str();
 }
 
-int DBFile::FlushBufferToPage(Page *buffer, Page *flush_to_page,
-                              bool empty_flush_to_page_flag) {
-  // Is it a new page and hence previous flush has already been written to file
-  if (empty_flush_to_page_flag) {
-    flush_to_page->EmptyItOut();
-  }
-
-  Record to_be_copied;
-  while (buffer->GetFirst(&to_be_copied) != 0) {
-    if (flush_to_page->Append(&to_be_copied) == 0) {
-      return 0;
-    }
-  }
-  return 1;
-}
-
 void DBFile::CheckIfFilePresent() {
   if (!is_open) {
     throw runtime_error(
         "File destination is not open or created, Please create a file or open "
         "an existing one");
   }
+}
+
+bool DBFile::CheckIfCorrectFileType(fType type) {
+  switch (type) {
+    case heap:
+    case sorted:
+    case tree:
+      return true;
+    default:
+      throw runtime_error("File type is incorrect or not supported");
+  }
+}
+
+bool DBFile::CheckIfFileNameIsValid(const char *file_name) {
+  // TODO: check for file extension?
+  if (file_name == NULL || *file_name == '\0') {
+    throw runtime_error("File name is invalid");
+  } else {
+    return true;
+  }
+}
+
+void DBFile::Instantiate() {
+  persistent_file = new File();
+  buffer = new Page();
+  dirty = false;
+  is_open = false;
+  mode = idle;
 }

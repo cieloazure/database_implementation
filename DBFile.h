@@ -12,7 +12,7 @@
 #include "TwoWayList.h"
 
 typedef enum { heap, sorted, tree } fType;
-typedef enum { r, w } modeType;
+typedef enum { reading, writing, idle } modeType;
 
 class DBFile {
  private:
@@ -22,11 +22,11 @@ class DBFile {
   int metadata_file_descriptor; /* Metadata file which has information about the
                                    file */
 
-  int current_write_page_index; /* The page to which next record is to be added
-                                   to */
-  int current_read_page_index;  /* The page from which next record is to be
+  off_t current_write_page_index; /* The page to which next record is to be
+                                   added to */
+  off_t current_read_page_index;  /* The page from which next record is to be
                                    read*/
-  int current_read_page_offset; /* The record # in the page to be read */
+  int current_read_page_offset;   /* The record # in the page to be read */
 
   Page *buffer; /* A buffer to manage read/write operations */
 
@@ -36,6 +36,8 @@ class DBFile {
   modeType mode; /* The mode of the file right now i.e. reading or writing */
 
   bool is_open; /* A Flag variable to indicate whether a file is open or not */
+
+  int count;
 
  public:
   /*
@@ -156,7 +158,7 @@ class DBFile {
   int GetNext(Record &fetchme);
 
   /* To be implemented */
-  int GetNext(Record &fetchme, CNF &cnf, Record &literal, Schema &mySchema);
+  int GetNext(Record &fetchme, CNF &cnf, Record &literal);
 
  private:
   char *GetMetaDataFileName(
@@ -169,5 +171,8 @@ class DBFile {
   void FlushBuffer(); /* Logic to manage the instance variables when a buffer is
                          flushed */
   void CheckIfFilePresent(); /* Check if a file is opened */
+  bool CheckIfCorrectFileType(fType type);
+  bool CheckIfFileNameIsValid(const char *file_name);
+  void Instantiate();
 };
 #endif
