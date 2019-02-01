@@ -212,12 +212,12 @@ void DBFile::Add(Record &rec) {
   if (!dirty) {
     buffer->EmptyItOut();
     mode = writing;
+    dirty = true;
   }
 
   // If The buffer is full: Flush the buffer to persistent storage
   // Else: just append to the buffer and set dirty variable
   // cout << buffer->GetNumRecords() << endl;
-  dirty = true;
   if (buffer->Append(&rec) == 0) {
     FlushBuffer();
     buffer->Append(&rec);
