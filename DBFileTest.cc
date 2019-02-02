@@ -276,6 +276,7 @@ TEST_F(DBFileTest, LoadSuccess) {
     }
 
     ASSERT_EQ(expected_count, actual_count);
+    heapFile->Close();
   }
 }
 
@@ -295,6 +296,7 @@ TEST_F(DBFileTest, AddWhenItJustAddsToBufferWithoutCreatingANewPage) {
     }
 
     ASSERT_EQ(1, actual_count);
+    heapFile->Close();
   }
 }
 TEST_F(DBFileTest, AddWhenFirstFlushTakesPlace) {
@@ -329,6 +331,7 @@ TEST_F(DBFileTest, AddWhenFirstFlushTakesPlace) {
     int actual_pages = 2;
     // Expecting an additional empty page
     ASSERT_EQ(actual_pages + 1, heapFile->GetNumPagesInFile());
+    heapFile->Close();
   }
 }
 TEST_F(DBFileTest, AddWhenSubsequentFlushesTakesPlace) {
@@ -373,6 +376,7 @@ TEST_F(DBFileTest, AddWhenSubsequentFlushesTakesPlace) {
     int actual_pages = 3;
     // Expecting an additional empty page
     ASSERT_EQ(actual_pages + 1, heapFile->GetNumPagesInFile());
+    heapFile->Close();
   }
 }
 
@@ -412,6 +416,7 @@ TEST_F(DBFileTest, AddWhenAnExistingPartiallyFilledPageIsUtilized) {
     int actual_pages = 1;
     // Expecting an additional empty page
     ASSERT_EQ(actual_pages + 1, heapFile->GetNumPagesInFile());
+    heapFile->Close();
   }
 }
 
