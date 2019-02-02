@@ -80,8 +80,11 @@ int Page ::Append(Record *addMe) {
   return 1;
 }
 
-bool Page::IsPageFull() {
-  if (curSizeInBytes == PAGE_SIZE) {
+bool Page::IsPageFull(Record *to_be_added) {
+  char *b = to_be_added->GetBits();
+
+  // first see if we can fit the record
+  if (curSizeInBytes + ((int *)b)[0] > PAGE_SIZE) {
     return true;
   } else {
     return false;

@@ -50,8 +50,11 @@ class Page {
   // Get number of records
   int GetNumRecords();
 
-  // Check the status of the page
-  bool IsPageFull();
+  // Test utility function
+  // Find appropriate visiblity or change definition
+  // Check the status of the page whether it will be full on addition of a new
+  // record
+  bool IsPageFull(Record *to_be_added);
 };
 
 class File {

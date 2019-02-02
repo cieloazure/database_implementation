@@ -397,4 +397,8 @@ void DBFile::Instantiate() {
 
 int DBFile::GetNumRecsInBuffer() { return buffer->GetNumRecords(); }
 
-bool DBFile::IsBufferFull() { return buffer->IsPageFull(); }
+bool DBFile::WillBufferBeFull(Record &to_be_added) {
+  return buffer->IsPageFull(&to_be_added);
+}
+
+off_t DBFile::GetNumPagesInFile() { return persistent_file->GetLength(); }

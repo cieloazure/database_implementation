@@ -305,15 +305,19 @@ TEST_F(DBFileTest, AddWhenFirstFlushTakesPlace) {
     FILE *f = fopen(tpch_dir, "r");
     Record temp;
 
-    /* BAD:  Don't hard code values like this */
-    /* Need to figure out an interface to check the status of the buffer */
-    /* Need to figure out what the visiblity of the status of the buffer be */
-    int NUM_OF_LINEITEM_RECS_REQUIRING_MULTIPLE_PAGES = 700;
-    while (temp.SuckNextRecord(&mySchema, f) && !heapFile->IsBufferFull()) {
-      heapFile->Add(temp);
+    int expected_count = 0;
+    while (temp.SuckNextRecord(&mySchema, f)) {
+      if (heapFile->WillBufferBeFull(temp)) {
+        break;
+      } else {
+        expected_count++;
+        heapFile->Add(temp);
+      }
     }
 
-    cout << "Buffer is full now! Adding another record to flush the buffer";
+    cout << expected_count << endl;
+    cout << "Buffer is full now! Adding another record to flush the buffer"
+         << endl;
     heapFile->Add(temp);
 
     int actual_count = 0;
@@ -321,10 +325,53 @@ TEST_F(DBFileTest, AddWhenFirstFlushTakesPlace) {
       actual_count++;
     }
 
-    ASSERT_EQ(1, actual_count);
+    ASSERT_EQ(expected_count + 1, actual_count);
+    int actual_pages = 2;
+    // Expecting an additional empty page
+    ASSERT_EQ(actual_pages + 1, heapFile->GetNumPagesInFile());
   }
 }
-TEST_F(DBFileTest, AddWhenSubsequentFlushesTakesPlace) {}
+TEST_F(DBFileTest, AddWhenSubsequentFlushesTakesPlace) {
+  DBFile *heapFile = new DBFile();
+  if (heapFile->Create("gtest.bin", heap, NULL)) {
+    Schema mySchema("catalog", "lineitem");
+    const char *tpch_dir = "data_files/lineitem.tbl";
+    FILE *f = fopen(tpch_dir, "r");
+    Record temp;
+
+    int expected_count = 0;
+    int flush_count = 0;
+    while (temp.SuckNextRecord(&mySchema, f)) {
+      if (heapFile->WillBufferBeFull(temp)) {
+        flush_count++;
+        if (flush_count == 2) {
+          break;
+        } else {
+          expected_count++;
+          heapFile->Add(temp);
+        }
+      } else {
+        expected_count++;
+        heapFile->Add(temp);
+      }
+    }
+
+    cout << expected_count << endl;
+    cout << "Buffer is full now! Adding another record to flush the buffer"
+         << endl;
+    heapFile->Add(temp);
+
+    int actual_count = 0;
+    while (heapFile->GetNext(temp)) {
+      actual_count++;
+    }
+
+    EXPECT_EQ(expected_count + 1, actual_count);
+    int actual_pages = 3;
+    // Expecting an additional empty page
+    ASSERT_EQ(actual_pages + 1, heapFile->GetNumPagesInFile());
+  }
+}
 TEST_F(DBFileTest, AddWhenANewPageIsCreated) {}
 TEST_F(DBFileTest, AddWhenAnExistingPartiallyFilledPageIsUtilized) {}
 

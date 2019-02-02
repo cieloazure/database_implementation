@@ -15,6 +15,8 @@ typedef enum { heap, sorted, tree } fType;
 typedef enum { reading, writing, idle } modeType;
 
 class DBFile {
+  friend class DBFileTest;
+
  private:
   const char *file_path; /* The destination of the file */
   fType type;            /* Type of file (enum) */
@@ -184,10 +186,12 @@ class DBFile {
   */
   int GetNext(Record &fetchme, CNF &cnf, Record &literal);
 
+  /* TODO */
   /* Test Utility methods */
   /* Need appropriate visiblity */
   int GetNumRecsInBuffer();
-  bool IsBufferFull();
+  bool WillBufferBeFull(Record &to_be_added);
+  off_t GetNumPagesInFile();
 
  private:
   char *GetMetaDataFileName(
