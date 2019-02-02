@@ -1,7 +1,7 @@
 #include "DBFile.h"
 #include "gtest/gtest.h"
 
-namespace foo {
+namespace dbi {
 
 // The fixture for testing class Foo.
 class DBFileTest : public ::testing::Test {
@@ -415,4 +415,4 @@ TEST_F(DBFileTest, AddWhenAnExistingPartiallyFilledPageIsUtilized) {
   }
 }
 
-}  // namespace foo
+}  // namespace dbi
