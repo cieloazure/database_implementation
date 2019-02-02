@@ -17,8 +17,10 @@ DBFile::DBFile() { Instantiate(); }
 
 DBFile::~DBFile() { delete persistent_file; }
 
-int DBFile::Create(const char *f_path, fType f_type, void *startup) {
-  try {
+int DBFile::Create(const char *f_path, fType f_type, void *startup)
+{
+  try
+  {
     // Set the type of file
     type = f_type;
     CheckIfCorrectFileType(type);
@@ -42,7 +44,8 @@ int DBFile::Create(const char *f_path, fType f_type, void *startup) {
         open(GetMetaDataFileName(file_path), file_mode, S_IRUSR | S_IWUSR);
 
     // Check if the metadata file has opened
-    if (metadata_file_descriptor < 0) {
+    if (metadata_file_descriptor < 0)
+    {
       string err("Error creating metadata file for ");
       err += file_path;
       err += " does not exist\n";
@@ -59,16 +62,22 @@ int DBFile::Create(const char *f_path, fType f_type, void *startup) {
     is_open = true;
     mode = idle;
     return 1;
-  } catch (runtime_error &e) {
+  }
+  catch (runtime_error &e)
+  {
     cerr << e.what() << endl;
     return 0;
-  } catch (...) {
+  }
+  catch (...)
+  {
     return 0;
   }
 }
 
-int DBFile::Open(const char *f_path) {
-  try {
+int DBFile::Open(const char *f_path)
+{
+  try
+  {
     // Set the file_path for persistent file
     file_path = f_path;
     CheckIfFileNameIsValid(f_path);
@@ -82,7 +91,8 @@ int DBFile::Open(const char *f_path) {
         open(GetMetaDataFileName(file_path), file_mode, S_IRUSR | S_IWUSR);
 
     // Check if the metadata file exists
-    if (metadata_file_descriptor < 0) {
+    if (metadata_file_descriptor < 0)
+    {
       string err("Metadata file for ");
       err += file_path;
       err += " does not exist\n";
@@ -98,39 +108,47 @@ int DBFile::Open(const char *f_path) {
     CheckIfCorrectFileType(type);
     is_open = true;
     // It is a heap file
-    switch (type) {
-      case heap:
-        // Read the current_write_page_index from metadata file and set the
-        // instance variable
-        read(metadata_file_descriptor, &current_write_page_index,
-             sizeof(off_t));
-        MoveFirst();
-        break;
+    switch (type)
+    {
+    case heap:
+      // Read the current_write_page_index from metadata file and set the
+      // instance variable
+      read(metadata_file_descriptor, &current_write_page_index,
+           sizeof(off_t));
+      MoveFirst();
+      break;
 
-      case sorted:
-        break;
+    case sorted:
+      break;
 
-      case tree:
-        break;
+    case tree:
+      break;
     }
     // No exception occured
     return 1;
-  } catch (runtime_error &e) {
+  }
+  catch (runtime_error &e)
+  {
     cerr << e.what() << endl;
     return 0;
-  } catch (...) {
+  }
+  catch (...)
+  {
     return 0;
   }
 }
 
-void DBFile::MoveFirst() {
+void DBFile::MoveFirst()
+{
   CheckIfFilePresent();
-  if (current_write_page_index >= 0) {
+  if (current_write_page_index >= 0)
+  {
     // Set current_read_page_index
     current_read_page_index = -1;
     int num_records = 0;
     while (num_records <= 0 &&
-           current_read_page_index <= current_write_page_index) {
+           current_read_page_index <= current_write_page_index)
+    {
       current_read_page_index++;
       Page *check_page = new Page();
       persistent_file->GetPage(check_page, current_read_page_index);
@@ -139,7 +157,8 @@ void DBFile::MoveFirst() {
 
     // Set other instance variables
     if (num_records <= 0 ||
-        current_read_page_index > current_write_page_index) {
+        current_read_page_index > current_write_page_index)
+    {
       // None of the pages have records hence resetting the
       // current_write_page_index as well
       current_write_page_index = -1;
@@ -147,16 +166,21 @@ void DBFile::MoveFirst() {
       current_read_page_offset = -1;
       lseek(metadata_file_descriptor, sizeof(fType), SEEK_SET);
       write(metadata_file_descriptor, &current_write_page_index, sizeof(off_t));
-    } else {
+    }
+    else
+    {
       current_read_page_offset = -1;
     }
   }
 }
 
-int DBFile::Close() {
-  try {
+int DBFile::Close()
+{
+  try
+  {
     CheckIfFilePresent();
-    if (dirty) {
+    if (dirty)
+    {
       FlushBuffer();
       dirty = false;
     }
@@ -179,28 +203,36 @@ int DBFile::Close() {
     file_path = NULL;
 
     return 1;
-  } catch (runtime_error r) {
+  }
+  catch (runtime_error r)
+  {
     cerr << "Trying to close a file which is not opened" << endl;
     return 0;
-  } catch (...) {
+  }
+  catch (...)
+  {
     return 0;
   }
 }
 
-void DBFile::Load(Schema &f_schema, const char *loadpath) {
+void DBFile::Load(Schema &f_schema, const char *loadpath)
+{
   CheckIfFilePresent();
   Record *temp = new Record();
   FILE *table_file = fopen(loadpath, "r");
 
-  if (table_file == NULL) {
+  if (table_file == NULL)
+  {
     string err = "Error opening table file for load";
     err += loadpath;
     throw runtime_error(err);
   }
 
   count = 0;
-  while (temp->SuckNextRecord(&f_schema, table_file) == 1) {
-    if (temp != NULL) {
+  while (temp->SuckNextRecord(&f_schema, table_file) == 1)
+  {
+    if (temp != NULL)
+    {
       count++;
       Add(*temp);
     }
@@ -209,10 +241,12 @@ void DBFile::Load(Schema &f_schema, const char *loadpath) {
   cout << "Bulk Loaded " << count << " records" << endl;
 }
 
-void DBFile::Add(Record &rec) {
+void DBFile::Add(Record &rec)
+{
   CheckIfFilePresent();
   // If it is not dirty empty out all the records read
-  if (!dirty) {
+  if (!dirty)
+  {
     buffer->EmptyItOut();
     mode = writing;
     dirty = true;
@@ -221,19 +255,22 @@ void DBFile::Add(Record &rec) {
   // If The buffer is full: Flush the buffer to persistent storage
   // Else: just append to the buffer and set dirty variable
   // cout << buffer->GetNumRecords() << endl;
-  if (buffer->Append(&rec) == 0) {
+  if (buffer->Append(&rec) == 0)
+  {
     FlushBuffer();
     buffer->Append(&rec); /* Need to append again as the previous append was
                              unsuccessful */
   }
 }
 
-void DBFile::FlushBuffer() {
+void DBFile::FlushBuffer()
+{
   int prev_write_page_index = current_write_page_index;
 
   Page *flush_to_page = new Page();
   // Check if any pages have been alloted before
-  if (current_write_page_index < 0) {
+  if (current_write_page_index < 0)
+  {
     // No pages have been alloted before
     // This is the first page
     current_write_page_index++;
@@ -241,7 +278,9 @@ void DBFile::FlushBuffer() {
     // Set read page and read index
     current_read_page_index = current_write_page_index;
     current_read_page_offset = -1;
-  } else {
+  }
+  else
+  {
     // Pages have been alloted; Check if last page has space
     persistent_file->GetPage(flush_to_page, current_write_page_index);
   }
@@ -251,7 +290,8 @@ void DBFile::FlushBuffer() {
   // The entire buffer may not fit on the page
   bool empty_flush_to_page_flag = false;
   while (CopyBufferToPage(buffer, flush_to_page, empty_flush_to_page_flag) ==
-         0) {
+         0)
+  {
     persistent_file->AddPage(flush_to_page, current_write_page_index);
     current_write_page_index++;
     empty_flush_to_page_flag = true;
@@ -259,7 +299,8 @@ void DBFile::FlushBuffer() {
 
   persistent_file->AddPage(flush_to_page, current_write_page_index);
   // If new page(s) was required
-  if (prev_write_page_index != current_write_page_index) {
+  if (prev_write_page_index != current_write_page_index)
+  {
     // Update the metadata for the file
     lseek(metadata_file_descriptor, sizeof(fType), SEEK_SET);
     write(metadata_file_descriptor, &current_write_page_index, sizeof(off_t));
@@ -267,15 +308,19 @@ void DBFile::FlushBuffer() {
 }
 
 int DBFile::CopyBufferToPage(Page *buffer, Page *flush_to_page,
-                             bool empty_flush_to_page_flag) {
+                             bool empty_flush_to_page_flag)
+{
   // Is it a new page and hence previous flush has already been written to file
-  if (empty_flush_to_page_flag) {
+  if (empty_flush_to_page_flag)
+  {
     flush_to_page->EmptyItOut();
   }
 
   Record to_be_copied;
-  while (buffer->GetFirst(&to_be_copied) != 0) {
-    if (flush_to_page->Append(&to_be_copied) == 0) {
+  while (buffer->GetFirst(&to_be_copied) != 0)
+  {
+    if (flush_to_page->Append(&to_be_copied) == 0)
+    {
       buffer->Append(
           &to_be_copied); /* Need to append again to the buffer as the
                              GetFirst() will remove the record from buffer */
@@ -285,23 +330,27 @@ int DBFile::CopyBufferToPage(Page *buffer, Page *flush_to_page,
   return 1;
 }
 
-int DBFile::GetNext(Record &fetchme) {
+int DBFile::GetNext(Record &fetchme)
+{
   CheckIfFilePresent();
   // If the buffer is dirty the records are to be written out to file before
   // being read
-  if (dirty) {
+  if (dirty)
+  {
     FlushBuffer();
     dirty = false;
   }
 
   // If records in all pages have been read
   if (current_read_page_index < 0 ||
-      current_read_page_index > current_write_page_index) {
+      current_read_page_index > current_write_page_index)
+  {
     return 0;
   }
 
   // Get the Page current_read_page_index from the file
-  if (mode == writing || mode == idle) {
+  if (mode == writing || mode == idle)
+  {
     persistent_file->GetPage(buffer, current_read_page_index);
     mode = reading;
   }
@@ -311,11 +360,13 @@ int DBFile::GetNext(Record &fetchme) {
   // If there are no more records on the page `current_read_page_index` get next
   // page
   while (current_read_page_offset >= buffer->GetNumRecords() &&
-         current_read_page_index <= current_write_page_index) {
+         current_read_page_index <= current_write_page_index)
+  {
     current_read_page_index++;
     // If there are no more pages remaining in the file
     // All records have been read
-    if (current_read_page_index > current_write_page_index) {
+    if (current_read_page_index > current_write_page_index)
+    {
       return 0;
     }
     current_read_page_offset = 0;
@@ -327,19 +378,25 @@ int DBFile::GetNext(Record &fetchme) {
   return 1;
 }
 
-int DBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
-  while (GetNext(fetchme) != 0) {
+int DBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal)
+{
+  while (GetNext(fetchme) != 0)
+  {
     ComparisonEngine comp;
-    if (comp.Compare(&fetchme, &literal, &cnf)) {
+    if (comp.Compare(&fetchme, &literal, &cnf))
+    {
       return 1;
-    } else {
+    }
+    else
+    {
       continue;
     }
   }
   return 0;
 }
 
-char *DBFile::GetMetaDataFileName(const char *file_path) {
+char *DBFile::GetMetaDataFileName(const char *file_path)
+{
   string f_path_str(file_path);
   string metadata_file_extension(".header");
   size_t dot_pos = f_path_str.rfind('.');
@@ -348,42 +405,51 @@ char *DBFile::GetMetaDataFileName(const char *file_path) {
   return (char *)metadata_file_name.c_str();
 }
 
-void DBFile::CheckIfFilePresent() {
-  if (!is_open) {
+void DBFile::CheckIfFilePresent()
+{
+  if (!is_open)
+  {
     throw runtime_error(
         "File destination is not open or created, Please create a file or open "
         "an existing one");
   }
 }
 
-bool DBFile::CheckIfCorrectFileType(fType type) {
-  switch (type) {
-    case heap:
-      return true;
-      break;
-    case sorted:
-      cout << "Sorted Files: Not implemented yet! Coming soon " << endl;
-      exit(0);
-      break;
-    case tree:
-      cout << "Tree Files: Not implemented yet! Coming soon " << endl;
-      exit(0);
-      break;
-    default:
-      throw runtime_error("File type is incorrect or not supported");
+bool DBFile::CheckIfCorrectFileType(fType type)
+{
+  switch (type)
+  {
+  case heap:
+    return true;
+    break;
+  case sorted:
+    cout << "Sorted Files: Not implemented yet! Coming soon " << endl;
+    exit(0);
+    break;
+  case tree:
+    cout << "Tree Files: Not implemented yet! Coming soon " << endl;
+    exit(0);
+    break;
+  default:
+    throw runtime_error("File type is incorrect or not supported");
   }
 }
 
-bool DBFile::CheckIfFileNameIsValid(const char *file_name) {
+bool DBFile::CheckIfFileNameIsValid(const char *file_name)
+{
   // TODO: check for file extension?
-  if (file_name == NULL || *file_name == '\0') {
+  if (file_name == NULL || *file_name == '\0')
+  {
     throw runtime_error("File name is invalid");
-  } else {
+  }
+  else
+  {
     return true;
   }
 }
 
-void DBFile::Instantiate() {
+void DBFile::Instantiate()
+{
   persistent_file = new File();
   buffer = new Page();
   dirty = false;
@@ -393,8 +459,13 @@ void DBFile::Instantiate() {
 
 int DBFile::GetNumRecsInBuffer() { return buffer->GetNumRecords(); }
 
-bool DBFile::WillBufferBeFull(Record &to_be_added) {
+bool DBFile::WillBufferBeFull(Record &to_be_added)
+{
   return buffer->IsPageFull(&to_be_added);
 }
 
 off_t DBFile::GetNumPagesInFile() { return persistent_file->GetLength(); }
+
+off_t DBFile::GetCurrentReadPageIndex() { return current_read_page_index; }
+
+off_t DBFile::GetCurrentWritePageIndex() { return current_write_page_index; }

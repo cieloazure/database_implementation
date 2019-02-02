@@ -11,16 +11,27 @@
 #include "Schema.h"
 #include "TwoWayList.h"
 
-typedef enum { heap, sorted, tree } fType;
-typedef enum { reading, writing, idle } modeType;
+typedef enum
+{
+  heap,
+  sorted,
+  tree
+} fType;
+typedef enum
+{
+  reading,
+  writing,
+  idle
+} modeType;
 
-class DBFile {
+class DBFile
+{
   friend class DBFileTest;
 
- private:
-  const char *file_path; /* The destination of the file */
-  fType type;            /* Type of file (enum) */
-  File *persistent_file; /* File instance in which pages are to be stored to */
+private:
+  const char *file_path;        /* The destination of the file */
+  fType type;                   /* Type of file (enum) */
+  File *persistent_file;        /* File instance in which pages are to be stored to */
   int metadata_file_descriptor; /* Metadata file which has information about the
                                    file */
 
@@ -41,7 +52,7 @@ class DBFile {
 
   int count;
 
- public:
+public:
   /*
   Constructor
 
@@ -192,8 +203,10 @@ class DBFile {
   int GetNumRecsInBuffer();
   bool WillBufferBeFull(Record &to_be_added);
   off_t GetNumPagesInFile();
+  off_t GetCurrentReadPageIndex();
+  off_t GetCurrentWritePageIndex();
 
- private:
+private:
   char *GetMetaDataFileName(
       const char *file_path); /* Create a name of the metadata file based on the
                                  file opened */
@@ -201,7 +214,7 @@ class DBFile {
       Page *buffer,
       Page *flush_to_page, /* Move all records from buffer to flush_to_page */
       bool empty_flush_to_page_flag);
-  void FlushBuffer(); /* Logic to manage the instance variables when a buffer is
+  void FlushBuffer();        /* Logic to manage the instance variables when a buffer is
                          flushed */
   void CheckIfFilePresent(); /* Check if a file is opened */
   bool CheckIfCorrectFileType(fType type);
