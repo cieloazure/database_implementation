@@ -28,7 +28,7 @@ class DBFileTest : public ::testing::Test {
   void TearDown() override {
     // Code here will be called immediately after each test (right
     // before the destructor).
-    remove("gtest.tbl");
+    remove("gtest.bin");
     remove("gtest.header");
   }
 
@@ -38,7 +38,7 @@ class DBFileTest : public ::testing::Test {
 TEST_F(DBFileTest, CreateSuccess) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
-  ASSERT_TRUE(heapFile->Create("gtest.tbl", t, NULL));
+  ASSERT_TRUE(heapFile->Create("gtest.bin", t, NULL));
   delete heapFile;
 }
 
@@ -49,7 +49,7 @@ TEST_F(DBFileTest, CreateFailureWhenFileNameIsTooLarge) {
   for (int i = 0; i < MAX_FILE_NAME_SIZE; i++) {
     s.append(a);
   }
-  s += ".tbl";
+  s += ".bin";
 
   DBFile *heapFile = new DBFile();
   fType t = heap;
@@ -66,16 +66,16 @@ TEST_F(DBFileTest, CreateFailureWhenFileNameIsAnEmptyString) {
 
 TEST_F(DBFileTest, CreateFailureWhenFileIsInvalid) {
   DBFile *heapFile = new DBFile();
-  ASSERT_FALSE(heapFile->Create("gtest.tbl", (fType)4, NULL));
+  ASSERT_FALSE(heapFile->Create("gtest.bin", (fType)4, NULL));
   delete heapFile;
 }
 
 TEST_F(DBFileTest, OpenSuccess) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.tbl", t, NULL)) {
+  if (heapFile->Create("gtest.bin", t, NULL)) {
     heapFile->Close();
-    ASSERT_TRUE(heapFile->Open("gtest.tbl"));
+    ASSERT_TRUE(heapFile->Open("gtest.bin"));
   }
   delete heapFile;
 }
@@ -83,10 +83,10 @@ TEST_F(DBFileTest, OpenSuccess) {
 TEST_F(DBFileTest, OpenFailureMissingMetadataFile) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.tbl", t, NULL)) {
+  if (heapFile->Create("gtest.bin", t, NULL)) {
     heapFile->Close();
     remove("gtest.header");
-    ASSERT_FALSE(heapFile->Open("gtest.tbl"));
+    ASSERT_FALSE(heapFile->Open("gtest.bin"));
   }
   delete heapFile;
 }
@@ -94,27 +94,27 @@ TEST_F(DBFileTest, OpenFailureMissingMetadataFile) {
 TEST_F(DBFileTest, OpenFailureOnInvalidFileTypeInMetadataFile) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.tbl", t, NULL)) {
+  if (heapFile->Create("gtest.bin", t, NULL)) {
     heapFile->Close();
     int fd = open("gtest.header", O_RDWR, S_IRUSR | S_IWUSR);
     lseek(fd, 0, SEEK_SET);
     int invalid_value = 4;
     write(fd, &invalid_value, sizeof(fType));
-    ASSERT_FALSE(heapFile->Open("gtest.tbl"));
+    ASSERT_FALSE(heapFile->Open("gtest.bin"));
   }
   delete heapFile;
 }
 
 TEST_F(DBFileTest, OpenFailureWhenAFileDoesNotExists) {
   DBFile *heapFile = new DBFile();
-  ASSERT_FALSE(heapFile->Open("gtest2.tbl"));
+  ASSERT_FALSE(heapFile->Open("gtest2.bin"));
   delete heapFile;
 }
 
 TEST_F(DBFileTest, OpenFailureWhenAFileNameIsInvalid) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.tbl", t, NULL)) {
+  if (heapFile->Create("gtest.bin", t, NULL)) {
     heapFile->Close();
     EXPECT_FALSE(heapFile->Open(""));
   }
@@ -124,7 +124,7 @@ TEST_F(DBFileTest, OpenFailureWhenAFileNameIsInvalid) {
 TEST_F(DBFileTest, MoveFirstWhenGetNextHaveBeenCalledBefore) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.tbl", t, NULL)) {
+  if (heapFile->Create("gtest.bin", t, NULL)) {
     const char *loadpath = "data_files/lineitem.tbl";
 
     Schema mySchema("catalog", "lineitem");
@@ -163,7 +163,7 @@ TEST_F(DBFileTest, MoveFirstWhenGetNextHaveBeenCalledBefore) {
 TEST_F(DBFileTest, MoveFirstOnFirstRecord) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.tbl", t, NULL)) {
+  if (heapFile->Create("gtest.bin", t, NULL)) {
     const char *loadpath = "data_files/lineitem.tbl";
 
     Schema mySchema("catalog", "lineitem");
@@ -203,7 +203,7 @@ TEST_F(DBFileTest, MoveFirstOnFirstRecord) {
 TEST_F(DBFileTest, MoveFirstWithNoRecords) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.tbl", t, NULL)) {
+  if (heapFile->Create("gtest.bin", t, NULL)) {
     // Just opened a file and moving first
     Record *temp_heap_file_record = new Record();
     heapFile->MoveFirst();
@@ -217,5 +217,66 @@ TEST_F(DBFileTest, MoveFirstWithoutCreation) {
   DBFile *heapFile = new DBFile();
   ASSERT_THROW(heapFile->MoveFirst(), runtime_error);
 }
+
+TEST_F(DBFileTest, LoadWithNoOpenDBFile) {
+  DBFile *heapFile = new DBFile();
+  Schema mySchema("catalog", "lineitem");
+  const char *tpch_dir = "data_files/lineitem.tbl";
+  ASSERT_THROW(heapFile->Load(mySchema, tpch_dir), runtime_error);
+}
+
+TEST_F(DBFileTest, LoadWithNoExistingTableFile) {
+  DBFile *heapFile = new DBFile();
+  Schema mySchema("catalog", "lineitem");
+  const char *tpch_dir = "data_files/does-not-exists.bin";
+  ASSERT_THROW(heapFile->Load(mySchema, tpch_dir), runtime_error);
+}
+
+TEST_F(DBFileTest, LoadSuccess) {
+  DBFile *heapFile = new DBFile();
+  if (heapFile->Create("gtest.bin", heap, NULL) == 1) {
+    Schema mySchema("catalog", "lineitem");
+    const char *tpch_dir = "data_files/lineitem.tbl";
+    FILE *f = fopen(tpch_dir, "r");
+    Record temp;
+    int expected_count = 0;
+    while (temp.SuckNextRecord(&mySchema, f)) {
+      expected_count++;
+    }
+
+    heapFile->Load(mySchema, tpch_dir);
+
+    int actual_count = 0;
+    while (heapFile->GetNext(temp)) {
+      actual_count++;
+    }
+
+    ASSERT_EQ(expected_count, actual_count);
+  }
+}
+
+TEST_F(DBFileTest, AddAfterASeriesOfGetNext) {}
+TEST_F(DBFileTest, AddWhenItJustAddsToBufferWithoutCreatingANewPage) {
+  DBFile *heapFile = new DBFile();
+  if (heapFile->Create("gtest.bin", heap, NULL)) {
+    Schema mySchema("catalog", "lineitem");
+    const char *tpch_dir = "data_files/lineitem.tbl";
+    FILE *f = fopen(tpch_dir, "r");
+    Record temp;
+    int expected_count = 0;
+    temp.SuckNextRecord(&mySchema, f);
+    heapFile->Add(temp);
+    int actual_count = 0;
+    while (heapFile->GetNext(temp)) {
+      actual_count++;
+    }
+
+    ASSERT_EQ(1, actual_count);
+  }
+}
+TEST_F(DBFileTest, AddWhenFirstFlushTakesPlace) {}
+TEST_F(DBFileTest, AddWhenSubsequentFlushesTakesPlace) {}
+TEST_F(DBFileTest, AddWhenANewPageIsCreated) {}
+TEST_F(DBFileTest, AddWhenAnExistingPartiallyFilledPageIsUtilized) {}
 
 }  // namespace foo

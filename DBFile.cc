@@ -192,8 +192,15 @@ int DBFile::Close() {
 }
 
 void DBFile::Load(Schema &f_schema, const char *loadpath) {
+  CheckIfFilePresent();
   Record *temp = new Record();
   FILE *table_file = fopen(loadpath, "r");
+
+  if(table_file == NULL){
+    string err = "Error opening table file for load";
+    err += loadpath;
+    throw runtime_error(err);
+  }
 
   count = 0;
   while (temp->SuckNextRecord(&f_schema, table_file) == 1) {
@@ -246,7 +253,7 @@ void DBFile::FlushBuffer() {
   // The file page size may be smaller than the buffer page size hence
   // The entire buffer may not fit on the page
   bool empty_flush_to_page_flag = false;
-  while (FlushBufferToPage(buffer, flush_to_page, empty_flush_to_page_flag) ==
+  while (CopyBufferToPage(buffer, flush_to_page, empty_flush_to_page_flag) ==
          0) {
     persistent_file->AddPage(flush_to_page, current_write_page_index);
     // cout << "--------- Number of records in " << current_write_page_index
@@ -267,7 +274,7 @@ void DBFile::FlushBuffer() {
   }
 }
 
-int DBFile::FlushBufferToPage(Page *buffer, Page *flush_to_page,
+int DBFile::CopyBufferToPage(Page *buffer, Page *flush_to_page,
                               bool empty_flush_to_page_flag) {
   // Is it a new page and hence previous flush has already been written to file
   if (empty_flush_to_page_flag) {

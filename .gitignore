@@ -10,3 +10,4 @@ y.tab.h
 *.gcov
 *.gcno
 *.bin
+main
