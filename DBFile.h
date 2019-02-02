@@ -160,6 +160,8 @@ class DBFile {
   /* To be implemented */
   int GetNext(Record &fetchme, CNF &cnf, Record &literal);
 
+  int GetNumRecsInBuffer();
+
  private:
   char *GetMetaDataFileName(
       const char *file_path); /* Create a name of the metadata file based on the

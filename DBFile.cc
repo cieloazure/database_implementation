@@ -389,3 +389,7 @@ void DBFile::Instantiate() {
   is_open = false;
   mode = idle;
 }
+
+int DBFile::GetNumRecsInBuffer() {
+  return buffer->GetNumRecords();
+}

@@ -218,4 +218,29 @@ TEST_F(DBFileTest, MoveFirstWithoutCreation) {
   ASSERT_THROW(heapFile->MoveFirst(), runtime_error);
 }
 
+TEST_F(DBFileTest, SuccessfullyAddRecordIntoBuffer) {
+  DBFile *heapFile = new DBFile();
+  Record *temp = new Record();
+  cout << "1";
+  fType t = heap;
+  if (heapFile->Create("gtest.tbl", t, NULL)) {
+    const char *loadpath = "data_files/lineitem.tbl";
+    FILE *load_file = fopen(loadpath, "r");
+    Schema mySchema("catalog", "lineitem");
+
+    int num_recs = heapFile->GetNumRecsInBuffer();
+
+    temp->SuckNextRecord(&mySchema, load_file);
+      cout << "2";
+    heapFile->Add(*temp);
+
+    ASSERT_GT(heapFile->GetNumRecsInBuffer(), num_recs);
+
+    delete temp;
+    heapFile->Close();
+    fclose(load_file);
+  }
+
+}
+
 }  // namespace foo
