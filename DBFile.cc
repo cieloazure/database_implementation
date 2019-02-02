@@ -112,10 +112,6 @@ int DBFile::Open(const char *f_path) {
 
       case tree:
         break;
-
-      default:
-        string err = "File type is invalid";
-        throw runtime_error(err);
     }
     // No exception occured
     return 1;

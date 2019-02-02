@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - P1.info - v1/__nullptr</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">v1</a> - __nullptr<span style="font-size: 80%;"> (source / <a href="__nullptr.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">P1.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-02-02 11:06:24</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // -*- C++ -*-</a>
+<span class="lineNum">       2 </span>            : //===--------------------------- __nullptr --------------------------------===//
+<span class="lineNum">       3 </span>            : //
+<span class="lineNum">       4 </span>            : //                     The LLVM Compiler Infrastructure
+<span class="lineNum">       5 </span>            : //
+<span class="lineNum">       6 </span>            : // This file is dual licensed under the MIT and the University of Illinois Open
+<span class="lineNum">       7 </span>            : // Source Licenses. See LICENSE.TXT for details.
+<span class="lineNum">       8 </span>            : //
+<span class="lineNum">       9 </span>            : //===----------------------------------------------------------------------===//
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : #ifndef _LIBCPP_NULLPTR
+<span class="lineNum">      12 </span>            : #define _LIBCPP_NULLPTR
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : #include &lt;__config&gt;
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #if !defined(_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER)
+<span class="lineNum">      17 </span>            : #pragma GCC system_header
+<span class="lineNum">      18 </span>            : #endif
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifdef _LIBCPP_HAS_NO_NULLPTR
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : _LIBCPP_BEGIN_NAMESPACE_STD
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : struct _LIBCPP_TEMPLATE_VIS nullptr_t
+<span class="lineNum">      25 </span>            : {
+<span class="lineNum">      26 </span>            :     void* __lx;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            :     struct __nat {int __for_bool_;};
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<span class="lineNum">      30 </span>            :     _LIBCPP_ALWAYS_INLINE _LIBCPP_CONSTEXPR nullptr_t() : __lx(0) {}
+<span class="lineNum">      31 </span><span class="lineCov">       3316 :     _LIBCPP_ALWAYS_INLINE _LIBCPP_CONSTEXPR nullptr_t(int __nat::*) : __lx(0) {}</span>
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            :     _LIBCPP_ALWAYS_INLINE _LIBCPP_CONSTEXPR operator int __nat::*() const {return 0;}
+<span class="lineNum">      34 </span>            : 
+<a name="35"><span class="lineNum">      35 </span>            :     template &lt;class _Tp&gt;</a>
+<span class="lineNum">      36 </span>            :         _LIBCPP_ALWAYS_INLINE _LIBCPP_CONSTEXPR
+<span class="lineNum">      37 </span><span class="lineCov">       1658 :         operator _Tp* () const {return 0;}</span>
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            :     template &lt;class _Tp, class _Up&gt;
+<span class="lineNum">      40 </span>            :         _LIBCPP_ALWAYS_INLINE
+<span class="lineNum">      41 </span>            :         operator _Tp _Up::* () const {return 0;}
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            :     friend _LIBCPP_ALWAYS_INLINE _LIBCPP_CONSTEXPR bool operator==(nullptr_t, nullptr_t) {return true;}
+<span class="lineNum">      44 </span>            :     friend _LIBCPP_ALWAYS_INLINE _LIBCPP_CONSTEXPR bool operator!=(nullptr_t, nullptr_t) {return false;}
+<a name="45"><span class="lineNum">      45 </span>            : };</a>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineCov">       1658 : inline _LIBCPP_ALWAYS_INLINE _LIBCPP_CONSTEXPR nullptr_t __get_nullptr_t() {return nullptr_t(0);}</span>
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            : #define nullptr _VSTD::__get_nullptr_t()
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : _LIBCPP_END_NAMESPACE_STD
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            : #else  // _LIBCPP_HAS_NO_NULLPTR
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : namespace std
+<span class="lineNum">      56 </span>            : {
+<span class="lineNum">      57 </span>            :     typedef decltype(nullptr) nullptr_t;
+<span class="lineNum">      58 </span>            : }
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            : #endif  // _LIBCPP_HAS_NO_NULLPTR
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            : #endif  // _LIBCPP_NULLPTR
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

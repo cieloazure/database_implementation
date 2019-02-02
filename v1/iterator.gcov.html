@@ -1,0 +1,1958 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - P1.info - v1/iterator</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">v1</a> - iterator<span style="font-size: 80%;"> (source / <a href="iterator.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">P1.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-02-02 11:06:24</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // -*- C++ -*-</a>
+<span class="lineNum">       2 </span>            : //===-------------------------- iterator ----------------------------------===//
+<span class="lineNum">       3 </span>            : //
+<span class="lineNum">       4 </span>            : //                     The LLVM Compiler Infrastructure
+<span class="lineNum">       5 </span>            : //
+<span class="lineNum">       6 </span>            : // This file is dual licensed under the MIT and the University of Illinois Open
+<span class="lineNum">       7 </span>            : // Source Licenses. See LICENSE.TXT for details.
+<span class="lineNum">       8 </span>            : //
+<span class="lineNum">       9 </span>            : //===----------------------------------------------------------------------===//
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : #ifndef _LIBCPP_ITERATOR
+<span class="lineNum">      12 </span>            : #define _LIBCPP_ITERATOR
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : /*
+<span class="lineNum">      15 </span>            :     iterator synopsis
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : namespace std
+<span class="lineNum">      18 </span>            : {
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : template&lt;class Iterator&gt;
+<span class="lineNum">      21 </span>            : struct iterator_traits
+<span class="lineNum">      22 </span>            : {
+<span class="lineNum">      23 </span>            :     typedef typename Iterator::difference_type difference_type;
+<span class="lineNum">      24 </span>            :     typedef typename Iterator::value_type value_type;
+<span class="lineNum">      25 </span>            :     typedef typename Iterator::pointer pointer;
+<span class="lineNum">      26 </span>            :     typedef typename Iterator::reference reference;
+<span class="lineNum">      27 </span>            :     typedef typename Iterator::iterator_category iterator_category;
+<span class="lineNum">      28 </span>            : };
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : template&lt;class T&gt;
+<span class="lineNum">      31 </span>            : struct iterator_traits&lt;T*&gt;
+<span class="lineNum">      32 </span>            : {
+<span class="lineNum">      33 </span>            :     typedef ptrdiff_t difference_type;
+<span class="lineNum">      34 </span>            :     typedef T value_type;
+<span class="lineNum">      35 </span>            :     typedef T* pointer;
+<span class="lineNum">      36 </span>            :     typedef T&amp; reference;
+<span class="lineNum">      37 </span>            :     typedef random_access_iterator_tag iterator_category;
+<span class="lineNum">      38 </span>            : };
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : template&lt;class Category, class T, class Distance = ptrdiff_t,
+<span class="lineNum">      41 </span>            :          class Pointer = T*, class Reference = T&amp;&gt;
+<span class="lineNum">      42 </span>            : struct iterator
+<span class="lineNum">      43 </span>            : {
+<span class="lineNum">      44 </span>            :     typedef T         value_type;
+<span class="lineNum">      45 </span>            :     typedef Distance  difference_type;
+<span class="lineNum">      46 </span>            :     typedef Pointer   pointer;
+<span class="lineNum">      47 </span>            :     typedef Reference reference;
+<span class="lineNum">      48 </span>            :     typedef Category  iterator_category;
+<span class="lineNum">      49 </span>            : };
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : struct input_iterator_tag  {};
+<span class="lineNum">      52 </span>            : struct output_iterator_tag {};
+<span class="lineNum">      53 </span>            : struct forward_iterator_tag       : public input_iterator_tag         {};
+<span class="lineNum">      54 </span>            : struct bidirectional_iterator_tag : public forward_iterator_tag       {};
+<span class="lineNum">      55 </span>            : struct random_access_iterator_tag : public bidirectional_iterator_tag {};
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            : // 27.4.3, iterator operations
+<span class="lineNum">      58 </span>            : // extension: second argument not conforming to C++03
+<span class="lineNum">      59 </span>            : template &lt;class InputIterator&gt;  // constexpr in C++17
+<span class="lineNum">      60 </span>            :   constexpr void advance(InputIterator&amp; i,
+<span class="lineNum">      61 </span>            :              typename iterator_traits&lt;InputIterator&gt;::difference_type n);
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            : template &lt;class InputIterator&gt;  // constexpr in C++17
+<span class="lineNum">      64 </span>            :   constexpr typename iterator_traits&lt;InputIterator&gt;::difference_type
+<span class="lineNum">      65 </span>            :     distance(InputIterator first, InputIterator last);
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            : template &lt;class InputIterator&gt;  // constexpr in C++17
+<span class="lineNum">      68 </span>            :   constexpr InputIterator next(InputIterator x,
+<span class="lineNum">      69 </span>            : typename iterator_traits&lt;InputIterator&gt;::difference_type n = 1);
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : template &lt;class BidirectionalIterator&gt;  // constexpr in C++17
+<span class="lineNum">      72 </span>            :   constexpr BidirectionalIterator prev(BidirectionalIterator x,
+<span class="lineNum">      73 </span>            :     typename iterator_traits&lt;BidirectionalIterator&gt;::difference_type n = 1);    
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            : template &lt;class Iterator&gt;
+<span class="lineNum">      76 </span>            : class reverse_iterator
+<span class="lineNum">      77 </span>            :     : public iterator&lt;typename iterator_traits&lt;Iterator&gt;::iterator_category,
+<span class="lineNum">      78 </span>            :                       typename iterator_traits&lt;Iterator&gt;::value_type,
+<span class="lineNum">      79 </span>            :                       typename iterator_traits&lt;Iterator&gt;::difference_type,
+<span class="lineNum">      80 </span>            :                       typename iterator_traits&lt;Iterator&gt;::pointer,
+<span class="lineNum">      81 </span>            :                       typename iterator_traits&lt;Iterator&gt;::reference&gt;
+<span class="lineNum">      82 </span>            : {
+<span class="lineNum">      83 </span>            : protected:
+<span class="lineNum">      84 </span>            :     Iterator current;
+<span class="lineNum">      85 </span>            : public:
+<span class="lineNum">      86 </span>            :     typedef Iterator                                            iterator_type;
+<span class="lineNum">      87 </span>            :     typedef typename iterator_traits&lt;Iterator&gt;::difference_type difference_type;
+<span class="lineNum">      88 </span>            :     typedef typename iterator_traits&lt;Iterator&gt;::reference       reference;
+<span class="lineNum">      89 </span>            :     typedef typename iterator_traits&lt;Iterator&gt;::pointer         pointer;
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            :     constexpr reverse_iterator();
+<span class="lineNum">      92 </span>            :     constexpr explicit reverse_iterator(Iterator x);
+<span class="lineNum">      93 </span>            :     template &lt;class U&gt; constexpr reverse_iterator(const reverse_iterator&lt;U&gt;&amp; u);
+<span class="lineNum">      94 </span>            :     template &lt;class U&gt; constexpr reverse_iterator&amp; operator=(const reverse_iterator&lt;U&gt;&amp; u);
+<span class="lineNum">      95 </span>            :     constexpr Iterator base() const;
+<span class="lineNum">      96 </span>            :     constexpr reference operator*() const;
+<span class="lineNum">      97 </span>            :     constexpr pointer   operator-&gt;() const;
+<span class="lineNum">      98 </span>            :     constexpr reverse_iterator&amp; operator++();
+<span class="lineNum">      99 </span>            :     constexpr reverse_iterator  operator++(int);
+<span class="lineNum">     100 </span>            :     constexpr reverse_iterator&amp; operator--();
+<span class="lineNum">     101 </span>            :     constexpr reverse_iterator  operator--(int);
+<span class="lineNum">     102 </span>            :     constexpr reverse_iterator  operator+ (difference_type n) const;
+<span class="lineNum">     103 </span>            :     constexpr reverse_iterator&amp; operator+=(difference_type n);
+<span class="lineNum">     104 </span>            :     constexpr reverse_iterator  operator- (difference_type n) const;
+<span class="lineNum">     105 </span>            :     constexpr reverse_iterator&amp; operator-=(difference_type n);
+<span class="lineNum">     106 </span>            :     constexpr reference         operator[](difference_type n) const;
+<span class="lineNum">     107 </span>            : };
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            : template &lt;class Iterator1, class Iterator2&gt;
+<span class="lineNum">     110 </span>            : constexpr bool                          // constexpr in C++17
+<span class="lineNum">     111 </span>            : operator==(const reverse_iterator&lt;Iterator1&gt;&amp; x, const reverse_iterator&lt;Iterator2&gt;&amp; y);
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            : template &lt;class Iterator1, class Iterator2&gt;
+<span class="lineNum">     114 </span>            : constexpr bool                          // constexpr in C++17
+<span class="lineNum">     115 </span>            : operator&lt;(const reverse_iterator&lt;Iterator1&gt;&amp; x, const reverse_iterator&lt;Iterator2&gt;&amp; y);
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span>            : template &lt;class Iterator1, class Iterator2&gt;
+<span class="lineNum">     118 </span>            : constexpr bool                          // constexpr in C++17
+<span class="lineNum">     119 </span>            : operator!=(const reverse_iterator&lt;Iterator1&gt;&amp; x, const reverse_iterator&lt;Iterator2&gt;&amp; y);
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span>            : template &lt;class Iterator1, class Iterator2&gt;
+<span class="lineNum">     122 </span>            : constexpr bool                          // constexpr in C++17
+<span class="lineNum">     123 </span>            : operator&gt;(const reverse_iterator&lt;Iterator1&gt;&amp; x, const reverse_iterator&lt;Iterator2&gt;&amp; y);
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span>            : template &lt;class Iterator1, class Iterator2&gt;
+<span class="lineNum">     126 </span>            : constexpr bool                          // constexpr in C++17
+<span class="lineNum">     127 </span>            : operator&gt;=(const reverse_iterator&lt;Iterator1&gt;&amp; x, const reverse_iterator&lt;Iterator2&gt;&amp; y);
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            : template &lt;class Iterator1, class Iterator2&gt;
+<span class="lineNum">     130 </span>            : constexpr bool                          // constexpr in C++17
+<span class="lineNum">     131 </span>            : operator&lt;=(const reverse_iterator&lt;Iterator1&gt;&amp; x, const reverse_iterator&lt;Iterator2&gt;&amp; y);
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            : template &lt;class Iterator1, class Iterator2&gt;
+<span class="lineNum">     134 </span>            : constexpr auto
+<span class="lineNum">     135 </span>            : operator-(const reverse_iterator&lt;Iterator1&gt;&amp; x, const reverse_iterator&lt;Iterator2&gt;&amp; y)
+<span class="lineNum">     136 </span>            : -&gt; decltype(__y.base() - __x.base());   // constexpr in C++17
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            : template &lt;class Iterator&gt;
+<span class="lineNum">     139 </span>            : constexpr reverse_iterator&lt;Iterator&gt;
+<span class="lineNum">     140 </span>            : operator+(typename reverse_iterator&lt;Iterator&gt;::difference_type n, 
+<span class="lineNum">     141 </span>            :           const reverse_iterator&lt;Iterator&gt;&amp; x);   // constexpr in C++17
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span>            : template &lt;class Iterator&gt;
+<span class="lineNum">     144 </span>            : constexpr reverse_iterator&lt;Iterator&gt; make_reverse_iterator(Iterator i); // C++14, constexpr in C++17
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            : template &lt;class Container&gt;
+<span class="lineNum">     147 </span>            : class back_insert_iterator
+<span class="lineNum">     148 </span>            : {
+<span class="lineNum">     149 </span>            : protected:
+<span class="lineNum">     150 </span>            :     Container* container;
+<span class="lineNum">     151 </span>            : public:
+<span class="lineNum">     152 </span>            :     typedef Container                   container_type;
+<span class="lineNum">     153 </span>            :     typedef void                        value_type;
+<span class="lineNum">     154 </span>            :     typedef void                        difference_type;
+<span class="lineNum">     155 </span>            :     typedef void                        reference;
+<span class="lineNum">     156 </span>            :     typedef void                        pointer;
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            :     explicit back_insert_iterator(Container&amp; x);
+<span class="lineNum">     159 </span>            :     back_insert_iterator&amp; operator=(const typename Container::value_type&amp; value);
+<span class="lineNum">     160 </span>            :     back_insert_iterator&amp; operator*();
+<span class="lineNum">     161 </span>            :     back_insert_iterator&amp; operator++();
+<span class="lineNum">     162 </span>            :     back_insert_iterator  operator++(int);
+<span class="lineNum">     163 </span>            : };
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span>            : template &lt;class Container&gt; back_insert_iterator&lt;Container&gt; back_inserter(Container&amp; x);
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span>            : template &lt;class Container&gt;
+<span class="lineNum">     168 </span>            : class front_insert_iterator
+<span class="lineNum">     169 </span>            : {
+<span class="lineNum">     170 </span>            : protected:
+<span class="lineNum">     171 </span>            :     Container* container;
+<span class="lineNum">     172 </span>            : public:
+<span class="lineNum">     173 </span>            :     typedef Container                    container_type;
+<span class="lineNum">     174 </span>            :     typedef void                         value_type;
+<span class="lineNum">     175 </span>            :     typedef void                         difference_type;
+<span class="lineNum">     176 </span>            :     typedef void                         reference;
+<span class="lineNum">     177 </span>            :     typedef void                         pointer;
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span>            :     explicit front_insert_iterator(Container&amp; x);
+<span class="lineNum">     180 </span>            :     front_insert_iterator&amp; operator=(const typename Container::value_type&amp; value);
+<span class="lineNum">     181 </span>            :     front_insert_iterator&amp; operator*();
+<span class="lineNum">     182 </span>            :     front_insert_iterator&amp; operator++();
+<span class="lineNum">     183 </span>            :     front_insert_iterator  operator++(int);
+<span class="lineNum">     184 </span>            : };
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span>            : template &lt;class Container&gt; front_insert_iterator&lt;Container&gt; front_inserter(Container&amp; x);
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            : template &lt;class Container&gt;
+<span class="lineNum">     189 </span>            : class insert_iterator
+<span class="lineNum">     190 </span>            : {
+<span class="lineNum">     191 </span>            : protected:
+<span class="lineNum">     192 </span>            :     Container* container;
+<span class="lineNum">     193 </span>            :     typename Container::iterator iter;
+<span class="lineNum">     194 </span>            : public:
+<span class="lineNum">     195 </span>            :     typedef Container              container_type;
+<span class="lineNum">     196 </span>            :     typedef void                   value_type;
+<span class="lineNum">     197 </span>            :     typedef void                   difference_type;
+<span class="lineNum">     198 </span>            :     typedef void                   reference;
+<span class="lineNum">     199 </span>            :     typedef void                   pointer;
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span>            :     insert_iterator(Container&amp; x, typename Container::iterator i);
+<span class="lineNum">     202 </span>            :     insert_iterator&amp; operator=(const typename Container::value_type&amp; value);
+<span class="lineNum">     203 </span>            :     insert_iterator&amp; operator*();
+<span class="lineNum">     204 </span>            :     insert_iterator&amp; operator++();
+<span class="lineNum">     205 </span>            :     insert_iterator&amp; operator++(int);
+<span class="lineNum">     206 </span>            : };
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span>            : template &lt;class Container, class Iterator&gt;
+<span class="lineNum">     209 </span>            : insert_iterator&lt;Container&gt; inserter(Container&amp; x, Iterator i);
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span>            : template &lt;class Iterator&gt;
+<span class="lineNum">     212 </span>            : class move_iterator {
+<span class="lineNum">     213 </span>            : public:
+<span class="lineNum">     214 </span>            :     typedef Iterator                                              iterator_type;
+<span class="lineNum">     215 </span>            :     typedef typename iterator_traits&lt;Iterator&gt;::difference_type   difference_type;
+<span class="lineNum">     216 </span>            :     typedef Iterator                                              pointer;
+<span class="lineNum">     217 </span>            :     typedef typename iterator_traits&lt;Iterator&gt;::value_type        value_type;
+<span class="lineNum">     218 </span>            :     typedef typename iterator_traits&lt;Iterator&gt;::iterator_category iterator_category;
+<span class="lineNum">     219 </span>            :     typedef value_type&amp;&amp;                                          reference;
+<span class="lineNum">     220 </span>            :  
+<span class="lineNum">     221 </span>            :     constexpr move_iterator();  // all the constexprs are in C++17
+<span class="lineNum">     222 </span>            :     constexpr explicit move_iterator(Iterator i);
+<span class="lineNum">     223 </span>            :     template &lt;class U&gt;
+<span class="lineNum">     224 </span>            :       constexpr move_iterator(const move_iterator&lt;U&gt;&amp; u);
+<span class="lineNum">     225 </span>            :     template &lt;class U&gt;
+<span class="lineNum">     226 </span>            :       constexpr move_iterator&amp; operator=(const move_iterator&lt;U&gt;&amp; u);
+<span class="lineNum">     227 </span>            :     constexpr iterator_type base() const;
+<span class="lineNum">     228 </span>            :     constexpr reference operator*() const;
+<span class="lineNum">     229 </span>            :     constexpr pointer operator-&gt;() const;
+<span class="lineNum">     230 </span>            :     constexpr move_iterator&amp; operator++();
+<span class="lineNum">     231 </span>            :     constexpr move_iterator operator++(int);
+<span class="lineNum">     232 </span>            :     constexpr move_iterator&amp; operator--();
+<span class="lineNum">     233 </span>            :     constexpr move_iterator operator--(int);
+<span class="lineNum">     234 </span>            :     constexpr move_iterator operator+(difference_type n) const; 
+<span class="lineNum">     235 </span>            :     constexpr move_iterator&amp; operator+=(difference_type n); 
+<span class="lineNum">     236 </span>            :     constexpr move_iterator operator-(difference_type n) const; 
+<span class="lineNum">     237 </span>            :     constexpr move_iterator&amp; operator-=(difference_type n); 
+<span class="lineNum">     238 </span>            :     constexpr unspecified operator[](difference_type n) const;
+<span class="lineNum">     239 </span>            : private:
+<span class="lineNum">     240 </span>            :     Iterator current; // exposition only
+<span class="lineNum">     241 </span>            : };
+<span class="lineNum">     242 </span>            : 
+<span class="lineNum">     243 </span>            : template &lt;class Iterator1, class Iterator2&gt;
+<span class="lineNum">     244 </span>            : constexpr bool   // constexpr in C++17
+<span class="lineNum">     245 </span>            : operator==(const move_iterator&lt;Iterator1&gt;&amp; x, const move_iterator&lt;Iterator2&gt;&amp; y);
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span>            : template &lt;class Iterator1, class Iterator2&gt;
+<span class="lineNum">     248 </span>            : constexpr bool   // constexpr in C++17
+<span class="lineNum">     249 </span>            : operator!=(const move_iterator&lt;Iterator1&gt;&amp; x, const move_iterator&lt;Iterator2&gt;&amp; y);
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            : template &lt;class Iterator1, class Iterator2&gt;
+<span class="lineNum">     252 </span>            : constexpr bool   // constexpr in C++17
+<span class="lineNum">     253 </span>            : operator&lt;(const move_iterator&lt;Iterator1&gt;&amp; x, const move_iterator&lt;Iterator2&gt;&amp; y);
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span>            : template &lt;class Iterator1, class Iterator2&gt;
+<span class="lineNum">     256 </span>            : constexpr bool   // constexpr in C++17
+<span class="lineNum">     257 </span>            : operator&lt;=(const move_iterator&lt;Iterator1&gt;&amp; x, const move_iterator&lt;Iterator2&gt;&amp; y);
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span>            : template &lt;class Iterator1, class Iterator2&gt;
+<span class="lineNum">     260 </span>            : constexpr bool   // constexpr in C++17
+<span class="lineNum">     261 </span>            : operator&gt;(const move_iterator&lt;Iterator1&gt;&amp; x, const move_iterator&lt;Iterator2&gt;&amp; y);
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span>            : template &lt;class Iterator1, class Iterator2&gt;
+<span class="lineNum">     264 </span>            : constexpr bool   // constexpr in C++17
+<span class="lineNum">     265 </span>            : operator&gt;=(const move_iterator&lt;Iterator1&gt;&amp; x, const move_iterator&lt;Iterator2&gt;&amp; y);
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span>            : template &lt;class Iterator1, class Iterator2&gt;
+<span class="lineNum">     268 </span>            : constexpr auto   // constexpr in C++17
+<span class="lineNum">     269 </span>            : operator-(const move_iterator&lt;Iterator1&gt;&amp; x,
+<span class="lineNum">     270 </span>            :           const move_iterator&lt;Iterator2&gt;&amp; y) -&gt; decltype(x.base() - y.base());
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span>            : template &lt;class Iterator&gt;
+<span class="lineNum">     273 </span>            : constexpr move_iterator&lt;Iterator&gt; operator+(   // constexpr in C++17
+<span class="lineNum">     274 </span>            :             typename move_iterator&lt;Iterator&gt;::difference_type n, 
+<span class="lineNum">     275 </span>            :             const move_iterator&lt;Iterator&gt;&amp; x);
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span>            : template &lt;class Iterator&gt;   // constexpr in C++17
+<span class="lineNum">     278 </span>            : constexpr  move_iterator&lt;Iterator&gt; make_move_iterator(const Iterator&amp; i);
+<span class="lineNum">     279 </span>            : 
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span>            : template &lt;class T, class charT = char, class traits = char_traits&lt;charT&gt;, class Distance = ptrdiff_t&gt;
+<span class="lineNum">     282 </span>            : class istream_iterator
+<span class="lineNum">     283 </span>            :     : public iterator&lt;input_iterator_tag, T, Distance, const T*, const T&amp;&gt;
+<span class="lineNum">     284 </span>            : {
+<span class="lineNum">     285 </span>            : public:
+<span class="lineNum">     286 </span>            :     typedef charT char_type;
+<span class="lineNum">     287 </span>            :     typedef traits traits_type;
+<span class="lineNum">     288 </span>            :     typedef basic_istream&lt;charT,traits&gt; istream_type;
+<span class="lineNum">     289 </span>            : 
+<span class="lineNum">     290 </span>            :     constexpr istream_iterator();
+<span class="lineNum">     291 </span>            :     istream_iterator(istream_type&amp; s);
+<span class="lineNum">     292 </span>            :     istream_iterator(const istream_iterator&amp; x);
+<span class="lineNum">     293 </span>            :     ~istream_iterator();
+<span class="lineNum">     294 </span>            : 
+<span class="lineNum">     295 </span>            :     const T&amp; operator*() const;
+<span class="lineNum">     296 </span>            :     const T* operator-&gt;() const;
+<span class="lineNum">     297 </span>            :     istream_iterator&amp; operator++();
+<span class="lineNum">     298 </span>            :     istream_iterator  operator++(int);
+<span class="lineNum">     299 </span>            : };
+<span class="lineNum">     300 </span>            : 
+<span class="lineNum">     301 </span>            : template &lt;class T, class charT, class traits, class Distance&gt;
+<span class="lineNum">     302 </span>            : bool operator==(const istream_iterator&lt;T,charT,traits,Distance&gt;&amp; x,
+<span class="lineNum">     303 </span>            :                 const istream_iterator&lt;T,charT,traits,Distance&gt;&amp; y);
+<span class="lineNum">     304 </span>            : template &lt;class T, class charT, class traits, class Distance&gt;
+<span class="lineNum">     305 </span>            : bool operator!=(const istream_iterator&lt;T,charT,traits,Distance&gt;&amp; x,
+<span class="lineNum">     306 </span>            :                 const istream_iterator&lt;T,charT,traits,Distance&gt;&amp; y);
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span>            : template &lt;class T, class charT = char, class traits = char_traits&lt;charT&gt; &gt;
+<span class="lineNum">     309 </span>            : class ostream_iterator
+<span class="lineNum">     310 </span>            :     : public iterator&lt;output_iterator_tag, void, void, void ,void&gt;
+<span class="lineNum">     311 </span>            : {
+<span class="lineNum">     312 </span>            : public:
+<span class="lineNum">     313 </span>            :     typedef charT char_type;
+<span class="lineNum">     314 </span>            :     typedef traits traits_type;
+<span class="lineNum">     315 </span>            :     typedef basic_ostream&lt;charT,traits&gt; ostream_type;
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span>            :     ostream_iterator(ostream_type&amp; s);
+<span class="lineNum">     318 </span>            :     ostream_iterator(ostream_type&amp; s, const charT* delimiter);
+<span class="lineNum">     319 </span>            :     ostream_iterator(const ostream_iterator&amp; x);
+<span class="lineNum">     320 </span>            :     ~ostream_iterator();
+<span class="lineNum">     321 </span>            :     ostream_iterator&amp; operator=(const T&amp; value);
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span>            :     ostream_iterator&amp; operator*();
+<span class="lineNum">     324 </span>            :     ostream_iterator&amp; operator++();
+<span class="lineNum">     325 </span>            :     ostream_iterator&amp; operator++(int);
+<span class="lineNum">     326 </span>            : };
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span>            : template&lt;class charT, class traits = char_traits&lt;charT&gt; &gt;
+<span class="lineNum">     329 </span>            : class istreambuf_iterator
+<span class="lineNum">     330 </span>            :     : public iterator&lt;input_iterator_tag, charT,
+<span class="lineNum">     331 </span>            :                       typename traits::off_type, unspecified,
+<span class="lineNum">     332 </span>            :                       charT&gt;
+<span class="lineNum">     333 </span>            : {
+<span class="lineNum">     334 </span>            : public:
+<span class="lineNum">     335 </span>            :     typedef charT                         char_type;
+<span class="lineNum">     336 </span>            :     typedef traits                        traits_type;
+<span class="lineNum">     337 </span>            :     typedef typename traits::int_type     int_type;
+<span class="lineNum">     338 </span>            :     typedef basic_streambuf&lt;charT,traits&gt; streambuf_type;
+<span class="lineNum">     339 </span>            :     typedef basic_istream&lt;charT,traits&gt;   istream_type;
+<span class="lineNum">     340 </span>            : 
+<span class="lineNum">     341 </span>            :     istreambuf_iterator() noexcept;
+<span class="lineNum">     342 </span>            :     istreambuf_iterator(istream_type&amp; s) noexcept;
+<span class="lineNum">     343 </span>            :     istreambuf_iterator(streambuf_type* s) noexcept;
+<span class="lineNum">     344 </span>            :     istreambuf_iterator(a-private-type) noexcept;
+<span class="lineNum">     345 </span>            : 
+<span class="lineNum">     346 </span>            :     charT                operator*() const;
+<span class="lineNum">     347 </span>            :     pointer operator-&gt;() const;
+<span class="lineNum">     348 </span>            :     istreambuf_iterator&amp; operator++();
+<span class="lineNum">     349 </span>            :     a-private-type       operator++(int);
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span>            :     bool equal(const istreambuf_iterator&amp; b) const;
+<span class="lineNum">     352 </span>            : };
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span>            : template &lt;class charT, class traits&gt;
+<span class="lineNum">     355 </span>            : bool operator==(const istreambuf_iterator&lt;charT,traits&gt;&amp; a,
+<span class="lineNum">     356 </span>            :                 const istreambuf_iterator&lt;charT,traits&gt;&amp; b);
+<span class="lineNum">     357 </span>            : template &lt;class charT, class traits&gt;
+<span class="lineNum">     358 </span>            : bool operator!=(const istreambuf_iterator&lt;charT,traits&gt;&amp; a,
+<span class="lineNum">     359 </span>            :                 const istreambuf_iterator&lt;charT,traits&gt;&amp; b);
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt; &gt;
+<span class="lineNum">     362 </span>            : class ostreambuf_iterator
+<span class="lineNum">     363 </span>            :     : public iterator&lt;output_iterator_tag, void, void, void, void&gt;
+<span class="lineNum">     364 </span>            : {
+<span class="lineNum">     365 </span>            : public:
+<span class="lineNum">     366 </span>            :     typedef charT                         char_type;
+<span class="lineNum">     367 </span>            :     typedef traits                        traits_type;
+<span class="lineNum">     368 </span>            :     typedef basic_streambuf&lt;charT,traits&gt; streambuf_type;
+<span class="lineNum">     369 </span>            :     typedef basic_ostream&lt;charT,traits&gt;   ostream_type;
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span>            :     ostreambuf_iterator(ostream_type&amp; s) noexcept;
+<span class="lineNum">     372 </span>            :     ostreambuf_iterator(streambuf_type* s) noexcept;
+<span class="lineNum">     373 </span>            :     ostreambuf_iterator&amp; operator=(charT c);
+<span class="lineNum">     374 </span>            :     ostreambuf_iterator&amp; operator*();
+<span class="lineNum">     375 </span>            :     ostreambuf_iterator&amp; operator++();
+<span class="lineNum">     376 </span>            :     ostreambuf_iterator&amp; operator++(int);
+<span class="lineNum">     377 </span>            :     bool failed() const noexcept;
+<span class="lineNum">     378 </span>            : };
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span>            : template &lt;class C&gt; constexpr auto begin(C&amp; c) -&gt; decltype(c.begin());
+<span class="lineNum">     381 </span>            : template &lt;class C&gt; constexpr auto begin(const C&amp; c) -&gt; decltype(c.begin());
+<span class="lineNum">     382 </span>            : template &lt;class C&gt; constexpr auto end(C&amp; c) -&gt; decltype(c.end());
+<span class="lineNum">     383 </span>            : template &lt;class C&gt; constexpr auto end(const C&amp; c) -&gt; decltype(c.end());
+<span class="lineNum">     384 </span>            : template &lt;class T, size_t N&gt; constexpr T* begin(T (&amp;array)[N]);
+<span class="lineNum">     385 </span>            : template &lt;class T, size_t N&gt; constexpr T* end(T (&amp;array)[N]);
+<span class="lineNum">     386 </span>            : 
+<span class="lineNum">     387 </span>            : template &lt;class C&gt; auto constexpr cbegin(const C&amp; c) -&gt; decltype(std::begin(c));        // C++14
+<span class="lineNum">     388 </span>            : template &lt;class C&gt; auto constexpr cend(const C&amp; c) -&gt; decltype(std::end(c));            // C++14
+<span class="lineNum">     389 </span>            : template &lt;class C&gt; auto constexpr rbegin(C&amp; c) -&gt; decltype(c.rbegin());                 // C++14
+<span class="lineNum">     390 </span>            : template &lt;class C&gt; auto constexpr rbegin(const C&amp; c) -&gt; decltype(c.rbegin());           // C++14
+<span class="lineNum">     391 </span>            : template &lt;class C&gt; auto constexpr rend(C&amp; c) -&gt; decltype(c.rend());                     // C++14
+<span class="lineNum">     392 </span>            : template &lt;class C&gt; constexpr auto rend(const C&amp; c) -&gt; decltype(c.rend());               // C++14
+<span class="lineNum">     393 </span>            : template &lt;class E&gt; reverse_iterator&lt;const E*&gt; constexpr rbegin(initializer_list&lt;E&gt; il); // C++14
+<span class="lineNum">     394 </span>            : template &lt;class E&gt; reverse_iterator&lt;const E*&gt; constexpr rend(initializer_list&lt;E&gt; il);   // C++14
+<span class="lineNum">     395 </span>            : template &lt;class T, size_t N&gt; reverse_iterator&lt;T*&gt; constexpr rbegin(T (&amp;array)[N]);      // C++14
+<span class="lineNum">     396 </span>            : template &lt;class T, size_t N&gt; reverse_iterator&lt;T*&gt; constexpr rend(T (&amp;array)[N]);        // C++14
+<span class="lineNum">     397 </span>            : template &lt;class C&gt; constexpr auto crbegin(const C&amp; c) -&gt; decltype(std::rbegin(c));      // C++14
+<span class="lineNum">     398 </span>            : template &lt;class C&gt; constexpr auto crend(const C&amp; c) -&gt; decltype(std::rend(c));          // C++14
+<span class="lineNum">     399 </span>            : 
+<span class="lineNum">     400 </span>            : // 24.8, container access:
+<span class="lineNum">     401 </span>            : template &lt;class C&gt; constexpr auto size(const C&amp; c) -&gt; decltype(c.size());         // C++17
+<span class="lineNum">     402 </span>            : template &lt;class T, size_t N&gt; constexpr size_t size(const T (&amp;array)[N]) noexcept; // C++17
+<span class="lineNum">     403 </span>            : template &lt;class C&gt; constexpr auto empty(const C&amp; c) -&gt; decltype(c.empty());       // C++17
+<span class="lineNum">     404 </span>            : template &lt;class T, size_t N&gt; constexpr bool empty(const T (&amp;array)[N]) noexcept;  // C++17
+<span class="lineNum">     405 </span>            : template &lt;class E&gt; constexpr bool empty(initializer_list&lt;E&gt; il) noexcept;         // C++17
+<span class="lineNum">     406 </span>            : template &lt;class C&gt; constexpr auto data(C&amp; c) -&gt; decltype(c.data());               // C++17
+<span class="lineNum">     407 </span>            : template &lt;class C&gt; constexpr auto data(const C&amp; c) -&gt; decltype(c.data());         // C++17
+<span class="lineNum">     408 </span>            : template &lt;class T, size_t N&gt; constexpr T* data(T (&amp;array)[N]) noexcept;           // C++17
+<span class="lineNum">     409 </span>            : template &lt;class E&gt; constexpr const E* data(initializer_list&lt;E&gt; il) noexcept;      // C++17
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span>            : }  // std
+<span class="lineNum">     412 </span>            : 
+<span class="lineNum">     413 </span>            : */
+<span class="lineNum">     414 </span>            : 
+<span class="lineNum">     415 </span>            : #include &lt;__config&gt;
+<span class="lineNum">     416 </span>            : #include &lt;iosfwd&gt; // for forward declarations of vector and string.
+<span class="lineNum">     417 </span>            : #include &lt;__functional_base&gt;
+<span class="lineNum">     418 </span>            : #include &lt;type_traits&gt;
+<span class="lineNum">     419 </span>            : #include &lt;cstddef&gt;
+<span class="lineNum">     420 </span>            : #include &lt;initializer_list&gt;
+<span class="lineNum">     421 </span>            : #ifdef __APPLE__
+<span class="lineNum">     422 </span>            : #include &lt;Availability.h&gt;
+<span class="lineNum">     423 </span>            : #endif
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            : #include &lt;__debug&gt;
+<span class="lineNum">     426 </span>            : 
+<span class="lineNum">     427 </span>            : #if !defined(_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER)
+<span class="lineNum">     428 </span>            : #pragma GCC system_header
+<span class="lineNum">     429 </span>            : #endif
+<span class="lineNum">     430 </span>            : 
+<span class="lineNum">     431 </span>            : _LIBCPP_BEGIN_NAMESPACE_STD
+<span class="lineNum">     432 </span>            : 
+<span class="lineNum">     433 </span>            : struct _LIBCPP_TEMPLATE_VIS input_iterator_tag {};
+<span class="lineNum">     434 </span>            : struct _LIBCPP_TEMPLATE_VIS output_iterator_tag {};
+<span class="lineNum">     435 </span>            : struct _LIBCPP_TEMPLATE_VIS forward_iterator_tag       : public input_iterator_tag {};
+<span class="lineNum">     436 </span>            : struct _LIBCPP_TEMPLATE_VIS bidirectional_iterator_tag : public forward_iterator_tag {};
+<span class="lineNum">     437 </span>            : struct _LIBCPP_TEMPLATE_VIS random_access_iterator_tag : public bidirectional_iterator_tag {};
+<span class="lineNum">     438 </span>            : 
+<span class="lineNum">     439 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     440 </span>            : struct __has_iterator_category
+<span class="lineNum">     441 </span>            : {
+<span class="lineNum">     442 </span>            : private:
+<span class="lineNum">     443 </span>            :     struct __two {char __lx; char __lxx;};
+<span class="lineNum">     444 </span>            :     template &lt;class _Up&gt; static __two __test(...);
+<span class="lineNum">     445 </span>            :     template &lt;class _Up&gt; static char __test(typename _Up::iterator_category* = 0);
+<span class="lineNum">     446 </span>            : public:
+<span class="lineNum">     447 </span>            :     static const bool value = sizeof(__test&lt;_Tp&gt;(0)) == 1;
+<span class="lineNum">     448 </span>            : };
+<span class="lineNum">     449 </span>            : 
+<span class="lineNum">     450 </span>            : template &lt;class _Iter, bool&gt; struct __iterator_traits_impl {};
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span>            : template &lt;class _Iter&gt;
+<span class="lineNum">     453 </span>            : struct __iterator_traits_impl&lt;_Iter, true&gt;
+<span class="lineNum">     454 </span>            : {
+<span class="lineNum">     455 </span>            :     typedef typename _Iter::difference_type   difference_type;
+<span class="lineNum">     456 </span>            :     typedef typename _Iter::value_type        value_type;
+<span class="lineNum">     457 </span>            :     typedef typename _Iter::pointer           pointer;
+<span class="lineNum">     458 </span>            :     typedef typename _Iter::reference         reference;
+<span class="lineNum">     459 </span>            :     typedef typename _Iter::iterator_category iterator_category;
+<span class="lineNum">     460 </span>            : };
+<span class="lineNum">     461 </span>            : 
+<span class="lineNum">     462 </span>            : template &lt;class _Iter, bool&gt; struct __iterator_traits {};
+<span class="lineNum">     463 </span>            : 
+<span class="lineNum">     464 </span>            : template &lt;class _Iter&gt;
+<span class="lineNum">     465 </span>            : struct __iterator_traits&lt;_Iter, true&gt;
+<span class="lineNum">     466 </span>            :     :  __iterator_traits_impl
+<span class="lineNum">     467 </span>            :       &lt;
+<span class="lineNum">     468 </span>            :         _Iter,
+<span class="lineNum">     469 </span>            :         is_convertible&lt;typename _Iter::iterator_category, input_iterator_tag&gt;::value ||
+<span class="lineNum">     470 </span>            :         is_convertible&lt;typename _Iter::iterator_category, output_iterator_tag&gt;::value
+<span class="lineNum">     471 </span>            :       &gt;
+<span class="lineNum">     472 </span>            : {};
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span>            : // iterator_traits&lt;Iterator&gt; will only have the nested types if Iterator::iterator_category
+<span class="lineNum">     475 </span>            : //    exists.  Else iterator_traits&lt;Iterator&gt; will be an empty class.  This is a
+<span class="lineNum">     476 </span>            : //    conforming extension which allows some programs to compile and behave as
+<span class="lineNum">     477 </span>            : //    the client expects instead of failing at compile time.
+<span class="lineNum">     478 </span>            : 
+<span class="lineNum">     479 </span>            : template &lt;class _Iter&gt;
+<span class="lineNum">     480 </span>            : struct _LIBCPP_TEMPLATE_VIS iterator_traits
+<span class="lineNum">     481 </span>            :     : __iterator_traits&lt;_Iter, __has_iterator_category&lt;_Iter&gt;::value&gt; {};
+<span class="lineNum">     482 </span>            : 
+<span class="lineNum">     483 </span>            : template&lt;class _Tp&gt;
+<span class="lineNum">     484 </span>            : struct _LIBCPP_TEMPLATE_VIS iterator_traits&lt;_Tp*&gt;
+<span class="lineNum">     485 </span>            : {
+<span class="lineNum">     486 </span>            :     typedef ptrdiff_t difference_type;
+<span class="lineNum">     487 </span>            :     typedef typename remove_cv&lt;_Tp&gt;::type value_type;
+<span class="lineNum">     488 </span>            :     typedef _Tp* pointer;
+<span class="lineNum">     489 </span>            :     typedef _Tp&amp; reference;
+<span class="lineNum">     490 </span>            :     typedef random_access_iterator_tag iterator_category;
+<span class="lineNum">     491 </span>            : };
+<span class="lineNum">     492 </span>            : 
+<span class="lineNum">     493 </span>            : template &lt;class _Tp, class _Up, bool = __has_iterator_category&lt;iterator_traits&lt;_Tp&gt; &gt;::value&gt;
+<span class="lineNum">     494 </span>            : struct __has_iterator_category_convertible_to
+<span class="lineNum">     495 </span>            :     : public integral_constant&lt;bool, is_convertible&lt;typename iterator_traits&lt;_Tp&gt;::iterator_category, _Up&gt;::value&gt;
+<span class="lineNum">     496 </span>            : {};
+<span class="lineNum">     497 </span>            : 
+<span class="lineNum">     498 </span>            : template &lt;class _Tp, class _Up&gt;
+<span class="lineNum">     499 </span>            : struct __has_iterator_category_convertible_to&lt;_Tp, _Up, false&gt; : public false_type {};
+<span class="lineNum">     500 </span>            : 
+<span class="lineNum">     501 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     502 </span>            : struct __is_input_iterator : public __has_iterator_category_convertible_to&lt;_Tp, input_iterator_tag&gt; {};
+<span class="lineNum">     503 </span>            : 
+<span class="lineNum">     504 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     505 </span>            : struct __is_forward_iterator : public __has_iterator_category_convertible_to&lt;_Tp, forward_iterator_tag&gt; {};
+<span class="lineNum">     506 </span>            : 
+<span class="lineNum">     507 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     508 </span>            : struct __is_bidirectional_iterator : public __has_iterator_category_convertible_to&lt;_Tp, bidirectional_iterator_tag&gt; {};
+<span class="lineNum">     509 </span>            : 
+<span class="lineNum">     510 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     511 </span>            : struct __is_random_access_iterator : public __has_iterator_category_convertible_to&lt;_Tp, random_access_iterator_tag&gt; {};
+<span class="lineNum">     512 </span>            : 
+<span class="lineNum">     513 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     514 </span>            : struct __is_exactly_input_iterator
+<span class="lineNum">     515 </span>            :     : public integral_constant&lt;bool, 
+<span class="lineNum">     516 </span>            :          __has_iterator_category_convertible_to&lt;_Tp, input_iterator_tag&gt;::value &amp;&amp; 
+<span class="lineNum">     517 </span>            :         !__has_iterator_category_convertible_to&lt;_Tp, forward_iterator_tag&gt;::value&gt; {};
+<span class="lineNum">     518 </span>            : 
+<span class="lineNum">     519 </span>            : template&lt;class _Category, class _Tp, class _Distance = ptrdiff_t,
+<span class="lineNum">     520 </span>            :          class _Pointer = _Tp*, class _Reference = _Tp&amp;&gt;
+<span class="lineNum">     521 </span>            : struct _LIBCPP_TEMPLATE_VIS iterator
+<span class="lineNum">     522 </span>            : {
+<span class="lineNum">     523 </span>            :     typedef _Tp        value_type;
+<span class="lineNum">     524 </span>            :     typedef _Distance  difference_type;
+<span class="lineNum">     525 </span>            :     typedef _Pointer   pointer;
+<span class="lineNum">     526 </span>            :     typedef _Reference reference;
+<span class="lineNum">     527 </span>            :     typedef _Category  iterator_category;
+<span class="lineNum">     528 </span>            : };
+<span class="lineNum">     529 </span>            : 
+<span class="lineNum">     530 </span>            : template &lt;class _InputIter&gt;
+<span class="lineNum">     531 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     532 </span>            : void __advance(_InputIter&amp; __i,
+<span class="lineNum">     533 </span>            :              typename iterator_traits&lt;_InputIter&gt;::difference_type __n, input_iterator_tag)
+<span class="lineNum">     534 </span>            : {
+<span class="lineNum">     535 </span>            :     for (; __n &gt; 0; --__n)
+<span class="lineNum">     536 </span>            :         ++__i;
+<span class="lineNum">     537 </span>            : }
+<span class="lineNum">     538 </span>            : 
+<span class="lineNum">     539 </span>            : template &lt;class _BiDirIter&gt;
+<span class="lineNum">     540 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     541 </span>            : void __advance(_BiDirIter&amp; __i,
+<span class="lineNum">     542 </span>            :              typename iterator_traits&lt;_BiDirIter&gt;::difference_type __n, bidirectional_iterator_tag)
+<span class="lineNum">     543 </span>            : {
+<span class="lineNum">     544 </span>            :     if (__n &gt;= 0)
+<span class="lineNum">     545 </span>            :         for (; __n &gt; 0; --__n)
+<span class="lineNum">     546 </span>            :             ++__i;
+<span class="lineNum">     547 </span>            :     else
+<span class="lineNum">     548 </span>            :         for (; __n &lt; 0; ++__n)
+<span class="lineNum">     549 </span>            :             --__i;
+<span class="lineNum">     550 </span>            : }
+<span class="lineNum">     551 </span>            : 
+<span class="lineNum">     552 </span>            : template &lt;class _RandIter&gt;
+<span class="lineNum">     553 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     554 </span>            : void __advance(_RandIter&amp; __i,
+<span class="lineNum">     555 </span>            :              typename iterator_traits&lt;_RandIter&gt;::difference_type __n, random_access_iterator_tag)
+<span class="lineNum">     556 </span>            : {
+<span class="lineNum">     557 </span>            :    __i += __n;
+<span class="lineNum">     558 </span>            : }
+<span class="lineNum">     559 </span>            : 
+<span class="lineNum">     560 </span>            : template &lt;class _InputIter&gt;
+<span class="lineNum">     561 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     562 </span>            : void advance(_InputIter&amp; __i,
+<span class="lineNum">     563 </span>            :              typename iterator_traits&lt;_InputIter&gt;::difference_type __n)
+<span class="lineNum">     564 </span>            : {
+<span class="lineNum">     565 </span>            :     __advance(__i, __n, typename iterator_traits&lt;_InputIter&gt;::iterator_category());
+<span class="lineNum">     566 </span>            : }
+<span class="lineNum">     567 </span>            : 
+<span class="lineNum">     568 </span>            : template &lt;class _InputIter&gt;
+<span class="lineNum">     569 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     570 </span>            : typename iterator_traits&lt;_InputIter&gt;::difference_type
+<span class="lineNum">     571 </span>            : __distance(_InputIter __first, _InputIter __last, input_iterator_tag)
+<span class="lineNum">     572 </span>            : {
+<span class="lineNum">     573 </span>            :     typename iterator_traits&lt;_InputIter&gt;::difference_type __r(0);
+<span class="lineNum">     574 </span>            :     for (; __first != __last; ++__first)
+<span class="lineNum">     575 </span>            :         ++__r;
+<span class="lineNum">     576 </span>            :     return __r;
+<span class="lineNum">     577 </span>            : }
+<span class="lineNum">     578 </span>            : 
+<span class="lineNum">     579 </span>            : template &lt;class _RandIter&gt;
+<a name="580"><span class="lineNum">     580 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14</a>
+<span class="lineNum">     581 </span>            : typename iterator_traits&lt;_RandIter&gt;::difference_type
+<span class="lineNum">     582 </span>            : __distance(_RandIter __first, _RandIter __last, random_access_iterator_tag)
+<span class="lineNum">     583 </span>            : {
+<span class="lineNum">     584 </span><span class="lineCov">         68 :     return __last - __first;</span>
+<span class="lineNum">     585 </span>            : }
+<span class="lineNum">     586 </span>            : 
+<span class="lineNum">     587 </span>            : template &lt;class _InputIter&gt;
+<a name="588"><span class="lineNum">     588 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14</a>
+<span class="lineNum">     589 </span>            : typename iterator_traits&lt;_InputIter&gt;::difference_type
+<span class="lineNum">     590 </span>            : distance(_InputIter __first, _InputIter __last)
+<span class="lineNum">     591 </span>            : {
+<span class="lineNum">     592 </span><span class="lineCov">         68 :     return __distance(__first, __last, typename iterator_traits&lt;_InputIter&gt;::iterator_category());</span>
+<span class="lineNum">     593 </span>            : }
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span>            : template &lt;class _InputIter&gt;
+<span class="lineNum">     596 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     597 </span>            : typename enable_if
+<span class="lineNum">     598 </span>            : &lt;
+<span class="lineNum">     599 </span>            :     __is_input_iterator&lt;_InputIter&gt;::value, 
+<span class="lineNum">     600 </span>            :     _InputIter
+<span class="lineNum">     601 </span>            : &gt;::type
+<span class="lineNum">     602 </span>            : next(_InputIter __x,
+<span class="lineNum">     603 </span>            :      typename iterator_traits&lt;_InputIter&gt;::difference_type __n = 1)
+<span class="lineNum">     604 </span>            : {
+<span class="lineNum">     605 </span>            :     _VSTD::advance(__x, __n);
+<span class="lineNum">     606 </span>            :     return __x;
+<span class="lineNum">     607 </span>            : }
+<span class="lineNum">     608 </span>            : 
+<span class="lineNum">     609 </span>            : template &lt;class _BidirectionalIter&gt;
+<span class="lineNum">     610 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     611 </span>            : typename enable_if
+<span class="lineNum">     612 </span>            : &lt;
+<span class="lineNum">     613 </span>            :     __is_bidirectional_iterator&lt;_BidirectionalIter&gt;::value, 
+<span class="lineNum">     614 </span>            :     _BidirectionalIter
+<span class="lineNum">     615 </span>            : &gt;::type
+<span class="lineNum">     616 </span>            : prev(_BidirectionalIter __x,
+<span class="lineNum">     617 </span>            :      typename iterator_traits&lt;_BidirectionalIter&gt;::difference_type __n = 1)
+<span class="lineNum">     618 </span>            : {
+<span class="lineNum">     619 </span>            :     _VSTD::advance(__x, -__n);
+<span class="lineNum">     620 </span>            :     return __x;
+<span class="lineNum">     621 </span>            : }
+<span class="lineNum">     622 </span>            : 
+<span class="lineNum">     623 </span>            : 
+<span class="lineNum">     624 </span>            : template &lt;class _Tp, class = void&gt;
+<span class="lineNum">     625 </span>            : struct __is_stashing_iterator : false_type {};
+<span class="lineNum">     626 </span>            : 
+<span class="lineNum">     627 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     628 </span>            : struct __is_stashing_iterator&lt;_Tp, typename __void_t&lt;typename _Tp::__stashing_iterator_tag&gt;::type&gt;
+<span class="lineNum">     629 </span>            :   : true_type {};
+<span class="lineNum">     630 </span>            : 
+<span class="lineNum">     631 </span>            : template &lt;class _Iter&gt;
+<span class="lineNum">     632 </span>            : class _LIBCPP_TEMPLATE_VIS reverse_iterator
+<span class="lineNum">     633 </span>            :     : public iterator&lt;typename iterator_traits&lt;_Iter&gt;::iterator_category,
+<span class="lineNum">     634 </span>            :                       typename iterator_traits&lt;_Iter&gt;::value_type,
+<span class="lineNum">     635 </span>            :                       typename iterator_traits&lt;_Iter&gt;::difference_type,
+<span class="lineNum">     636 </span>            :                       typename iterator_traits&lt;_Iter&gt;::pointer,
+<span class="lineNum">     637 </span>            :                       typename iterator_traits&lt;_Iter&gt;::reference&gt;
+<span class="lineNum">     638 </span>            : {
+<span class="lineNum">     639 </span>            : private:
+<span class="lineNum">     640 </span>            :     /*mutable*/ _Iter __t;  // no longer used as of LWG #2360, not removed due to ABI break
+<span class="lineNum">     641 </span>            : 
+<span class="lineNum">     642 </span>            :     static_assert(!__is_stashing_iterator&lt;_Iter&gt;::value,
+<span class="lineNum">     643 </span>            :       &quot;The specified iterator type cannot be used with reverse_iterator; &quot;
+<span class="lineNum">     644 </span>            :       &quot;Using stashing iterators with reverse_iterator causes undefined behavior&quot;);
+<span class="lineNum">     645 </span>            : 
+<span class="lineNum">     646 </span>            : protected:
+<span class="lineNum">     647 </span>            :     _Iter current;
+<span class="lineNum">     648 </span>            : public:
+<span class="lineNum">     649 </span>            :     typedef _Iter                                            iterator_type;
+<span class="lineNum">     650 </span>            :     typedef typename iterator_traits&lt;_Iter&gt;::difference_type difference_type;
+<span class="lineNum">     651 </span>            :     typedef typename iterator_traits&lt;_Iter&gt;::reference       reference;
+<span class="lineNum">     652 </span>            :     typedef typename iterator_traits&lt;_Iter&gt;::pointer         pointer;
+<span class="lineNum">     653 </span>            : 
+<span class="lineNum">     654 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     655 </span>            :     reverse_iterator() : __t(), current() {}
+<span class="lineNum">     656 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     657 </span>            :     explicit reverse_iterator(_Iter __x) : __t(__x), current(__x) {}
+<span class="lineNum">     658 </span>            :     template &lt;class _Up&gt;
+<span class="lineNum">     659 </span>            :         _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     660 </span>            :         reverse_iterator(const reverse_iterator&lt;_Up&gt;&amp; __u) : __t(__u.base()), current(__u.base()) {}
+<span class="lineNum">     661 </span>            :     template &lt;class _Up&gt;
+<span class="lineNum">     662 </span>            :         _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     663 </span>            :         reverse_iterator&amp; operator=(const reverse_iterator&lt;_Up&gt;&amp; __u)
+<span class="lineNum">     664 </span>            :             { __t = current = __u.base(); return *this; }
+<span class="lineNum">     665 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     666 </span>            :     _Iter base() const {return current;}
+<span class="lineNum">     667 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     668 </span>            :     reference operator*() const {_Iter __tmp = current; return *--__tmp;}
+<span class="lineNum">     669 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     670 </span>            :     pointer  operator-&gt;() const {return _VSTD::addressof(operator*());}
+<span class="lineNum">     671 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     672 </span>            :     reverse_iterator&amp; operator++() {--current; return *this;}
+<span class="lineNum">     673 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     674 </span>            :     reverse_iterator  operator++(int) {reverse_iterator __tmp(*this); --current; return __tmp;}
+<span class="lineNum">     675 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     676 </span>            :     reverse_iterator&amp; operator--() {++current; return *this;}
+<span class="lineNum">     677 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     678 </span>            :     reverse_iterator  operator--(int) {reverse_iterator __tmp(*this); ++current; return __tmp;}
+<span class="lineNum">     679 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     680 </span>            :     reverse_iterator  operator+ (difference_type __n) const {return reverse_iterator(current - __n);}
+<span class="lineNum">     681 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     682 </span>            :     reverse_iterator&amp; operator+=(difference_type __n) {current -= __n; return *this;}
+<span class="lineNum">     683 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     684 </span>            :     reverse_iterator  operator- (difference_type __n) const {return reverse_iterator(current + __n);}
+<span class="lineNum">     685 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     686 </span>            :     reverse_iterator&amp; operator-=(difference_type __n) {current += __n; return *this;}
+<span class="lineNum">     687 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     688 </span>            :     reference         operator[](difference_type __n) const {return *(*this + __n);}
+<span class="lineNum">     689 </span>            : };
+<span class="lineNum">     690 </span>            : 
+<span class="lineNum">     691 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">     692 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     693 </span>            : bool
+<span class="lineNum">     694 </span>            : operator==(const reverse_iterator&lt;_Iter1&gt;&amp; __x, const reverse_iterator&lt;_Iter2&gt;&amp; __y)
+<span class="lineNum">     695 </span>            : {
+<span class="lineNum">     696 </span>            :     return __x.base() == __y.base();
+<span class="lineNum">     697 </span>            : }
+<span class="lineNum">     698 </span>            : 
+<span class="lineNum">     699 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">     700 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     701 </span>            : bool
+<span class="lineNum">     702 </span>            : operator&lt;(const reverse_iterator&lt;_Iter1&gt;&amp; __x, const reverse_iterator&lt;_Iter2&gt;&amp; __y)
+<span class="lineNum">     703 </span>            : {
+<span class="lineNum">     704 </span>            :     return __x.base() &gt; __y.base();
+<span class="lineNum">     705 </span>            : }
+<span class="lineNum">     706 </span>            : 
+<span class="lineNum">     707 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">     708 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     709 </span>            : bool
+<span class="lineNum">     710 </span>            : operator!=(const reverse_iterator&lt;_Iter1&gt;&amp; __x, const reverse_iterator&lt;_Iter2&gt;&amp; __y)
+<span class="lineNum">     711 </span>            : {
+<span class="lineNum">     712 </span>            :     return __x.base() != __y.base();
+<span class="lineNum">     713 </span>            : }
+<span class="lineNum">     714 </span>            : 
+<span class="lineNum">     715 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">     716 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     717 </span>            : bool
+<span class="lineNum">     718 </span>            : operator&gt;(const reverse_iterator&lt;_Iter1&gt;&amp; __x, const reverse_iterator&lt;_Iter2&gt;&amp; __y)
+<span class="lineNum">     719 </span>            : {
+<span class="lineNum">     720 </span>            :     return __x.base() &lt; __y.base();
+<span class="lineNum">     721 </span>            : }
+<span class="lineNum">     722 </span>            : 
+<span class="lineNum">     723 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">     724 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     725 </span>            : bool
+<span class="lineNum">     726 </span>            : operator&gt;=(const reverse_iterator&lt;_Iter1&gt;&amp; __x, const reverse_iterator&lt;_Iter2&gt;&amp; __y)
+<span class="lineNum">     727 </span>            : {
+<span class="lineNum">     728 </span>            :     return __x.base() &lt;= __y.base();
+<span class="lineNum">     729 </span>            : }
+<span class="lineNum">     730 </span>            : 
+<span class="lineNum">     731 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">     732 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     733 </span>            : bool
+<span class="lineNum">     734 </span>            : operator&lt;=(const reverse_iterator&lt;_Iter1&gt;&amp; __x, const reverse_iterator&lt;_Iter2&gt;&amp; __y)
+<span class="lineNum">     735 </span>            : {
+<span class="lineNum">     736 </span>            :     return __x.base() &gt;= __y.base();
+<span class="lineNum">     737 </span>            : }
+<span class="lineNum">     738 </span>            : 
+<span class="lineNum">     739 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     740 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">     741 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     742 </span>            : auto
+<span class="lineNum">     743 </span>            : operator-(const reverse_iterator&lt;_Iter1&gt;&amp; __x, const reverse_iterator&lt;_Iter2&gt;&amp; __y)
+<span class="lineNum">     744 </span>            : -&gt; decltype(__y.base() - __x.base())
+<span class="lineNum">     745 </span>            : {
+<span class="lineNum">     746 </span>            :     return __y.base() - __x.base();
+<span class="lineNum">     747 </span>            : }
+<span class="lineNum">     748 </span>            : #else
+<span class="lineNum">     749 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">     750 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     751 </span>            : typename reverse_iterator&lt;_Iter1&gt;::difference_type
+<span class="lineNum">     752 </span>            : operator-(const reverse_iterator&lt;_Iter1&gt;&amp; __x, const reverse_iterator&lt;_Iter2&gt;&amp; __y)
+<span class="lineNum">     753 </span>            : {
+<span class="lineNum">     754 </span>            :     return __y.base() - __x.base();
+<span class="lineNum">     755 </span>            : }
+<span class="lineNum">     756 </span>            : #endif
+<span class="lineNum">     757 </span>            : 
+<span class="lineNum">     758 </span>            : template &lt;class _Iter&gt;
+<span class="lineNum">     759 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     760 </span>            : reverse_iterator&lt;_Iter&gt;
+<span class="lineNum">     761 </span>            : operator+(typename reverse_iterator&lt;_Iter&gt;::difference_type __n, const reverse_iterator&lt;_Iter&gt;&amp; __x)
+<span class="lineNum">     762 </span>            : {
+<span class="lineNum">     763 </span>            :     return reverse_iterator&lt;_Iter&gt;(__x.base() - __n);
+<span class="lineNum">     764 </span>            : }
+<span class="lineNum">     765 </span>            : 
+<span class="lineNum">     766 </span>            : #if _LIBCPP_STD_VER &gt; 11
+<span class="lineNum">     767 </span>            : template &lt;class _Iter&gt;
+<span class="lineNum">     768 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">     769 </span>            : reverse_iterator&lt;_Iter&gt; make_reverse_iterator(_Iter __i)
+<span class="lineNum">     770 </span>            : {
+<span class="lineNum">     771 </span>            :     return reverse_iterator&lt;_Iter&gt;(__i);
+<span class="lineNum">     772 </span>            : }
+<span class="lineNum">     773 </span>            : #endif
+<span class="lineNum">     774 </span>            : 
+<span class="lineNum">     775 </span>            : template &lt;class _Container&gt;
+<span class="lineNum">     776 </span>            : class _LIBCPP_TEMPLATE_VIS back_insert_iterator
+<span class="lineNum">     777 </span>            :     : public iterator&lt;output_iterator_tag,
+<span class="lineNum">     778 </span>            :                       void,
+<span class="lineNum">     779 </span>            :                       void,
+<span class="lineNum">     780 </span>            :                       void,
+<span class="lineNum">     781 </span>            :                       void&gt;
+<span class="lineNum">     782 </span>            : {
+<span class="lineNum">     783 </span>            : protected:
+<span class="lineNum">     784 </span>            :     _Container* container;
+<span class="lineNum">     785 </span>            : public:
+<span class="lineNum">     786 </span>            :     typedef _Container container_type;
+<span class="lineNum">     787 </span>            : 
+<span class="lineNum">     788 </span>            :     _LIBCPP_INLINE_VISIBILITY explicit back_insert_iterator(_Container&amp; __x) : container(_VSTD::addressof(__x)) {}
+<span class="lineNum">     789 </span>            :     _LIBCPP_INLINE_VISIBILITY back_insert_iterator&amp; operator=(const typename _Container::value_type&amp; __value_)
+<span class="lineNum">     790 </span>            :         {container-&gt;push_back(__value_); return *this;}
+<span class="lineNum">     791 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     792 </span>            :     _LIBCPP_INLINE_VISIBILITY back_insert_iterator&amp; operator=(typename _Container::value_type&amp;&amp; __value_)
+<span class="lineNum">     793 </span>            :         {container-&gt;push_back(_VSTD::move(__value_)); return *this;}
+<span class="lineNum">     794 </span>            : #endif  // _LIBCPP_CXX03_LANG
+<span class="lineNum">     795 </span>            :     _LIBCPP_INLINE_VISIBILITY back_insert_iterator&amp; operator*()     {return *this;}
+<span class="lineNum">     796 </span>            :     _LIBCPP_INLINE_VISIBILITY back_insert_iterator&amp; operator++()    {return *this;}
+<span class="lineNum">     797 </span>            :     _LIBCPP_INLINE_VISIBILITY back_insert_iterator  operator++(int) {return *this;}
+<span class="lineNum">     798 </span>            : };
+<span class="lineNum">     799 </span>            : 
+<span class="lineNum">     800 </span>            : template &lt;class _Container&gt;
+<span class="lineNum">     801 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     802 </span>            : back_insert_iterator&lt;_Container&gt;
+<span class="lineNum">     803 </span>            : back_inserter(_Container&amp; __x)
+<span class="lineNum">     804 </span>            : {
+<span class="lineNum">     805 </span>            :     return back_insert_iterator&lt;_Container&gt;(__x);
+<span class="lineNum">     806 </span>            : }
+<span class="lineNum">     807 </span>            : 
+<span class="lineNum">     808 </span>            : template &lt;class _Container&gt;
+<span class="lineNum">     809 </span>            : class _LIBCPP_TEMPLATE_VIS front_insert_iterator
+<span class="lineNum">     810 </span>            :     : public iterator&lt;output_iterator_tag,
+<span class="lineNum">     811 </span>            :                       void,
+<span class="lineNum">     812 </span>            :                       void,
+<span class="lineNum">     813 </span>            :                       void,
+<span class="lineNum">     814 </span>            :                       void&gt;
+<span class="lineNum">     815 </span>            : {
+<span class="lineNum">     816 </span>            : protected:
+<span class="lineNum">     817 </span>            :     _Container* container;
+<span class="lineNum">     818 </span>            : public:
+<span class="lineNum">     819 </span>            :     typedef _Container container_type;
+<span class="lineNum">     820 </span>            : 
+<span class="lineNum">     821 </span>            :     _LIBCPP_INLINE_VISIBILITY explicit front_insert_iterator(_Container&amp; __x) : container(_VSTD::addressof(__x)) {}
+<span class="lineNum">     822 </span>            :     _LIBCPP_INLINE_VISIBILITY front_insert_iterator&amp; operator=(const typename _Container::value_type&amp; __value_)
+<span class="lineNum">     823 </span>            :         {container-&gt;push_front(__value_); return *this;}
+<span class="lineNum">     824 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     825 </span>            :     _LIBCPP_INLINE_VISIBILITY front_insert_iterator&amp; operator=(typename _Container::value_type&amp;&amp; __value_)
+<span class="lineNum">     826 </span>            :         {container-&gt;push_front(_VSTD::move(__value_)); return *this;}
+<span class="lineNum">     827 </span>            : #endif  // _LIBCPP_CXX03_LANG
+<span class="lineNum">     828 </span>            :     _LIBCPP_INLINE_VISIBILITY front_insert_iterator&amp; operator*()     {return *this;}
+<span class="lineNum">     829 </span>            :     _LIBCPP_INLINE_VISIBILITY front_insert_iterator&amp; operator++()    {return *this;}
+<span class="lineNum">     830 </span>            :     _LIBCPP_INLINE_VISIBILITY front_insert_iterator  operator++(int) {return *this;}
+<span class="lineNum">     831 </span>            : };
+<span class="lineNum">     832 </span>            : 
+<span class="lineNum">     833 </span>            : template &lt;class _Container&gt;
+<span class="lineNum">     834 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     835 </span>            : front_insert_iterator&lt;_Container&gt;
+<span class="lineNum">     836 </span>            : front_inserter(_Container&amp; __x)
+<span class="lineNum">     837 </span>            : {
+<span class="lineNum">     838 </span>            :     return front_insert_iterator&lt;_Container&gt;(__x);
+<span class="lineNum">     839 </span>            : }
+<span class="lineNum">     840 </span>            : 
+<span class="lineNum">     841 </span>            : template &lt;class _Container&gt;
+<span class="lineNum">     842 </span>            : class _LIBCPP_TEMPLATE_VIS insert_iterator
+<span class="lineNum">     843 </span>            :     : public iterator&lt;output_iterator_tag,
+<span class="lineNum">     844 </span>            :                       void,
+<span class="lineNum">     845 </span>            :                       void,
+<span class="lineNum">     846 </span>            :                       void,
+<span class="lineNum">     847 </span>            :                       void&gt;
+<span class="lineNum">     848 </span>            : {
+<span class="lineNum">     849 </span>            : protected:
+<span class="lineNum">     850 </span>            :     _Container* container;
+<span class="lineNum">     851 </span>            :     typename _Container::iterator iter;
+<span class="lineNum">     852 </span>            : public:
+<span class="lineNum">     853 </span>            :     typedef _Container container_type;
+<span class="lineNum">     854 </span>            : 
+<span class="lineNum">     855 </span>            :     _LIBCPP_INLINE_VISIBILITY insert_iterator(_Container&amp; __x, typename _Container::iterator __i)
+<span class="lineNum">     856 </span>            :         : container(_VSTD::addressof(__x)), iter(__i) {}
+<span class="lineNum">     857 </span>            :     _LIBCPP_INLINE_VISIBILITY insert_iterator&amp; operator=(const typename _Container::value_type&amp; __value_)
+<span class="lineNum">     858 </span>            :         {iter = container-&gt;insert(iter, __value_); ++iter; return *this;}
+<span class="lineNum">     859 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     860 </span>            :     _LIBCPP_INLINE_VISIBILITY insert_iterator&amp; operator=(typename _Container::value_type&amp;&amp; __value_)
+<span class="lineNum">     861 </span>            :         {iter = container-&gt;insert(iter, _VSTD::move(__value_)); ++iter; return *this;}
+<span class="lineNum">     862 </span>            : #endif  // _LIBCPP_CXX03_LANG
+<span class="lineNum">     863 </span>            :     _LIBCPP_INLINE_VISIBILITY insert_iterator&amp; operator*()        {return *this;}
+<span class="lineNum">     864 </span>            :     _LIBCPP_INLINE_VISIBILITY insert_iterator&amp; operator++()       {return *this;}
+<span class="lineNum">     865 </span>            :     _LIBCPP_INLINE_VISIBILITY insert_iterator&amp; operator++(int)    {return *this;}
+<span class="lineNum">     866 </span>            : };
+<span class="lineNum">     867 </span>            : 
+<span class="lineNum">     868 </span>            : template &lt;class _Container&gt;
+<span class="lineNum">     869 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     870 </span>            : insert_iterator&lt;_Container&gt;
+<span class="lineNum">     871 </span>            : inserter(_Container&amp; __x, typename _Container::iterator __i)
+<span class="lineNum">     872 </span>            : {
+<span class="lineNum">     873 </span>            :     return insert_iterator&lt;_Container&gt;(__x, __i);
+<span class="lineNum">     874 </span>            : }
+<span class="lineNum">     875 </span>            : 
+<span class="lineNum">     876 </span>            : template &lt;class _Tp, class _CharT = char,
+<span class="lineNum">     877 </span>            :           class _Traits = char_traits&lt;_CharT&gt;, class _Distance = ptrdiff_t&gt;
+<span class="lineNum">     878 </span>            : class _LIBCPP_TEMPLATE_VIS istream_iterator
+<span class="lineNum">     879 </span>            :     : public iterator&lt;input_iterator_tag, _Tp, _Distance, const _Tp*, const _Tp&amp;&gt;
+<span class="lineNum">     880 </span>            : {
+<span class="lineNum">     881 </span>            : public:
+<span class="lineNum">     882 </span>            :     typedef _CharT char_type;
+<span class="lineNum">     883 </span>            :     typedef _Traits traits_type;
+<span class="lineNum">     884 </span>            :     typedef basic_istream&lt;_CharT,_Traits&gt; istream_type;
+<span class="lineNum">     885 </span>            : private:
+<span class="lineNum">     886 </span>            :     istream_type* __in_stream_;
+<span class="lineNum">     887 </span>            :     _Tp __value_;
+<span class="lineNum">     888 </span>            : public:
+<span class="lineNum">     889 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR istream_iterator() : __in_stream_(0), __value_() {}
+<span class="lineNum">     890 </span>            :     _LIBCPP_INLINE_VISIBILITY istream_iterator(istream_type&amp; __s) : __in_stream_(_VSTD::addressof(__s))
+<span class="lineNum">     891 </span>            :         {
+<span class="lineNum">     892 </span>            :             if (!(*__in_stream_ &gt;&gt; __value_))
+<span class="lineNum">     893 </span>            :                 __in_stream_ = 0;
+<span class="lineNum">     894 </span>            :         }
+<span class="lineNum">     895 </span>            : 
+<span class="lineNum">     896 </span>            :     _LIBCPP_INLINE_VISIBILITY const _Tp&amp; operator*() const {return __value_;}
+<span class="lineNum">     897 </span>            :     _LIBCPP_INLINE_VISIBILITY const _Tp* operator-&gt;() const {return _VSTD::addressof((operator*()));}
+<span class="lineNum">     898 </span>            :     _LIBCPP_INLINE_VISIBILITY istream_iterator&amp; operator++()
+<span class="lineNum">     899 </span>            :         {
+<span class="lineNum">     900 </span>            :             if (!(*__in_stream_ &gt;&gt; __value_))
+<span class="lineNum">     901 </span>            :                 __in_stream_ = 0;
+<span class="lineNum">     902 </span>            :             return *this;
+<span class="lineNum">     903 </span>            :         }
+<span class="lineNum">     904 </span>            :     _LIBCPP_INLINE_VISIBILITY istream_iterator  operator++(int)
+<span class="lineNum">     905 </span>            :         {istream_iterator __t(*this); ++(*this); return __t;}
+<span class="lineNum">     906 </span>            : 
+<span class="lineNum">     907 </span>            :     template &lt;class _Up, class _CharU, class _TraitsU, class _DistanceU&gt;
+<span class="lineNum">     908 </span>            :     friend _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     909 </span>            :     bool
+<span class="lineNum">     910 </span>            :     operator==(const istream_iterator&lt;_Up, _CharU, _TraitsU, _DistanceU&gt;&amp; __x,
+<span class="lineNum">     911 </span>            :                const istream_iterator&lt;_Up, _CharU, _TraitsU, _DistanceU&gt;&amp; __y);
+<span class="lineNum">     912 </span>            : 
+<span class="lineNum">     913 </span>            :     template &lt;class _Up, class _CharU, class _TraitsU, class _DistanceU&gt;
+<span class="lineNum">     914 </span>            :     friend _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     915 </span>            :     bool
+<span class="lineNum">     916 </span>            :     operator==(const istream_iterator&lt;_Up, _CharU, _TraitsU, _DistanceU&gt;&amp; __x,
+<span class="lineNum">     917 </span>            :                const istream_iterator&lt;_Up, _CharU, _TraitsU, _DistanceU&gt;&amp; __y);
+<span class="lineNum">     918 </span>            : };
+<span class="lineNum">     919 </span>            : 
+<span class="lineNum">     920 </span>            : template &lt;class _Tp, class _CharT, class _Traits, class _Distance&gt;
+<span class="lineNum">     921 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     922 </span>            : bool
+<span class="lineNum">     923 </span>            : operator==(const istream_iterator&lt;_Tp, _CharT, _Traits, _Distance&gt;&amp; __x,
+<span class="lineNum">     924 </span>            :            const istream_iterator&lt;_Tp, _CharT, _Traits, _Distance&gt;&amp; __y)
+<span class="lineNum">     925 </span>            : {
+<span class="lineNum">     926 </span>            :     return __x.__in_stream_ == __y.__in_stream_;
+<span class="lineNum">     927 </span>            : }
+<span class="lineNum">     928 </span>            : 
+<span class="lineNum">     929 </span>            : template &lt;class _Tp, class _CharT, class _Traits, class _Distance&gt;
+<span class="lineNum">     930 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     931 </span>            : bool
+<span class="lineNum">     932 </span>            : operator!=(const istream_iterator&lt;_Tp, _CharT, _Traits, _Distance&gt;&amp; __x,
+<span class="lineNum">     933 </span>            :            const istream_iterator&lt;_Tp, _CharT, _Traits, _Distance&gt;&amp; __y)
+<span class="lineNum">     934 </span>            : {
+<span class="lineNum">     935 </span>            :     return !(__x == __y);
+<span class="lineNum">     936 </span>            : }
+<span class="lineNum">     937 </span>            : 
+<span class="lineNum">     938 </span>            : template &lt;class _Tp, class _CharT = char, class _Traits = char_traits&lt;_CharT&gt; &gt;
+<span class="lineNum">     939 </span>            : class _LIBCPP_TEMPLATE_VIS ostream_iterator
+<span class="lineNum">     940 </span>            :     : public iterator&lt;output_iterator_tag, void, void, void, void&gt;
+<span class="lineNum">     941 </span>            : {
+<span class="lineNum">     942 </span>            : public:
+<span class="lineNum">     943 </span>            :     typedef _CharT char_type;
+<span class="lineNum">     944 </span>            :     typedef _Traits traits_type;
+<span class="lineNum">     945 </span>            :     typedef basic_ostream&lt;_CharT,_Traits&gt; ostream_type;
+<span class="lineNum">     946 </span>            : private:
+<span class="lineNum">     947 </span>            :     ostream_type* __out_stream_;
+<span class="lineNum">     948 </span>            :     const char_type* __delim_;
+<span class="lineNum">     949 </span>            : public:
+<span class="lineNum">     950 </span>            :     _LIBCPP_INLINE_VISIBILITY ostream_iterator(ostream_type&amp; __s) _NOEXCEPT
+<span class="lineNum">     951 </span>            :         : __out_stream_(_VSTD::addressof(__s)), __delim_(0) {}
+<span class="lineNum">     952 </span>            :     _LIBCPP_INLINE_VISIBILITY ostream_iterator(ostream_type&amp; __s, const _CharT* __delimiter) _NOEXCEPT
+<span class="lineNum">     953 </span>            :         : __out_stream_(_VSTD::addressof(__s)), __delim_(__delimiter) {}
+<span class="lineNum">     954 </span>            :     _LIBCPP_INLINE_VISIBILITY ostream_iterator&amp; operator=(const _Tp&amp; __value_)
+<span class="lineNum">     955 </span>            :         {
+<span class="lineNum">     956 </span>            :             *__out_stream_ &lt;&lt; __value_;
+<span class="lineNum">     957 </span>            :             if (__delim_)
+<span class="lineNum">     958 </span>            :                 *__out_stream_ &lt;&lt; __delim_;
+<span class="lineNum">     959 </span>            :             return *this;
+<span class="lineNum">     960 </span>            :         }
+<span class="lineNum">     961 </span>            : 
+<span class="lineNum">     962 </span>            :     _LIBCPP_INLINE_VISIBILITY ostream_iterator&amp; operator*()     {return *this;}
+<span class="lineNum">     963 </span>            :     _LIBCPP_INLINE_VISIBILITY ostream_iterator&amp; operator++()    {return *this;}
+<span class="lineNum">     964 </span>            :     _LIBCPP_INLINE_VISIBILITY ostream_iterator&amp; operator++(int) {return *this;}
+<span class="lineNum">     965 </span>            : };
+<span class="lineNum">     966 </span>            : 
+<span class="lineNum">     967 </span>            : template&lt;class _CharT, class _Traits&gt;
+<span class="lineNum">     968 </span>            : class _LIBCPP_TEMPLATE_VIS istreambuf_iterator
+<span class="lineNum">     969 </span>            :     : public iterator&lt;input_iterator_tag, _CharT,
+<span class="lineNum">     970 </span>            :                       typename _Traits::off_type, _CharT*,
+<span class="lineNum">     971 </span>            :                       _CharT&gt;
+<span class="lineNum">     972 </span>            : {
+<span class="lineNum">     973 </span>            : public:
+<span class="lineNum">     974 </span>            :     typedef _CharT                          char_type;
+<span class="lineNum">     975 </span>            :     typedef _Traits                         traits_type;
+<span class="lineNum">     976 </span>            :     typedef typename _Traits::int_type      int_type;
+<span class="lineNum">     977 </span>            :     typedef basic_streambuf&lt;_CharT,_Traits&gt; streambuf_type;
+<span class="lineNum">     978 </span>            :     typedef basic_istream&lt;_CharT,_Traits&gt;   istream_type;
+<span class="lineNum">     979 </span>            : private:
+<span class="lineNum">     980 </span>            :     mutable streambuf_type* __sbuf_;
+<span class="lineNum">     981 </span>            : 
+<span class="lineNum">     982 </span>            :     class __proxy
+<span class="lineNum">     983 </span>            :     {
+<span class="lineNum">     984 </span>            :         char_type __keep_;
+<span class="lineNum">     985 </span>            :         streambuf_type* __sbuf_;
+<span class="lineNum">     986 </span>            :         _LIBCPP_INLINE_VISIBILITY __proxy(char_type __c, streambuf_type* __s)
+<span class="lineNum">     987 </span>            :             : __keep_(__c), __sbuf_(__s) {}
+<span class="lineNum">     988 </span>            :         friend class istreambuf_iterator;
+<span class="lineNum">     989 </span>            :     public:
+<span class="lineNum">     990 </span>            :         _LIBCPP_INLINE_VISIBILITY char_type operator*() const {return __keep_;}
+<span class="lineNum">     991 </span>            :     };
+<span class="lineNum">     992 </span>            : 
+<span class="lineNum">     993 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     994 </span>            :     bool __test_for_eof() const
+<span class="lineNum">     995 </span>            :     {
+<span class="lineNum">     996 </span>            :         if (__sbuf_ &amp;&amp; traits_type::eq_int_type(__sbuf_-&gt;sgetc(), traits_type::eof()))
+<span class="lineNum">     997 </span>            :             __sbuf_ = 0;
+<span class="lineNum">     998 </span>            :         return __sbuf_ == 0;
+<span class="lineNum">     999 </span>            :     }
+<span class="lineNum">    1000 </span>            : public:
+<span class="lineNum">    1001 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR istreambuf_iterator() _NOEXCEPT : __sbuf_(0) {}
+<span class="lineNum">    1002 </span>            :     _LIBCPP_INLINE_VISIBILITY istreambuf_iterator(istream_type&amp; __s) _NOEXCEPT
+<span class="lineNum">    1003 </span>            :         : __sbuf_(__s.rdbuf()) {}
+<span class="lineNum">    1004 </span>            :     _LIBCPP_INLINE_VISIBILITY istreambuf_iterator(streambuf_type* __s) _NOEXCEPT
+<span class="lineNum">    1005 </span>            :         : __sbuf_(__s) {}
+<span class="lineNum">    1006 </span>            :     _LIBCPP_INLINE_VISIBILITY istreambuf_iterator(const __proxy&amp; __p) _NOEXCEPT
+<span class="lineNum">    1007 </span>            :         : __sbuf_(__p.__sbuf_) {}
+<span class="lineNum">    1008 </span>            : 
+<span class="lineNum">    1009 </span>            :     _LIBCPP_INLINE_VISIBILITY char_type  operator*() const
+<span class="lineNum">    1010 </span>            :         {return static_cast&lt;char_type&gt;(__sbuf_-&gt;sgetc());}
+<span class="lineNum">    1011 </span>            :     _LIBCPP_INLINE_VISIBILITY istreambuf_iterator&amp; operator++()
+<span class="lineNum">    1012 </span>            :         {
+<span class="lineNum">    1013 </span>            :             __sbuf_-&gt;sbumpc();
+<span class="lineNum">    1014 </span>            :             return *this;
+<span class="lineNum">    1015 </span>            :         }
+<span class="lineNum">    1016 </span>            :     _LIBCPP_INLINE_VISIBILITY __proxy              operator++(int)
+<span class="lineNum">    1017 </span>            :         {
+<span class="lineNum">    1018 </span>            :             return __proxy(__sbuf_-&gt;sbumpc(), __sbuf_);
+<span class="lineNum">    1019 </span>            :         }
+<span class="lineNum">    1020 </span>            : 
+<span class="lineNum">    1021 </span>            :     _LIBCPP_INLINE_VISIBILITY bool equal(const istreambuf_iterator&amp; __b) const
+<span class="lineNum">    1022 </span>            :         {return __test_for_eof() == __b.__test_for_eof();}
+<span class="lineNum">    1023 </span>            : };
+<span class="lineNum">    1024 </span>            : 
+<span class="lineNum">    1025 </span>            : template &lt;class _CharT, class _Traits&gt;
+<span class="lineNum">    1026 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1027 </span>            : bool operator==(const istreambuf_iterator&lt;_CharT,_Traits&gt;&amp; __a,
+<span class="lineNum">    1028 </span>            :                 const istreambuf_iterator&lt;_CharT,_Traits&gt;&amp; __b)
+<span class="lineNum">    1029 </span>            :                 {return __a.equal(__b);}
+<span class="lineNum">    1030 </span>            : 
+<span class="lineNum">    1031 </span>            : template &lt;class _CharT, class _Traits&gt;
+<span class="lineNum">    1032 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1033 </span>            : bool operator!=(const istreambuf_iterator&lt;_CharT,_Traits&gt;&amp; __a,
+<span class="lineNum">    1034 </span>            :                 const istreambuf_iterator&lt;_CharT,_Traits&gt;&amp; __b)
+<span class="lineNum">    1035 </span>            :                 {return !__a.equal(__b);}
+<span class="lineNum">    1036 </span>            : 
+<span class="lineNum">    1037 </span>            : template &lt;class _CharT, class _Traits&gt;
+<span class="lineNum">    1038 </span>            : class _LIBCPP_TEMPLATE_VIS ostreambuf_iterator
+<span class="lineNum">    1039 </span>            :     : public iterator&lt;output_iterator_tag, void, void, void, void&gt;
+<span class="lineNum">    1040 </span>            : {
+<span class="lineNum">    1041 </span>            : public:
+<span class="lineNum">    1042 </span>            :     typedef _CharT                          char_type;
+<span class="lineNum">    1043 </span>            :     typedef _Traits                         traits_type;
+<span class="lineNum">    1044 </span>            :     typedef basic_streambuf&lt;_CharT,_Traits&gt; streambuf_type;
+<span class="lineNum">    1045 </span>            :     typedef basic_ostream&lt;_CharT,_Traits&gt;   ostream_type;
+<span class="lineNum">    1046 </span>            : private:
+<a name="1047"><span class="lineNum">    1047 </span>            :     streambuf_type* __sbuf_;</a>
+<span class="lineNum">    1048 </span>            : public:
+<span class="lineNum">    1049 </span>            :     _LIBCPP_INLINE_VISIBILITY ostreambuf_iterator(ostream_type&amp; __s) _NOEXCEPT
+<span class="lineNum">    1050 </span><span class="lineCov">       2487 :         : __sbuf_(__s.rdbuf()) {}</span>
+<span class="lineNum">    1051 </span>            :     _LIBCPP_INLINE_VISIBILITY ostreambuf_iterator(streambuf_type* __s) _NOEXCEPT
+<span class="lineNum">    1052 </span>            :         : __sbuf_(__s) {}
+<span class="lineNum">    1053 </span>            :     _LIBCPP_INLINE_VISIBILITY ostreambuf_iterator&amp; operator=(_CharT __c)
+<span class="lineNum">    1054 </span>            :         {
+<span class="lineNum">    1055 </span>            :             if (__sbuf_ &amp;&amp; traits_type::eq_int_type(__sbuf_-&gt;sputc(__c), traits_type::eof()))
+<span class="lineNum">    1056 </span>            :                 __sbuf_ = 0;
+<span class="lineNum">    1057 </span>            :             return *this;
+<span class="lineNum">    1058 </span>            :         }
+<span class="lineNum">    1059 </span>            :     _LIBCPP_INLINE_VISIBILITY ostreambuf_iterator&amp; operator*()     {return *this;}
+<a name="1060"><span class="lineNum">    1060 </span>            :     _LIBCPP_INLINE_VISIBILITY ostreambuf_iterator&amp; operator++()    {return *this;}</a>
+<span class="lineNum">    1061 </span>            :     _LIBCPP_INLINE_VISIBILITY ostreambuf_iterator&amp; operator++(int) {return *this;}
+<span class="lineNum">    1062 </span><span class="lineCov">        829 :     _LIBCPP_INLINE_VISIBILITY bool failed() const _NOEXCEPT {return __sbuf_ == 0;}</span>
+<span class="lineNum">    1063 </span>            : 
+<span class="lineNum">    1064 </span>            : #if !defined(__APPLE__) || \
+<span class="lineNum">    1065 </span>            :     (defined(__MAC_OS_X_VERSION_MIN_REQUIRED) &amp;&amp; __MAC_OS_X_VERSION_MIN_REQUIRED &gt; __MAC_10_8) || \
+<span class="lineNum">    1066 </span>            :     (defined(__IPHONE_OS_VERSION_MIN_REQUIRED) &amp;&amp; __IPHONE_OS_VERSION_MIN_REQUIRED &gt; __IPHONE_6_0)
+<span class="lineNum">    1067 </span>            : 
+<span class="lineNum">    1068 </span>            :     template &lt;class _Ch, class _Tr&gt;
+<span class="lineNum">    1069 </span>            :     friend
+<span class="lineNum">    1070 </span>            :     _LIBCPP_HIDDEN
+<span class="lineNum">    1071 </span>            :     ostreambuf_iterator&lt;_Ch, _Tr&gt;
+<span class="lineNum">    1072 </span>            :     __pad_and_output(ostreambuf_iterator&lt;_Ch, _Tr&gt; __s,
+<span class="lineNum">    1073 </span>            :                      const _Ch* __ob, const _Ch* __op, const _Ch* __oe,
+<span class="lineNum">    1074 </span>            :                      ios_base&amp; __iob, _Ch __fl);
+<span class="lineNum">    1075 </span>            : #endif
+<span class="lineNum">    1076 </span>            : };
+<span class="lineNum">    1077 </span>            : 
+<span class="lineNum">    1078 </span>            : template &lt;class _Iter&gt;
+<span class="lineNum">    1079 </span>            : class _LIBCPP_TEMPLATE_VIS move_iterator
+<span class="lineNum">    1080 </span>            : {
+<span class="lineNum">    1081 </span>            : private:
+<span class="lineNum">    1082 </span>            :     _Iter __i;
+<span class="lineNum">    1083 </span>            : public:
+<span class="lineNum">    1084 </span>            :     typedef _Iter                                            iterator_type;
+<span class="lineNum">    1085 </span>            :     typedef typename iterator_traits&lt;iterator_type&gt;::iterator_category iterator_category;
+<span class="lineNum">    1086 </span>            :     typedef typename iterator_traits&lt;iterator_type&gt;::value_type value_type;
+<span class="lineNum">    1087 </span>            :     typedef typename iterator_traits&lt;iterator_type&gt;::difference_type difference_type;
+<span class="lineNum">    1088 </span>            :     typedef iterator_type pointer;
+<span class="lineNum">    1089 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">    1090 </span>            :     typedef typename iterator_traits&lt;iterator_type&gt;::reference __reference;
+<span class="lineNum">    1091 </span>            :     typedef typename conditional&lt;
+<span class="lineNum">    1092 </span>            :             is_reference&lt;__reference&gt;::value,
+<span class="lineNum">    1093 </span>            :             typename remove_reference&lt;__reference&gt;::type&amp;&amp;,
+<span class="lineNum">    1094 </span>            :             __reference
+<span class="lineNum">    1095 </span>            :         &gt;::type reference;
+<span class="lineNum">    1096 </span>            : #else
+<span class="lineNum">    1097 </span>            :     typedef typename iterator_traits&lt;iterator_type&gt;::reference reference;
+<span class="lineNum">    1098 </span>            : #endif
+<span class="lineNum">    1099 </span>            : 
+<span class="lineNum">    1100 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1101 </span>            :     move_iterator() : __i() {}
+<span class="lineNum">    1102 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1103 </span>            :     explicit move_iterator(_Iter __x) : __i(__x) {}
+<span class="lineNum">    1104 </span>            :     template &lt;class _Up&gt;
+<span class="lineNum">    1105 </span>            :       _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1106 </span>            :       move_iterator(const move_iterator&lt;_Up&gt;&amp; __u) : __i(__u.base()) {}
+<span class="lineNum">    1107 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14 _Iter base() const {return __i;}
+<span class="lineNum">    1108 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14 
+<span class="lineNum">    1109 </span>            :     reference operator*() const { return static_cast&lt;reference&gt;(*__i); }
+<span class="lineNum">    1110 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1111 </span>            :     pointer  operator-&gt;() const { return __i;}
+<span class="lineNum">    1112 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1113 </span>            :     move_iterator&amp; operator++() {++__i; return *this;}
+<span class="lineNum">    1114 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1115 </span>            :     move_iterator  operator++(int) {move_iterator __tmp(*this); ++__i; return __tmp;}
+<span class="lineNum">    1116 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1117 </span>            :     move_iterator&amp; operator--() {--__i; return *this;}
+<span class="lineNum">    1118 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1119 </span>            :     move_iterator  operator--(int) {move_iterator __tmp(*this); --__i; return __tmp;}
+<span class="lineNum">    1120 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1121 </span>            :     move_iterator  operator+ (difference_type __n) const {return move_iterator(__i + __n);}
+<span class="lineNum">    1122 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1123 </span>            :     move_iterator&amp; operator+=(difference_type __n) {__i += __n; return *this;}
+<span class="lineNum">    1124 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1125 </span>            :     move_iterator  operator- (difference_type __n) const {return move_iterator(__i - __n);}
+<span class="lineNum">    1126 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1127 </span>            :     move_iterator&amp; operator-=(difference_type __n) {__i -= __n; return *this;}
+<span class="lineNum">    1128 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1129 </span>            :     reference operator[](difference_type __n) const { return static_cast&lt;reference&gt;(__i[__n]); }
+<span class="lineNum">    1130 </span>            : };
+<span class="lineNum">    1131 </span>            : 
+<span class="lineNum">    1132 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1133 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1134 </span>            : bool
+<span class="lineNum">    1135 </span>            : operator==(const move_iterator&lt;_Iter1&gt;&amp; __x, const move_iterator&lt;_Iter2&gt;&amp; __y)
+<span class="lineNum">    1136 </span>            : {
+<span class="lineNum">    1137 </span>            :     return __x.base() == __y.base();
+<span class="lineNum">    1138 </span>            : }
+<span class="lineNum">    1139 </span>            : 
+<span class="lineNum">    1140 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1141 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1142 </span>            : bool
+<span class="lineNum">    1143 </span>            : operator&lt;(const move_iterator&lt;_Iter1&gt;&amp; __x, const move_iterator&lt;_Iter2&gt;&amp; __y)
+<span class="lineNum">    1144 </span>            : {
+<span class="lineNum">    1145 </span>            :     return __x.base() &lt; __y.base();
+<span class="lineNum">    1146 </span>            : }
+<span class="lineNum">    1147 </span>            : 
+<span class="lineNum">    1148 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1149 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1150 </span>            : bool
+<span class="lineNum">    1151 </span>            : operator!=(const move_iterator&lt;_Iter1&gt;&amp; __x, const move_iterator&lt;_Iter2&gt;&amp; __y)
+<span class="lineNum">    1152 </span>            : {
+<span class="lineNum">    1153 </span>            :     return __x.base() != __y.base();
+<span class="lineNum">    1154 </span>            : }
+<span class="lineNum">    1155 </span>            : 
+<span class="lineNum">    1156 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1157 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1158 </span>            : bool
+<span class="lineNum">    1159 </span>            : operator&gt;(const move_iterator&lt;_Iter1&gt;&amp; __x, const move_iterator&lt;_Iter2&gt;&amp; __y)
+<span class="lineNum">    1160 </span>            : {
+<span class="lineNum">    1161 </span>            :     return __x.base() &gt; __y.base();
+<span class="lineNum">    1162 </span>            : }
+<span class="lineNum">    1163 </span>            : 
+<span class="lineNum">    1164 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1165 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1166 </span>            : bool
+<span class="lineNum">    1167 </span>            : operator&gt;=(const move_iterator&lt;_Iter1&gt;&amp; __x, const move_iterator&lt;_Iter2&gt;&amp; __y)
+<span class="lineNum">    1168 </span>            : {
+<span class="lineNum">    1169 </span>            :     return __x.base() &gt;= __y.base();
+<span class="lineNum">    1170 </span>            : }
+<span class="lineNum">    1171 </span>            : 
+<span class="lineNum">    1172 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1173 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1174 </span>            : bool
+<span class="lineNum">    1175 </span>            : operator&lt;=(const move_iterator&lt;_Iter1&gt;&amp; __x, const move_iterator&lt;_Iter2&gt;&amp; __y)
+<span class="lineNum">    1176 </span>            : {
+<span class="lineNum">    1177 </span>            :     return __x.base() &lt;= __y.base();
+<span class="lineNum">    1178 </span>            : }
+<span class="lineNum">    1179 </span>            : 
+<span class="lineNum">    1180 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">    1181 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1182 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1183 </span>            : auto
+<span class="lineNum">    1184 </span>            : operator-(const move_iterator&lt;_Iter1&gt;&amp; __x, const move_iterator&lt;_Iter2&gt;&amp; __y)
+<span class="lineNum">    1185 </span>            : -&gt; decltype(__x.base() - __y.base())
+<span class="lineNum">    1186 </span>            : {
+<span class="lineNum">    1187 </span>            :     return __x.base() - __y.base();
+<span class="lineNum">    1188 </span>            : }
+<span class="lineNum">    1189 </span>            : #else
+<span class="lineNum">    1190 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1191 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1192 </span>            : typename move_iterator&lt;_Iter1&gt;::difference_type
+<span class="lineNum">    1193 </span>            : operator-(const move_iterator&lt;_Iter1&gt;&amp; __x, const move_iterator&lt;_Iter2&gt;&amp; __y)
+<span class="lineNum">    1194 </span>            : {
+<span class="lineNum">    1195 </span>            :     return __x.base() - __y.base();
+<span class="lineNum">    1196 </span>            : }
+<span class="lineNum">    1197 </span>            : #endif
+<span class="lineNum">    1198 </span>            : 
+<span class="lineNum">    1199 </span>            : template &lt;class _Iter&gt;
+<span class="lineNum">    1200 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1201 </span>            : move_iterator&lt;_Iter&gt;
+<span class="lineNum">    1202 </span>            : operator+(typename move_iterator&lt;_Iter&gt;::difference_type __n, const move_iterator&lt;_Iter&gt;&amp; __x)
+<span class="lineNum">    1203 </span>            : {
+<span class="lineNum">    1204 </span>            :     return move_iterator&lt;_Iter&gt;(__x.base() + __n);
+<span class="lineNum">    1205 </span>            : }
+<span class="lineNum">    1206 </span>            : 
+<span class="lineNum">    1207 </span>            : template &lt;class _Iter&gt;
+<span class="lineNum">    1208 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1209 </span>            : move_iterator&lt;_Iter&gt;
+<span class="lineNum">    1210 </span>            : make_move_iterator(_Iter __i)
+<span class="lineNum">    1211 </span>            : {
+<span class="lineNum">    1212 </span>            :     return move_iterator&lt;_Iter&gt;(__i);
+<span class="lineNum">    1213 </span>            : }
+<span class="lineNum">    1214 </span>            : 
+<span class="lineNum">    1215 </span>            : // __wrap_iter
+<span class="lineNum">    1216 </span>            : 
+<span class="lineNum">    1217 </span>            : template &lt;class _Iter&gt; class __wrap_iter;
+<span class="lineNum">    1218 </span>            : 
+<span class="lineNum">    1219 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1220 </span>            : _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1221 </span>            : bool
+<span class="lineNum">    1222 </span>            : operator==(const __wrap_iter&lt;_Iter1&gt;&amp;, const __wrap_iter&lt;_Iter2&gt;&amp;) _NOEXCEPT_DEBUG;
+<span class="lineNum">    1223 </span>            : 
+<span class="lineNum">    1224 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1225 </span>            : _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1226 </span>            : bool
+<span class="lineNum">    1227 </span>            : operator&lt;(const __wrap_iter&lt;_Iter1&gt;&amp;, const __wrap_iter&lt;_Iter2&gt;&amp;) _NOEXCEPT_DEBUG;
+<span class="lineNum">    1228 </span>            : 
+<span class="lineNum">    1229 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1230 </span>            : _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1231 </span>            : bool
+<span class="lineNum">    1232 </span>            : operator!=(const __wrap_iter&lt;_Iter1&gt;&amp;, const __wrap_iter&lt;_Iter2&gt;&amp;) _NOEXCEPT_DEBUG;
+<span class="lineNum">    1233 </span>            : 
+<span class="lineNum">    1234 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1235 </span>            : _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1236 </span>            : bool
+<span class="lineNum">    1237 </span>            : operator&gt;(const __wrap_iter&lt;_Iter1&gt;&amp;, const __wrap_iter&lt;_Iter2&gt;&amp;) _NOEXCEPT_DEBUG;
+<span class="lineNum">    1238 </span>            : 
+<span class="lineNum">    1239 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1240 </span>            : _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1241 </span>            : bool
+<span class="lineNum">    1242 </span>            : operator&gt;=(const __wrap_iter&lt;_Iter1&gt;&amp;, const __wrap_iter&lt;_Iter2&gt;&amp;) _NOEXCEPT_DEBUG;
+<span class="lineNum">    1243 </span>            : 
+<span class="lineNum">    1244 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1245 </span>            : _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1246 </span>            : bool
+<span class="lineNum">    1247 </span>            : operator&lt;=(const __wrap_iter&lt;_Iter1&gt;&amp;, const __wrap_iter&lt;_Iter2&gt;&amp;) _NOEXCEPT_DEBUG;
+<span class="lineNum">    1248 </span>            : 
+<span class="lineNum">    1249 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">    1250 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1251 </span>            : _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1252 </span>            : auto
+<span class="lineNum">    1253 </span>            : operator-(const __wrap_iter&lt;_Iter1&gt;&amp; __x, const __wrap_iter&lt;_Iter2&gt;&amp; __y) _NOEXCEPT_DEBUG
+<span class="lineNum">    1254 </span>            : -&gt; decltype(__x.base() - __y.base());
+<span class="lineNum">    1255 </span>            : #else
+<span class="lineNum">    1256 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1257 </span>            : _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1258 </span>            : typename __wrap_iter&lt;_Iter1&gt;::difference_type
+<span class="lineNum">    1259 </span>            : operator-(const __wrap_iter&lt;_Iter1&gt;&amp;, const __wrap_iter&lt;_Iter2&gt;&amp;) _NOEXCEPT_DEBUG;
+<span class="lineNum">    1260 </span>            : #endif
+<span class="lineNum">    1261 </span>            : 
+<span class="lineNum">    1262 </span>            : template &lt;class _Iter&gt;
+<span class="lineNum">    1263 </span>            : _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1264 </span>            : __wrap_iter&lt;_Iter&gt;
+<span class="lineNum">    1265 </span>            : operator+(typename __wrap_iter&lt;_Iter&gt;::difference_type, __wrap_iter&lt;_Iter&gt;) _NOEXCEPT_DEBUG;
+<span class="lineNum">    1266 </span>            : 
+<span class="lineNum">    1267 </span>            : template &lt;class _Ip, class _Op&gt; _Op _LIBCPP_INLINE_VISIBILITY copy(_Ip, _Ip, _Op);
+<span class="lineNum">    1268 </span>            : template &lt;class _B1, class _B2&gt; _B2 _LIBCPP_INLINE_VISIBILITY copy_backward(_B1, _B1, _B2);
+<span class="lineNum">    1269 </span>            : template &lt;class _Ip, class _Op&gt; _Op _LIBCPP_INLINE_VISIBILITY move(_Ip, _Ip, _Op);
+<span class="lineNum">    1270 </span>            : template &lt;class _B1, class _B2&gt; _B2 _LIBCPP_INLINE_VISIBILITY move_backward(_B1, _B1, _B2);
+<span class="lineNum">    1271 </span>            : 
+<span class="lineNum">    1272 </span>            : #if _LIBCPP_DEBUG_LEVEL &lt; 2
+<span class="lineNum">    1273 </span>            : 
+<span class="lineNum">    1274 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">    1275 </span>            : _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1276 </span>            : typename enable_if
+<span class="lineNum">    1277 </span>            : &lt;
+<span class="lineNum">    1278 </span>            :     is_trivially_copy_assignable&lt;_Tp&gt;::value,
+<span class="lineNum">    1279 </span>            :     _Tp*
+<span class="lineNum">    1280 </span>            : &gt;::type
+<span class="lineNum">    1281 </span>            : __unwrap_iter(__wrap_iter&lt;_Tp*&gt;);
+<span class="lineNum">    1282 </span>            : 
+<span class="lineNum">    1283 </span>            : #else
+<span class="lineNum">    1284 </span>            : 
+<span class="lineNum">    1285 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">    1286 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1287 </span>            : typename enable_if
+<span class="lineNum">    1288 </span>            : &lt;
+<span class="lineNum">    1289 </span>            :     is_trivially_copy_assignable&lt;_Tp&gt;::value,
+<span class="lineNum">    1290 </span>            :     __wrap_iter&lt;_Tp*&gt;
+<span class="lineNum">    1291 </span>            : &gt;::type
+<span class="lineNum">    1292 </span>            : __unwrap_iter(__wrap_iter&lt;_Tp*&gt; __i);
+<span class="lineNum">    1293 </span>            : 
+<span class="lineNum">    1294 </span>            : #endif
+<span class="lineNum">    1295 </span>            : 
+<span class="lineNum">    1296 </span>            : template &lt;class _Iter&gt;
+<span class="lineNum">    1297 </span>            : class __wrap_iter
+<span class="lineNum">    1298 </span>            : {
+<span class="lineNum">    1299 </span>            : public:
+<span class="lineNum">    1300 </span>            :     typedef _Iter                                                      iterator_type;
+<span class="lineNum">    1301 </span>            :     typedef typename iterator_traits&lt;iterator_type&gt;::iterator_category iterator_category;
+<span class="lineNum">    1302 </span>            :     typedef typename iterator_traits&lt;iterator_type&gt;::value_type        value_type;
+<span class="lineNum">    1303 </span>            :     typedef typename iterator_traits&lt;iterator_type&gt;::difference_type   difference_type;
+<span class="lineNum">    1304 </span>            :     typedef typename iterator_traits&lt;iterator_type&gt;::pointer           pointer;
+<span class="lineNum">    1305 </span>            :     typedef typename iterator_traits&lt;iterator_type&gt;::reference         reference;
+<span class="lineNum">    1306 </span>            : private:
+<span class="lineNum">    1307 </span>            :     iterator_type __i;
+<span class="lineNum">    1308 </span>            : public:
+<span class="lineNum">    1309 </span>            :     _LIBCPP_INLINE_VISIBILITY __wrap_iter() _NOEXCEPT_DEBUG
+<span class="lineNum">    1310 </span>            : #if _LIBCPP_STD_VER &gt; 11
+<span class="lineNum">    1311 </span>            :                 : __i{}
+<span class="lineNum">    1312 </span>            : #endif
+<span class="lineNum">    1313 </span>            :     {
+<span class="lineNum">    1314 </span>            : #if _LIBCPP_DEBUG_LEVEL &gt;= 2
+<span class="lineNum">    1315 </span>            :         __get_db()-&gt;__insert_i(this);
+<span class="lineNum">    1316 </span>            : #endif
+<span class="lineNum">    1317 </span>            :     }
+<span class="lineNum">    1318 </span>            :     template &lt;class _Up&gt; _LIBCPP_INLINE_VISIBILITY __wrap_iter(const __wrap_iter&lt;_Up&gt;&amp; __u,
+<span class="lineNum">    1319 </span>            :         typename enable_if&lt;is_convertible&lt;_Up, iterator_type&gt;::value&gt;::type* = 0) _NOEXCEPT_DEBUG
+<span class="lineNum">    1320 </span>            :         : __i(__u.base())
+<span class="lineNum">    1321 </span>            :     {
+<span class="lineNum">    1322 </span>            : #if _LIBCPP_DEBUG_LEVEL &gt;= 2
+<span class="lineNum">    1323 </span>            :         __get_db()-&gt;__iterator_copy(this, &amp;__u);
+<span class="lineNum">    1324 </span>            : #endif
+<span class="lineNum">    1325 </span>            :     }
+<span class="lineNum">    1326 </span>            : #if _LIBCPP_DEBUG_LEVEL &gt;= 2
+<span class="lineNum">    1327 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1328 </span>            :     __wrap_iter(const __wrap_iter&amp; __x)
+<span class="lineNum">    1329 </span>            :         : __i(__x.base())
+<span class="lineNum">    1330 </span>            :     {
+<span class="lineNum">    1331 </span>            :         __get_db()-&gt;__iterator_copy(this, &amp;__x);
+<span class="lineNum">    1332 </span>            :     }
+<span class="lineNum">    1333 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1334 </span>            :     __wrap_iter&amp; operator=(const __wrap_iter&amp; __x)
+<span class="lineNum">    1335 </span>            :     {
+<span class="lineNum">    1336 </span>            :         if (this != &amp;__x)
+<span class="lineNum">    1337 </span>            :         {
+<span class="lineNum">    1338 </span>            :             __get_db()-&gt;__iterator_copy(this, &amp;__x);
+<span class="lineNum">    1339 </span>            :             __i = __x.__i;
+<span class="lineNum">    1340 </span>            :         }
+<span class="lineNum">    1341 </span>            :         return *this;
+<span class="lineNum">    1342 </span>            :     }
+<span class="lineNum">    1343 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1344 </span>            :     ~__wrap_iter()
+<span class="lineNum">    1345 </span>            :     {
+<span class="lineNum">    1346 </span>            :         __get_db()-&gt;__erase_i(this);
+<span class="lineNum">    1347 </span>            :     }
+<span class="lineNum">    1348 </span>            : #endif
+<span class="lineNum">    1349 </span>            :     _LIBCPP_INLINE_VISIBILITY reference operator*() const _NOEXCEPT_DEBUG
+<span class="lineNum">    1350 </span>            :     {
+<span class="lineNum">    1351 </span>            : #if _LIBCPP_DEBUG_LEVEL &gt;= 2
+<span class="lineNum">    1352 </span>            :         _LIBCPP_ASSERT(__get_const_db()-&gt;__dereferenceable(this),
+<span class="lineNum">    1353 </span>            :                        &quot;Attempted to dereference a non-dereferenceable iterator&quot;);
+<span class="lineNum">    1354 </span>            : #endif
+<span class="lineNum">    1355 </span>            :         return *__i;
+<span class="lineNum">    1356 </span>            :     }
+<span class="lineNum">    1357 </span>            :     _LIBCPP_INLINE_VISIBILITY pointer  operator-&gt;() const _NOEXCEPT_DEBUG
+<span class="lineNum">    1358 </span>            :     {
+<span class="lineNum">    1359 </span>            : #if _LIBCPP_DEBUG_LEVEL &gt;= 2
+<span class="lineNum">    1360 </span>            :         _LIBCPP_ASSERT(__get_const_db()-&gt;__dereferenceable(this),
+<span class="lineNum">    1361 </span>            :                        &quot;Attempted to dereference a non-dereferenceable iterator&quot;);
+<span class="lineNum">    1362 </span>            : #endif
+<span class="lineNum">    1363 </span>            :         return (pointer)_VSTD::addressof(*__i);
+<span class="lineNum">    1364 </span>            :     }
+<span class="lineNum">    1365 </span>            :     _LIBCPP_INLINE_VISIBILITY __wrap_iter&amp; operator++() _NOEXCEPT_DEBUG
+<span class="lineNum">    1366 </span>            :     {
+<span class="lineNum">    1367 </span>            : #if _LIBCPP_DEBUG_LEVEL &gt;= 2
+<span class="lineNum">    1368 </span>            :         _LIBCPP_ASSERT(__get_const_db()-&gt;__dereferenceable(this),
+<span class="lineNum">    1369 </span>            :                        &quot;Attempted to increment non-incrementable iterator&quot;);
+<span class="lineNum">    1370 </span>            : #endif
+<span class="lineNum">    1371 </span>            :         ++__i;
+<span class="lineNum">    1372 </span>            :         return *this;
+<span class="lineNum">    1373 </span>            :     }
+<span class="lineNum">    1374 </span>            :     _LIBCPP_INLINE_VISIBILITY __wrap_iter  operator++(int) _NOEXCEPT_DEBUG
+<span class="lineNum">    1375 </span>            :         {__wrap_iter __tmp(*this); ++(*this); return __tmp;}
+<span class="lineNum">    1376 </span>            :     _LIBCPP_INLINE_VISIBILITY __wrap_iter&amp; operator--() _NOEXCEPT_DEBUG
+<span class="lineNum">    1377 </span>            :     {
+<span class="lineNum">    1378 </span>            : #if _LIBCPP_DEBUG_LEVEL &gt;= 2
+<span class="lineNum">    1379 </span>            :         _LIBCPP_ASSERT(__get_const_db()-&gt;__decrementable(this),
+<span class="lineNum">    1380 </span>            :                        &quot;Attempted to decrement non-decrementable iterator&quot;);
+<span class="lineNum">    1381 </span>            : #endif
+<span class="lineNum">    1382 </span>            :         --__i;
+<span class="lineNum">    1383 </span>            :         return *this;
+<span class="lineNum">    1384 </span>            :     }
+<span class="lineNum">    1385 </span>            :     _LIBCPP_INLINE_VISIBILITY __wrap_iter  operator--(int) _NOEXCEPT_DEBUG
+<span class="lineNum">    1386 </span>            :         {__wrap_iter __tmp(*this); --(*this); return __tmp;}
+<span class="lineNum">    1387 </span>            :     _LIBCPP_INLINE_VISIBILITY __wrap_iter  operator+ (difference_type __n) const _NOEXCEPT_DEBUG
+<span class="lineNum">    1388 </span>            :         {__wrap_iter __w(*this); __w += __n; return __w;}
+<span class="lineNum">    1389 </span>            :     _LIBCPP_INLINE_VISIBILITY __wrap_iter&amp; operator+=(difference_type __n) _NOEXCEPT_DEBUG
+<span class="lineNum">    1390 </span>            :     {
+<span class="lineNum">    1391 </span>            : #if _LIBCPP_DEBUG_LEVEL &gt;= 2
+<span class="lineNum">    1392 </span>            :         _LIBCPP_ASSERT(__get_const_db()-&gt;__addable(this, __n),
+<span class="lineNum">    1393 </span>            :                    &quot;Attempted to add/subtract iterator outside of valid range&quot;);
+<span class="lineNum">    1394 </span>            : #endif
+<span class="lineNum">    1395 </span>            :         __i += __n;
+<span class="lineNum">    1396 </span>            :         return *this;
+<span class="lineNum">    1397 </span>            :     }
+<span class="lineNum">    1398 </span>            :     _LIBCPP_INLINE_VISIBILITY __wrap_iter  operator- (difference_type __n) const _NOEXCEPT_DEBUG
+<span class="lineNum">    1399 </span>            :         {return *this + (-__n);}
+<span class="lineNum">    1400 </span>            :     _LIBCPP_INLINE_VISIBILITY __wrap_iter&amp; operator-=(difference_type __n) _NOEXCEPT_DEBUG
+<span class="lineNum">    1401 </span>            :         {*this += -__n; return *this;}
+<span class="lineNum">    1402 </span>            :     _LIBCPP_INLINE_VISIBILITY reference        operator[](difference_type __n) const _NOEXCEPT_DEBUG
+<span class="lineNum">    1403 </span>            :     {
+<span class="lineNum">    1404 </span>            : #if _LIBCPP_DEBUG_LEVEL &gt;= 2
+<span class="lineNum">    1405 </span>            :         _LIBCPP_ASSERT(__get_const_db()-&gt;__subscriptable(this, __n),
+<span class="lineNum">    1406 </span>            :                    &quot;Attempted to subscript iterator outside of valid range&quot;);
+<span class="lineNum">    1407 </span>            : #endif
+<span class="lineNum">    1408 </span>            :         return __i[__n];
+<span class="lineNum">    1409 </span>            :     }
+<span class="lineNum">    1410 </span>            : 
+<span class="lineNum">    1411 </span>            :     _LIBCPP_INLINE_VISIBILITY iterator_type base() const _NOEXCEPT_DEBUG {return __i;}
+<span class="lineNum">    1412 </span>            : 
+<span class="lineNum">    1413 </span>            : private:
+<span class="lineNum">    1414 </span>            : #if _LIBCPP_DEBUG_LEVEL &gt;= 2
+<span class="lineNum">    1415 </span>            :     _LIBCPP_INLINE_VISIBILITY __wrap_iter(const void* __p, iterator_type __x) : __i(__x)
+<span class="lineNum">    1416 </span>            :     {
+<span class="lineNum">    1417 </span>            :         __get_db()-&gt;__insert_ic(this, __p);
+<span class="lineNum">    1418 </span>            :     }
+<span class="lineNum">    1419 </span>            : #else
+<span class="lineNum">    1420 </span>            :     _LIBCPP_INLINE_VISIBILITY __wrap_iter(iterator_type __x) _NOEXCEPT_DEBUG : __i(__x) {}
+<span class="lineNum">    1421 </span>            : #endif
+<span class="lineNum">    1422 </span>            : 
+<span class="lineNum">    1423 </span>            :     template &lt;class _Up&gt; friend class __wrap_iter;
+<span class="lineNum">    1424 </span>            :     template &lt;class _CharT, class _Traits, class _Alloc&gt; friend class basic_string;
+<span class="lineNum">    1425 </span>            :     template &lt;class _Tp, class _Alloc&gt; friend class _LIBCPP_TEMPLATE_VIS vector;
+<span class="lineNum">    1426 </span>            : 
+<span class="lineNum">    1427 </span>            :     template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1428 </span>            :     friend
+<span class="lineNum">    1429 </span>            :     bool
+<span class="lineNum">    1430 </span>            :     operator==(const __wrap_iter&lt;_Iter1&gt;&amp;, const __wrap_iter&lt;_Iter2&gt;&amp;) _NOEXCEPT_DEBUG;
+<span class="lineNum">    1431 </span>            : 
+<span class="lineNum">    1432 </span>            :     template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1433 </span>            :     friend
+<span class="lineNum">    1434 </span>            :     bool
+<span class="lineNum">    1435 </span>            :     operator&lt;(const __wrap_iter&lt;_Iter1&gt;&amp;, const __wrap_iter&lt;_Iter2&gt;&amp;) _NOEXCEPT_DEBUG;
+<span class="lineNum">    1436 </span>            : 
+<span class="lineNum">    1437 </span>            :     template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1438 </span>            :     friend
+<span class="lineNum">    1439 </span>            :     bool
+<span class="lineNum">    1440 </span>            :     operator!=(const __wrap_iter&lt;_Iter1&gt;&amp;, const __wrap_iter&lt;_Iter2&gt;&amp;) _NOEXCEPT_DEBUG;
+<span class="lineNum">    1441 </span>            : 
+<span class="lineNum">    1442 </span>            :     template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1443 </span>            :     friend
+<span class="lineNum">    1444 </span>            :     bool
+<span class="lineNum">    1445 </span>            :     operator&gt;(const __wrap_iter&lt;_Iter1&gt;&amp;, const __wrap_iter&lt;_Iter2&gt;&amp;) _NOEXCEPT_DEBUG;
+<span class="lineNum">    1446 </span>            : 
+<span class="lineNum">    1447 </span>            :     template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1448 </span>            :     friend
+<span class="lineNum">    1449 </span>            :     bool
+<span class="lineNum">    1450 </span>            :     operator&gt;=(const __wrap_iter&lt;_Iter1&gt;&amp;, const __wrap_iter&lt;_Iter2&gt;&amp;) _NOEXCEPT_DEBUG;
+<span class="lineNum">    1451 </span>            : 
+<span class="lineNum">    1452 </span>            :     template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1453 </span>            :     friend
+<span class="lineNum">    1454 </span>            :     bool
+<span class="lineNum">    1455 </span>            :     operator&lt;=(const __wrap_iter&lt;_Iter1&gt;&amp;, const __wrap_iter&lt;_Iter2&gt;&amp;) _NOEXCEPT_DEBUG;
+<span class="lineNum">    1456 </span>            : 
+<span class="lineNum">    1457 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">    1458 </span>            :     template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1459 </span>            :     friend
+<span class="lineNum">    1460 </span>            :     auto
+<span class="lineNum">    1461 </span>            :     operator-(const __wrap_iter&lt;_Iter1&gt;&amp; __x, const __wrap_iter&lt;_Iter2&gt;&amp; __y) _NOEXCEPT_DEBUG
+<span class="lineNum">    1462 </span>            :     -&gt; decltype(__x.base() - __y.base());
+<span class="lineNum">    1463 </span>            : #else
+<span class="lineNum">    1464 </span>            :     template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1465 </span>            :     friend
+<span class="lineNum">    1466 </span>            :     typename __wrap_iter&lt;_Iter1&gt;::difference_type
+<span class="lineNum">    1467 </span>            :     operator-(const __wrap_iter&lt;_Iter1&gt;&amp;, const __wrap_iter&lt;_Iter2&gt;&amp;) _NOEXCEPT_DEBUG;
+<span class="lineNum">    1468 </span>            : #endif
+<span class="lineNum">    1469 </span>            : 
+<span class="lineNum">    1470 </span>            :     template &lt;class _Iter1&gt;
+<span class="lineNum">    1471 </span>            :     friend
+<span class="lineNum">    1472 </span>            :     __wrap_iter&lt;_Iter1&gt;
+<span class="lineNum">    1473 </span>            :     operator+(typename __wrap_iter&lt;_Iter1&gt;::difference_type, __wrap_iter&lt;_Iter1&gt;) _NOEXCEPT_DEBUG;
+<span class="lineNum">    1474 </span>            : 
+<span class="lineNum">    1475 </span>            :     template &lt;class _Ip, class _Op&gt; friend _Op copy(_Ip, _Ip, _Op);
+<span class="lineNum">    1476 </span>            :     template &lt;class _B1, class _B2&gt; friend _B2 copy_backward(_B1, _B1, _B2);
+<span class="lineNum">    1477 </span>            :     template &lt;class _Ip, class _Op&gt; friend _Op move(_Ip, _Ip, _Op);
+<span class="lineNum">    1478 </span>            :     template &lt;class _B1, class _B2&gt; friend _B2 move_backward(_B1, _B1, _B2);
+<span class="lineNum">    1479 </span>            : 
+<span class="lineNum">    1480 </span>            : #if _LIBCPP_DEBUG_LEVEL &lt; 2
+<span class="lineNum">    1481 </span>            :     template &lt;class _Tp&gt;
+<span class="lineNum">    1482 </span>            :     friend
+<span class="lineNum">    1483 </span>            :     typename enable_if
+<span class="lineNum">    1484 </span>            :     &lt;
+<span class="lineNum">    1485 </span>            :         is_trivially_copy_assignable&lt;_Tp&gt;::value,
+<span class="lineNum">    1486 </span>            :         _Tp*
+<span class="lineNum">    1487 </span>            :     &gt;::type
+<span class="lineNum">    1488 </span>            :     __unwrap_iter(__wrap_iter&lt;_Tp*&gt;);
+<span class="lineNum">    1489 </span>            : #else
+<span class="lineNum">    1490 </span>            :   template &lt;class _Tp&gt;
+<span class="lineNum">    1491 </span>            :   inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1492 </span>            :   typename enable_if
+<span class="lineNum">    1493 </span>            :   &lt;
+<span class="lineNum">    1494 </span>            :       is_trivially_copy_assignable&lt;_Tp&gt;::value,
+<span class="lineNum">    1495 </span>            :       __wrap_iter&lt;_Tp*&gt;
+<span class="lineNum">    1496 </span>            :   &gt;::type
+<span class="lineNum">    1497 </span>            :   __unwrap_iter(__wrap_iter&lt;_Tp*&gt; __i);
+<span class="lineNum">    1498 </span>            : #endif
+<span class="lineNum">    1499 </span>            : };
+<span class="lineNum">    1500 </span>            : 
+<span class="lineNum">    1501 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1502 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1503 </span>            : bool
+<span class="lineNum">    1504 </span>            : operator==(const __wrap_iter&lt;_Iter1&gt;&amp; __x, const __wrap_iter&lt;_Iter2&gt;&amp; __y) _NOEXCEPT_DEBUG
+<span class="lineNum">    1505 </span>            : {
+<span class="lineNum">    1506 </span>            :     return __x.base() == __y.base();
+<span class="lineNum">    1507 </span>            : }
+<span class="lineNum">    1508 </span>            : 
+<span class="lineNum">    1509 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1510 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1511 </span>            : bool
+<span class="lineNum">    1512 </span>            : operator&lt;(const __wrap_iter&lt;_Iter1&gt;&amp; __x, const __wrap_iter&lt;_Iter2&gt;&amp; __y) _NOEXCEPT_DEBUG
+<span class="lineNum">    1513 </span>            : {
+<span class="lineNum">    1514 </span>            : #if _LIBCPP_DEBUG_LEVEL &gt;= 2
+<span class="lineNum">    1515 </span>            :     _LIBCPP_ASSERT(__get_const_db()-&gt;__less_than_comparable(&amp;__x, &amp;__y),
+<span class="lineNum">    1516 </span>            :                    &quot;Attempted to compare incomparable iterators&quot;);
+<span class="lineNum">    1517 </span>            : #endif
+<span class="lineNum">    1518 </span>            :     return __x.base() &lt; __y.base();
+<span class="lineNum">    1519 </span>            : }
+<span class="lineNum">    1520 </span>            : 
+<span class="lineNum">    1521 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1522 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1523 </span>            : bool
+<span class="lineNum">    1524 </span>            : operator!=(const __wrap_iter&lt;_Iter1&gt;&amp; __x, const __wrap_iter&lt;_Iter2&gt;&amp; __y) _NOEXCEPT_DEBUG
+<span class="lineNum">    1525 </span>            : {
+<span class="lineNum">    1526 </span>            :     return !(__x == __y);
+<span class="lineNum">    1527 </span>            : }
+<span class="lineNum">    1528 </span>            : 
+<span class="lineNum">    1529 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1530 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1531 </span>            : bool
+<span class="lineNum">    1532 </span>            : operator&gt;(const __wrap_iter&lt;_Iter1&gt;&amp; __x, const __wrap_iter&lt;_Iter2&gt;&amp; __y) _NOEXCEPT_DEBUG
+<span class="lineNum">    1533 </span>            : {
+<span class="lineNum">    1534 </span>            :     return __y &lt; __x;
+<span class="lineNum">    1535 </span>            : }
+<span class="lineNum">    1536 </span>            : 
+<span class="lineNum">    1537 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1538 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1539 </span>            : bool
+<span class="lineNum">    1540 </span>            : operator&gt;=(const __wrap_iter&lt;_Iter1&gt;&amp; __x, const __wrap_iter&lt;_Iter2&gt;&amp; __y) _NOEXCEPT_DEBUG
+<span class="lineNum">    1541 </span>            : {
+<span class="lineNum">    1542 </span>            :     return !(__x &lt; __y);
+<span class="lineNum">    1543 </span>            : }
+<span class="lineNum">    1544 </span>            : 
+<span class="lineNum">    1545 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1546 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1547 </span>            : bool
+<span class="lineNum">    1548 </span>            : operator&lt;=(const __wrap_iter&lt;_Iter1&gt;&amp; __x, const __wrap_iter&lt;_Iter2&gt;&amp; __y) _NOEXCEPT_DEBUG
+<span class="lineNum">    1549 </span>            : {
+<span class="lineNum">    1550 </span>            :     return !(__y &lt; __x);
+<span class="lineNum">    1551 </span>            : }
+<span class="lineNum">    1552 </span>            : 
+<span class="lineNum">    1553 </span>            : template &lt;class _Iter1&gt;
+<span class="lineNum">    1554 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1555 </span>            : bool
+<span class="lineNum">    1556 </span>            : operator!=(const __wrap_iter&lt;_Iter1&gt;&amp; __x, const __wrap_iter&lt;_Iter1&gt;&amp; __y) _NOEXCEPT_DEBUG
+<span class="lineNum">    1557 </span>            : {
+<span class="lineNum">    1558 </span>            :     return !(__x == __y);
+<span class="lineNum">    1559 </span>            : }
+<span class="lineNum">    1560 </span>            : 
+<span class="lineNum">    1561 </span>            : template &lt;class _Iter1&gt;
+<span class="lineNum">    1562 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1563 </span>            : bool
+<span class="lineNum">    1564 </span>            : operator&gt;(const __wrap_iter&lt;_Iter1&gt;&amp; __x, const __wrap_iter&lt;_Iter1&gt;&amp; __y) _NOEXCEPT_DEBUG
+<span class="lineNum">    1565 </span>            : {
+<span class="lineNum">    1566 </span>            :     return __y &lt; __x;
+<span class="lineNum">    1567 </span>            : }
+<span class="lineNum">    1568 </span>            : 
+<span class="lineNum">    1569 </span>            : template &lt;class _Iter1&gt;
+<span class="lineNum">    1570 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1571 </span>            : bool
+<span class="lineNum">    1572 </span>            : operator&gt;=(const __wrap_iter&lt;_Iter1&gt;&amp; __x, const __wrap_iter&lt;_Iter1&gt;&amp; __y) _NOEXCEPT_DEBUG
+<span class="lineNum">    1573 </span>            : {
+<span class="lineNum">    1574 </span>            :     return !(__x &lt; __y);
+<span class="lineNum">    1575 </span>            : }
+<span class="lineNum">    1576 </span>            : 
+<span class="lineNum">    1577 </span>            : template &lt;class _Iter1&gt;
+<span class="lineNum">    1578 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1579 </span>            : bool
+<span class="lineNum">    1580 </span>            : operator&lt;=(const __wrap_iter&lt;_Iter1&gt;&amp; __x, const __wrap_iter&lt;_Iter1&gt;&amp; __y) _NOEXCEPT_DEBUG
+<span class="lineNum">    1581 </span>            : {
+<span class="lineNum">    1582 </span>            :     return !(__y &lt; __x);
+<span class="lineNum">    1583 </span>            : }
+<span class="lineNum">    1584 </span>            : 
+<span class="lineNum">    1585 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">    1586 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1587 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1588 </span>            : auto
+<span class="lineNum">    1589 </span>            : operator-(const __wrap_iter&lt;_Iter1&gt;&amp; __x, const __wrap_iter&lt;_Iter2&gt;&amp; __y) _NOEXCEPT_DEBUG
+<span class="lineNum">    1590 </span>            : -&gt; decltype(__x.base() - __y.base())
+<span class="lineNum">    1591 </span>            : {
+<span class="lineNum">    1592 </span>            : #if _LIBCPP_DEBUG_LEVEL &gt;= 2
+<span class="lineNum">    1593 </span>            :     _LIBCPP_ASSERT(__get_const_db()-&gt;__less_than_comparable(&amp;__x, &amp;__y),
+<span class="lineNum">    1594 </span>            :                    &quot;Attempted to subtract incompatible iterators&quot;);
+<span class="lineNum">    1595 </span>            : #endif
+<span class="lineNum">    1596 </span>            :     return __x.base() - __y.base();
+<span class="lineNum">    1597 </span>            : }
+<span class="lineNum">    1598 </span>            : #else
+<span class="lineNum">    1599 </span>            : template &lt;class _Iter1, class _Iter2&gt;
+<span class="lineNum">    1600 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1601 </span>            : typename __wrap_iter&lt;_Iter1&gt;::difference_type
+<span class="lineNum">    1602 </span>            : operator-(const __wrap_iter&lt;_Iter1&gt;&amp; __x, const __wrap_iter&lt;_Iter2&gt;&amp; __y) _NOEXCEPT_DEBUG
+<span class="lineNum">    1603 </span>            : {
+<span class="lineNum">    1604 </span>            : #if _LIBCPP_DEBUG_LEVEL &gt;= 2
+<span class="lineNum">    1605 </span>            :     _LIBCPP_ASSERT(__get_const_db()-&gt;__less_than_comparable(&amp;__x, &amp;__y),
+<span class="lineNum">    1606 </span>            :                    &quot;Attempted to subtract incompatible iterators&quot;);
+<span class="lineNum">    1607 </span>            : #endif
+<span class="lineNum">    1608 </span>            :     return __x.base() - __y.base();
+<span class="lineNum">    1609 </span>            : }
+<span class="lineNum">    1610 </span>            : #endif
+<span class="lineNum">    1611 </span>            : 
+<span class="lineNum">    1612 </span>            : template &lt;class _Iter&gt;
+<span class="lineNum">    1613 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1614 </span>            : __wrap_iter&lt;_Iter&gt;
+<span class="lineNum">    1615 </span>            : operator+(typename __wrap_iter&lt;_Iter&gt;::difference_type __n,
+<span class="lineNum">    1616 </span>            :           __wrap_iter&lt;_Iter&gt; __x) _NOEXCEPT_DEBUG
+<span class="lineNum">    1617 </span>            : {
+<span class="lineNum">    1618 </span>            :     __x += __n;
+<span class="lineNum">    1619 </span>            :     return __x;
+<span class="lineNum">    1620 </span>            : }
+<span class="lineNum">    1621 </span>            : 
+<span class="lineNum">    1622 </span>            : template &lt;class _Iter&gt;
+<span class="lineNum">    1623 </span>            : struct __libcpp_is_trivial_iterator
+<span class="lineNum">    1624 </span>            :     : public _LIBCPP_BOOL_CONSTANT(is_pointer&lt;_Iter&gt;::value) {};
+<span class="lineNum">    1625 </span>            :     
+<span class="lineNum">    1626 </span>            : template &lt;class _Iter&gt;
+<span class="lineNum">    1627 </span>            : struct __libcpp_is_trivial_iterator&lt;move_iterator&lt;_Iter&gt; &gt;
+<span class="lineNum">    1628 </span>            :     : public _LIBCPP_BOOL_CONSTANT(__libcpp_is_trivial_iterator&lt;_Iter&gt;::value) {};
+<span class="lineNum">    1629 </span>            : 
+<span class="lineNum">    1630 </span>            : template &lt;class _Iter&gt;
+<span class="lineNum">    1631 </span>            : struct __libcpp_is_trivial_iterator&lt;reverse_iterator&lt;_Iter&gt; &gt;
+<span class="lineNum">    1632 </span>            :     : public _LIBCPP_BOOL_CONSTANT(__libcpp_is_trivial_iterator&lt;_Iter&gt;::value) {};
+<span class="lineNum">    1633 </span>            : 
+<span class="lineNum">    1634 </span>            : template &lt;class _Iter&gt;
+<span class="lineNum">    1635 </span>            : struct __libcpp_is_trivial_iterator&lt;__wrap_iter&lt;_Iter&gt; &gt;
+<span class="lineNum">    1636 </span>            :     : public _LIBCPP_BOOL_CONSTANT(__libcpp_is_trivial_iterator&lt;_Iter&gt;::value) {};
+<span class="lineNum">    1637 </span>            : 
+<span class="lineNum">    1638 </span>            : 
+<span class="lineNum">    1639 </span>            : template &lt;class _Tp, size_t _Np&gt;
+<span class="lineNum">    1640 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">    1641 </span>            : _Tp*
+<span class="lineNum">    1642 </span>            : begin(_Tp (&amp;__array)[_Np])
+<span class="lineNum">    1643 </span>            : {
+<span class="lineNum">    1644 </span>            :     return __array;
+<span class="lineNum">    1645 </span>            : }
+<span class="lineNum">    1646 </span>            : 
+<span class="lineNum">    1647 </span>            : template &lt;class _Tp, size_t _Np&gt;
+<span class="lineNum">    1648 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">    1649 </span>            : _Tp*
+<span class="lineNum">    1650 </span>            : end(_Tp (&amp;__array)[_Np])
+<span class="lineNum">    1651 </span>            : {
+<span class="lineNum">    1652 </span>            :     return __array + _Np;
+<span class="lineNum">    1653 </span>            : }
+<span class="lineNum">    1654 </span>            : 
+<span class="lineNum">    1655 </span>            : #if !defined(_LIBCPP_CXX03_LANG)
+<span class="lineNum">    1656 </span>            : 
+<span class="lineNum">    1657 </span>            : template &lt;class _Cp&gt;
+<span class="lineNum">    1658 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1659 </span>            : auto
+<span class="lineNum">    1660 </span>            : begin(_Cp&amp; __c) -&gt; decltype(__c.begin())
+<span class="lineNum">    1661 </span>            : {
+<span class="lineNum">    1662 </span>            :     return __c.begin();
+<span class="lineNum">    1663 </span>            : }
+<span class="lineNum">    1664 </span>            : 
+<span class="lineNum">    1665 </span>            : template &lt;class _Cp&gt;
+<span class="lineNum">    1666 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1667 </span>            : auto
+<span class="lineNum">    1668 </span>            : begin(const _Cp&amp; __c) -&gt; decltype(__c.begin())
+<span class="lineNum">    1669 </span>            : {
+<span class="lineNum">    1670 </span>            :     return __c.begin();
+<span class="lineNum">    1671 </span>            : }
+<span class="lineNum">    1672 </span>            : 
+<span class="lineNum">    1673 </span>            : template &lt;class _Cp&gt;
+<span class="lineNum">    1674 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1675 </span>            : auto
+<span class="lineNum">    1676 </span>            : end(_Cp&amp; __c) -&gt; decltype(__c.end())
+<span class="lineNum">    1677 </span>            : {
+<span class="lineNum">    1678 </span>            :     return __c.end();
+<span class="lineNum">    1679 </span>            : }
+<span class="lineNum">    1680 </span>            : 
+<span class="lineNum">    1681 </span>            : template &lt;class _Cp&gt;
+<span class="lineNum">    1682 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1683 </span>            : auto
+<span class="lineNum">    1684 </span>            : end(const _Cp&amp; __c) -&gt; decltype(__c.end())
+<span class="lineNum">    1685 </span>            : {
+<span class="lineNum">    1686 </span>            :     return __c.end();
+<span class="lineNum">    1687 </span>            : }
+<span class="lineNum">    1688 </span>            : 
+<span class="lineNum">    1689 </span>            : #if _LIBCPP_STD_VER &gt; 11
+<span class="lineNum">    1690 </span>            : 
+<span class="lineNum">    1691 </span>            : template &lt;class _Tp, size_t _Np&gt;
+<span class="lineNum">    1692 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1693 </span>            : reverse_iterator&lt;_Tp*&gt; rbegin(_Tp (&amp;__array)[_Np])
+<span class="lineNum">    1694 </span>            : {
+<span class="lineNum">    1695 </span>            :     return reverse_iterator&lt;_Tp*&gt;(__array + _Np);
+<span class="lineNum">    1696 </span>            : }
+<span class="lineNum">    1697 </span>            : 
+<span class="lineNum">    1698 </span>            : template &lt;class _Tp, size_t _Np&gt;
+<span class="lineNum">    1699 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1700 </span>            : reverse_iterator&lt;_Tp*&gt; rend(_Tp (&amp;__array)[_Np])
+<span class="lineNum">    1701 </span>            : {
+<span class="lineNum">    1702 </span>            :     return reverse_iterator&lt;_Tp*&gt;(__array);
+<span class="lineNum">    1703 </span>            : }
+<span class="lineNum">    1704 </span>            : 
+<span class="lineNum">    1705 </span>            : template &lt;class _Ep&gt;
+<span class="lineNum">    1706 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1707 </span>            : reverse_iterator&lt;const _Ep*&gt; rbegin(initializer_list&lt;_Ep&gt; __il)
+<span class="lineNum">    1708 </span>            : {
+<span class="lineNum">    1709 </span>            :     return reverse_iterator&lt;const _Ep*&gt;(__il.end());
+<span class="lineNum">    1710 </span>            : }
+<span class="lineNum">    1711 </span>            : 
+<span class="lineNum">    1712 </span>            : template &lt;class _Ep&gt;
+<span class="lineNum">    1713 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1714 </span>            : reverse_iterator&lt;const _Ep*&gt; rend(initializer_list&lt;_Ep&gt; __il)
+<span class="lineNum">    1715 </span>            : {
+<span class="lineNum">    1716 </span>            :     return reverse_iterator&lt;const _Ep*&gt;(__il.begin());
+<span class="lineNum">    1717 </span>            : }
+<span class="lineNum">    1718 </span>            : 
+<span class="lineNum">    1719 </span>            : template &lt;class _Cp&gt;
+<span class="lineNum">    1720 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">    1721 </span>            : auto cbegin(const _Cp&amp; __c) -&gt; decltype(_VSTD::begin(__c))
+<span class="lineNum">    1722 </span>            : {
+<span class="lineNum">    1723 </span>            :     return _VSTD::begin(__c);
+<span class="lineNum">    1724 </span>            : }
+<span class="lineNum">    1725 </span>            : 
+<span class="lineNum">    1726 </span>            : template &lt;class _Cp&gt;
+<span class="lineNum">    1727 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">    1728 </span>            : auto cend(const _Cp&amp; __c) -&gt; decltype(_VSTD::end(__c))
+<span class="lineNum">    1729 </span>            : {
+<span class="lineNum">    1730 </span>            :     return _VSTD::end(__c);
+<span class="lineNum">    1731 </span>            : }
+<span class="lineNum">    1732 </span>            : 
+<span class="lineNum">    1733 </span>            : template &lt;class _Cp&gt;
+<span class="lineNum">    1734 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1735 </span>            : auto rbegin(_Cp&amp; __c) -&gt; decltype(__c.rbegin())
+<span class="lineNum">    1736 </span>            : {
+<span class="lineNum">    1737 </span>            :     return __c.rbegin();
+<span class="lineNum">    1738 </span>            : }
+<span class="lineNum">    1739 </span>            : 
+<span class="lineNum">    1740 </span>            : template &lt;class _Cp&gt;
+<span class="lineNum">    1741 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1742 </span>            : auto rbegin(const _Cp&amp; __c) -&gt; decltype(__c.rbegin())
+<span class="lineNum">    1743 </span>            : {
+<span class="lineNum">    1744 </span>            :     return __c.rbegin();
+<span class="lineNum">    1745 </span>            : }
+<span class="lineNum">    1746 </span>            : 
+<span class="lineNum">    1747 </span>            : template &lt;class _Cp&gt;
+<span class="lineNum">    1748 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1749 </span>            : auto rend(_Cp&amp; __c) -&gt; decltype(__c.rend())
+<span class="lineNum">    1750 </span>            : {
+<span class="lineNum">    1751 </span>            :     return __c.rend();
+<span class="lineNum">    1752 </span>            : }
+<span class="lineNum">    1753 </span>            : 
+<span class="lineNum">    1754 </span>            : template &lt;class _Cp&gt;
+<span class="lineNum">    1755 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1756 </span>            : auto rend(const _Cp&amp; __c) -&gt; decltype(__c.rend())
+<span class="lineNum">    1757 </span>            : {
+<span class="lineNum">    1758 </span>            :     return __c.rend();
+<span class="lineNum">    1759 </span>            : }
+<span class="lineNum">    1760 </span>            : 
+<span class="lineNum">    1761 </span>            : template &lt;class _Cp&gt;
+<span class="lineNum">    1762 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1763 </span>            : auto crbegin(const _Cp&amp; __c) -&gt; decltype(_VSTD::rbegin(__c))
+<span class="lineNum">    1764 </span>            : {
+<span class="lineNum">    1765 </span>            :     return _VSTD::rbegin(__c);
+<span class="lineNum">    1766 </span>            : }
+<span class="lineNum">    1767 </span>            : 
+<span class="lineNum">    1768 </span>            : template &lt;class _Cp&gt;
+<span class="lineNum">    1769 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX14
+<span class="lineNum">    1770 </span>            : auto crend(const _Cp&amp; __c) -&gt; decltype(_VSTD::rend(__c))
+<span class="lineNum">    1771 </span>            : {
+<span class="lineNum">    1772 </span>            :     return _VSTD::rend(__c);
+<span class="lineNum">    1773 </span>            : }
+<span class="lineNum">    1774 </span>            : 
+<span class="lineNum">    1775 </span>            : #endif
+<span class="lineNum">    1776 </span>            : 
+<span class="lineNum">    1777 </span>            : 
+<span class="lineNum">    1778 </span>            : #else  // defined(_LIBCPP_CXX03_LANG)
+<span class="lineNum">    1779 </span>            : 
+<span class="lineNum">    1780 </span>            : template &lt;class _Cp&gt;
+<span class="lineNum">    1781 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1782 </span>            : typename _Cp::iterator
+<span class="lineNum">    1783 </span>            : begin(_Cp&amp; __c)
+<span class="lineNum">    1784 </span>            : {
+<span class="lineNum">    1785 </span>            :     return __c.begin();
+<span class="lineNum">    1786 </span>            : }
+<span class="lineNum">    1787 </span>            : 
+<span class="lineNum">    1788 </span>            : template &lt;class _Cp&gt;
+<span class="lineNum">    1789 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1790 </span>            : typename _Cp::const_iterator
+<span class="lineNum">    1791 </span>            : begin(const _Cp&amp; __c)
+<span class="lineNum">    1792 </span>            : {
+<span class="lineNum">    1793 </span>            :     return __c.begin();
+<span class="lineNum">    1794 </span>            : }
+<span class="lineNum">    1795 </span>            : 
+<span class="lineNum">    1796 </span>            : template &lt;class _Cp&gt;
+<span class="lineNum">    1797 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1798 </span>            : typename _Cp::iterator
+<span class="lineNum">    1799 </span>            : end(_Cp&amp; __c)
+<span class="lineNum">    1800 </span>            : {
+<span class="lineNum">    1801 </span>            :     return __c.end();
+<span class="lineNum">    1802 </span>            : }
+<span class="lineNum">    1803 </span>            : 
+<span class="lineNum">    1804 </span>            : template &lt;class _Cp&gt;
+<span class="lineNum">    1805 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1806 </span>            : typename _Cp::const_iterator
+<span class="lineNum">    1807 </span>            : end(const _Cp&amp; __c)
+<span class="lineNum">    1808 </span>            : {
+<span class="lineNum">    1809 </span>            :     return __c.end();
+<span class="lineNum">    1810 </span>            : }
+<span class="lineNum">    1811 </span>            : 
+<span class="lineNum">    1812 </span>            : #endif  // !defined(_LIBCPP_CXX03_LANG)
+<span class="lineNum">    1813 </span>            : 
+<span class="lineNum">    1814 </span>            : #if _LIBCPP_STD_VER &gt; 14
+<span class="lineNum">    1815 </span>            : 
+<span class="lineNum">    1816 </span>            : // #if _LIBCPP_STD_VER &gt; 11
+<span class="lineNum">    1817 </span>            : // template &lt;&gt;
+<span class="lineNum">    1818 </span>            : // struct _LIBCPP_TEMPLATE_VIS plus&lt;void&gt;
+<span class="lineNum">    1819 </span>            : // {
+<span class="lineNum">    1820 </span>            : //     template &lt;class _T1, class _T2&gt;
+<span class="lineNum">    1821 </span>            : //     _LIBCPP_CONSTEXPR_AFTER_CXX11 _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1822 </span>            : //     auto operator()(_T1&amp;&amp; __t, _T2&amp;&amp; __u) const
+<span class="lineNum">    1823 </span>            : //     _NOEXCEPT_(noexcept(_VSTD::forward&lt;_T1&gt;(__t) + _VSTD::forward&lt;_T2&gt;(__u)))
+<span class="lineNum">    1824 </span>            : //     -&gt; decltype        (_VSTD::forward&lt;_T1&gt;(__t) + _VSTD::forward&lt;_T2&gt;(__u))
+<span class="lineNum">    1825 </span>            : //         { return        _VSTD::forward&lt;_T1&gt;(__t) + _VSTD::forward&lt;_T2&gt;(__u); }
+<span class="lineNum">    1826 </span>            : //     typedef void is_transparent;
+<span class="lineNum">    1827 </span>            : // };
+<span class="lineNum">    1828 </span>            : // #endif
+<span class="lineNum">    1829 </span>            : 
+<span class="lineNum">    1830 </span>            : template &lt;class _Cont&gt;
+<span class="lineNum">    1831 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1832 </span>            : constexpr auto size(const _Cont&amp; __c)
+<span class="lineNum">    1833 </span>            : _NOEXCEPT_(noexcept(__c.size()))
+<span class="lineNum">    1834 </span>            : -&gt; decltype        (__c.size())
+<span class="lineNum">    1835 </span>            : { return            __c.size(); }
+<span class="lineNum">    1836 </span>            : 
+<span class="lineNum">    1837 </span>            : template &lt;class _Tp, size_t _Sz&gt;
+<span class="lineNum">    1838 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1839 </span>            : constexpr size_t size(const _Tp (&amp;)[_Sz]) noexcept { return _Sz; }
+<span class="lineNum">    1840 </span>            : 
+<span class="lineNum">    1841 </span>            : template &lt;class _Cont&gt;
+<span class="lineNum">    1842 </span>            : _LIBCPP_NODISCARD_AFTER_CXX17 inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1843 </span>            : constexpr auto empty(const _Cont&amp; __c)
+<span class="lineNum">    1844 </span>            : _NOEXCEPT_(noexcept(__c.empty()))
+<span class="lineNum">    1845 </span>            : -&gt; decltype        (__c.empty())
+<span class="lineNum">    1846 </span>            : { return            __c.empty(); }
+<span class="lineNum">    1847 </span>            : 
+<span class="lineNum">    1848 </span>            : template &lt;class _Tp, size_t _Sz&gt;
+<span class="lineNum">    1849 </span>            : _LIBCPP_NODISCARD_AFTER_CXX17 inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1850 </span>            : constexpr bool empty(const _Tp (&amp;)[_Sz]) noexcept { return false; }
+<span class="lineNum">    1851 </span>            : 
+<span class="lineNum">    1852 </span>            : template &lt;class _Ep&gt;
+<span class="lineNum">    1853 </span>            : _LIBCPP_NODISCARD_AFTER_CXX17 inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1854 </span>            : constexpr bool empty(initializer_list&lt;_Ep&gt; __il) noexcept { return __il.size() == 0; }
+<span class="lineNum">    1855 </span>            : 
+<span class="lineNum">    1856 </span>            : template &lt;class _Cont&gt; constexpr
+<span class="lineNum">    1857 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1858 </span>            : auto data(_Cont&amp; __c)
+<span class="lineNum">    1859 </span>            : _NOEXCEPT_(noexcept(__c.data()))
+<span class="lineNum">    1860 </span>            : -&gt; decltype        (__c.data())
+<span class="lineNum">    1861 </span>            : { return            __c.data(); }
+<span class="lineNum">    1862 </span>            : 
+<span class="lineNum">    1863 </span>            : template &lt;class _Cont&gt; constexpr
+<span class="lineNum">    1864 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1865 </span>            : auto data(const _Cont&amp; __c)
+<span class="lineNum">    1866 </span>            : _NOEXCEPT_(noexcept(__c.data()))
+<span class="lineNum">    1867 </span>            : -&gt; decltype        (__c.data()) 
+<span class="lineNum">    1868 </span>            : { return            __c.data(); }
+<span class="lineNum">    1869 </span>            : 
+<span class="lineNum">    1870 </span>            : template &lt;class _Tp, size_t _Sz&gt;
+<span class="lineNum">    1871 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1872 </span>            : constexpr _Tp* data(_Tp (&amp;__array)[_Sz]) noexcept { return __array; }
+<span class="lineNum">    1873 </span>            : 
+<span class="lineNum">    1874 </span>            : template &lt;class _Ep&gt;
+<span class="lineNum">    1875 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1876 </span>            : constexpr const _Ep* data(initializer_list&lt;_Ep&gt; __il) noexcept { return __il.begin(); }
+<span class="lineNum">    1877 </span>            : #endif
+<span class="lineNum">    1878 </span>            : 
+<span class="lineNum">    1879 </span>            : 
+<span class="lineNum">    1880 </span>            : _LIBCPP_END_NAMESPACE_STD
+<span class="lineNum">    1881 </span>            : 
+<span class="lineNum">    1882 </span>            : #endif  // _LIBCPP_ITERATOR
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

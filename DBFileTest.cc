@@ -349,6 +349,9 @@ TEST_F(DBFileTest, AddWhenSubsequentFlushesTakesPlace) {
         } else {
           expected_count++;
           heapFile->Add(temp);
+          cout << "Buffer is full for the first time! But continuing to test "
+                  "the subsequent flush"
+               << endl;
         }
       } else {
         expected_count++;
@@ -366,13 +369,50 @@ TEST_F(DBFileTest, AddWhenSubsequentFlushesTakesPlace) {
       actual_count++;
     }
 
-    EXPECT_EQ(expected_count + 1, actual_count);
+    ASSERT_EQ(expected_count + 1, actual_count);
     int actual_pages = 3;
     // Expecting an additional empty page
     ASSERT_EQ(actual_pages + 1, heapFile->GetNumPagesInFile());
   }
 }
-TEST_F(DBFileTest, AddWhenANewPageIsCreated) {}
-TEST_F(DBFileTest, AddWhenAnExistingPartiallyFilledPageIsUtilized) {}
+
+TEST_F(DBFileTest, AddWhenAnExistingPartiallyFilledPageIsUtilized) {
+  DBFile *heapFile = new DBFile();
+  if (heapFile->Create("gtest.bin", heap, NULL)) {
+    Schema mySchema("catalog", "lineitem");
+    const char *tpch_dir = "data_files/lineitem.tbl";
+    FILE *f = fopen(tpch_dir, "r");
+    Record temp;
+
+    int expected_count = 0;
+    while (temp.SuckNextRecord(&mySchema, f) && expected_count <= 10) {
+      expected_count++;
+      heapFile->Add(temp);
+    }
+
+    cout << "Adding the partially filled page back to the file and reading"
+         << endl;
+    heapFile->GetNext(temp);
+
+    cout << "And now writing again to get the partially filled page back and "
+            "verify no new page was added or created"
+         << endl;
+
+    if (temp.SuckNextRecord(&mySchema, f)) {
+      heapFile->Add(temp);
+    }
+
+    heapFile->MoveFirst();
+    int actual_count = 0;
+    while (heapFile->GetNext(temp)) {
+      actual_count++;
+    }
+
+    ASSERT_EQ(expected_count + 1, actual_count);
+    int actual_pages = 1;
+    // Expecting an additional empty page
+    ASSERT_EQ(actual_pages + 1, heapFile->GetNumPagesInFile());
+  }
+}
 
 }  // namespace foo

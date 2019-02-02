@@ -1,0 +1,1062 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - P1.info - v1/sstream</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">v1</a> - sstream<span style="font-size: 80%;"> (source / <a href="sstream.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">P1.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">104</td>
+            <td class="headerCovTableEntryLo">25.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-02-02 11:06:24</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryLo">20.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // -*- C++ -*-</a>
+<span class="lineNum">       2 </span>            : //===--------------------------- sstream ----------------------------------===//
+<span class="lineNum">       3 </span>            : //
+<span class="lineNum">       4 </span>            : //                     The LLVM Compiler Infrastructure
+<span class="lineNum">       5 </span>            : //
+<span class="lineNum">       6 </span>            : // This file is dual licensed under the MIT and the University of Illinois Open
+<span class="lineNum">       7 </span>            : // Source Licenses. See LICENSE.TXT for details.
+<span class="lineNum">       8 </span>            : //
+<span class="lineNum">       9 </span>            : //===----------------------------------------------------------------------===//
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : #ifndef _LIBCPP_SSTREAM
+<span class="lineNum">      12 </span>            : #define _LIBCPP_SSTREAM
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : /*
+<span class="lineNum">      15 </span>            :     sstream synopsis
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt;, class Allocator = allocator&lt;charT&gt; &gt;
+<span class="lineNum">      18 </span>            : class basic_stringbuf
+<span class="lineNum">      19 </span>            :     : public basic_streambuf&lt;charT, traits&gt;
+<span class="lineNum">      20 </span>            : {
+<span class="lineNum">      21 </span>            : public:
+<span class="lineNum">      22 </span>            :     typedef charT                          char_type;
+<span class="lineNum">      23 </span>            :     typedef traits                         traits_type;
+<span class="lineNum">      24 </span>            :     typedef typename traits_type::int_type int_type;
+<span class="lineNum">      25 </span>            :     typedef typename traits_type::pos_type pos_type;
+<span class="lineNum">      26 </span>            :     typedef typename traits_type::off_type off_type;
+<span class="lineNum">      27 </span>            :     typedef Allocator                      allocator_type;
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            :     // 27.8.1.1 Constructors:
+<span class="lineNum">      30 </span>            :     explicit basic_stringbuf(ios_base::openmode which = ios_base::in | ios_base::out);
+<span class="lineNum">      31 </span>            :     explicit basic_stringbuf(const basic_string&lt;char_type, traits_type, allocator_type&gt;&amp; str,
+<span class="lineNum">      32 </span>            :                              ios_base::openmode which = ios_base::in | ios_base::out);
+<span class="lineNum">      33 </span>            :     basic_stringbuf(basic_stringbuf&amp;&amp; rhs);
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            :     // 27.8.1.2 Assign and swap:
+<span class="lineNum">      36 </span>            :     basic_stringbuf&amp; operator=(basic_stringbuf&amp;&amp; rhs);
+<span class="lineNum">      37 </span>            :     void swap(basic_stringbuf&amp; rhs);
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            :     // 27.8.1.3 Get and set:
+<span class="lineNum">      40 </span>            :     basic_string&lt;char_type, traits_type, allocator_type&gt; str() const;
+<span class="lineNum">      41 </span>            :     void str(const basic_string&lt;char_type, traits_type, allocator_type&gt;&amp; s);
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : protected:
+<span class="lineNum">      44 </span>            :     // 27.8.1.4 Overridden virtual functions:
+<span class="lineNum">      45 </span>            :     virtual int_type underflow();
+<span class="lineNum">      46 </span>            :     virtual int_type pbackfail(int_type c = traits_type::eof());
+<span class="lineNum">      47 </span>            :     virtual int_type overflow (int_type c = traits_type::eof());
+<span class="lineNum">      48 </span>            :     virtual basic_streambuf&lt;char_type, traits_type&gt;* setbuf(char_type*, streamsize);
+<span class="lineNum">      49 </span>            :     virtual pos_type seekoff(off_type off, ios_base::seekdir way,
+<span class="lineNum">      50 </span>            :                              ios_base::openmode which = ios_base::in | ios_base::out);
+<span class="lineNum">      51 </span>            :     virtual pos_type seekpos(pos_type sp,
+<span class="lineNum">      52 </span>            :                              ios_base::openmode which = ios_base::in | ios_base::out);
+<span class="lineNum">      53 </span>            : };
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : template &lt;class charT, class traits, class Allocator&gt;
+<span class="lineNum">      56 </span>            :   void swap(basic_stringbuf&lt;charT, traits, Allocator&gt;&amp; x,
+<span class="lineNum">      57 </span>            :             basic_stringbuf&lt;charT, traits, Allocator&gt;&amp; y);
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            : typedef basic_stringbuf&lt;char&gt;    stringbuf;
+<span class="lineNum">      60 </span>            : typedef basic_stringbuf&lt;wchar_t&gt; wstringbuf;
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt;, class Allocator = allocator&lt;charT&gt; &gt;
+<span class="lineNum">      63 </span>            : class basic_istringstream
+<span class="lineNum">      64 </span>            :     : public basic_istream&lt;charT, traits&gt;
+<span class="lineNum">      65 </span>            : {
+<span class="lineNum">      66 </span>            : public:
+<span class="lineNum">      67 </span>            :     typedef charT                          char_type;
+<span class="lineNum">      68 </span>            :     typedef traits                         traits_type;
+<span class="lineNum">      69 </span>            :     typedef typename traits_type::int_type int_type;
+<span class="lineNum">      70 </span>            :     typedef typename traits_type::pos_type pos_type;
+<span class="lineNum">      71 </span>            :     typedef typename traits_type::off_type off_type;
+<span class="lineNum">      72 </span>            :     typedef Allocator                      allocator_type;
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            :     // 27.8.2.1 Constructors:
+<span class="lineNum">      75 </span>            :     explicit basic_istringstream(ios_base::openmode which = ios_base::in);
+<span class="lineNum">      76 </span>            :     explicit basic_istringstream(const basic_string&lt;char_type, traits_type,allocator_type&gt;&amp; str,
+<span class="lineNum">      77 </span>            :                                  ios_base::openmode which = ios_base::in);
+<span class="lineNum">      78 </span>            :     basic_istringstream(basic_istringstream&amp;&amp; rhs);
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            :     // 27.8.2.2 Assign and swap:
+<span class="lineNum">      81 </span>            :     basic_istringstream&amp; operator=(basic_istringstream&amp;&amp; rhs);
+<span class="lineNum">      82 </span>            :     void swap(basic_istringstream&amp; rhs);
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            :     // 27.8.2.3 Members:
+<span class="lineNum">      85 </span>            :     basic_stringbuf&lt;char_type, traits_type, allocator_type&gt;* rdbuf() const;
+<span class="lineNum">      86 </span>            :     basic_string&lt;char_type, traits_type, allocator_type&gt; str() const;
+<span class="lineNum">      87 </span>            :     void str(const basic_string&lt;char_type, traits_type, allocator_type&gt;&amp; s);
+<span class="lineNum">      88 </span>            : };
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            : template &lt;class charT, class traits, class Allocator&gt;
+<span class="lineNum">      91 </span>            :   void swap(basic_istringstream&lt;charT, traits, Allocator&gt;&amp; x,
+<span class="lineNum">      92 </span>            :             basic_istringstream&lt;charT, traits, Allocator&gt;&amp; y);
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            : typedef basic_istringstream&lt;char&gt;    istringstream;
+<span class="lineNum">      95 </span>            : typedef basic_istringstream&lt;wchar_t&gt; wistringstream;
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt;, class Allocator = allocator&lt;charT&gt; &gt;
+<span class="lineNum">      98 </span>            : class basic_ostringstream
+<span class="lineNum">      99 </span>            :     : public basic_ostream&lt;charT, traits&gt;
+<span class="lineNum">     100 </span>            : {
+<span class="lineNum">     101 </span>            : public:
+<span class="lineNum">     102 </span>            :     // types:
+<span class="lineNum">     103 </span>            :     typedef charT                          char_type;
+<span class="lineNum">     104 </span>            :     typedef traits                         traits_type;
+<span class="lineNum">     105 </span>            :     typedef typename traits_type::int_type int_type;
+<span class="lineNum">     106 </span>            :     typedef typename traits_type::pos_type pos_type;
+<span class="lineNum">     107 </span>            :     typedef typename traits_type::off_type off_type;
+<span class="lineNum">     108 </span>            :     typedef Allocator                      allocator_type;
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span>            :     // 27.8.3.1 Constructors/destructor:
+<span class="lineNum">     111 </span>            :     explicit basic_ostringstream(ios_base::openmode which = ios_base::out);
+<span class="lineNum">     112 </span>            :     explicit basic_ostringstream(const basic_string&lt;char_type, traits_type, allocator_type&gt;&amp; str,
+<span class="lineNum">     113 </span>            :                                  ios_base::openmode which = ios_base::out);
+<span class="lineNum">     114 </span>            :     basic_ostringstream(basic_ostringstream&amp;&amp; rhs);
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span>            :     // 27.8.3.2 Assign/swap:
+<span class="lineNum">     117 </span>            :     basic_ostringstream&amp; operator=(basic_ostringstream&amp;&amp; rhs);
+<span class="lineNum">     118 </span>            :     void swap(basic_ostringstream&amp; rhs);
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            :     // 27.8.3.3 Members:
+<span class="lineNum">     121 </span>            :     basic_stringbuf&lt;char_type, traits_type, allocator_type&gt;* rdbuf() const;
+<span class="lineNum">     122 </span>            :     basic_string&lt;char_type, traits_type, allocator_type&gt; str() const;
+<span class="lineNum">     123 </span>            :     void str(const basic_string&lt;char_type, traits_type, allocator_type&gt;&amp; s);
+<span class="lineNum">     124 </span>            : };
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span>            : template &lt;class charT, class traits, class Allocator&gt;
+<span class="lineNum">     127 </span>            :   void swap(basic_ostringstream&lt;charT, traits, Allocator&gt;&amp; x,
+<span class="lineNum">     128 </span>            :             basic_ostringstream&lt;charT, traits, Allocator&gt;&amp; y);
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            : typedef basic_ostringstream&lt;char&gt;    ostringstream;
+<span class="lineNum">     131 </span>            : typedef basic_ostringstream&lt;wchar_t&gt; wostringstream;
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt;, class Allocator = allocator&lt;charT&gt; &gt;
+<span class="lineNum">     134 </span>            : class basic_stringstream
+<span class="lineNum">     135 </span>            :     : public basic_iostream&lt;charT, traits&gt;
+<span class="lineNum">     136 </span>            : {
+<span class="lineNum">     137 </span>            : public:
+<span class="lineNum">     138 </span>            :     // types:
+<span class="lineNum">     139 </span>            :     typedef charT                          char_type;
+<span class="lineNum">     140 </span>            :     typedef traits                         traits_type;
+<span class="lineNum">     141 </span>            :     typedef typename traits_type::int_type int_type;
+<span class="lineNum">     142 </span>            :     typedef typename traits_type::pos_type pos_type;
+<span class="lineNum">     143 </span>            :     typedef typename traits_type::off_type off_type;
+<span class="lineNum">     144 </span>            :     typedef Allocator                      allocator_type;
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            :     // constructors/destructor
+<span class="lineNum">     147 </span>            :     explicit basic_stringstream(ios_base::openmode which = ios_base::out|ios_base::in);
+<span class="lineNum">     148 </span>            :     explicit basic_stringstream(const basic_string&lt;char_type, traits_type, allocator_type&gt;&amp; str,
+<span class="lineNum">     149 </span>            :                                 ios_base::openmode which = ios_base::out|ios_base::in);
+<span class="lineNum">     150 </span>            :     basic_stringstream(basic_stringstream&amp;&amp; rhs);
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span>            :     // 27.8.5.1 Assign/swap:
+<span class="lineNum">     153 </span>            :     basic_stringstream&amp; operator=(basic_stringstream&amp;&amp; rhs);
+<span class="lineNum">     154 </span>            :     void swap(basic_stringstream&amp; rhs);
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span>            :     // Members:
+<span class="lineNum">     157 </span>            :     basic_stringbuf&lt;char_type, traits_type, allocator_type&gt;* rdbuf() const;
+<span class="lineNum">     158 </span>            :     basic_string&lt;char_type, traits_type, allocator_type&gt; str() const;
+<span class="lineNum">     159 </span>            :     void str(const basic_string&lt;char_type, traits_type, allocator_type&gt;&amp; str);
+<span class="lineNum">     160 </span>            : };
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            : template &lt;class charT, class traits, class Allocator&gt;
+<span class="lineNum">     163 </span>            :   void swap(basic_stringstream&lt;charT, traits, Allocator&gt;&amp; x,
+<span class="lineNum">     164 </span>            :             basic_stringstream&lt;charT, traits, Allocator&gt;&amp; y);
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span>            : typedef basic_stringstream&lt;char&gt;    stringstream;
+<span class="lineNum">     167 </span>            : typedef basic_stringstream&lt;wchar_t&gt; wstringstream;
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            : }  // std
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            : */
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            : #include &lt;__config&gt;
+<span class="lineNum">     174 </span>            : #include &lt;ostream&gt;
+<span class="lineNum">     175 </span>            : #include &lt;istream&gt;
+<span class="lineNum">     176 </span>            : #include &lt;string&gt;
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span>            : #if !defined(_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER)
+<span class="lineNum">     179 </span>            : #pragma GCC system_header
+<span class="lineNum">     180 </span>            : #endif
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span>            : _LIBCPP_PUSH_MACROS
+<span class="lineNum">     183 </span>            : #include &lt;__undef_macros&gt;
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span>            : _LIBCPP_BEGIN_NAMESPACE_STD
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            : // basic_stringbuf
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     191 </span>            : class _LIBCPP_TEMPLATE_VIS basic_stringbuf
+<span class="lineNum">     192 </span>            :     : public basic_streambuf&lt;_CharT, _Traits&gt;
+<span class="lineNum">     193 </span>            : {
+<span class="lineNum">     194 </span>            : public:
+<span class="lineNum">     195 </span>            :     typedef _CharT                         char_type;
+<span class="lineNum">     196 </span>            :     typedef _Traits                        traits_type;
+<span class="lineNum">     197 </span>            :     typedef typename traits_type::int_type int_type;
+<span class="lineNum">     198 </span>            :     typedef typename traits_type::pos_type pos_type;
+<span class="lineNum">     199 </span>            :     typedef typename traits_type::off_type off_type;
+<span class="lineNum">     200 </span>            :     typedef _Allocator                     allocator_type;
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span>            :     typedef basic_string&lt;char_type, traits_type, allocator_type&gt; string_type;
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span>            : private:
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            :     string_type __str_;
+<span class="lineNum">     207 </span>            :     mutable char_type* __hm_;
+<span class="lineNum">     208 </span>            :     ios_base::openmode __mode_;
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span>            : public:
+<span class="lineNum">     211 </span>            :     // 27.8.1.1 Constructors:
+<span class="lineNum">     212 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :     explicit basic_stringbuf(ios_base::openmode __wch = ios_base::in | ios_base::out);</span>
+<span class="lineNum">     214 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     215 </span>            :     explicit basic_stringbuf(const string_type&amp; __s,
+<span class="lineNum">     216 </span>            :                              ios_base::openmode __wch = ios_base::in | ios_base::out);
+<span class="lineNum">     217 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     218 </span>            :     basic_stringbuf(basic_stringbuf&amp;&amp; __rhs);
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span>            :     // 27.8.1.2 Assign and swap:
+<span class="lineNum">     221 </span>            :     basic_stringbuf&amp; operator=(basic_stringbuf&amp;&amp; __rhs);
+<span class="lineNum">     222 </span>            : #endif
+<span class="lineNum">     223 </span>            :     void swap(basic_stringbuf&amp; __rhs);
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span>            :     // 27.8.1.3 Get and set:
+<span class="lineNum">     226 </span>            :     string_type str() const;
+<span class="lineNum">     227 </span>            :     void str(const string_type&amp; __s);
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span>            : protected:
+<span class="lineNum">     230 </span>            :     // 27.8.1.4 Overridden virtual functions:
+<span class="lineNum">     231 </span>            :     virtual int_type underflow();
+<span class="lineNum">     232 </span>            :     virtual int_type pbackfail(int_type __c = traits_type::eof());
+<span class="lineNum">     233 </span>            :     virtual int_type overflow (int_type __c = traits_type::eof());
+<span class="lineNum">     234 </span>            :     virtual pos_type seekoff(off_type __off, ios_base::seekdir __way,
+<span class="lineNum">     235 </span>            :                              ios_base::openmode __wch = ios_base::in | ios_base::out);
+<span class="lineNum">     236 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     237 </span>            :     virtual pos_type seekpos(pos_type __sp,
+<span class="lineNum">     238 </span>            :                              ios_base::openmode __wch = ios_base::in | ios_base::out);
+<span class="lineNum">     239 </span>            : };
+<a name="240"><span class="lineNum">     240 </span>            : </a>
+<span class="lineNum">     241 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     242 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::basic_stringbuf(ios_base::openmode __wch)
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :     : __hm_(0),</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :       __mode_(__wch)</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     249 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::basic_stringbuf(const string_type&amp; __s,
+<span class="lineNum">     250 </span>            :                              ios_base::openmode __wch)
+<span class="lineNum">     251 </span>            :     : __str_(__s.get_allocator()),
+<span class="lineNum">     252 </span>            :       __hm_(0),
+<span class="lineNum">     253 </span>            :       __mode_(__wch)
+<span class="lineNum">     254 </span>            : {
+<span class="lineNum">     255 </span>            :     str(__s);
+<span class="lineNum">     256 </span>            : }
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     259 </span>            : 
+<span class="lineNum">     260 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     261 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::basic_stringbuf(basic_stringbuf&amp;&amp; __rhs)
+<span class="lineNum">     262 </span>            :     : __mode_(__rhs.__mode_)
+<span class="lineNum">     263 </span>            : {
+<span class="lineNum">     264 </span>            :     char_type* __p = const_cast&lt;char_type*&gt;(__rhs.__str_.data());
+<span class="lineNum">     265 </span>            :     ptrdiff_t __binp = -1;
+<span class="lineNum">     266 </span>            :     ptrdiff_t __ninp = -1;
+<span class="lineNum">     267 </span>            :     ptrdiff_t __einp = -1;
+<span class="lineNum">     268 </span>            :     if (__rhs.eback() != nullptr)
+<span class="lineNum">     269 </span>            :     {
+<span class="lineNum">     270 </span>            :         __binp = __rhs.eback() - __p;
+<span class="lineNum">     271 </span>            :         __ninp = __rhs.gptr() - __p;
+<span class="lineNum">     272 </span>            :         __einp = __rhs.egptr() - __p;
+<span class="lineNum">     273 </span>            :     }
+<span class="lineNum">     274 </span>            :     ptrdiff_t __bout = -1;
+<span class="lineNum">     275 </span>            :     ptrdiff_t __nout = -1;
+<span class="lineNum">     276 </span>            :     ptrdiff_t __eout = -1;
+<span class="lineNum">     277 </span>            :     if (__rhs.pbase() != nullptr)
+<span class="lineNum">     278 </span>            :     {
+<span class="lineNum">     279 </span>            :         __bout = __rhs.pbase() - __p;
+<span class="lineNum">     280 </span>            :         __nout = __rhs.pptr() - __p;
+<span class="lineNum">     281 </span>            :         __eout = __rhs.epptr() - __p;
+<span class="lineNum">     282 </span>            :     }
+<span class="lineNum">     283 </span>            :     ptrdiff_t __hm = __rhs.__hm_ == nullptr ? -1 : __rhs.__hm_ - __p;
+<span class="lineNum">     284 </span>            :     __str_ = _VSTD::move(__rhs.__str_);
+<span class="lineNum">     285 </span>            :     __p = const_cast&lt;char_type*&gt;(__str_.data());
+<span class="lineNum">     286 </span>            :     if (__binp != -1)
+<span class="lineNum">     287 </span>            :         this-&gt;setg(__p + __binp, __p + __ninp, __p + __einp);
+<span class="lineNum">     288 </span>            :     if (__bout != -1)
+<span class="lineNum">     289 </span>            :     {
+<span class="lineNum">     290 </span>            :         this-&gt;setp(__p + __bout, __p + __eout);
+<span class="lineNum">     291 </span>            :         this-&gt;__pbump(__nout);
+<span class="lineNum">     292 </span>            :     }
+<span class="lineNum">     293 </span>            :     __hm_ = __hm == -1 ? nullptr : __p + __hm;
+<span class="lineNum">     294 </span>            :     __p = const_cast&lt;char_type*&gt;(__rhs.__str_.data());
+<span class="lineNum">     295 </span>            :     __rhs.setg(__p, __p, __p);
+<span class="lineNum">     296 </span>            :     __rhs.setp(__p, __p);
+<span class="lineNum">     297 </span>            :     __rhs.__hm_ = __p;
+<span class="lineNum">     298 </span>            :     this-&gt;pubimbue(__rhs.getloc());
+<span class="lineNum">     299 </span>            : }
+<span class="lineNum">     300 </span>            : 
+<span class="lineNum">     301 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     302 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;&amp;
+<span class="lineNum">     303 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::operator=(basic_stringbuf&amp;&amp; __rhs)
+<span class="lineNum">     304 </span>            : {
+<span class="lineNum">     305 </span>            :     char_type* __p = const_cast&lt;char_type*&gt;(__rhs.__str_.data());
+<span class="lineNum">     306 </span>            :     ptrdiff_t __binp = -1;
+<span class="lineNum">     307 </span>            :     ptrdiff_t __ninp = -1;
+<span class="lineNum">     308 </span>            :     ptrdiff_t __einp = -1;
+<span class="lineNum">     309 </span>            :     if (__rhs.eback() != nullptr)
+<span class="lineNum">     310 </span>            :     {
+<span class="lineNum">     311 </span>            :         __binp = __rhs.eback() - __p;
+<span class="lineNum">     312 </span>            :         __ninp = __rhs.gptr() - __p;
+<span class="lineNum">     313 </span>            :         __einp = __rhs.egptr() - __p;
+<span class="lineNum">     314 </span>            :     }
+<span class="lineNum">     315 </span>            :     ptrdiff_t __bout = -1;
+<span class="lineNum">     316 </span>            :     ptrdiff_t __nout = -1;
+<span class="lineNum">     317 </span>            :     ptrdiff_t __eout = -1;
+<span class="lineNum">     318 </span>            :     if (__rhs.pbase() != nullptr)
+<span class="lineNum">     319 </span>            :     {
+<span class="lineNum">     320 </span>            :         __bout = __rhs.pbase() - __p;
+<span class="lineNum">     321 </span>            :         __nout = __rhs.pptr() - __p;
+<span class="lineNum">     322 </span>            :         __eout = __rhs.epptr() - __p;
+<span class="lineNum">     323 </span>            :     }
+<span class="lineNum">     324 </span>            :     ptrdiff_t __hm = __rhs.__hm_ == nullptr ? -1 : __rhs.__hm_ - __p;
+<span class="lineNum">     325 </span>            :     __str_ = _VSTD::move(__rhs.__str_);
+<span class="lineNum">     326 </span>            :     __p = const_cast&lt;char_type*&gt;(__str_.data());
+<span class="lineNum">     327 </span>            :     if (__binp != -1)
+<span class="lineNum">     328 </span>            :         this-&gt;setg(__p + __binp, __p + __ninp, __p + __einp);
+<span class="lineNum">     329 </span>            :     else
+<span class="lineNum">     330 </span>            :         this-&gt;setg(nullptr, nullptr, nullptr);
+<span class="lineNum">     331 </span>            :     if (__bout != -1)
+<span class="lineNum">     332 </span>            :     {
+<span class="lineNum">     333 </span>            :         this-&gt;setp(__p + __bout, __p + __eout);
+<span class="lineNum">     334 </span>            :         this-&gt;__pbump(__nout);
+<span class="lineNum">     335 </span>            :     }
+<span class="lineNum">     336 </span>            :     else
+<span class="lineNum">     337 </span>            :         this-&gt;setp(nullptr, nullptr);
+<span class="lineNum">     338 </span>            : 
+<span class="lineNum">     339 </span>            :     __hm_ = __hm == -1 ? nullptr : __p + __hm;
+<span class="lineNum">     340 </span>            :     __mode_ = __rhs.__mode_;
+<span class="lineNum">     341 </span>            :     __p = const_cast&lt;char_type*&gt;(__rhs.__str_.data());
+<span class="lineNum">     342 </span>            :     __rhs.setg(__p, __p, __p);
+<span class="lineNum">     343 </span>            :     __rhs.setp(__p, __p);
+<span class="lineNum">     344 </span>            :     __rhs.__hm_ = __p;
+<span class="lineNum">     345 </span>            :     this-&gt;pubimbue(__rhs.getloc());
+<span class="lineNum">     346 </span>            :     return *this;
+<span class="lineNum">     347 </span>            : }
+<span class="lineNum">     348 </span>            : 
+<span class="lineNum">     349 </span>            : #endif  // _LIBCPP_CXX03_LANG
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     352 </span>            : void
+<span class="lineNum">     353 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::swap(basic_stringbuf&amp; __rhs)
+<span class="lineNum">     354 </span>            : {
+<span class="lineNum">     355 </span>            :     char_type* __p = const_cast&lt;char_type*&gt;(__rhs.__str_.data());
+<span class="lineNum">     356 </span>            :     ptrdiff_t __rbinp = -1;
+<span class="lineNum">     357 </span>            :     ptrdiff_t __rninp = -1;
+<span class="lineNum">     358 </span>            :     ptrdiff_t __reinp = -1;
+<span class="lineNum">     359 </span>            :     if (__rhs.eback() != nullptr)
+<span class="lineNum">     360 </span>            :     {
+<span class="lineNum">     361 </span>            :         __rbinp = __rhs.eback() - __p;
+<span class="lineNum">     362 </span>            :         __rninp = __rhs.gptr() - __p;
+<span class="lineNum">     363 </span>            :         __reinp = __rhs.egptr() - __p;
+<span class="lineNum">     364 </span>            :     }
+<span class="lineNum">     365 </span>            :     ptrdiff_t __rbout = -1;
+<span class="lineNum">     366 </span>            :     ptrdiff_t __rnout = -1;
+<span class="lineNum">     367 </span>            :     ptrdiff_t __reout = -1;
+<span class="lineNum">     368 </span>            :     if (__rhs.pbase() != nullptr)
+<span class="lineNum">     369 </span>            :     {
+<span class="lineNum">     370 </span>            :         __rbout = __rhs.pbase() - __p;
+<span class="lineNum">     371 </span>            :         __rnout = __rhs.pptr() - __p;
+<span class="lineNum">     372 </span>            :         __reout = __rhs.epptr() - __p;
+<span class="lineNum">     373 </span>            :     }
+<span class="lineNum">     374 </span>            :     ptrdiff_t __rhm = __rhs.__hm_ == nullptr ? -1 : __rhs.__hm_ - __p;
+<span class="lineNum">     375 </span>            :     __p = const_cast&lt;char_type*&gt;(__str_.data());
+<span class="lineNum">     376 </span>            :     ptrdiff_t __lbinp = -1;
+<span class="lineNum">     377 </span>            :     ptrdiff_t __lninp = -1;
+<span class="lineNum">     378 </span>            :     ptrdiff_t __leinp = -1;
+<span class="lineNum">     379 </span>            :     if (this-&gt;eback() != nullptr)
+<span class="lineNum">     380 </span>            :     {
+<span class="lineNum">     381 </span>            :         __lbinp = this-&gt;eback() - __p;
+<span class="lineNum">     382 </span>            :         __lninp = this-&gt;gptr() - __p;
+<span class="lineNum">     383 </span>            :         __leinp = this-&gt;egptr() - __p;
+<span class="lineNum">     384 </span>            :     }
+<span class="lineNum">     385 </span>            :     ptrdiff_t __lbout = -1;
+<span class="lineNum">     386 </span>            :     ptrdiff_t __lnout = -1;
+<span class="lineNum">     387 </span>            :     ptrdiff_t __leout = -1;
+<span class="lineNum">     388 </span>            :     if (this-&gt;pbase() != nullptr)
+<span class="lineNum">     389 </span>            :     {
+<span class="lineNum">     390 </span>            :         __lbout = this-&gt;pbase() - __p;
+<span class="lineNum">     391 </span>            :         __lnout = this-&gt;pptr() - __p;
+<span class="lineNum">     392 </span>            :         __leout = this-&gt;epptr() - __p;
+<span class="lineNum">     393 </span>            :     }
+<span class="lineNum">     394 </span>            :     ptrdiff_t __lhm = __hm_ == nullptr ? -1 : __hm_ - __p;
+<span class="lineNum">     395 </span>            :     _VSTD::swap(__mode_, __rhs.__mode_);
+<span class="lineNum">     396 </span>            :     __str_.swap(__rhs.__str_);
+<span class="lineNum">     397 </span>            :     __p = const_cast&lt;char_type*&gt;(__str_.data());
+<span class="lineNum">     398 </span>            :     if (__rbinp != -1)
+<span class="lineNum">     399 </span>            :         this-&gt;setg(__p + __rbinp, __p + __rninp, __p + __reinp);
+<span class="lineNum">     400 </span>            :     else
+<span class="lineNum">     401 </span>            :         this-&gt;setg(nullptr, nullptr, nullptr);
+<span class="lineNum">     402 </span>            :     if (__rbout != -1)
+<span class="lineNum">     403 </span>            :     {
+<span class="lineNum">     404 </span>            :         this-&gt;setp(__p + __rbout, __p + __reout);
+<span class="lineNum">     405 </span>            :         this-&gt;__pbump(__rnout);
+<span class="lineNum">     406 </span>            :     }
+<span class="lineNum">     407 </span>            :     else
+<span class="lineNum">     408 </span>            :         this-&gt;setp(nullptr, nullptr);
+<span class="lineNum">     409 </span>            :     __hm_ = __rhm == -1 ? nullptr : __p + __rhm;
+<span class="lineNum">     410 </span>            :     __p = const_cast&lt;char_type*&gt;(__rhs.__str_.data());
+<span class="lineNum">     411 </span>            :     if (__lbinp != -1)
+<span class="lineNum">     412 </span>            :         __rhs.setg(__p + __lbinp, __p + __lninp, __p + __leinp);
+<span class="lineNum">     413 </span>            :     else
+<span class="lineNum">     414 </span>            :         __rhs.setg(nullptr, nullptr, nullptr);
+<span class="lineNum">     415 </span>            :     if (__lbout != -1)
+<span class="lineNum">     416 </span>            :     {
+<span class="lineNum">     417 </span>            :         __rhs.setp(__p + __lbout, __p + __leout);
+<span class="lineNum">     418 </span>            :         __rhs.__pbump(__lnout);
+<span class="lineNum">     419 </span>            :     }
+<span class="lineNum">     420 </span>            :     else
+<span class="lineNum">     421 </span>            :         __rhs.setp(nullptr, nullptr);
+<span class="lineNum">     422 </span>            :     __rhs.__hm_ = __lhm == -1 ? nullptr : __p + __lhm;
+<span class="lineNum">     423 </span>            :     locale __tl = __rhs.getloc();
+<span class="lineNum">     424 </span>            :     __rhs.pubimbue(this-&gt;getloc());
+<span class="lineNum">     425 </span>            :     this-&gt;pubimbue(__tl);
+<span class="lineNum">     426 </span>            : }
+<span class="lineNum">     427 </span>            : 
+<span class="lineNum">     428 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     429 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     430 </span>            : void
+<span class="lineNum">     431 </span>            : swap(basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;&amp; __x,
+<span class="lineNum">     432 </span>            :      basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;&amp; __y)
+<span class="lineNum">     433 </span>            : {
+<span class="lineNum">     434 </span>            :     __x.swap(__y);
+<span class="lineNum">     435 </span>            : }
+<span class="lineNum">     436 </span>            : 
+<a name="437"><span class="lineNum">     437 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;</a>
+<span class="lineNum">     438 </span>            : basic_string&lt;_CharT, _Traits, _Allocator&gt;
+<span class="lineNum">     439 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::str() const
+<span class="lineNum">     440 </span>            : {
+<span class="lineNum">     441 </span><span class="lineCov">         68 :     if (__mode_ &amp; ios_base::out)</span>
+<span class="lineNum">     442 </span>            :     {
+<span class="lineNum">     443 </span><span class="lineCov">         68 :         if (__hm_ &lt; this-&gt;pptr())</span>
+<span class="lineNum">     444 </span><span class="lineCov">         51 :             __hm_ = this-&gt;pptr();</span>
+<span class="lineNum">     445 </span><span class="lineCov">         68 :         return string_type(this-&gt;pbase(), __hm_, __str_.get_allocator());</span>
+<span class="lineNum">     446 </span>            :     }
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :     else if (__mode_ &amp; ios_base::in)</span>
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :         return string_type(this-&gt;eback(), this-&gt;egptr(), __str_.get_allocator());</span>
+<span class="lineNum">     449 </span><span class="lineNoCov">          0 :     return string_type(__str_.get_allocator());</span>
+<span class="lineNum">     450 </span><span class="lineCov">         68 : }</span>
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     453 </span>            : void
+<span class="lineNum">     454 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::str(const string_type&amp; __s)
+<span class="lineNum">     455 </span>            : {
+<span class="lineNum">     456 </span>            :     __str_ = __s;
+<span class="lineNum">     457 </span>            :     __hm_ = 0;
+<span class="lineNum">     458 </span>            :     if (__mode_ &amp; ios_base::in)
+<span class="lineNum">     459 </span>            :     {
+<span class="lineNum">     460 </span>            :         __hm_ = const_cast&lt;char_type*&gt;(__str_.data()) + __str_.size();
+<span class="lineNum">     461 </span>            :         this-&gt;setg(const_cast&lt;char_type*&gt;(__str_.data()),
+<span class="lineNum">     462 </span>            :                    const_cast&lt;char_type*&gt;(__str_.data()),
+<span class="lineNum">     463 </span>            :                    __hm_);
+<span class="lineNum">     464 </span>            :     }
+<span class="lineNum">     465 </span>            :     if (__mode_ &amp; ios_base::out)
+<span class="lineNum">     466 </span>            :     {
+<span class="lineNum">     467 </span>            :         typename string_type::size_type __sz = __str_.size();
+<span class="lineNum">     468 </span>            :         __hm_ = const_cast&lt;char_type*&gt;(__str_.data()) + __sz;
+<span class="lineNum">     469 </span>            :         __str_.resize(__str_.capacity());
+<span class="lineNum">     470 </span>            :         this-&gt;setp(const_cast&lt;char_type*&gt;(__str_.data()),
+<span class="lineNum">     471 </span>            :                    const_cast&lt;char_type*&gt;(__str_.data()) + __str_.size());
+<span class="lineNum">     472 </span>            :         if (__mode_ &amp; (ios_base::app | ios_base::ate))
+<span class="lineNum">     473 </span>            :         {
+<span class="lineNum">     474 </span>            :             while (__sz &gt; INT_MAX)
+<span class="lineNum">     475 </span>            :             {
+<span class="lineNum">     476 </span>            :                 this-&gt;pbump(INT_MAX);
+<span class="lineNum">     477 </span>            :                 __sz -= INT_MAX;
+<span class="lineNum">     478 </span>            :             }
+<span class="lineNum">     479 </span>            :             if (__sz &gt; 0)
+<span class="lineNum">     480 </span>            :                 this-&gt;pbump(__sz);
+<span class="lineNum">     481 </span>            :         }
+<span class="lineNum">     482 </span>            :     }
+<span class="lineNum">     483 </span>            : }
+<span class="lineNum">     484 </span>            : 
+<a name="485"><span class="lineNum">     485 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;</a>
+<span class="lineNum">     486 </span>            : typename basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::int_type
+<span class="lineNum">     487 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::underflow()
+<span class="lineNum">     488 </span>            : {
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :     if (__hm_ &lt; this-&gt;pptr())</span>
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :         __hm_ = this-&gt;pptr();</span>
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :     if (__mode_ &amp; ios_base::in)</span>
+<span class="lineNum">     492 </span>            :     {
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :         if (this-&gt;egptr() &lt; __hm_)</span>
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :             this-&gt;setg(this-&gt;eback(), this-&gt;gptr(), __hm_);</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :         if (this-&gt;gptr() &lt; this-&gt;egptr())</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :             return traits_type::to_int_type(*this-&gt;gptr());</span>
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :     return traits_type::eof();</span>
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     500 </span>            : 
+<a name="501"><span class="lineNum">     501 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;</a>
+<span class="lineNum">     502 </span>            : typename basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::int_type
+<span class="lineNum">     503 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::pbackfail(int_type __c)
+<span class="lineNum">     504 </span>            : {
+<span class="lineNum">     505 </span><span class="lineNoCov">          0 :     if (__hm_ &lt; this-&gt;pptr())</span>
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :         __hm_ = this-&gt;pptr();</span>
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :     if (this-&gt;eback() &lt; this-&gt;gptr())</span>
+<span class="lineNum">     508 </span>            :     {
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :         if (traits_type::eq_int_type(__c, traits_type::eof()))</span>
+<span class="lineNum">     510 </span>            :         {
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :             this-&gt;setg(this-&gt;eback(), this-&gt;gptr()-1, __hm_);</span>
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :             return traits_type::not_eof(__c);</span>
+<span class="lineNum">     513 </span>            :         }
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :         if ((__mode_ &amp; ios_base::out) ||</span>
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :             traits_type::eq(traits_type::to_char_type(__c), this-&gt;gptr()[-1]))</span>
+<span class="lineNum">     516 </span>            :         {
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :             this-&gt;setg(this-&gt;eback(), this-&gt;gptr()-1, __hm_);</span>
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :             *this-&gt;gptr() = traits_type::to_char_type(__c);</span>
+<span class="lineNum">     519 </span><span class="lineNoCov">          0 :             return __c;</span>
+<span class="lineNum">     520 </span>            :         }
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :     return traits_type::eof();</span>
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     524 </span>            : 
+<a name="525"><span class="lineNum">     525 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;</a>
+<span class="lineNum">     526 </span>            : typename basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::int_type
+<span class="lineNum">     527 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::overflow(int_type __c)
+<span class="lineNum">     528 </span>            : {
+<span class="lineNum">     529 </span><span class="lineCov">         76 :     if (!traits_type::eq_int_type(__c, traits_type::eof()))</span>
+<span class="lineNum">     530 </span>            :     {
+<span class="lineNum">     531 </span><span class="lineCov">         76 :         ptrdiff_t __ninp = this-&gt;gptr()  - this-&gt;eback();</span>
+<span class="lineNum">     532 </span><span class="lineCov">         76 :         if (this-&gt;pptr() == this-&gt;epptr())</span>
+<span class="lineNum">     533 </span>            :         {
+<span class="lineNum">     534 </span><span class="lineCov">         76 :             if (!(__mode_ &amp; ios_base::out))</span>
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :                 return traits_type::eof();</span>
+<span class="lineNum">     536 </span>            : #ifndef _LIBCPP_NO_EXCEPTIONS
+<span class="lineNum">     537 </span>            :             try
+<span class="lineNum">     538 </span>            :             {
+<span class="lineNum">     539 </span>            : #endif  // _LIBCPP_NO_EXCEPTIONS
+<span class="lineNum">     540 </span><span class="lineCov">        228 :                 ptrdiff_t __nout = this-&gt;pptr()  - this-&gt;pbase();</span>
+<span class="lineNum">     541 </span><span class="lineCov">        152 :                 ptrdiff_t __hm = __hm_ - this-&gt;pbase();</span>
+<span class="lineNum">     542 </span><span class="lineCov">         76 :                 __str_.push_back(char_type());</span>
+<span class="lineNum">     543 </span><span class="lineCov">         76 :                 __str_.resize(__str_.capacity());</span>
+<span class="lineNum">     544 </span><span class="lineCov">         76 :                 char_type* __p = const_cast&lt;char_type*&gt;(__str_.data());</span>
+<span class="lineNum">     545 </span><span class="lineCov">         76 :                 this-&gt;setp(__p, __p + __str_.size());</span>
+<span class="lineNum">     546 </span><span class="lineCov">         76 :                 this-&gt;__pbump(__nout);</span>
+<span class="lineNum">     547 </span><span class="lineCov">        152 :                 __hm_ = this-&gt;pbase() + __hm;</span>
+<span class="lineNum">     548 </span>            : #ifndef _LIBCPP_NO_EXCEPTIONS
+<span class="lineNum">     549 </span><span class="lineCov">         76 :             }</span>
+<span class="lineNum">     550 </span>            :             catch (...)
+<span class="lineNum">     551 </span>            :             {
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :                 return traits_type::eof();</span>
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     554 </span>            : #endif  // _LIBCPP_NO_EXCEPTIONS
+<span class="lineNum">     555 </span><span class="lineCov">         76 :         }</span>
+<span class="lineNum">     556 </span><span class="lineCov">         76 :         __hm_ = _VSTD::max(this-&gt;pptr() + 1, __hm_);</span>
+<span class="lineNum">     557 </span><span class="lineCov">         76 :         if (__mode_ &amp; ios_base::in)</span>
+<span class="lineNum">     558 </span>            :         {
+<span class="lineNum">     559 </span><span class="lineCov">         76 :             char_type* __p = const_cast&lt;char_type*&gt;(__str_.data());</span>
+<span class="lineNum">     560 </span><span class="lineCov">         76 :             this-&gt;setg(__p, __p + __ninp, __hm_);</span>
+<span class="lineNum">     561 </span><span class="lineCov">         76 :         }</span>
+<span class="lineNum">     562 </span><span class="lineCov">         76 :         return this-&gt;sputc(__c);</span>
+<span class="lineNum">     563 </span>            :     }
+<span class="lineNum">     564 </span><span class="lineNoCov">          0 :     return traits_type::not_eof(__c);</span>
+<span class="lineNum">     565 </span><span class="lineCov">         76 : }</span>
+<span class="lineNum">     566 </span>            : 
+<a name="567"><span class="lineNum">     567 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;</a>
+<span class="lineNum">     568 </span>            : typename basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::pos_type
+<span class="lineNum">     569 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::seekoff(off_type __off,
+<span class="lineNum">     570 </span>            :                                                       ios_base::seekdir __way,
+<span class="lineNum">     571 </span>            :                                                       ios_base::openmode __wch)
+<span class="lineNum">     572 </span>            : {
+<span class="lineNum">     573 </span><span class="lineNoCov">          0 :     if (__hm_ &lt; this-&gt;pptr())</span>
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 :         __hm_ = this-&gt;pptr();</span>
+<span class="lineNum">     575 </span><span class="lineNoCov">          0 :     if ((__wch &amp; (ios_base::in | ios_base::out)) == 0)</span>
+<span class="lineNum">     576 </span><span class="lineNoCov">          0 :         return pos_type(-1);</span>
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :     if ((__wch &amp; (ios_base::in | ios_base::out)) == (ios_base::in | ios_base::out)</span>
+<span class="lineNum">     578 </span><span class="lineNoCov">          0 :         &amp;&amp; __way == ios_base::cur)</span>
+<span class="lineNum">     579 </span><span class="lineNoCov">          0 :         return pos_type(-1);</span>
+<span class="lineNum">     580 </span><span class="lineNoCov">          0 :     const ptrdiff_t __hm = __hm_ == nullptr ? 0 : __hm_ - __str_.data();</span>
+<span class="lineNum">     581 </span>            :     off_type __noff;
+<span class="lineNum">     582 </span><span class="lineNoCov">          0 :     switch (__way)</span>
+<span class="lineNum">     583 </span>            :     {
+<span class="lineNum">     584 </span>            :     case ios_base::beg:
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :         __noff = 0;</span>
+<span class="lineNum">     586 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     587 </span>            :     case ios_base::cur:
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :         if (__wch &amp; ios_base::in)</span>
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :             __noff = this-&gt;gptr() - this-&gt;eback();</span>
+<span class="lineNum">     590 </span>            :         else
+<span class="lineNum">     591 </span><span class="lineNoCov">          0 :             __noff = this-&gt;pptr() - this-&gt;pbase();</span>
+<span class="lineNum">     592 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     593 </span>            :     case ios_base::end:
+<span class="lineNum">     594 </span><span class="lineNoCov">          0 :         __noff = __hm;</span>
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     596 </span>            :     default:
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :         return pos_type(-1);</span>
+<span class="lineNum">     598 </span>            :     }
+<span class="lineNum">     599 </span><span class="lineNoCov">          0 :     __noff += __off;</span>
+<span class="lineNum">     600 </span><span class="lineNoCov">          0 :     if (__noff &lt; 0 || __hm &lt; __noff)</span>
+<span class="lineNum">     601 </span><span class="lineNoCov">          0 :         return pos_type(-1);</span>
+<span class="lineNum">     602 </span><span class="lineNoCov">          0 :     if (__noff != 0)</span>
+<span class="lineNum">     603 </span>            :     {
+<span class="lineNum">     604 </span><span class="lineNoCov">          0 :         if ((__wch &amp; ios_base::in) &amp;&amp; this-&gt;gptr() == 0)</span>
+<span class="lineNum">     605 </span><span class="lineNoCov">          0 :             return pos_type(-1);</span>
+<span class="lineNum">     606 </span><span class="lineNoCov">          0 :         if ((__wch &amp; ios_base::out) &amp;&amp; this-&gt;pptr() == 0)</span>
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :             return pos_type(-1);</span>
+<span class="lineNum">     608 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     609 </span><span class="lineNoCov">          0 :     if (__wch &amp; ios_base::in)</span>
+<span class="lineNum">     610 </span><span class="lineNoCov">          0 :         this-&gt;setg(this-&gt;eback(), this-&gt;eback() + __noff, __hm_);</span>
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :     if (__wch &amp; ios_base::out)</span>
+<span class="lineNum">     612 </span>            :     {
+<span class="lineNum">     613 </span><span class="lineNoCov">          0 :         this-&gt;setp(this-&gt;pbase(), this-&gt;epptr());</span>
+<span class="lineNum">     614 </span><span class="lineNoCov">          0 :         this-&gt;pbump(__noff);</span>
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     616 </span><span class="lineNoCov">          0 :     return pos_type(__noff);</span>
+<span class="lineNum">     617 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     618 </span>            : 
+<a name="619"><span class="lineNum">     619 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;</a>
+<span class="lineNum">     620 </span>            : typename basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::pos_type
+<span class="lineNum">     621 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::seekpos(pos_type __sp,
+<span class="lineNum">     622 </span>            :                                                       ios_base::openmode __wch)
+<span class="lineNum">     623 </span>            : {
+<span class="lineNum">     624 </span><span class="lineNoCov">          0 :     return seekoff(__sp, ios_base::beg, __wch);</span>
+<span class="lineNum">     625 </span>            : }
+<span class="lineNum">     626 </span>            : 
+<span class="lineNum">     627 </span>            : // basic_istringstream
+<span class="lineNum">     628 </span>            : 
+<span class="lineNum">     629 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     630 </span>            : class _LIBCPP_TEMPLATE_VIS basic_istringstream
+<span class="lineNum">     631 </span>            :     : public basic_istream&lt;_CharT, _Traits&gt;
+<span class="lineNum">     632 </span>            : {
+<span class="lineNum">     633 </span>            : public:
+<span class="lineNum">     634 </span>            :     typedef _CharT                         char_type;
+<span class="lineNum">     635 </span>            :     typedef _Traits                        traits_type;
+<span class="lineNum">     636 </span>            :     typedef typename traits_type::int_type int_type;
+<span class="lineNum">     637 </span>            :     typedef typename traits_type::pos_type pos_type;
+<span class="lineNum">     638 </span>            :     typedef typename traits_type::off_type off_type;
+<span class="lineNum">     639 </span>            :     typedef _Allocator                     allocator_type;
+<span class="lineNum">     640 </span>            : 
+<span class="lineNum">     641 </span>            :     typedef basic_string&lt;char_type, traits_type, allocator_type&gt; string_type;
+<span class="lineNum">     642 </span>            : 
+<span class="lineNum">     643 </span>            : private:
+<span class="lineNum">     644 </span>            :     basic_stringbuf&lt;char_type, traits_type, allocator_type&gt; __sb_;
+<span class="lineNum">     645 </span>            : 
+<span class="lineNum">     646 </span>            : public:
+<span class="lineNum">     647 </span>            :     // 27.8.2.1 Constructors:
+<span class="lineNum">     648 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     649 </span>            :     explicit basic_istringstream(ios_base::openmode __wch = ios_base::in);
+<span class="lineNum">     650 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     651 </span>            :     explicit basic_istringstream(const string_type&amp; __s,
+<span class="lineNum">     652 </span>            :                                  ios_base::openmode __wch = ios_base::in);
+<span class="lineNum">     653 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     654 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     655 </span>            :     basic_istringstream(basic_istringstream&amp;&amp; __rhs);
+<span class="lineNum">     656 </span>            : 
+<span class="lineNum">     657 </span>            :     // 27.8.2.2 Assign and swap:
+<span class="lineNum">     658 </span>            :     basic_istringstream&amp; operator=(basic_istringstream&amp;&amp; __rhs);
+<span class="lineNum">     659 </span>            : #endif  // _LIBCPP_CXX03_LANG
+<span class="lineNum">     660 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     661 </span>            :     void swap(basic_istringstream&amp; __rhs);
+<span class="lineNum">     662 </span>            : 
+<span class="lineNum">     663 </span>            :     // 27.8.2.3 Members:
+<span class="lineNum">     664 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     665 </span>            :     basic_stringbuf&lt;char_type, traits_type, allocator_type&gt;* rdbuf() const;
+<span class="lineNum">     666 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     667 </span>            :     string_type str() const;
+<span class="lineNum">     668 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     669 </span>            :     void str(const string_type&amp; __s);
+<span class="lineNum">     670 </span>            : };
+<span class="lineNum">     671 </span>            : 
+<span class="lineNum">     672 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     673 </span>            : basic_istringstream&lt;_CharT, _Traits, _Allocator&gt;::basic_istringstream(ios_base::openmode __wch)
+<span class="lineNum">     674 </span>            :     : basic_istream&lt;_CharT, _Traits&gt;(&amp;__sb_),
+<span class="lineNum">     675 </span>            :       __sb_(__wch | ios_base::in)
+<span class="lineNum">     676 </span>            : {
+<span class="lineNum">     677 </span>            : }
+<span class="lineNum">     678 </span>            : 
+<span class="lineNum">     679 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     680 </span>            : basic_istringstream&lt;_CharT, _Traits, _Allocator&gt;::basic_istringstream(const string_type&amp; __s,
+<span class="lineNum">     681 </span>            :                                                                       ios_base::openmode __wch)
+<span class="lineNum">     682 </span>            :     : basic_istream&lt;_CharT, _Traits&gt;(&amp;__sb_),
+<span class="lineNum">     683 </span>            :       __sb_(__s, __wch | ios_base::in)
+<span class="lineNum">     684 </span>            : {
+<span class="lineNum">     685 </span>            : }
+<span class="lineNum">     686 </span>            : 
+<span class="lineNum">     687 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     688 </span>            : 
+<span class="lineNum">     689 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     690 </span>            : basic_istringstream&lt;_CharT, _Traits, _Allocator&gt;::basic_istringstream(basic_istringstream&amp;&amp; __rhs)
+<span class="lineNum">     691 </span>            :     : basic_istream&lt;_CharT, _Traits&gt;(_VSTD::move(__rhs)),
+<span class="lineNum">     692 </span>            :       __sb_(_VSTD::move(__rhs.__sb_))
+<span class="lineNum">     693 </span>            : {
+<span class="lineNum">     694 </span>            :     basic_istream&lt;_CharT, _Traits&gt;::set_rdbuf(&amp;__sb_);
+<span class="lineNum">     695 </span>            : }
+<span class="lineNum">     696 </span>            : 
+<span class="lineNum">     697 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     698 </span>            : basic_istringstream&lt;_CharT, _Traits, _Allocator&gt;&amp;
+<span class="lineNum">     699 </span>            : basic_istringstream&lt;_CharT, _Traits, _Allocator&gt;::operator=(basic_istringstream&amp;&amp; __rhs)
+<span class="lineNum">     700 </span>            : {
+<span class="lineNum">     701 </span>            :     basic_istream&lt;char_type, traits_type&gt;::operator=(_VSTD::move(__rhs));
+<span class="lineNum">     702 </span>            :     __sb_ = _VSTD::move(__rhs.__sb_);
+<span class="lineNum">     703 </span>            :     return *this;
+<span class="lineNum">     704 </span>            : }
+<span class="lineNum">     705 </span>            : 
+<span class="lineNum">     706 </span>            : #endif  // _LIBCPP_CXX03_LANG
+<span class="lineNum">     707 </span>            : 
+<span class="lineNum">     708 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     709 </span>            : void basic_istringstream&lt;_CharT, _Traits, _Allocator&gt;::swap(basic_istringstream&amp; __rhs)
+<span class="lineNum">     710 </span>            : {
+<span class="lineNum">     711 </span>            :     basic_istream&lt;char_type, traits_type&gt;::swap(__rhs);
+<span class="lineNum">     712 </span>            :     __sb_.swap(__rhs.__sb_);
+<span class="lineNum">     713 </span>            : }
+<span class="lineNum">     714 </span>            : 
+<span class="lineNum">     715 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     716 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     717 </span>            : void
+<span class="lineNum">     718 </span>            : swap(basic_istringstream&lt;_CharT, _Traits, _Allocator&gt;&amp; __x,
+<span class="lineNum">     719 </span>            :      basic_istringstream&lt;_CharT, _Traits, _Allocator&gt;&amp; __y)
+<span class="lineNum">     720 </span>            : {
+<span class="lineNum">     721 </span>            :     __x.swap(__y);
+<span class="lineNum">     722 </span>            : }
+<span class="lineNum">     723 </span>            : 
+<span class="lineNum">     724 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     725 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;*
+<span class="lineNum">     726 </span>            : basic_istringstream&lt;_CharT, _Traits, _Allocator&gt;::rdbuf() const
+<span class="lineNum">     727 </span>            : {
+<span class="lineNum">     728 </span>            :     return const_cast&lt;basic_stringbuf&lt;char_type, traits_type, allocator_type&gt;*&gt;(&amp;__sb_);
+<span class="lineNum">     729 </span>            : }
+<span class="lineNum">     730 </span>            : 
+<span class="lineNum">     731 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     732 </span>            : basic_string&lt;_CharT, _Traits, _Allocator&gt;
+<span class="lineNum">     733 </span>            : basic_istringstream&lt;_CharT, _Traits, _Allocator&gt;::str() const
+<span class="lineNum">     734 </span>            : {
+<span class="lineNum">     735 </span>            :     return __sb_.str();
+<span class="lineNum">     736 </span>            : }
+<span class="lineNum">     737 </span>            : 
+<span class="lineNum">     738 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     739 </span>            : void basic_istringstream&lt;_CharT, _Traits, _Allocator&gt;::str(const string_type&amp; __s)
+<span class="lineNum">     740 </span>            : {
+<span class="lineNum">     741 </span>            :     __sb_.str(__s);
+<span class="lineNum">     742 </span>            : }
+<span class="lineNum">     743 </span>            : 
+<span class="lineNum">     744 </span>            : // basic_ostringstream
+<span class="lineNum">     745 </span>            : 
+<span class="lineNum">     746 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     747 </span>            : class _LIBCPP_TEMPLATE_VIS basic_ostringstream
+<span class="lineNum">     748 </span>            :     : public basic_ostream&lt;_CharT, _Traits&gt;
+<span class="lineNum">     749 </span>            : {
+<span class="lineNum">     750 </span>            : public:
+<span class="lineNum">     751 </span>            :     typedef _CharT                         char_type;
+<span class="lineNum">     752 </span>            :     typedef _Traits                        traits_type;
+<span class="lineNum">     753 </span>            :     typedef typename traits_type::int_type int_type;
+<span class="lineNum">     754 </span>            :     typedef typename traits_type::pos_type pos_type;
+<span class="lineNum">     755 </span>            :     typedef typename traits_type::off_type off_type;
+<span class="lineNum">     756 </span>            :     typedef _Allocator                     allocator_type;
+<span class="lineNum">     757 </span>            : 
+<span class="lineNum">     758 </span>            :     typedef basic_string&lt;char_type, traits_type, allocator_type&gt; string_type;
+<span class="lineNum">     759 </span>            : 
+<span class="lineNum">     760 </span>            : private:
+<span class="lineNum">     761 </span>            :     basic_stringbuf&lt;char_type, traits_type, allocator_type&gt; __sb_;
+<span class="lineNum">     762 </span>            : 
+<span class="lineNum">     763 </span>            : public:
+<span class="lineNum">     764 </span>            :     // 27.8.2.1 Constructors:
+<span class="lineNum">     765 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     766 </span>            :     explicit basic_ostringstream(ios_base::openmode __wch = ios_base::out);
+<span class="lineNum">     767 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     768 </span>            :     explicit basic_ostringstream(const string_type&amp; __s,
+<span class="lineNum">     769 </span>            :                                  ios_base::openmode __wch = ios_base::out);
+<span class="lineNum">     770 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     771 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     772 </span>            :     basic_ostringstream(basic_ostringstream&amp;&amp; __rhs);
+<span class="lineNum">     773 </span>            : 
+<span class="lineNum">     774 </span>            :     // 27.8.2.2 Assign and swap:
+<span class="lineNum">     775 </span>            :     basic_ostringstream&amp; operator=(basic_ostringstream&amp;&amp; __rhs);
+<span class="lineNum">     776 </span>            : #endif  // _LIBCPP_CXX03_LANG
+<span class="lineNum">     777 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     778 </span>            :     void swap(basic_ostringstream&amp; __rhs);
+<span class="lineNum">     779 </span>            : 
+<span class="lineNum">     780 </span>            :     // 27.8.2.3 Members:
+<span class="lineNum">     781 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     782 </span>            :     basic_stringbuf&lt;char_type, traits_type, allocator_type&gt;* rdbuf() const;
+<span class="lineNum">     783 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     784 </span>            :     string_type str() const;
+<span class="lineNum">     785 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     786 </span>            :     void str(const string_type&amp; __s);
+<span class="lineNum">     787 </span>            : };
+<span class="lineNum">     788 </span>            : 
+<span class="lineNum">     789 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     790 </span>            : basic_ostringstream&lt;_CharT, _Traits, _Allocator&gt;::basic_ostringstream(ios_base::openmode __wch)
+<span class="lineNum">     791 </span>            :     : basic_ostream&lt;_CharT, _Traits&gt;(&amp;__sb_),
+<span class="lineNum">     792 </span>            :       __sb_(__wch | ios_base::out)
+<span class="lineNum">     793 </span>            : {
+<span class="lineNum">     794 </span>            : }
+<span class="lineNum">     795 </span>            : 
+<span class="lineNum">     796 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     797 </span>            : basic_ostringstream&lt;_CharT, _Traits, _Allocator&gt;::basic_ostringstream(const string_type&amp; __s,
+<span class="lineNum">     798 </span>            :                                                                       ios_base::openmode __wch)
+<span class="lineNum">     799 </span>            :     : basic_ostream&lt;_CharT, _Traits&gt;(&amp;__sb_),
+<span class="lineNum">     800 </span>            :       __sb_(__s, __wch | ios_base::out)
+<span class="lineNum">     801 </span>            : {
+<span class="lineNum">     802 </span>            : }
+<span class="lineNum">     803 </span>            : 
+<span class="lineNum">     804 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     805 </span>            : 
+<span class="lineNum">     806 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     807 </span>            : basic_ostringstream&lt;_CharT, _Traits, _Allocator&gt;::basic_ostringstream(basic_ostringstream&amp;&amp; __rhs)
+<span class="lineNum">     808 </span>            :     : basic_ostream&lt;_CharT, _Traits&gt;(_VSTD::move(__rhs)),
+<span class="lineNum">     809 </span>            :       __sb_(_VSTD::move(__rhs.__sb_))
+<span class="lineNum">     810 </span>            : {
+<span class="lineNum">     811 </span>            :     basic_ostream&lt;_CharT, _Traits&gt;::set_rdbuf(&amp;__sb_);
+<span class="lineNum">     812 </span>            : }
+<span class="lineNum">     813 </span>            : 
+<span class="lineNum">     814 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     815 </span>            : basic_ostringstream&lt;_CharT, _Traits, _Allocator&gt;&amp;
+<span class="lineNum">     816 </span>            : basic_ostringstream&lt;_CharT, _Traits, _Allocator&gt;::operator=(basic_ostringstream&amp;&amp; __rhs)
+<span class="lineNum">     817 </span>            : {
+<span class="lineNum">     818 </span>            :     basic_ostream&lt;char_type, traits_type&gt;::operator=(_VSTD::move(__rhs));
+<span class="lineNum">     819 </span>            :     __sb_ = _VSTD::move(__rhs.__sb_);
+<span class="lineNum">     820 </span>            :     return *this;
+<span class="lineNum">     821 </span>            : }
+<span class="lineNum">     822 </span>            : 
+<span class="lineNum">     823 </span>            : #endif  // _LIBCPP_CXX03_LANG
+<span class="lineNum">     824 </span>            : 
+<span class="lineNum">     825 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     826 </span>            : void
+<span class="lineNum">     827 </span>            : basic_ostringstream&lt;_CharT, _Traits, _Allocator&gt;::swap(basic_ostringstream&amp; __rhs)
+<span class="lineNum">     828 </span>            : {
+<span class="lineNum">     829 </span>            :     basic_ostream&lt;char_type, traits_type&gt;::swap(__rhs);
+<span class="lineNum">     830 </span>            :     __sb_.swap(__rhs.__sb_);
+<span class="lineNum">     831 </span>            : }
+<span class="lineNum">     832 </span>            : 
+<span class="lineNum">     833 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     834 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     835 </span>            : void
+<span class="lineNum">     836 </span>            : swap(basic_ostringstream&lt;_CharT, _Traits, _Allocator&gt;&amp; __x,
+<span class="lineNum">     837 </span>            :      basic_ostringstream&lt;_CharT, _Traits, _Allocator&gt;&amp; __y)
+<span class="lineNum">     838 </span>            : {
+<span class="lineNum">     839 </span>            :     __x.swap(__y);
+<span class="lineNum">     840 </span>            : }
+<span class="lineNum">     841 </span>            : 
+<span class="lineNum">     842 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     843 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;*
+<span class="lineNum">     844 </span>            : basic_ostringstream&lt;_CharT, _Traits, _Allocator&gt;::rdbuf() const
+<span class="lineNum">     845 </span>            : {
+<span class="lineNum">     846 </span>            :     return const_cast&lt;basic_stringbuf&lt;char_type, traits_type, allocator_type&gt;*&gt;(&amp;__sb_);
+<span class="lineNum">     847 </span>            : }
+<span class="lineNum">     848 </span>            : 
+<span class="lineNum">     849 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     850 </span>            : basic_string&lt;_CharT, _Traits, _Allocator&gt;
+<span class="lineNum">     851 </span>            : basic_ostringstream&lt;_CharT, _Traits, _Allocator&gt;::str() const
+<span class="lineNum">     852 </span>            : {
+<span class="lineNum">     853 </span>            :     return __sb_.str();
+<span class="lineNum">     854 </span>            : }
+<span class="lineNum">     855 </span>            : 
+<span class="lineNum">     856 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     857 </span>            : void
+<span class="lineNum">     858 </span>            : basic_ostringstream&lt;_CharT, _Traits, _Allocator&gt;::str(const string_type&amp; __s)
+<span class="lineNum">     859 </span>            : {
+<span class="lineNum">     860 </span>            :     __sb_.str(__s);
+<span class="lineNum">     861 </span>            : }
+<span class="lineNum">     862 </span>            : 
+<span class="lineNum">     863 </span>            : // basic_stringstream
+<span class="lineNum">     864 </span>            : 
+<span class="lineNum">     865 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     866 </span>            : class _LIBCPP_TEMPLATE_VIS basic_stringstream
+<span class="lineNum">     867 </span>            :     : public basic_iostream&lt;_CharT, _Traits&gt;
+<span class="lineNum">     868 </span>            : {
+<span class="lineNum">     869 </span>            : public:
+<span class="lineNum">     870 </span>            :     typedef _CharT                         char_type;
+<span class="lineNum">     871 </span>            :     typedef _Traits                        traits_type;
+<span class="lineNum">     872 </span>            :     typedef typename traits_type::int_type int_type;
+<span class="lineNum">     873 </span>            :     typedef typename traits_type::pos_type pos_type;
+<span class="lineNum">     874 </span>            :     typedef typename traits_type::off_type off_type;
+<span class="lineNum">     875 </span>            :     typedef _Allocator                     allocator_type;
+<span class="lineNum">     876 </span>            : 
+<span class="lineNum">     877 </span>            :     typedef basic_string&lt;char_type, traits_type, allocator_type&gt; string_type;
+<span class="lineNum">     878 </span>            : 
+<span class="lineNum">     879 </span>            : private:
+<span class="lineNum">     880 </span>            :     basic_stringbuf&lt;char_type, traits_type, allocator_type&gt; __sb_;
+<span class="lineNum">     881 </span>            : 
+<span class="lineNum">     882 </span>            : public:
+<span class="lineNum">     883 </span>            :     // 27.8.2.1 Constructors:
+<span class="lineNum">     884 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     885 </span><span class="lineNoCov">          0 :     explicit basic_stringstream(ios_base::openmode __wch = ios_base::in | ios_base::out);</span>
+<span class="lineNum">     886 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     887 </span>            :     explicit basic_stringstream(const string_type&amp; __s,
+<span class="lineNum">     888 </span>            :                                 ios_base::openmode __wch = ios_base::in | ios_base::out);
+<span class="lineNum">     889 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     890 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     891 </span>            :     basic_stringstream(basic_stringstream&amp;&amp; __rhs);
+<span class="lineNum">     892 </span>            : 
+<span class="lineNum">     893 </span>            :     // 27.8.2.2 Assign and swap:
+<span class="lineNum">     894 </span>            :     basic_stringstream&amp; operator=(basic_stringstream&amp;&amp; __rhs);
+<span class="lineNum">     895 </span>            : #endif  // _LIBCPP_CXX03_LANG
+<span class="lineNum">     896 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     897 </span>            :     void swap(basic_stringstream&amp; __rhs);
+<span class="lineNum">     898 </span>            : 
+<span class="lineNum">     899 </span>            :     // 27.8.2.3 Members:
+<span class="lineNum">     900 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     901 </span>            :     basic_stringbuf&lt;char_type, traits_type, allocator_type&gt;* rdbuf() const;
+<span class="lineNum">     902 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     903 </span>            :     string_type str() const;
+<span class="lineNum">     904 </span>            :     inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     905 </span>            :     void str(const string_type&amp; __s);
+<span class="lineNum">     906 </span>            : };
+<a name="907"><span class="lineNum">     907 </span>            : </a>
+<span class="lineNum">     908 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     909 </span>            : basic_stringstream&lt;_CharT, _Traits, _Allocator&gt;::basic_stringstream(ios_base::openmode __wch)
+<span class="lineNum">     910 </span><span class="lineNoCov">          0 :     : basic_iostream&lt;_CharT, _Traits&gt;(&amp;__sb_),</span>
+<span class="lineNum">     911 </span><span class="lineNoCov">          0 :       __sb_(__wch)</span>
+<span class="lineNum">     912 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     913 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     914 </span>            : 
+<span class="lineNum">     915 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     916 </span>            : basic_stringstream&lt;_CharT, _Traits, _Allocator&gt;::basic_stringstream(const string_type&amp; __s,
+<span class="lineNum">     917 </span>            :                                                                     ios_base::openmode __wch)
+<span class="lineNum">     918 </span>            :     : basic_iostream&lt;_CharT, _Traits&gt;(&amp;__sb_),
+<span class="lineNum">     919 </span>            :       __sb_(__s, __wch)
+<span class="lineNum">     920 </span>            : {
+<span class="lineNum">     921 </span>            : }
+<span class="lineNum">     922 </span>            : 
+<span class="lineNum">     923 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     924 </span>            : 
+<span class="lineNum">     925 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     926 </span>            : basic_stringstream&lt;_CharT, _Traits, _Allocator&gt;::basic_stringstream(basic_stringstream&amp;&amp; __rhs)
+<span class="lineNum">     927 </span>            :     : basic_iostream&lt;_CharT, _Traits&gt;(_VSTD::move(__rhs)),
+<span class="lineNum">     928 </span>            :       __sb_(_VSTD::move(__rhs.__sb_))
+<span class="lineNum">     929 </span>            : {
+<span class="lineNum">     930 </span>            :     basic_istream&lt;_CharT, _Traits&gt;::set_rdbuf(&amp;__sb_);
+<span class="lineNum">     931 </span>            : }
+<span class="lineNum">     932 </span>            : 
+<span class="lineNum">     933 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     934 </span>            : basic_stringstream&lt;_CharT, _Traits, _Allocator&gt;&amp;
+<span class="lineNum">     935 </span>            : basic_stringstream&lt;_CharT, _Traits, _Allocator&gt;::operator=(basic_stringstream&amp;&amp; __rhs)
+<span class="lineNum">     936 </span>            : {
+<span class="lineNum">     937 </span>            :     basic_iostream&lt;char_type, traits_type&gt;::operator=(_VSTD::move(__rhs));
+<span class="lineNum">     938 </span>            :     __sb_ = _VSTD::move(__rhs.__sb_);
+<span class="lineNum">     939 </span>            :     return *this;
+<span class="lineNum">     940 </span>            : }
+<span class="lineNum">     941 </span>            : 
+<span class="lineNum">     942 </span>            : #endif  // _LIBCPP_CXX03_LANG
+<span class="lineNum">     943 </span>            : 
+<span class="lineNum">     944 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     945 </span>            : void
+<span class="lineNum">     946 </span>            : basic_stringstream&lt;_CharT, _Traits, _Allocator&gt;::swap(basic_stringstream&amp; __rhs)
+<span class="lineNum">     947 </span>            : {
+<span class="lineNum">     948 </span>            :     basic_iostream&lt;char_type, traits_type&gt;::swap(__rhs);
+<span class="lineNum">     949 </span>            :     __sb_.swap(__rhs.__sb_);
+<span class="lineNum">     950 </span>            : }
+<span class="lineNum">     951 </span>            : 
+<span class="lineNum">     952 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     953 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     954 </span>            : void
+<span class="lineNum">     955 </span>            : swap(basic_stringstream&lt;_CharT, _Traits, _Allocator&gt;&amp; __x,
+<span class="lineNum">     956 </span>            :      basic_stringstream&lt;_CharT, _Traits, _Allocator&gt;&amp; __y)
+<span class="lineNum">     957 </span>            : {
+<span class="lineNum">     958 </span>            :     __x.swap(__y);
+<span class="lineNum">     959 </span>            : }
+<span class="lineNum">     960 </span>            : 
+<span class="lineNum">     961 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     962 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;*
+<span class="lineNum">     963 </span>            : basic_stringstream&lt;_CharT, _Traits, _Allocator&gt;::rdbuf() const
+<span class="lineNum">     964 </span>            : {
+<span class="lineNum">     965 </span>            :     return const_cast&lt;basic_stringbuf&lt;char_type, traits_type, allocator_type&gt;*&gt;(&amp;__sb_);
+<span class="lineNum">     966 </span>            : }
+<span class="lineNum">     967 </span>            : 
+<a name="968"><span class="lineNum">     968 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;</a>
+<span class="lineNum">     969 </span>            : basic_string&lt;_CharT, _Traits, _Allocator&gt;
+<span class="lineNum">     970 </span>            : basic_stringstream&lt;_CharT, _Traits, _Allocator&gt;::str() const
+<span class="lineNum">     971 </span>            : {
+<span class="lineNum">     972 </span><span class="lineNoCov">          0 :     return __sb_.str();</span>
+<span class="lineNum">     973 </span>            : }
+<span class="lineNum">     974 </span>            : 
+<span class="lineNum">     975 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
+<span class="lineNum">     976 </span>            : void
+<span class="lineNum">     977 </span>            : basic_stringstream&lt;_CharT, _Traits, _Allocator&gt;::str(const string_type&amp; __s)
+<span class="lineNum">     978 </span>            : {
+<span class="lineNum">     979 </span>            :     __sb_.str(__s);
+<span class="lineNum">     980 </span>            : }
+<span class="lineNum">     981 </span>            : 
+<span class="lineNum">     982 </span>            : _LIBCPP_END_NAMESPACE_STD
+<span class="lineNum">     983 </span>            : 
+<span class="lineNum">     984 </span>            : _LIBCPP_POP_MACROS
+<span class="lineNum">     985 </span>            : 
+<span class="lineNum">     986 </span>            : #endif  // _LIBCPP_SSTREAM
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

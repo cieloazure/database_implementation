@@ -1,0 +1,356 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - P1.info - v1/new</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">v1</a> - new<span style="font-size: 80%;"> (source / <a href="new.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">P1.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">33.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-02-02 11:06:24</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // -*- C++ -*-</a>
+<span class="lineNum">       2 </span>            : //===----------------------------- new ------------------------------------===//
+<span class="lineNum">       3 </span>            : //
+<span class="lineNum">       4 </span>            : //                     The LLVM Compiler Infrastructure
+<span class="lineNum">       5 </span>            : //
+<span class="lineNum">       6 </span>            : // This file is dual licensed under the MIT and the University of Illinois Open
+<span class="lineNum">       7 </span>            : // Source Licenses. See LICENSE.TXT for details.
+<span class="lineNum">       8 </span>            : //
+<span class="lineNum">       9 </span>            : //===----------------------------------------------------------------------===//
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : #ifndef _LIBCPP_NEW
+<span class="lineNum">      12 </span>            : #define _LIBCPP_NEW
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : /*
+<span class="lineNum">      15 </span>            :     new synopsis
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : namespace std
+<span class="lineNum">      18 </span>            : {
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : class bad_alloc
+<span class="lineNum">      21 </span>            :     : public exception
+<span class="lineNum">      22 </span>            : {
+<span class="lineNum">      23 </span>            : public:
+<span class="lineNum">      24 </span>            :     bad_alloc() noexcept;
+<span class="lineNum">      25 </span>            :     bad_alloc(const bad_alloc&amp;) noexcept;
+<span class="lineNum">      26 </span>            :     bad_alloc&amp; operator=(const bad_alloc&amp;) noexcept;
+<span class="lineNum">      27 </span>            :     virtual const char* what() const noexcept;
+<span class="lineNum">      28 </span>            : };
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : class bad_array_length : public bad_alloc // FIXME: Not part of C++
+<span class="lineNum">      31 </span>            : {
+<span class="lineNum">      32 </span>            : public:
+<span class="lineNum">      33 </span>            :     bad_array_length() noexcept;
+<span class="lineNum">      34 </span>            : };
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : class bad_array_new_length : public bad_alloc // C++14
+<span class="lineNum">      37 </span>            : {
+<span class="lineNum">      38 </span>            : public:
+<span class="lineNum">      39 </span>            :     bad_array_new_length() noexcept;
+<span class="lineNum">      40 </span>            : };
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : enum class align_val_t : size_t {}; // C++17
+<span class="lineNum">      43 </span>            : struct nothrow_t {};
+<span class="lineNum">      44 </span>            : extern const nothrow_t nothrow;
+<span class="lineNum">      45 </span>            : typedef void (*new_handler)();
+<span class="lineNum">      46 </span>            : new_handler set_new_handler(new_handler new_p) noexcept;
+<span class="lineNum">      47 </span>            : new_handler get_new_handler() noexcept;
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            : // 21.6.4, pointer optimization barrier
+<span class="lineNum">      50 </span>            : template &lt;class T&gt; constexpr T* launder(T* p) noexcept; // C++17
+<span class="lineNum">      51 </span>            : }  // std
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            : void* operator new(std::size_t size);                                   // replaceable, nodiscard in C++2a
+<span class="lineNum">      54 </span>            : void* operator new(std::size_t size, std::align_val_t alignment);       // replaceable, C++17, nodiscard in C++2a
+<span class="lineNum">      55 </span>            : void* operator new(std::size_t size, const std::nothrow_t&amp;) noexcept;   // replaceable, nodiscard in C++2a
+<span class="lineNum">      56 </span>            : void* operator new(std::size_t size, std::align_val_t alignment,
+<span class="lineNum">      57 </span>            :                    const std::nothrow_t&amp;) noexcept;                     // replaceable, C++17, nodiscard in C++2a
+<span class="lineNum">      58 </span>            : void  operator delete(void* ptr) noexcept;                              // replaceable
+<span class="lineNum">      59 </span>            : void  operator delete(void* ptr, std::size_t size) noexcept;            // replaceable, C++14
+<span class="lineNum">      60 </span>            : void  operator delete(void* ptr, std::align_val_t alignment) noexcept;  // replaceable, C++17
+<span class="lineNum">      61 </span>            : void  operator delete(void* ptr, std::size_t size,
+<span class="lineNum">      62 </span>            :                       std::align_val_t alignment) noexcept;             // replaceable, C++17
+<span class="lineNum">      63 </span>            : void  operator delete(void* ptr, const std::nothrow_t&amp;) noexcept;       // replaceable
+<span class="lineNum">      64 </span>            : void  operator delete(void* ptr, std:align_val_t alignment,
+<span class="lineNum">      65 </span>            :                       const std::nothrow_t&amp;) noexcept;                  // replaceable, C++17
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            : void* operator new[](std::size_t size);                                 // replaceable, nodiscard in C++2a
+<span class="lineNum">      68 </span>            : void* operator new[](std::size_t size,
+<span class="lineNum">      69 </span>            :                      std::align_val_t alignment) noexcept;              // replaceable, C++17, nodiscard in C++2a
+<span class="lineNum">      70 </span>            : void* operator new[](std::size_t size, const std::nothrow_t&amp;) noexcept; // replaceable, nodiscard in C++2a
+<span class="lineNum">      71 </span>            : void* operator new[](std::size_t size, std::align_val_t alignment,
+<span class="lineNum">      72 </span>            :                      const std::nothrow_t&amp;) noexcept;                   // replaceable, C++17, nodiscard in C++2a
+<span class="lineNum">      73 </span>            : void  operator delete[](void* ptr) noexcept;                            // replaceable
+<span class="lineNum">      74 </span>            : void  operator delete[](void* ptr, std::size_t size) noexcept;          // replaceable, C++14
+<span class="lineNum">      75 </span>            : void  operator delete[](void* ptr,
+<span class="lineNum">      76 </span>            :                         std::align_val_t alignment) noexcept;           // replaceable, C++17
+<span class="lineNum">      77 </span>            : void  operator delete[](void* ptr, std::size_t size,
+<span class="lineNum">      78 </span>            :                         std::align_val_t alignment) noexcept;           // replaceable, C++17
+<span class="lineNum">      79 </span>            : void  operator delete[](void* ptr, const std::nothrow_t&amp;) noexcept;     // replaceable
+<span class="lineNum">      80 </span>            : void  operator delete[](void* ptr, std::align_val_t alignment,
+<span class="lineNum">      81 </span>            :                         const std::nothrow_t&amp;) noexcept;                // replaceable, C++17
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            : void* operator new  (std::size_t size, void* ptr) noexcept;             // nodiscard in C++2a
+<span class="lineNum">      84 </span>            : void* operator new[](std::size_t size, void* ptr) noexcept;             // nodiscard in C++2a
+<span class="lineNum">      85 </span>            : void  operator delete  (void* ptr, void*) noexcept;
+<span class="lineNum">      86 </span>            : void  operator delete[](void* ptr, void*) noexcept;
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span>            : */
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            : #include &lt;__config&gt;
+<span class="lineNum">      91 </span>            : #include &lt;exception&gt;
+<span class="lineNum">      92 </span>            : #include &lt;cstddef&gt;
+<span class="lineNum">      93 </span>            : #ifdef _LIBCPP_NO_EXCEPTIONS
+<span class="lineNum">      94 </span>            : #include &lt;cstdlib&gt;
+<span class="lineNum">      95 </span>            : #endif
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span>            : #if defined(_LIBCPP_ABI_MICROSOFT) &amp;&amp; !defined(_LIBCPP_NO_VCRUNTIME)
+<span class="lineNum">      98 </span>            : #include &lt;new.h&gt;
+<span class="lineNum">      99 </span>            : #endif
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            : #if !defined(_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER)
+<span class="lineNum">     102 </span>            : #pragma GCC system_header
+<span class="lineNum">     103 </span>            : #endif
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            : #if !(defined(_LIBCPP_BUILDING_NEW) || _LIBCPP_STD_VER &gt;= 14 || \
+<span class="lineNum">     106 </span>            :     (defined(__cpp_sized_deallocation) &amp;&amp; __cpp_sized_deallocation &gt;= 201309))
+<span class="lineNum">     107 </span>            : # define _LIBCPP_HAS_NO_SIZED_DEALLOCATION
+<span class="lineNum">     108 </span>            : #endif
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span>            : #if !defined(_LIBCPP_HAS_NO_ALIGNED_ALLOCATION) &amp;&amp; \
+<span class="lineNum">     111 </span>            :     (!(defined(_LIBCPP_BUILDING_NEW) || _LIBCPP_STD_VER &gt; 14 || \
+<span class="lineNum">     112 </span>            :     (defined(__cpp_aligned_new) &amp;&amp; __cpp_aligned_new &gt;= 201606)))
+<span class="lineNum">     113 </span>            : # define _LIBCPP_HAS_NO_ALIGNED_ALLOCATION
+<span class="lineNum">     114 </span>            : #endif
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span>            : namespace std  // purposefully not using versioning namespace
+<span class="lineNum">     117 </span>            : {
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span>            : #if !defined(_LIBCPP_ABI_MICROSOFT) || defined(_LIBCPP_NO_VCRUNTIME)
+<span class="lineNum">     120 </span>            : struct _LIBCPP_TYPE_VIS nothrow_t {};
+<span class="lineNum">     121 </span>            : extern _LIBCPP_FUNC_VIS const nothrow_t nothrow;
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span>            : class _LIBCPP_EXCEPTION_ABI bad_alloc
+<span class="lineNum">     124 </span>            :     : public exception
+<span class="lineNum">     125 </span>            : {
+<span class="lineNum">     126 </span>            : public:
+<span class="lineNum">     127 </span>            :     bad_alloc() _NOEXCEPT;
+<span class="lineNum">     128 </span>            :     virtual ~bad_alloc() _NOEXCEPT;
+<span class="lineNum">     129 </span>            :     virtual const char* what() const _NOEXCEPT;
+<span class="lineNum">     130 </span>            : };
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            : class _LIBCPP_EXCEPTION_ABI bad_array_new_length
+<span class="lineNum">     133 </span>            :     : public bad_alloc
+<span class="lineNum">     134 </span>            : {
+<span class="lineNum">     135 </span>            : public:
+<span class="lineNum">     136 </span>            :     bad_array_new_length() _NOEXCEPT;
+<span class="lineNum">     137 </span>            :     virtual ~bad_array_new_length() _NOEXCEPT;
+<span class="lineNum">     138 </span>            :     virtual const char* what() const _NOEXCEPT;
+<span class="lineNum">     139 </span>            : };
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span>            : typedef void (*new_handler)();
+<span class="lineNum">     142 </span>            : _LIBCPP_FUNC_VIS new_handler set_new_handler(new_handler) _NOEXCEPT;
+<span class="lineNum">     143 </span>            : _LIBCPP_FUNC_VIS new_handler get_new_handler() _NOEXCEPT;
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span>            : #endif // !_LIBCPP_ABI_MICROSOFT || _LIBCPP_NO_VCRUNTIME
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            : _LIBCPP_NORETURN _LIBCPP_FUNC_VIS void __throw_bad_alloc();  // not in C++ spec
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            : #if defined(_LIBCPP_BUILDING_LIBRARY) || (_LIBCPP_STD_VER &gt; 11)
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span>            : class _LIBCPP_EXCEPTION_ABI _LIBCPP_AVAILABILITY_BAD_ARRAY_LENGTH
+<span class="lineNum">     152 </span>            :     bad_array_length : public bad_alloc {
+<span class="lineNum">     153 </span>            : public:
+<span class="lineNum">     154 </span>            :     bad_array_length() _NOEXCEPT;
+<span class="lineNum">     155 </span>            :     virtual ~bad_array_length() _NOEXCEPT;
+<span class="lineNum">     156 </span>            :     virtual const char* what() const _NOEXCEPT;
+<span class="lineNum">     157 </span>            : };
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span>            : #define _LIBCPP_BAD_ARRAY_LENGTH_DEFINED
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span>            : #endif  // defined(_LIBCPP_BUILDING_NEW) || (_LIBCPP_STD_VER &gt; 11)
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            : #if !defined(_LIBCPP_HAS_NO_ALIGNED_ALLOCATION) || _LIBCPP_STD_VER &gt; 14
+<span class="lineNum">     164 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     165 </span>            : enum class _LIBCPP_ENUM_VIS align_val_t : size_t { };
+<span class="lineNum">     166 </span>            : #else
+<span class="lineNum">     167 </span>            : enum align_val_t { __zero = 0, __max = (size_t)-1 };
+<span class="lineNum">     168 </span>            : #endif
+<span class="lineNum">     169 </span>            : #endif
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            : }  // std
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            : #if defined(_LIBCPP_CXX03_LANG)
+<span class="lineNum">     174 </span>            : #define _THROW_BAD_ALLOC throw(std::bad_alloc)
+<span class="lineNum">     175 </span>            : #else
+<span class="lineNum">     176 </span>            : #define _THROW_BAD_ALLOC
+<span class="lineNum">     177 </span>            : #endif
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span>            : #if !defined(_LIBCPP_ABI_MICROSOFT) || defined(_LIBCPP_NO_VCRUNTIME)
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span>            : _LIBCPP_NODISCARD_AFTER_CXX17 _LIBCPP_OVERRIDABLE_FUNC_VIS void* operator new(std::size_t __sz) _THROW_BAD_ALLOC;
+<span class="lineNum">     182 </span>            : _LIBCPP_NODISCARD_AFTER_CXX17 _LIBCPP_OVERRIDABLE_FUNC_VIS void* operator new(std::size_t __sz, const std::nothrow_t&amp;) _NOEXCEPT _NOALIAS;
+<span class="lineNum">     183 </span>            : _LIBCPP_OVERRIDABLE_FUNC_VIS void  operator delete(void* __p) _NOEXCEPT;
+<span class="lineNum">     184 </span>            : _LIBCPP_OVERRIDABLE_FUNC_VIS void  operator delete(void* __p, const std::nothrow_t&amp;) _NOEXCEPT;
+<span class="lineNum">     185 </span>            : #ifndef _LIBCPP_HAS_NO_SIZED_DEALLOCATION
+<span class="lineNum">     186 </span>            : _LIBCPP_OVERRIDABLE_FUNC_VIS _LIBCPP_AVAILABILITY_SIZED_NEW_DELETE void  operator delete(void* __p, std::size_t __sz) _NOEXCEPT;
+<span class="lineNum">     187 </span>            : #endif
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            : _LIBCPP_NODISCARD_AFTER_CXX17 _LIBCPP_OVERRIDABLE_FUNC_VIS void* operator new[](std::size_t __sz) _THROW_BAD_ALLOC;
+<span class="lineNum">     190 </span>            : _LIBCPP_NODISCARD_AFTER_CXX17 _LIBCPP_OVERRIDABLE_FUNC_VIS void* operator new[](std::size_t __sz, const std::nothrow_t&amp;) _NOEXCEPT _NOALIAS;
+<span class="lineNum">     191 </span>            : _LIBCPP_OVERRIDABLE_FUNC_VIS void  operator delete[](void* __p) _NOEXCEPT;
+<span class="lineNum">     192 </span>            : _LIBCPP_OVERRIDABLE_FUNC_VIS void  operator delete[](void* __p, const std::nothrow_t&amp;) _NOEXCEPT;
+<span class="lineNum">     193 </span>            : #ifndef _LIBCPP_HAS_NO_SIZED_DEALLOCATION
+<span class="lineNum">     194 </span>            : _LIBCPP_OVERRIDABLE_FUNC_VIS _LIBCPP_AVAILABILITY_SIZED_NEW_DELETE void  operator delete[](void* __p, std::size_t __sz) _NOEXCEPT;
+<span class="lineNum">     195 </span>            : #endif
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span>            : #ifndef _LIBCPP_HAS_NO_ALIGNED_ALLOCATION
+<span class="lineNum">     198 </span>            : _LIBCPP_NODISCARD_AFTER_CXX17 _LIBCPP_OVERRIDABLE_FUNC_VIS void* operator new(std::size_t __sz, std::align_val_t) _THROW_BAD_ALLOC;
+<span class="lineNum">     199 </span>            : _LIBCPP_NODISCARD_AFTER_CXX17 _LIBCPP_OVERRIDABLE_FUNC_VIS void* operator new(std::size_t __sz, std::align_val_t, const std::nothrow_t&amp;) _NOEXCEPT _NOALIAS;
+<span class="lineNum">     200 </span>            : _LIBCPP_OVERRIDABLE_FUNC_VIS void  operator delete(void* __p, std::align_val_t) _NOEXCEPT;
+<span class="lineNum">     201 </span>            : _LIBCPP_OVERRIDABLE_FUNC_VIS void  operator delete(void* __p, std::align_val_t, const std::nothrow_t&amp;) _NOEXCEPT;
+<span class="lineNum">     202 </span>            : #ifndef _LIBCPP_HAS_NO_SIZED_DEALLOCATION
+<span class="lineNum">     203 </span>            : _LIBCPP_OVERRIDABLE_FUNC_VIS _LIBCPP_AVAILABILITY_SIZED_NEW_DELETE void  operator delete(void* __p, std::size_t __sz, std::align_val_t) _NOEXCEPT;
+<span class="lineNum">     204 </span>            : #endif
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            : _LIBCPP_NODISCARD_AFTER_CXX17 _LIBCPP_OVERRIDABLE_FUNC_VIS void* operator new[](std::size_t __sz, std::align_val_t) _THROW_BAD_ALLOC;
+<span class="lineNum">     207 </span>            : _LIBCPP_NODISCARD_AFTER_CXX17 _LIBCPP_OVERRIDABLE_FUNC_VIS void* operator new[](std::size_t __sz, std::align_val_t, const std::nothrow_t&amp;) _NOEXCEPT _NOALIAS;
+<span class="lineNum">     208 </span>            : _LIBCPP_OVERRIDABLE_FUNC_VIS void  operator delete[](void* __p, std::align_val_t) _NOEXCEPT;
+<span class="lineNum">     209 </span>            : _LIBCPP_OVERRIDABLE_FUNC_VIS void  operator delete[](void* __p, std::align_val_t, const std::nothrow_t&amp;) _NOEXCEPT;
+<span class="lineNum">     210 </span>            : #ifndef _LIBCPP_HAS_NO_SIZED_DEALLOCATION
+<span class="lineNum">     211 </span>            : _LIBCPP_OVERRIDABLE_FUNC_VIS _LIBCPP_AVAILABILITY_SIZED_NEW_DELETE void  operator delete[](void* __p, std::size_t __sz, std::align_val_t) _NOEXCEPT;
+<span class="lineNum">     212 </span>            : #endif
+<span class="lineNum">     213 </span>            : #endif
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span>            : _LIBCPP_NODISCARD_AFTER_CXX17 inline _LIBCPP_INLINE_VISIBILITY void* operator new  (std::size_t, void* __p) _NOEXCEPT {return __p;}
+<span class="lineNum">     216 </span>            : _LIBCPP_NODISCARD_AFTER_CXX17 inline _LIBCPP_INLINE_VISIBILITY void* operator new[](std::size_t, void* __p) _NOEXCEPT {return __p;}
+<span class="lineNum">     217 </span>            : inline _LIBCPP_INLINE_VISIBILITY void  operator delete  (void*, void*) _NOEXCEPT {}
+<span class="lineNum">     218 </span>            : inline _LIBCPP_INLINE_VISIBILITY void  operator delete[](void*, void*) _NOEXCEPT {}
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span>            : #endif // !_LIBCPP_ABI_MICROSOFT || _LIBCPP_NO_VCRUNTIME
+<span class="lineNum">     221 </span>            : 
+<a name="222"><span class="lineNum">     222 </span>            : _LIBCPP_BEGIN_NAMESPACE_STD</a>
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span>            : inline _LIBCPP_INLINE_VISIBILITY void *__allocate(size_t __size) {
+<span class="lineNum">     225 </span>            : #ifdef _LIBCPP_HAS_NO_BUILTIN_OPERATOR_NEW_DELETE
+<span class="lineNum">     226 </span>            :   return ::operator new(__size);
+<span class="lineNum">     227 </span>            : #else
+<span class="lineNum">     228 </span><span class="lineCov">          8 :   return __builtin_operator_new(__size);</span>
+<span class="lineNum">     229 </span>            : #endif
+<a name="230"><span class="lineNum">     230 </span>            : }</a>
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span>            : inline _LIBCPP_INLINE_VISIBILITY void __libcpp_deallocate(void *__ptr) {
+<span class="lineNum">     233 </span>            : #ifdef _LIBCPP_HAS_NO_BUILTIN_OPERATOR_NEW_DELETE
+<span class="lineNum">     234 </span>            :   ::operator delete(__ptr);
+<span class="lineNum">     235 </span>            : #else
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :   __builtin_operator_delete(__ptr);</span>
+<span class="lineNum">     237 </span>            : #endif
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span>            : #ifdef _LIBCPP_BAD_ARRAY_LENGTH_DEFINED
+<span class="lineNum">     241 </span>            : _LIBCPP_NORETURN inline _LIBCPP_ALWAYS_INLINE
+<span class="lineNum">     242 </span>            : #ifndef _LIBCPP_NO_EXCEPTIONS
+<span class="lineNum">     243 </span>            : _LIBCPP_AVAILABILITY_BAD_ARRAY_LENGTH
+<span class="lineNum">     244 </span>            : #endif
+<span class="lineNum">     245 </span>            : void __throw_bad_array_length()
+<span class="lineNum">     246 </span>            : {
+<span class="lineNum">     247 </span>            : #ifndef _LIBCPP_NO_EXCEPTIONS
+<span class="lineNum">     248 </span>            :     throw bad_array_length();
+<span class="lineNum">     249 </span>            : #else
+<span class="lineNum">     250 </span>            :         _VSTD::abort();
+<span class="lineNum">     251 </span>            : #endif
+<span class="lineNum">     252 </span>            : }
+<span class="lineNum">     253 </span>            : #endif
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     256 </span>            : _LIBCPP_NODISCARD_AFTER_CXX17 inline 
+<span class="lineNum">     257 </span>            : _LIBCPP_CONSTEXPR _Tp* __launder(_Tp* __p) _NOEXCEPT
+<span class="lineNum">     258 </span>            : {
+<span class="lineNum">     259 </span>            :     static_assert (!(is_function&lt;_Tp&gt;::value), &quot;can't launder functions&quot; );
+<span class="lineNum">     260 </span>            :     static_assert (!(is_same&lt;void, typename remove_cv&lt;_Tp&gt;::type&gt;::value), &quot;can't launder cv-void&quot; );
+<span class="lineNum">     261 </span>            : #ifdef _LIBCPP_COMPILER_HAS_BUILTIN_LAUNDER
+<span class="lineNum">     262 </span>            :     return __builtin_launder(__p);
+<span class="lineNum">     263 </span>            : #else
+<span class="lineNum">     264 </span>            :     return __p;
+<span class="lineNum">     265 </span>            : #endif
+<span class="lineNum">     266 </span>            : }
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span>            : #if _LIBCPP_STD_VER &gt; 14
+<span class="lineNum">     270 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     271 </span>            : _LIBCPP_NODISCARD_AFTER_CXX17 inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     272 </span>            : constexpr _Tp* launder(_Tp* __p) noexcept
+<span class="lineNum">     273 </span>            : {
+<span class="lineNum">     274 </span>            :     return _VSTD::__launder(__p);
+<span class="lineNum">     275 </span>            : }
+<span class="lineNum">     276 </span>            : #endif
+<span class="lineNum">     277 </span>            : 
+<span class="lineNum">     278 </span>            : _LIBCPP_END_NAMESPACE_STD
+<span class="lineNum">     279 </span>            : 
+<span class="lineNum">     280 </span>            : #endif  // _LIBCPP_NEW
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

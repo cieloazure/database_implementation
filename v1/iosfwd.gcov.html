@@ -1,0 +1,280 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - P1.info - v1/iosfwd</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">v1</a> - iosfwd<span style="font-size: 80%;"> (source / <a href="iosfwd.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">P1.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-02-02 11:06:24</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryMed">83.3 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // -*- C++ -*-</a>
+<span class="lineNum">       2 </span>            : //===--------------------------- iosfwd -----------------------------------===//
+<span class="lineNum">       3 </span>            : //
+<span class="lineNum">       4 </span>            : //                     The LLVM Compiler Infrastructure
+<span class="lineNum">       5 </span>            : //
+<span class="lineNum">       6 </span>            : // This file is dual licensed under the MIT and the University of Illinois Open
+<span class="lineNum">       7 </span>            : // Source Licenses. See LICENSE.TXT for details.
+<span class="lineNum">       8 </span>            : //
+<span class="lineNum">       9 </span>            : //===----------------------------------------------------------------------===//
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : #ifndef _LIBCPP_IOSFWD
+<span class="lineNum">      12 </span>            : #define _LIBCPP_IOSFWD
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : /*
+<span class="lineNum">      15 </span>            :     iosfwd synopsis
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : namespace std
+<span class="lineNum">      18 </span>            : {
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : template&lt;class charT&gt; struct char_traits;
+<span class="lineNum">      21 </span>            : template&lt;class T&gt;     class allocator;
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : class ios_base;
+<span class="lineNum">      24 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt; &gt; class basic_ios;
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt; &gt; class basic_streambuf;
+<span class="lineNum">      27 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt; &gt; class basic_istream;
+<span class="lineNum">      28 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt; &gt; class basic_ostream;
+<span class="lineNum">      29 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt; &gt; class basic_iostream;
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt;, class Allocator = allocator&lt;charT&gt; &gt;
+<span class="lineNum">      32 </span>            :     class basic_stringbuf;
+<span class="lineNum">      33 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt;, class Allocator = allocator&lt;charT&gt; &gt;
+<span class="lineNum">      34 </span>            :     class basic_istringstream;
+<span class="lineNum">      35 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt;, class Allocator = allocator&lt;charT&gt; &gt;
+<span class="lineNum">      36 </span>            :     class basic_ostringstream;
+<span class="lineNum">      37 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt;, class Allocator = allocator&lt;charT&gt; &gt;
+<span class="lineNum">      38 </span>            :     class basic_stringstream;
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt; &gt; class basic_filebuf;
+<span class="lineNum">      41 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt; &gt; class basic_ifstream;
+<span class="lineNum">      42 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt; &gt; class basic_ofstream;
+<span class="lineNum">      43 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt; &gt; class basic_fstream;
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt; &gt; class istreambuf_iterator;
+<span class="lineNum">      46 </span>            : template &lt;class charT, class traits = char_traits&lt;charT&gt; &gt; class ostreambuf_iterator;
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            : typedef basic_ios&lt;char&gt;              ios;
+<span class="lineNum">      49 </span>            : typedef basic_ios&lt;wchar_t&gt;           wios;
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : typedef basic_streambuf&lt;char&gt;        streambuf;
+<span class="lineNum">      52 </span>            : typedef basic_istream&lt;char&gt;          istream;
+<span class="lineNum">      53 </span>            : typedef basic_ostream&lt;char&gt;          ostream;
+<span class="lineNum">      54 </span>            : typedef basic_iostream&lt;char&gt;         iostream;
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            : typedef basic_stringbuf&lt;char&gt;        stringbuf;
+<span class="lineNum">      57 </span>            : typedef basic_istringstream&lt;char&gt;    istringstream;
+<span class="lineNum">      58 </span>            : typedef basic_ostringstream&lt;char&gt;    ostringstream;
+<span class="lineNum">      59 </span>            : typedef basic_stringstream&lt;char&gt;     stringstream;
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            : typedef basic_filebuf&lt;char&gt;          filebuf;
+<span class="lineNum">      62 </span>            : typedef basic_ifstream&lt;char&gt;         ifstream;
+<span class="lineNum">      63 </span>            : typedef basic_ofstream&lt;char&gt;         ofstream;
+<span class="lineNum">      64 </span>            : typedef basic_fstream&lt;char&gt;          fstream;
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span>            : typedef basic_streambuf&lt;wchar_t&gt;     wstreambuf;
+<span class="lineNum">      67 </span>            : typedef basic_istream&lt;wchar_t&gt;       wistream;
+<span class="lineNum">      68 </span>            : typedef basic_ostream&lt;wchar_t&gt;       wostream;
+<span class="lineNum">      69 </span>            : typedef basic_iostream&lt;wchar_t&gt;      wiostream;
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : typedef basic_stringbuf&lt;wchar_t&gt;     wstringbuf;
+<span class="lineNum">      72 </span>            : typedef basic_istringstream&lt;wchar_t&gt; wistringstream;
+<span class="lineNum">      73 </span>            : typedef basic_ostringstream&lt;wchar_t&gt; wostringstream;
+<span class="lineNum">      74 </span>            : typedef basic_stringstream&lt;wchar_t&gt;  wstringstream;
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            : typedef basic_filebuf&lt;wchar_t&gt;       wfilebuf;
+<span class="lineNum">      77 </span>            : typedef basic_ifstream&lt;wchar_t&gt;      wifstream;
+<span class="lineNum">      78 </span>            : typedef basic_ofstream&lt;wchar_t&gt;      wofstream;
+<span class="lineNum">      79 </span>            : typedef basic_fstream&lt;wchar_t&gt;       wfstream;
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span>            : template &lt;class state&gt; class fpos;
+<span class="lineNum">      82 </span>            : typedef fpos&lt;char_traits&lt;char&gt;::state_type&gt;    streampos;
+<span class="lineNum">      83 </span>            : typedef fpos&lt;char_traits&lt;wchar_t&gt;::state_type&gt; wstreampos;
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            : }  // std
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            : */
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            : #include &lt;__config&gt;
+<span class="lineNum">      90 </span>            : #include &lt;wchar.h&gt;  // for mbstate_t
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            : #if !defined(_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER)
+<span class="lineNum">      93 </span>            : #pragma GCC system_header
+<span class="lineNum">      94 </span>            : #endif
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            : _LIBCPP_BEGIN_NAMESPACE_STD
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span>            : class _LIBCPP_TYPE_VIS ios_base;
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            : template&lt;class _CharT&gt;  struct _LIBCPP_TEMPLATE_VIS char_traits;
+<span class="lineNum">     101 </span>            : template&lt;class _Tp&gt;     class _LIBCPP_TEMPLATE_VIS allocator;
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            : template &lt;class _CharT, class _Traits = char_traits&lt;_CharT&gt; &gt;
+<span class="lineNum">     104 </span>            :     class _LIBCPP_TEMPLATE_VIS basic_ios;
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span>            : template &lt;class _CharT, class _Traits = char_traits&lt;_CharT&gt; &gt;
+<span class="lineNum">     107 </span>            :     class _LIBCPP_TEMPLATE_VIS basic_streambuf;
+<span class="lineNum">     108 </span>            : template &lt;class _CharT, class _Traits = char_traits&lt;_CharT&gt; &gt;
+<span class="lineNum">     109 </span>            :     class _LIBCPP_TEMPLATE_VIS basic_istream;
+<span class="lineNum">     110 </span>            : template &lt;class _CharT, class _Traits = char_traits&lt;_CharT&gt; &gt;
+<span class="lineNum">     111 </span>            :     class _LIBCPP_TEMPLATE_VIS basic_ostream;
+<span class="lineNum">     112 </span>            : template &lt;class _CharT, class _Traits = char_traits&lt;_CharT&gt; &gt;
+<span class="lineNum">     113 </span>            :     class _LIBCPP_TEMPLATE_VIS basic_iostream;
+<span class="lineNum">     114 </span>            : 
+<a name="115"><span class="lineNum">     115 </span>            : template &lt;class _CharT, class _Traits = char_traits&lt;_CharT&gt;,</a>
+<span class="lineNum">     116 </span>            :           class _Allocator = allocator&lt;_CharT&gt; &gt;
+<span class="lineNum">     117 </span><span class="lineCov">        136 :     class _LIBCPP_TEMPLATE_VIS basic_stringbuf;</span>
+<span class="lineNum">     118 </span>            : template &lt;class _CharT, class _Traits = char_traits&lt;_CharT&gt;,
+<span class="lineNum">     119 </span>            :           class _Allocator = allocator&lt;_CharT&gt; &gt;
+<span class="lineNum">     120 </span>            :     class _LIBCPP_TEMPLATE_VIS basic_istringstream;
+<span class="lineNum">     121 </span>            : template &lt;class _CharT, class _Traits = char_traits&lt;_CharT&gt;,
+<span class="lineNum">     122 </span>            :           class _Allocator = allocator&lt;_CharT&gt; &gt;
+<span class="lineNum">     123 </span>            :     class _LIBCPP_TEMPLATE_VIS basic_ostringstream;
+<a name="124"><span class="lineNum">     124 </span>            : template &lt;class _CharT, class _Traits = char_traits&lt;_CharT&gt;,</a>
+<span class="lineNum">     125 </span>            :           class _Allocator = allocator&lt;_CharT&gt; &gt;
+<span class="lineNum">     126 </span><span class="lineCov">        204 :     class _LIBCPP_TEMPLATE_VIS basic_stringstream;</span>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            : template &lt;class _CharT, class _Traits = char_traits&lt;_CharT&gt; &gt;
+<span class="lineNum">     129 </span>            :     class _LIBCPP_TEMPLATE_VIS basic_filebuf;
+<span class="lineNum">     130 </span>            : template &lt;class _CharT, class _Traits = char_traits&lt;_CharT&gt; &gt;
+<span class="lineNum">     131 </span>            :     class _LIBCPP_TEMPLATE_VIS basic_ifstream;
+<span class="lineNum">     132 </span>            : template &lt;class _CharT, class _Traits = char_traits&lt;_CharT&gt; &gt;
+<span class="lineNum">     133 </span>            :     class _LIBCPP_TEMPLATE_VIS basic_ofstream;
+<span class="lineNum">     134 </span>            : template &lt;class _CharT, class _Traits = char_traits&lt;_CharT&gt; &gt;
+<span class="lineNum">     135 </span>            :     class _LIBCPP_TEMPLATE_VIS basic_fstream;
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            : template &lt;class _CharT, class _Traits = char_traits&lt;_CharT&gt; &gt;
+<span class="lineNum">     138 </span>            :     class _LIBCPP_TEMPLATE_VIS istreambuf_iterator;
+<span class="lineNum">     139 </span>            : template &lt;class _CharT, class _Traits = char_traits&lt;_CharT&gt; &gt;
+<span class="lineNum">     140 </span>            :     class _LIBCPP_TEMPLATE_VIS ostreambuf_iterator;
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            : typedef basic_ios&lt;char&gt;              ios;
+<span class="lineNum">     143 </span>            : typedef basic_ios&lt;wchar_t&gt;           wios;
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span>            : typedef basic_streambuf&lt;char&gt;        streambuf;
+<span class="lineNum">     146 </span>            : typedef basic_istream&lt;char&gt;          istream;
+<span class="lineNum">     147 </span>            : typedef basic_ostream&lt;char&gt;          ostream;
+<span class="lineNum">     148 </span>            : typedef basic_iostream&lt;char&gt;         iostream;
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            : typedef basic_stringbuf&lt;char&gt;        stringbuf;
+<span class="lineNum">     151 </span>            : typedef basic_istringstream&lt;char&gt;    istringstream;
+<span class="lineNum">     152 </span>            : typedef basic_ostringstream&lt;char&gt;    ostringstream;
+<span class="lineNum">     153 </span>            : typedef basic_stringstream&lt;char&gt;     stringstream;
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span>            : typedef basic_filebuf&lt;char&gt;          filebuf;
+<span class="lineNum">     156 </span>            : typedef basic_ifstream&lt;char&gt;         ifstream;
+<span class="lineNum">     157 </span>            : typedef basic_ofstream&lt;char&gt;         ofstream;
+<span class="lineNum">     158 </span>            : typedef basic_fstream&lt;char&gt;          fstream;
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span>            : typedef basic_streambuf&lt;wchar_t&gt;     wstreambuf;
+<span class="lineNum">     161 </span>            : typedef basic_istream&lt;wchar_t&gt;       wistream;
+<span class="lineNum">     162 </span>            : typedef basic_ostream&lt;wchar_t&gt;       wostream;
+<span class="lineNum">     163 </span>            : typedef basic_iostream&lt;wchar_t&gt;      wiostream;
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span>            : typedef basic_stringbuf&lt;wchar_t&gt;     wstringbuf;
+<span class="lineNum">     166 </span>            : typedef basic_istringstream&lt;wchar_t&gt; wistringstream;
+<span class="lineNum">     167 </span>            : typedef basic_ostringstream&lt;wchar_t&gt; wostringstream;
+<span class="lineNum">     168 </span>            : typedef basic_stringstream&lt;wchar_t&gt;  wstringstream;
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span>            : typedef basic_filebuf&lt;wchar_t&gt;       wfilebuf;
+<span class="lineNum">     171 </span>            : typedef basic_ifstream&lt;wchar_t&gt;      wifstream;
+<span class="lineNum">     172 </span>            : typedef basic_ofstream&lt;wchar_t&gt;      wofstream;
+<span class="lineNum">     173 </span>            : typedef basic_fstream&lt;wchar_t&gt;       wfstream;
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span>            : template &lt;class _State&gt;             class _LIBCPP_TEMPLATE_VIS fpos;
+<span class="lineNum">     176 </span>            : typedef fpos&lt;mbstate_t&gt;    streampos;
+<span class="lineNum">     177 </span>            : typedef fpos&lt;mbstate_t&gt;    wstreampos;
+<span class="lineNum">     178 </span>            : #ifndef _LIBCPP_HAS_NO_UNICODE_CHARS
+<span class="lineNum">     179 </span>            : typedef fpos&lt;mbstate_t&gt;    u16streampos;
+<span class="lineNum">     180 </span>            : typedef fpos&lt;mbstate_t&gt;    u32streampos;
+<span class="lineNum">     181 </span>            : #endif  // _LIBCPP_HAS_NO_UNICODE_CHARS
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            : #if defined(_NEWLIB_VERSION)
+<span class="lineNum">     184 </span>            : // On newlib, off_t is 'long int'
+<span class="lineNum">     185 </span>            : typedef long int streamoff;         // for char_traits in &lt;string&gt;
+<span class="lineNum">     186 </span>            : #else
+<span class="lineNum">     187 </span>            : typedef long long streamoff;        // for char_traits in &lt;string&gt;
+<span class="lineNum">     188 </span>            : #endif
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span>            : template &lt;class _CharT,             // for &lt;stdexcept&gt;
+<span class="lineNum">     191 </span>            :           class _Traits = char_traits&lt;_CharT&gt;,
+<span class="lineNum">     192 </span>            :           class _Allocator = allocator&lt;_CharT&gt; &gt;
+<span class="lineNum">     193 </span>            :     class _LIBCPP_TEMPLATE_VIS basic_string;
+<span class="lineNum">     194 </span>            : typedef basic_string&lt;char, char_traits&lt;char&gt;, allocator&lt;char&gt; &gt; string;
+<span class="lineNum">     195 </span>            : typedef basic_string&lt;wchar_t, char_traits&lt;wchar_t&gt;, allocator&lt;wchar_t&gt; &gt; wstring;
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            : // Include other forward declarations here
+<span class="lineNum">     199 </span>            : template &lt;class _Tp, class _Alloc = allocator&lt;_Tp&gt; &gt;
+<span class="lineNum">     200 </span>            : class _LIBCPP_TEMPLATE_VIS vector;
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span>            : _LIBCPP_END_NAMESPACE_STD
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span>            : #endif  // _LIBCPP_IOSFWD
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
