@@ -318,7 +318,8 @@ TEST_F(DBFileTest, AddWhenFirstFlushTakesPlace) {
     }
 
     cout << expected_count << endl;
-    cout << "Buffer is full now! Adding another record to flush the buffer"
+    cout << "Buffer is almost full now! Adding another record to flush the "
+            "buffer"
          << endl;
     heapFile->Add(temp);
 
@@ -363,7 +364,8 @@ TEST_F(DBFileTest, AddWhenSubsequentFlushesTakesPlace) {
     }
 
     cout << expected_count << endl;
-    cout << "Buffer is full now! Adding another record to flush the buffer"
+    cout << "Buffer is almost full again! Adding another record to flush the "
+            "buffer"
          << endl;
     heapFile->Add(temp);
 
@@ -402,13 +404,11 @@ TEST_F(DBFileTest, AddWhenAnExistingPartiallyFilledPageIsUtilized) {
             "verify no new page was added or created"
          << endl;
 
-    Record temp3;
-    if (temp3.SuckNextRecord(&mySchema, f)) {
-      heapFile->Add(temp3);
+    if (temp.SuckNextRecord(&mySchema, f)) {
+      heapFile->Add(temp);
     }
-    heapFile->MoveFirst();
 
-    Record temp4;
+    heapFile->MoveFirst();
     int actual_count = 0;
     while (heapFile->GetNext(temp2)) {
       actual_count++;
