@@ -80,6 +80,14 @@ int Page ::Append(Record *addMe) {
   return 1;
 }
 
+bool Page::IsPageFull() {
+  if (curSizeInBytes == PAGE_SIZE) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 void Page ::ToBinary(char *bits) {
   // first write the number of records on the page
   ((int *)bits)[0] = numRecs;

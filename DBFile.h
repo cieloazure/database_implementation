@@ -102,7 +102,18 @@ class DBFile {
   */
   int Close();
 
-  /* To be implemented */
+  /*
+  Load
+
+  Loads the file record in bulk in the binary file. Get the record one
+  at a time using mySchema and loadpath and adds it to the DBFile.
+
+  Arguments:
+    - myschema : Schema &: The schema of the table file to read into records
+    - loadpath: const char *: The path of the table file
+
+  Returns: None
+  */
   void Load(Schema &myschema, const char *loadpath);
 
   /*
@@ -157,16 +168,32 @@ class DBFile {
    */
   int GetNext(Record &fetchme);
 
-  /* To be implemented */
+  /*
+  GetNext with CNF and literal parameters
+
+  This function will move to the next record which satisfies the next record in
+  the file
+
+  Returns:
+      - Integer: Indicating whether any records are left.
+          `1` : records are left
+          `0` : no records are left
+
+  Throws: runtime_error : If an attempt is made to get the next record from a
+  file which is not opened or created
+  */
   int GetNext(Record &fetchme, CNF &cnf, Record &literal);
 
+  /* Test Utility methods */
+  /* Need appropriate visiblity */
   int GetNumRecsInBuffer();
+  bool IsBufferFull();
 
  private:
   char *GetMetaDataFileName(
       const char *file_path); /* Create a name of the metadata file based on the
                                  file opened */
-  int FlushBufferToPage(
+  int CopyBufferToPage(
       Page *buffer,
       Page *flush_to_page, /* Move all records from buffer to flush_to_page */
       bool empty_flush_to_page_flag);
