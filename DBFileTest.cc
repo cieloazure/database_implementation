@@ -1,8 +1,16 @@
 #include "DBFile.h"
 #include "gtest/gtest.h"
 
-namespace dbi
-{
+extern "C" {
+typedef struct yy_buffer_state *YY_BUFFER_STATE;
+int yyparse(void);  // defined in y.tab.c
+YY_BUFFER_STATE yy_scan_string(const char *str);
+void yy_delete_buffer(YY_BUFFER_STATE buffer);
+}
+
+extern struct AndList *final;
+
+namespace dbi {
 
 // The fixture for testing class Foo.
 class DBFileTest : public ::testing::Test
@@ -41,8 +49,8 @@ protected:
   // Objects declared here can be used by all tests in the test case for Foo.
 };
 
-TEST_F(DBFileTest, CreateSuccess)
-{
+/* Unit tests */
+TEST_F(DBFileTest, CreateSuccess) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
   EXPECT_TRUE(heapFile->Create("gtest.bin", t, NULL));
@@ -286,9 +294,12 @@ TEST_F(DBFileTest, LoadWithNoOpenDBFile)
 TEST_F(DBFileTest, LoadWithNoExistingTableFile)
 {
   DBFile *heapFile = new DBFile();
-  Schema mySchema("catalog", "lineitem");
-  const char *tpch_dir = "data_files/does-not-exists.bin";
-  EXPECT_THROW(heapFile->Load(mySchema, tpch_dir), runtime_error);
+  if (heapFile->Create("gtest.bin", heap, NULL) == 1) {
+    Schema mySchema("catalog", "lineitem");
+    const char *tpch_dir = "data_files/does-not-exists.tbl";
+    EXPECT_THROW(heapFile->Load(mySchema, tpch_dir), runtime_error);
+    heapFile->Close();
+  }
 }
 
 TEST_F(DBFileTest, LoadSuccess)
@@ -319,9 +330,7 @@ TEST_F(DBFileTest, LoadSuccess)
   }
 }
 
-TEST_F(DBFileTest, AddAfterASeriesOfGetNext) {}
-TEST_F(DBFileTest, AddWhenItJustAddsToBufferWithoutCreatingANewPage)
-{
+TEST_F(DBFileTest, AddWhenItJustAddsToBufferWithoutCreatingANewPage) {
   DBFile *heapFile = new DBFile();
   if (heapFile->Create("gtest.bin", heap, NULL))
   {
@@ -341,8 +350,8 @@ TEST_F(DBFileTest, AddWhenItJustAddsToBufferWithoutCreatingANewPage)
     heapFile->Close();
   }
 }
-TEST_F(DBFileTest, AddWhenFirstFlushTakesPlace)
-{
+
+TEST_F(DBFileTest, AddWhenFirstFlushTakesPlace) {
   DBFile *heapFile = new DBFile();
   if (heapFile->Create("gtest.bin", heap, NULL))
   {
@@ -384,8 +393,8 @@ TEST_F(DBFileTest, AddWhenFirstFlushTakesPlace)
     heapFile->Close();
   }
 }
-TEST_F(DBFileTest, AddWhenSubsequentFlushesTakesPlace)
-{
+
+TEST_F(DBFileTest, AddWhenSubsequentFlushesTakesPlace) {
   DBFile *heapFile = new DBFile();
   if (heapFile->Create("gtest.bin", heap, NULL))
   {
@@ -533,4 +542,167 @@ TEST_F(DBFileTest, CloseWhenFlushBuffer)
   EXPECT_GT(count, heapFile->GetNumRecsInBuffer());
 }
 
-} // namespace dbi
+TEST_F(DBFileTest, GetNextWhenThereAreNoRecordsInTheFile) {
+  DBFile *heapFile = new DBFile();
+  if (heapFile->Create("gtest.bin", heap, NULL)) {
+    Record temp;
+    EXPECT_FALSE(heapFile->GetNext(temp));
+    heapFile->Close();
+  }
+}
+
+TEST_F(DBFileTest, GetNextWhenThereAreRecordsInTheFile) {
+  DBFile *heapFile = new DBFile();
+  if (heapFile->Create("gtest.bin", heap, NULL)) {
+    const char *loadpath = "data_files/lineitem.tbl";
+
+    Schema mySchema("catalog", "lineitem");
+    heapFile->Load(mySchema, loadpath);
+    Record temp;
+    EXPECT_TRUE(heapFile->GetNext(temp));
+    heapFile->Close();
+  }
+}
+
+TEST_F(DBFileTest, GetNextWhenYouReachTheEndOfTheFile) {
+  DBFile *heapFile = new DBFile();
+  if (heapFile->Create("gtest.bin", heap, NULL)) {
+    const char *loadpath = "data_files/lineitem.tbl";
+
+    Schema mySchema("catalog", "lineitem");
+    heapFile->Load(mySchema, loadpath);
+    int LINE_ITEM_RECORDS = 60175;
+    Record temp;
+    int count = 0;
+    while (count < LINE_ITEM_RECORDS) {
+      heapFile->GetNext(temp);
+      count++;
+    }
+
+    EXPECT_FALSE(heapFile->GetNext(temp));
+    heapFile->Close();
+  }
+}
+
+TEST_F(DBFileTest,
+       GetNextWhenThereAreNoMoreRecordsLeftInTheBufferAndThePageRollsOver) {
+  DBFile *heapFile = new DBFile();
+  if (heapFile->Create("gtest.bin", heap, NULL)) {
+    const char *loadpath = "data_files/lineitem.tbl";
+
+    Schema mySchema("catalog", "lineitem");
+    heapFile->Load(mySchema, loadpath);
+    Record temp;
+    heapFile->GetNext(temp);
+    int count = 0;
+    int number_of_records_in_buffer = heapFile->GetNumRecsInBuffer();
+    while (count < number_of_records_in_buffer) {
+      heapFile->GetNext(temp);
+      count++;
+    }
+
+    EXPECT_TRUE(heapFile->GetNext(temp));
+    heapFile->Close();
+  }
+}
+
+TEST_F(DBFileTest, GetNextWithParametersGivenCondition) {
+  DBFile *heapFile = new DBFile();
+  if (heapFile->Create("gtest.bin", heap, NULL)) {
+    const char *loadpath = "data_files/lineitem.tbl";
+
+    Schema mySchema("catalog", "lineitem");
+    heapFile->Load(mySchema, loadpath);
+
+    const char cnf_string[] = "(l_orderkey > 25) AND (l_orderkey < 40)";
+    YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
+    yyparse();
+    yy_delete_buffer(buffer);
+
+    // grow the CNF expression from the parse tree
+    CNF cnf;
+    Record literal;
+    cnf.GrowFromParseTree(final, &mySchema, literal);
+
+    // print out the comparison to the screen
+    cnf.Print();
+
+    // temp3->Print(&mySchema);
+    Record temp;
+    EXPECT_TRUE(heapFile->GetNext(temp, cnf, literal));
+    heapFile->Close();
+  }
+}
+
+TEST_F(DBFileTest, GetNextWithParametersORCondition) {
+  DBFile *heapFile = new DBFile();
+  if (heapFile->Create("gtest.bin", heap, NULL)) {
+    const char *loadpath = "data_files/lineitem.tbl";
+
+    Schema mySchema("catalog", "lineitem");
+    heapFile->Load(mySchema, loadpath);
+
+    const char cnf_string[] = "(l_orderkey < 10  OR l_orderkey > 40)";
+    YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
+    yyparse();
+    yy_delete_buffer(buffer);
+
+    // grow the CNF expression from the parse tree
+    CNF cnf;
+    Record literal;
+    cnf.GrowFromParseTree(final, &mySchema, literal);
+
+    // print out the comparison to the screen
+    cnf.Print();
+
+    // temp3->Print(&mySchema);
+    Record temp;
+    EXPECT_TRUE(heapFile->GetNext(temp, cnf, literal));
+    heapFile->Close();
+  }
+}
+
+TEST_F(DBFileTest, GetNextWithParametersGivenConditionGetAllRecords) {
+  DBFile *heapFile = new DBFile();
+  if (heapFile->Create("gtest.bin", heap, NULL)) {
+    const char *loadpath = "data_files/lineitem.tbl";
+
+    Schema mySchema("catalog", "lineitem");
+    heapFile->Load(mySchema, loadpath);
+
+    const char cnf_string[] = "(l_orderkey > 25) AND (l_orderkey < 40)";
+    YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
+    yyparse();
+    yy_delete_buffer(buffer);
+
+    // grow the CNF expression from the parse tree
+    CNF cnf;
+    Record literal;
+    cnf.GrowFromParseTree(final, &mySchema, literal);
+
+    // print out the comparison to the screen
+    cnf.Print();
+
+    // temp3->Print(&mySchema);
+    Record temp;
+    int actual_count = 0;
+    while (heapFile->GetNext(temp, cnf, literal)) {
+      actual_count++;
+    };
+    int expected_count = 30;
+    EXPECT_EQ(expected_count, actual_count);
+    heapFile->Close();
+  }
+}
+
+TEST_F(DBFileTest, CloseWithoutOpening) {
+  DBFile *heapFile = new DBFile();
+  EXPECT_FALSE(heapFile->Close());
+}
+
+// Integration tests
+TEST_F(DBFileTest, AddAfterASeriesOfGetNext) {}
+TEST_F(DBFileTest, GetNextAfterASeriesOfAdd) {}
+TEST_F(DBFileTest, AddAfterClosingTheFileAndOpeningItAgain) {}
+TEST_F(DBFileTest, GetNextAfterClosingTheFileAndOpeningItAgain) {}
+}  // namespace dbi

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 11:06:24</td>
+            <td class="headerValue">2019-02-02 18:28:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">5</td>
@@ -510,7 +510,7 @@
 <span class="lineNum">     448 </span>            : _Tp*
 <span class="lineNum">     449 </span>            : addressof(_Tp&amp; __x) _NOEXCEPT
 <span class="lineNum">     450 </span>            : {
-<span class="lineNum">     451 </span><span class="lineCov">        655 :     return __builtin_addressof(__x);</span>
+<span class="lineNum">     451 </span><span class="lineCov">        814 :     return __builtin_addressof(__x);</span>
 <span class="lineNum">     452 </span>            : }
 <span class="lineNum">     453 </span>            : 
 <span class="lineNum">     454 </span>            : #else
@@ -2360,7 +2360,7 @@
 <span class="lineNum">    2298 </span>            : _Tp&amp;&amp;
 <span class="lineNum">    2299 </span>            : forward(typename remove_reference&lt;_Tp&gt;::type&amp; __t) _NOEXCEPT
 <span class="lineNum">    2300 </span>            : {
-<span class="lineNum">    2301 </span><span class="lineCov">        178 :     return static_cast&lt;_Tp&amp;&amp;&gt;(__t);</span>
+<span class="lineNum">    2301 </span><span class="lineCov">        228 :     return static_cast&lt;_Tp&amp;&amp;&gt;(__t);</span>
 <span class="lineNum">    2302 </span>            : }
 <span class="lineNum">    2303 </span>            : 
 <span class="lineNum">    2304 </span>            : template &lt;class _Tp&gt;
@@ -2396,7 +2396,7 @@
 <span class="lineNum">    2334 </span>            : _Tp&amp;
 <span class="lineNum">    2335 </span>            : forward(typename remove_reference&lt;_Tp&gt;::type&amp; __t) _NOEXCEPT
 <span class="lineNum">    2336 </span>            : {
-<span class="lineNum">    2337 </span><span class="lineCov">        136 :     return __t;</span>
+<span class="lineNum">    2337 </span><span class="lineCov">        216 :     return __t;</span>
 <span class="lineNum">    2338 </span>            : }
 <span class="lineNum">    2339 </span>            : 
 <span class="lineNum">    2340 </span>            : 

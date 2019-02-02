@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 11:06:24</td>
+            <td class="headerValue">2019-02-02 18:28:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">7</td>
@@ -399,7 +399,7 @@
 <span class="lineNum">     337 </span><span class="lineNoCov">          0 :                }</span>
 <a name="338"><span class="lineNum">     338 </span>            : </a>
 <span class="lineNum">     339 </span>            :     void init(void* __sb);
-<span class="lineNum">     340 </span><span class="lineCov">        829 :     _LIBCPP_ALWAYS_INLINE void* rdbuf() const {return __rdbuf_;}</span>
+<span class="lineNum">     340 </span><span class="lineCov">        946 :     _LIBCPP_ALWAYS_INLINE void* rdbuf() const {return __rdbuf_;}</span>
 <span class="lineNum">     341 </span>            : 
 <span class="lineNum">     342 </span>            :     _LIBCPP_ALWAYS_INLINE
 <span class="lineNum">     343 </span>            :     void rdbuf(void* __sb)
@@ -501,7 +501,7 @@
 <span class="lineNum">     439 </span>            : ios_base::fmtflags
 <span class="lineNum">     440 </span>            : ios_base::flags() const
 <span class="lineNum">     441 </span>            : {
-<span class="lineNum">     442 </span><span class="lineCov">        829 :     return __fmtflags_;</span>
+<span class="lineNum">     442 </span><span class="lineCov">        946 :     return __fmtflags_;</span>
 <span class="lineNum">     443 </span>            : }
 <span class="lineNum">     444 </span>            : 
 <span class="lineNum">     445 </span>            : inline _LIBCPP_INLINE_VISIBILITY
@@ -563,16 +563,16 @@
 <span class="lineNum">     501 </span>            : streamsize
 <span class="lineNum">     502 </span>            : ios_base::width() const
 <span class="lineNum">     503 </span>            : {
-<span class="lineNum">     504 </span><span class="lineCov">       1658 :     return __width_;</span>
+<span class="lineNum">     504 </span><span class="lineCov">       1892 :     return __width_;</span>
 <span class="lineNum">     505 </span>            : }
 <span class="lineNum">     506 </span>            : 
 <a name="507"><span class="lineNum">     507 </span>            : inline _LIBCPP_INLINE_VISIBILITY</a>
 <span class="lineNum">     508 </span>            : streamsize
 <span class="lineNum">     509 </span>            : ios_base::width(streamsize __wide)
 <span class="lineNum">     510 </span>            : {
-<span class="lineNum">     511 </span><span class="lineCov">       1658 :     streamsize __r = __width_;</span>
-<span class="lineNum">     512 </span><span class="lineCov">        829 :     __width_ = __wide;</span>
-<span class="lineNum">     513 </span><span class="lineCov">        829 :     return __r;</span>
+<span class="lineNum">     511 </span><span class="lineCov">       1892 :     streamsize __r = __width_;</span>
+<span class="lineNum">     512 </span><span class="lineCov">        946 :     __width_ = __wide;</span>
+<span class="lineNum">     513 </span><span class="lineCov">        946 :     return __r;</span>
 <span class="lineNum">     514 </span>            : }
 <span class="lineNum">     515 </span>            : 
 <span class="lineNum">     516 </span>            : // iostate
@@ -777,7 +777,7 @@
 <span class="lineNum">     715 </span>            : basic_streambuf&lt;_CharT, _Traits&gt;*
 <span class="lineNum">     716 </span>            : basic_ios&lt;_CharT, _Traits&gt;::rdbuf() const
 <span class="lineNum">     717 </span>            : {
-<span class="lineNum">     718 </span><span class="lineCov">        829 :     return static_cast&lt;basic_streambuf&lt;char_type, traits_type&gt;*&gt;(ios_base::rdbuf());</span>
+<span class="lineNum">     718 </span><span class="lineCov">        946 :     return static_cast&lt;basic_streambuf&lt;char_type, traits_type&gt;*&gt;(ios_base::rdbuf());</span>
 <span class="lineNum">     719 </span>            : }
 <span class="lineNum">     720 </span>            : 
 <span class="lineNum">     721 </span>            : template &lt;class _CharT, class _Traits&gt;
@@ -815,7 +815,7 @@
 <span class="lineNum">     753 </span>            : _CharT
 <span class="lineNum">     754 </span>            : basic_ios&lt;_CharT, _Traits&gt;::widen(char __c) const
 <span class="lineNum">     755 </span>            : {
-<span class="lineNum">     756 </span><span class="lineCov">        218 :     return use_facet&lt;ctype&lt;char_type&gt; &gt;(getloc()).widen(__c);</span>
+<span class="lineNum">     756 </span><span class="lineCov">        274 :     return use_facet&lt;ctype&lt;char_type&gt; &gt;(getloc()).widen(__c);</span>
 <span class="lineNum">     757 </span><span class="lineNoCov">          0 : }</span>
 <span class="lineNum">     758 </span>            : 
 <span class="lineNum">     759 </span>            : template &lt;class _CharT, class _Traits&gt;
@@ -823,9 +823,9 @@
 <span class="lineNum">     761 </span>            : _CharT
 <span class="lineNum">     762 </span>            : basic_ios&lt;_CharT, _Traits&gt;::fill() const
 <span class="lineNum">     763 </span>            : {
-<span class="lineNum">     764 </span><span class="lineCov">        829 :     if (traits_type::eq_int_type(traits_type::eof(), __fill_))</span>
+<span class="lineNum">     764 </span><span class="lineCov">        946 :     if (traits_type::eq_int_type(traits_type::eof(), __fill_))</span>
 <span class="lineNum">     765 </span><span class="lineCov">         39 :         __fill_ = widen(' ');</span>
-<span class="lineNum">     766 </span><span class="lineCov">        829 :     return __fill_;</span>
+<span class="lineNum">     766 </span><span class="lineCov">        946 :     return __fill_;</span>
 <span class="lineNum">     767 </span>            : }
 <span class="lineNum">     768 </span>            : 
 <span class="lineNum">     769 </span>            : template &lt;class _CharT, class _Traits&gt;

@@ -37,12 +37,12 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 11:06:24</td>
+            <td class="headerValue">2019-02-02 18:28:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">14</td>
-            <td class="headerCovTableEntry">30</td>
-            <td class="headerCovTableEntryLo">46.7 %</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntryLo">48.5 %</td>
           </tr>
           <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -347,7 +347,7 @@
 <span class="lineNum">     285 </span>            : //   Expected: Foo() is even
 <a name="286"><span class="lineNum">     286 </span>            : //     Actual: it's 5</a>
 <span class="lineNum">     287 </span>            : //
-<span class="lineNum">     288 </span><span class="lineCov">         42 : class GTEST_API_ AssertionResult {</span>
+<span class="lineNum">     288 </span><span class="lineCov">         66 : class GTEST_API_ AssertionResult {</span>
 <span class="lineNum">     289 </span>            :  public:
 <span class="lineNum">     290 </span>            :   // Copy constructor.
 <span class="lineNum">     291 </span>            :   // Used in EXPECT_TRUE/FALSE(assertion_result).
@@ -365,13 +365,13 @@
 <span class="lineNum">     303 </span>            :   // the argument is implicitly convertible to AssertionResult. In that case
 <a name="304"><span class="lineNum">     304 </span>            :   // we want AssertionResult's copy constructor to be used.</a>
 <span class="lineNum">     305 </span>            :   template &lt;typename T&gt;
-<span class="lineNum">     306 </span><span class="lineCov">         21 :   explicit AssertionResult(</span>
+<span class="lineNum">     306 </span><span class="lineCov">         33 :   explicit AssertionResult(</span>
 <span class="lineNum">     307 </span>            :       const T&amp; success,
 <span class="lineNum">     308 </span>            :       typename internal::EnableIf&lt;
 <span class="lineNum">     309 </span>            :           !std::is_convertible&lt;T, AssertionResult&gt;::value&gt;::type*
 <span class="lineNum">     310 </span>            :       /*enabler*/
 <span class="lineNum">     311 </span>            :       = nullptr)
-<span class="lineNum">     312 </span><span class="lineCov">         63 :       : success_(success) {}</span>
+<span class="lineNum">     312 </span><span class="lineCov">         99 :       : success_(success) {}</span>
 <span class="lineNum">     313 </span>            : 
 <span class="lineNum">     314 </span>            : #if defined(_MSC_VER) &amp;&amp; _MSC_VER &lt; 1910
 <span class="lineNum">     315 </span>            :   GTEST_DISABLE_MSC_WARNINGS_POP_()
@@ -384,7 +384,7 @@
 <span class="lineNum">     322 </span>            :   }
 <a name="323"><span class="lineNum">     323 </span>            : </a>
 <span class="lineNum">     324 </span>            :   // Returns true iff the assertion succeeded.
-<span class="lineNum">     325 </span><span class="lineCov">         21 :   operator bool() const { return success_; }  // NOLINT</span>
+<span class="lineNum">     325 </span><span class="lineCov">         33 :   operator bool() const { return success_; }  // NOLINT</span>
 <span class="lineNum">     326 </span>            : 
 <span class="lineNum">     327 </span>            :   // Returns the assertion's negation. Used with EXPECT/ASSERT_FALSE.
 <span class="lineNum">     328 </span>            :   AssertionResult operator!() const;
@@ -1579,12 +1579,12 @@
 <span class="lineNum">    1517 </span>            :                             const char* rhs_expression,
 <span class="lineNum">    1518 </span>            :                             const T1&amp; lhs,
 <span class="lineNum">    1519 </span>            :                             const T2&amp; rhs) {
-<span class="lineNum">    1520 </span><span class="lineCov">          9 :   if (lhs == rhs) {</span>
-<span class="lineNum">    1521 </span><span class="lineCov">          9 :     return AssertionSuccess();</span>
+<span class="lineNum">    1520 </span><span class="lineCov">         13 :   if (lhs == rhs) {</span>
+<span class="lineNum">    1521 </span><span class="lineCov">         13 :     return AssertionSuccess();</span>
 <span class="lineNum">    1522 </span>            :   }
 <span class="lineNum">    1523 </span>            : 
 <span class="lineNum">    1524 </span><span class="lineNoCov">          0 :   return CmpHelperEQFailure(lhs_expression, rhs_expression, lhs, rhs);</span>
-<span class="lineNum">    1525 </span><span class="lineCov">          9 : }</span>
+<span class="lineNum">    1525 </span><span class="lineCov">         13 : }</span>
 <span class="lineNum">    1526 </span>            : 
 <span class="lineNum">    1527 </span>            : // With this overloaded version, we allow anonymous enums to be used
 <span class="lineNum">    1528 </span>            : // in {ASSERT|EXPECT}_EQ when compiled with gcc 4, as anonymous enums
@@ -1607,7 +1607,7 @@
 <span class="lineNum">    1545 </span>            :                                  const char* rhs_expression,
 <span class="lineNum">    1546 </span>            :                                  const T1&amp; lhs,
 <span class="lineNum">    1547 </span>            :                                  const T2&amp; rhs) {
-<span class="lineNum">    1548 </span><span class="lineCov">          8 :     return CmpHelperEQ(lhs_expression, rhs_expression, lhs, rhs);</span>
+<span class="lineNum">    1548 </span><span class="lineCov">         12 :     return CmpHelperEQ(lhs_expression, rhs_expression, lhs, rhs);</span>
 <span class="lineNum">    1549 </span>            :   }
 <span class="lineNum">    1550 </span>            : 
 <span class="lineNum">    1551 </span>            :   // With this overloaded version, we allow anonymous enums to be used
@@ -1714,7 +1714,7 @@
 <span class="lineNum">    1652 </span>            : // Implements the helper function for {ASSERT|EXPECT}_GE
 <a name="1653"><span class="lineNum">    1653 </span>            : GTEST_IMPL_CMP_HELPER_(GE, &gt;=);</a>
 <span class="lineNum">    1654 </span>            : // Implements the helper function for {ASSERT|EXPECT}_GT
-<span class="lineNum">    1655 </span><span class="lineCov">          3 : GTEST_IMPL_CMP_HELPER_(GT, &gt;);</span>
+<span class="lineNum">    1655 </span><span class="lineCov">          6 : GTEST_IMPL_CMP_HELPER_(GT, &gt;);</span>
 <span class="lineNum">    1656 </span>            : 
 <span class="lineNum">    1657 </span>            : #undef GTEST_IMPL_CMP_HELPER_
 <span class="lineNum">    1658 </span>            : 
