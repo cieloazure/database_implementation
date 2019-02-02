@@ -1,6 +1,6 @@
 #CC = clang++ -fsanitize=address -O1 -fno-omit-frame-pointer -g 
 CC = g++ -O2 -Wno-deprecated -fprofile-arcs -ftest-coverage 
-TEST = g++ -std=c++11 -stdlib=libc++ -fprofile-arcs -ftest-coverage 
+TEST = g++ -std=c++11 -fprofile-arcs -ftest-coverage 
 #TEST = clang++ -fsanitize=address -O1 -fno-omit-frame-pointer -g -std=c++11 -stdlib=libc++ -fprofile-arcs -ftest-coverage 
 
 
