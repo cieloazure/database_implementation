@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 11:06:24</td>
+            <td class="headerValue">2019-02-02 18:20:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">2</td>
@@ -500,16 +500,16 @@
 <span class="lineNum">     438 </span>            : basic_string&lt;_CharT, _Traits, _Allocator&gt;
 <span class="lineNum">     439 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::str() const
 <span class="lineNum">     440 </span>            : {
-<span class="lineNum">     441 </span><span class="lineCov">         68 :     if (__mode_ &amp; ios_base::out)</span>
+<span class="lineNum">     441 </span><span class="lineCov">         79 :     if (__mode_ &amp; ios_base::out)</span>
 <span class="lineNum">     442 </span>            :     {
-<span class="lineNum">     443 </span><span class="lineCov">         68 :         if (__hm_ &lt; this-&gt;pptr())</span>
-<span class="lineNum">     444 </span><span class="lineCov">         51 :             __hm_ = this-&gt;pptr();</span>
-<span class="lineNum">     445 </span><span class="lineCov">         68 :         return string_type(this-&gt;pbase(), __hm_, __str_.get_allocator());</span>
+<span class="lineNum">     443 </span><span class="lineCov">         79 :         if (__hm_ &lt; this-&gt;pptr())</span>
+<span class="lineNum">     444 </span><span class="lineCov">         62 :             __hm_ = this-&gt;pptr();</span>
+<span class="lineNum">     445 </span><span class="lineCov">         79 :         return string_type(this-&gt;pbase(), __hm_, __str_.get_allocator());</span>
 <span class="lineNum">     446 </span>            :     }
 <span class="lineNum">     447 </span><span class="lineNoCov">          0 :     else if (__mode_ &amp; ios_base::in)</span>
 <span class="lineNum">     448 </span><span class="lineNoCov">          0 :         return string_type(this-&gt;eback(), this-&gt;egptr(), __str_.get_allocator());</span>
 <span class="lineNum">     449 </span><span class="lineNoCov">          0 :     return string_type(__str_.get_allocator());</span>
-<span class="lineNum">     450 </span><span class="lineCov">         68 : }</span>
+<span class="lineNum">     450 </span><span class="lineCov">         79 : }</span>
 <span class="lineNum">     451 </span>            : 
 <span class="lineNum">     452 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;
 <span class="lineNum">     453 </span>            : void
@@ -588,43 +588,43 @@
 <span class="lineNum">     526 </span>            : typename basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::int_type
 <span class="lineNum">     527 </span>            : basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::overflow(int_type __c)
 <span class="lineNum">     528 </span>            : {
-<span class="lineNum">     529 </span><span class="lineCov">         76 :     if (!traits_type::eq_int_type(__c, traits_type::eof()))</span>
+<span class="lineNum">     529 </span><span class="lineCov">         87 :     if (!traits_type::eq_int_type(__c, traits_type::eof()))</span>
 <span class="lineNum">     530 </span>            :     {
-<span class="lineNum">     531 </span><span class="lineCov">         76 :         ptrdiff_t __ninp = this-&gt;gptr()  - this-&gt;eback();</span>
-<span class="lineNum">     532 </span><span class="lineCov">         76 :         if (this-&gt;pptr() == this-&gt;epptr())</span>
+<span class="lineNum">     531 </span><span class="lineCov">         87 :         ptrdiff_t __ninp = this-&gt;gptr()  - this-&gt;eback();</span>
+<span class="lineNum">     532 </span><span class="lineCov">         87 :         if (this-&gt;pptr() == this-&gt;epptr())</span>
 <span class="lineNum">     533 </span>            :         {
-<span class="lineNum">     534 </span><span class="lineCov">         76 :             if (!(__mode_ &amp; ios_base::out))</span>
+<span class="lineNum">     534 </span><span class="lineCov">         87 :             if (!(__mode_ &amp; ios_base::out))</span>
 <span class="lineNum">     535 </span><span class="lineNoCov">          0 :                 return traits_type::eof();</span>
 <span class="lineNum">     536 </span>            : #ifndef _LIBCPP_NO_EXCEPTIONS
 <span class="lineNum">     537 </span>            :             try
 <span class="lineNum">     538 </span>            :             {
 <span class="lineNum">     539 </span>            : #endif  // _LIBCPP_NO_EXCEPTIONS
-<span class="lineNum">     540 </span><span class="lineCov">        228 :                 ptrdiff_t __nout = this-&gt;pptr()  - this-&gt;pbase();</span>
-<span class="lineNum">     541 </span><span class="lineCov">        152 :                 ptrdiff_t __hm = __hm_ - this-&gt;pbase();</span>
-<span class="lineNum">     542 </span><span class="lineCov">         76 :                 __str_.push_back(char_type());</span>
-<span class="lineNum">     543 </span><span class="lineCov">         76 :                 __str_.resize(__str_.capacity());</span>
-<span class="lineNum">     544 </span><span class="lineCov">         76 :                 char_type* __p = const_cast&lt;char_type*&gt;(__str_.data());</span>
-<span class="lineNum">     545 </span><span class="lineCov">         76 :                 this-&gt;setp(__p, __p + __str_.size());</span>
-<span class="lineNum">     546 </span><span class="lineCov">         76 :                 this-&gt;__pbump(__nout);</span>
-<span class="lineNum">     547 </span><span class="lineCov">        152 :                 __hm_ = this-&gt;pbase() + __hm;</span>
+<span class="lineNum">     540 </span><span class="lineCov">        261 :                 ptrdiff_t __nout = this-&gt;pptr()  - this-&gt;pbase();</span>
+<span class="lineNum">     541 </span><span class="lineCov">        174 :                 ptrdiff_t __hm = __hm_ - this-&gt;pbase();</span>
+<span class="lineNum">     542 </span><span class="lineCov">         87 :                 __str_.push_back(char_type());</span>
+<span class="lineNum">     543 </span><span class="lineCov">         87 :                 __str_.resize(__str_.capacity());</span>
+<span class="lineNum">     544 </span><span class="lineCov">         87 :                 char_type* __p = const_cast&lt;char_type*&gt;(__str_.data());</span>
+<span class="lineNum">     545 </span><span class="lineCov">         87 :                 this-&gt;setp(__p, __p + __str_.size());</span>
+<span class="lineNum">     546 </span><span class="lineCov">         87 :                 this-&gt;__pbump(__nout);</span>
+<span class="lineNum">     547 </span><span class="lineCov">        174 :                 __hm_ = this-&gt;pbase() + __hm;</span>
 <span class="lineNum">     548 </span>            : #ifndef _LIBCPP_NO_EXCEPTIONS
-<span class="lineNum">     549 </span><span class="lineCov">         76 :             }</span>
+<span class="lineNum">     549 </span><span class="lineCov">         87 :             }</span>
 <span class="lineNum">     550 </span>            :             catch (...)
 <span class="lineNum">     551 </span>            :             {
 <span class="lineNum">     552 </span><span class="lineNoCov">          0 :                 return traits_type::eof();</span>
 <span class="lineNum">     553 </span><span class="lineNoCov">          0 :             }</span>
 <span class="lineNum">     554 </span>            : #endif  // _LIBCPP_NO_EXCEPTIONS
-<span class="lineNum">     555 </span><span class="lineCov">         76 :         }</span>
-<span class="lineNum">     556 </span><span class="lineCov">         76 :         __hm_ = _VSTD::max(this-&gt;pptr() + 1, __hm_);</span>
-<span class="lineNum">     557 </span><span class="lineCov">         76 :         if (__mode_ &amp; ios_base::in)</span>
+<span class="lineNum">     555 </span><span class="lineCov">         87 :         }</span>
+<span class="lineNum">     556 </span><span class="lineCov">         87 :         __hm_ = _VSTD::max(this-&gt;pptr() + 1, __hm_);</span>
+<span class="lineNum">     557 </span><span class="lineCov">         87 :         if (__mode_ &amp; ios_base::in)</span>
 <span class="lineNum">     558 </span>            :         {
-<span class="lineNum">     559 </span><span class="lineCov">         76 :             char_type* __p = const_cast&lt;char_type*&gt;(__str_.data());</span>
-<span class="lineNum">     560 </span><span class="lineCov">         76 :             this-&gt;setg(__p, __p + __ninp, __hm_);</span>
-<span class="lineNum">     561 </span><span class="lineCov">         76 :         }</span>
-<span class="lineNum">     562 </span><span class="lineCov">         76 :         return this-&gt;sputc(__c);</span>
+<span class="lineNum">     559 </span><span class="lineCov">         87 :             char_type* __p = const_cast&lt;char_type*&gt;(__str_.data());</span>
+<span class="lineNum">     560 </span><span class="lineCov">         87 :             this-&gt;setg(__p, __p + __ninp, __hm_);</span>
+<span class="lineNum">     561 </span><span class="lineCov">         87 :         }</span>
+<span class="lineNum">     562 </span><span class="lineCov">         87 :         return this-&gt;sputc(__c);</span>
 <span class="lineNum">     563 </span>            :     }
 <span class="lineNum">     564 </span><span class="lineNoCov">          0 :     return traits_type::not_eof(__c);</span>
-<span class="lineNum">     565 </span><span class="lineCov">         76 : }</span>
+<span class="lineNum">     565 </span><span class="lineCov">         87 : }</span>
 <span class="lineNum">     566 </span>            : 
 <a name="567"><span class="lineNum">     567 </span>            : template &lt;class _CharT, class _Traits, class _Allocator&gt;</a>
 <span class="lineNum">     568 </span>            : typename basic_stringbuf&lt;_CharT, _Traits, _Allocator&gt;::pos_type

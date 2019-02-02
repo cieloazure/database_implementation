@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 11:06:24</td>
+            <td class="headerValue">2019-02-02 18:20:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">10</td>
@@ -278,15 +278,15 @@
 <a name="216"><span class="lineNum">     216 </span>            :     // 27.6.2.2.5 Put area:</a>
 <span class="lineNum">     217 </span>            :     inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
 <span class="lineNum">     218 </span>            :     int_type sputc(char_type __c) {
-<span class="lineNum">     219 </span><span class="lineCov">         76 :         if (__nout_ == __eout_)</span>
+<span class="lineNum">     219 </span><span class="lineCov">         87 :         if (__nout_ == __eout_)</span>
 <span class="lineNum">     220 </span><span class="lineNoCov">          0 :             return overflow(traits_type::to_int_type(__c));</span>
-<span class="lineNum">     221 </span><span class="lineCov">         76 :         *__nout_++ = __c;</span>
-<span class="lineNum">     222 </span><span class="lineCov">         76 :         return traits_type::to_int_type(__c);</span>
-<span class="lineNum">     223 </span><span class="lineCov">         76 :     }</span>
+<span class="lineNum">     221 </span><span class="lineCov">         87 :         *__nout_++ = __c;</span>
+<span class="lineNum">     222 </span><span class="lineCov">         87 :         return traits_type::to_int_type(__c);</span>
+<span class="lineNum">     223 </span><span class="lineCov">         87 :     }</span>
 <a name="224"><span class="lineNum">     224 </span>            : </a>
 <span class="lineNum">     225 </span>            :     inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
 <span class="lineNum">     226 </span>            :     streamsize sputn(const char_type* __s, streamsize __n)
-<span class="lineNum">     227 </span><span class="lineCov">       1658 :     { return xsputn(__s, __n); }</span>
+<span class="lineNum">     227 </span><span class="lineCov">       1876 :     { return xsputn(__s, __n); }</span>
 <span class="lineNum">     228 </span>            : 
 <span class="lineNum">     229 </span>            : protected:
 <span class="lineNum">     230 </span>            :     basic_streambuf();
@@ -295,8 +295,8 @@
 <span class="lineNum">     233 </span>            :     void swap(basic_streambuf&amp; __rhs);
 <a name="234"><span class="lineNum">     234 </span>            : </a>
 <a name="235"><span class="lineNum">     235 </span>            :     // 27.6.2.3.2 Get area:</a>
-<a name="236"><span class="lineNum">     236 </span><span class="lineCov">         76 :     _LIBCPP_ALWAYS_INLINE char_type* eback() const {return __binp_;}</span></a>
-<span class="lineNum">     237 </span><span class="lineCov">         76 :     _LIBCPP_ALWAYS_INLINE char_type* gptr()  const {return __ninp_;}</span>
+<a name="236"><span class="lineNum">     236 </span><span class="lineCov">         87 :     _LIBCPP_ALWAYS_INLINE char_type* eback() const {return __binp_;}</span></a>
+<span class="lineNum">     237 </span><span class="lineCov">         87 :     _LIBCPP_ALWAYS_INLINE char_type* gptr()  const {return __ninp_;}</span>
 <span class="lineNum">     238 </span><span class="lineNoCov">          0 :     _LIBCPP_ALWAYS_INLINE char_type* egptr() const {return __einp_;}</span>
 <span class="lineNum">     239 </span>            : 
 <span class="lineNum">     240 </span>            :     inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
@@ -304,27 +304,27 @@
 <a name="242"><span class="lineNum">     242 </span>            : </a>
 <span class="lineNum">     243 </span>            :     inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
 <span class="lineNum">     244 </span>            :     void setg(char_type* __gbeg, char_type* __gnext, char_type* __gend) {
-<span class="lineNum">     245 </span><span class="lineCov">         76 :         __binp_ = __gbeg;</span>
-<span class="lineNum">     246 </span><span class="lineCov">         76 :         __ninp_ = __gnext;</span>
-<span class="lineNum">     247 </span><span class="lineCov">         76 :         __einp_ = __gend;</span>
-<span class="lineNum">     248 </span><span class="lineCov">         76 :     }</span>
+<span class="lineNum">     245 </span><span class="lineCov">         87 :         __binp_ = __gbeg;</span>
+<span class="lineNum">     246 </span><span class="lineCov">         87 :         __ninp_ = __gnext;</span>
+<span class="lineNum">     247 </span><span class="lineCov">         87 :         __einp_ = __gend;</span>
+<span class="lineNum">     248 </span><span class="lineCov">         87 :     }</span>
 <a name="249"><span class="lineNum">     249 </span>            : </a>
 <a name="250"><span class="lineNum">     250 </span>            :     // 27.6.2.3.3 Put area:</a>
-<a name="251"><span class="lineNum">     251 </span><span class="lineCov">        296 :     _LIBCPP_ALWAYS_INLINE char_type* pbase() const {return __bout_;}</span></a>
-<span class="lineNum">     252 </span><span class="lineCov">        347 :     _LIBCPP_ALWAYS_INLINE char_type* pptr()  const {return __nout_;}</span>
-<span class="lineNum">     253 </span><span class="lineCov">         76 :     _LIBCPP_ALWAYS_INLINE char_type* epptr() const {return __eout_;}</span>
+<a name="251"><span class="lineNum">     251 </span><span class="lineCov">        340 :     _LIBCPP_ALWAYS_INLINE char_type* pbase() const {return __bout_;}</span></a>
+<span class="lineNum">     252 </span><span class="lineCov">        402 :     _LIBCPP_ALWAYS_INLINE char_type* pptr()  const {return __nout_;}</span>
+<span class="lineNum">     253 </span><span class="lineCov">         87 :     _LIBCPP_ALWAYS_INLINE char_type* epptr() const {return __eout_;}</span>
 <a name="254"><span class="lineNum">     254 </span>            : </a>
 <span class="lineNum">     255 </span>            :     inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
 <span class="lineNum">     256 </span><span class="lineNoCov">          0 :     void pbump(int __n) { __nout_ += __n; }</span>
 <a name="257"><span class="lineNum">     257 </span>            : </a>
 <span class="lineNum">     258 </span>            :     _LIBCPP_ALWAYS_INLINE
-<span class="lineNum">     259 </span><span class="lineCov">         76 :     void __pbump(streamsize __n) { __nout_ += __n; }</span>
+<span class="lineNum">     259 </span><span class="lineCov">         87 :     void __pbump(streamsize __n) { __nout_ += __n; }</span>
 <a name="260"><span class="lineNum">     260 </span>            : </a>
 <span class="lineNum">     261 </span>            :     inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
 <span class="lineNum">     262 </span>            :     void setp(char_type* __pbeg, char_type* __pend) {
-<span class="lineNum">     263 </span><span class="lineCov">         76 :         __bout_ = __nout_ = __pbeg;</span>
-<span class="lineNum">     264 </span><span class="lineCov">         76 :         __eout_ = __pend;</span>
-<span class="lineNum">     265 </span><span class="lineCov">         76 :     }</span>
+<span class="lineNum">     263 </span><span class="lineCov">         87 :         __bout_ = __nout_ = __pbeg;</span>
+<span class="lineNum">     264 </span><span class="lineCov">         87 :         __eout_ = __pend;</span>
+<span class="lineNum">     265 </span><span class="lineCov">         87 :     }</span>
 <span class="lineNum">     266 </span>            : 
 <span class="lineNum">     267 </span>            :     // 27.6.2.4 virtual functions:
 <span class="lineNum">     268 </span>            :     // 27.6.2.4.1 Locales:

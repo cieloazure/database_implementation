@@ -45,7 +45,7 @@ int DBFile::Create(const char *f_path, fType f_type, void *startup) {
     if (metadata_file_descriptor < 0) {
       string err("Error creating metadata file for ");
       err += file_path;
-      err += " does not exist\n";
+      err += "\n";
       throw runtime_error(err);
     }
 
@@ -192,7 +192,7 @@ void DBFile::Load(Schema &f_schema, const char *loadpath) {
   Record *temp = new Record();
   FILE *table_file = fopen(loadpath, "r");
 
-  if (table_file == NULL) {
+  if (!table_file) {
     string err = "Error opening table file for load";
     err += loadpath;
     throw runtime_error(err);
@@ -359,19 +359,15 @@ void DBFile::CheckIfFilePresent() {
 bool DBFile::CheckIfCorrectFileType(fType type) {
   switch (type) {
     case heap:
+    case sorted:
+    case tree:
       return true;
       break;
-    case sorted:
-      cout << "Sorted Files: Not implemented yet! Coming soon " << endl;
-      exit(0);
-      break;
-    case tree:
-      cout << "Tree Files: Not implemented yet! Coming soon " << endl;
-      exit(0);
-      break;
+
     default:
       throw runtime_error("File type is incorrect or not supported");
   }
+  return false;
 }
 
 bool DBFile::CheckIfFileNameIsValid(const char *file_name) {
@@ -381,6 +377,7 @@ bool DBFile::CheckIfFileNameIsValid(const char *file_name) {
   } else {
     return true;
   }
+  return false;
 }
 
 void DBFile::Instantiate() {

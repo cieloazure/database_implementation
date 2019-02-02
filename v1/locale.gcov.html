@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 11:06:24</td>
+            <td class="headerValue">2019-02-02 18:20:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -1444,16 +1444,16 @@
 <span class="lineNum">    1382 </span>            :                  const _CharT* __ob, const _CharT* __op, const _CharT* __oe,
 <span class="lineNum">    1383 </span>            :                  ios_base&amp; __iob, _CharT __fl)
 <span class="lineNum">    1384 </span>            : {
-<span class="lineNum">    1385 </span><span class="lineCov">       1658 :     if (__s.__sbuf_ == nullptr)</span>
+<span class="lineNum">    1385 </span><span class="lineCov">       1876 :     if (__s.__sbuf_ == nullptr)</span>
 <span class="lineNum">    1386 </span><span class="lineNoCov">          0 :         return __s;</span>
-<span class="lineNum">    1387 </span><span class="lineCov">        829 :     streamsize __sz = __oe - __ob;</span>
-<span class="lineNum">    1388 </span><span class="lineCov">        829 :     streamsize __ns = __iob.width();</span>
-<span class="lineNum">    1389 </span><span class="lineCov">        829 :     if (__ns &gt; __sz)</span>
+<span class="lineNum">    1387 </span><span class="lineCov">        938 :     streamsize __sz = __oe - __ob;</span>
+<span class="lineNum">    1388 </span><span class="lineCov">        938 :     streamsize __ns = __iob.width();</span>
+<span class="lineNum">    1389 </span><span class="lineCov">        938 :     if (__ns &gt; __sz)</span>
 <span class="lineNum">    1390 </span><span class="lineNoCov">          0 :         __ns -= __sz;</span>
 <span class="lineNum">    1391 </span>            :     else
 <span class="lineNum">    1392 </span><span class="lineNoCov">          0 :         __ns = 0;</span>
-<span class="lineNum">    1393 </span><span class="lineCov">        829 :     streamsize __np = __op - __ob;</span>
-<span class="lineNum">    1394 </span><span class="lineCov">        829 :     if (__np &gt; 0)</span>
+<span class="lineNum">    1393 </span><span class="lineCov">        938 :     streamsize __np = __op - __ob;</span>
+<span class="lineNum">    1394 </span><span class="lineCov">        938 :     if (__np &gt; 0)</span>
 <span class="lineNum">    1395 </span>            :     {
 <span class="lineNum">    1396 </span><span class="lineNoCov">          0 :         if (__s.__sbuf_-&gt;sputn(__ob, __np) != __np)</span>
 <span class="lineNum">    1397 </span>            :         {
@@ -1461,7 +1461,7 @@
 <span class="lineNum">    1399 </span><span class="lineNoCov">          0 :             return __s;</span>
 <span class="lineNum">    1400 </span>            :         }
 <span class="lineNum">    1401 </span><span class="lineNoCov">          0 :     }</span>
-<span class="lineNum">    1402 </span><span class="lineCov">        829 :     if (__ns &gt; 0)</span>
+<span class="lineNum">    1402 </span><span class="lineCov">        938 :     if (__ns &gt; 0)</span>
 <span class="lineNum">    1403 </span>            :     {
 <span class="lineNum">    1404 </span><span class="lineNoCov">          0 :         basic_string&lt;_CharT, _Traits&gt; __sp(__ns, __fl);</span>
 <span class="lineNum">    1405 </span><span class="lineNoCov">          0 :         if (__s.__sbuf_-&gt;sputn(__sp.data(), __ns) != __ns)</span>
@@ -1470,18 +1470,18 @@
 <span class="lineNum">    1408 </span><span class="lineNoCov">          0 :             return __s;</span>
 <span class="lineNum">    1409 </span>            :         }
 <span class="lineNum">    1410 </span><span class="lineNoCov">          0 :     }</span>
-<span class="lineNum">    1411 </span><span class="lineCov">        829 :     __np = __oe - __op;</span>
-<span class="lineNum">    1412 </span><span class="lineCov">        829 :     if (__np &gt; 0)</span>
+<span class="lineNum">    1411 </span><span class="lineCov">        938 :     __np = __oe - __op;</span>
+<span class="lineNum">    1412 </span><span class="lineCov">        938 :     if (__np &gt; 0)</span>
 <span class="lineNum">    1413 </span>            :     {
-<span class="lineNum">    1414 </span><span class="lineCov">        829 :         if (__s.__sbuf_-&gt;sputn(__op, __np) != __np)</span>
+<span class="lineNum">    1414 </span><span class="lineCov">        938 :         if (__s.__sbuf_-&gt;sputn(__op, __np) != __np)</span>
 <span class="lineNum">    1415 </span>            :         {
 <span class="lineNum">    1416 </span><span class="lineNoCov">          0 :             __s.__sbuf_ = nullptr;</span>
 <span class="lineNum">    1417 </span><span class="lineNoCov">          0 :             return __s;</span>
 <span class="lineNum">    1418 </span>            :         }
 <span class="lineNum">    1419 </span><span class="lineNoCov">          0 :     }</span>
-<span class="lineNum">    1420 </span><span class="lineCov">        829 :     __iob.width(0);</span>
-<span class="lineNum">    1421 </span><span class="lineCov">        829 :     return __s;</span>
-<span class="lineNum">    1422 </span><span class="lineCov">        829 : }</span>
+<span class="lineNum">    1420 </span><span class="lineCov">        938 :     __iob.width(0);</span>
+<span class="lineNum">    1421 </span><span class="lineCov">        938 :     return __s;</span>
+<span class="lineNum">    1422 </span><span class="lineCov">        938 : }</span>
 <span class="lineNum">    1423 </span>            : 
 <span class="lineNum">    1424 </span>            : #endif
 <span class="lineNum">    1425 </span>            : 

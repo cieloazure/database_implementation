@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 11:06:24</td>
+            <td class="headerValue">2019-02-02 18:20:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">10</td>
@@ -67,134 +67,134 @@
 <span class="lineNum">       5 </span>            : #include &lt;string.h&gt;
 <a name="6"><span class="lineNum">       6 </span>            : #include &lt;iostream&gt;</a>
 <span class="lineNum">       7 </span>            : 
-<a name="8"><span class="lineNum">       8 </span><span class="lineCov">    3423020 : Record ::Record() { bits = NULL; }</span></a>
+<a name="8"><span class="lineNum">       8 </span><span class="lineCov">   10175768 : Record ::Record() { bits = NULL; }</span></a>
 <span class="lineNum">       9 </span>            : 
-<span class="lineNum">      10 </span><span class="lineCov">    1338324 : Record ::~Record() {</span>
-<span class="lineNum">      11 </span><span class="lineCov">    1338324 :   if (bits != NULL) {</span>
-<span class="lineNum">      12 </span><span class="lineCov">     485188 :     delete[] bits;</span>
+<span class="lineNum">      10 </span><span class="lineCov">    3980660 : Record ::~Record() {</span>
+<span class="lineNum">      11 </span><span class="lineCov">    3980660 :   if (bits != NULL) {</span>
+<span class="lineNum">      12 </span><span class="lineCov">    1442146 :     delete[] bits;</span>
 <span class="lineNum">      13 </span>            :   }
-<span class="lineNum">      14 </span><span class="lineCov">     669162 :   bits = NULL;</span>
-<a name="15"><span class="lineNum">      15 </span><span class="lineCov">    1338324 : }</span></a>
+<span class="lineNum">      14 </span><span class="lineCov">    1990330 :   bits = NULL;</span>
+<a name="15"><span class="lineNum">      15 </span><span class="lineCov">    3980660 : }</span></a>
 <span class="lineNum">      16 </span>            : 
 <span class="lineNum">      17 </span>            : int Record ::SuckNextRecord(Schema *mySchema, FILE *textFile) {
 <span class="lineNum">      18 </span>            :   // this is temporary storage
-<span class="lineNum">      19 </span><span class="lineCov">     485090 :   char *space = new (std::nothrow) char[PAGE_SIZE];</span>
-<span class="lineNum">      20 </span><span class="lineCov">     242545 :   if (space == NULL) {</span>
+<span class="lineNum">      19 </span><span class="lineCov">    1207208 :   char *space = new (std::nothrow) char[PAGE_SIZE];</span>
+<span class="lineNum">      20 </span><span class="lineCov">     603604 :   if (space == NULL) {</span>
 <span class="lineNum">      21 </span><span class="lineNoCov">          0 :     cout &lt;&lt; &quot;ERROR : Not enough memory. EXIT !!!\n&quot;;</span>
 <span class="lineNum">      22 </span><span class="lineNoCov">          0 :     exit(1);</span>
 <span class="lineNum">      23 </span>            :   }
 <span class="lineNum">      24 </span>            : 
-<span class="lineNum">      25 </span><span class="lineCov">     242545 :   char *recSpace = new (std::nothrow) char[PAGE_SIZE];</span>
-<span class="lineNum">      26 </span><span class="lineCov">     242545 :   if (recSpace == NULL) {</span>
+<span class="lineNum">      25 </span><span class="lineCov">     603604 :   char *recSpace = new (std::nothrow) char[PAGE_SIZE];</span>
+<span class="lineNum">      26 </span><span class="lineCov">     603604 :   if (recSpace == NULL) {</span>
 <span class="lineNum">      27 </span><span class="lineNoCov">          0 :     cout &lt;&lt; &quot;ERROR : Not enough memory. EXIT !!!\n&quot;;</span>
 <span class="lineNum">      28 </span><span class="lineNoCov">          0 :     exit(1);</span>
 <span class="lineNum">      29 </span>            :   }
 <span class="lineNum">      30 </span>            : 
 <span class="lineNum">      31 </span>            :   // clear out the present record
-<span class="lineNum">      32 </span><span class="lineCov">     362901 :   if (bits != NULL) delete[] bits;</span>
-<span class="lineNum">      33 </span><span class="lineCov">     242545 :   bits = NULL;</span>
+<span class="lineNum">      32 </span><span class="lineCov">     723960 :   if (bits != NULL) delete[] bits;</span>
+<span class="lineNum">      33 </span><span class="lineCov">     603604 :   bits = NULL;</span>
 <span class="lineNum">      34 </span>            : 
-<span class="lineNum">      35 </span><span class="lineCov">     242545 :   int n = mySchema-&gt;GetNumAtts();</span>
-<span class="lineNum">      36 </span><span class="lineCov">     242545 :   Attribute *atts = mySchema-&gt;GetAtts();</span>
+<span class="lineNum">      35 </span><span class="lineCov">     603604 :   int n = mySchema-&gt;GetNumAtts();</span>
+<span class="lineNum">      36 </span><span class="lineCov">     603604 :   Attribute *atts = mySchema-&gt;GetAtts();</span>
 <span class="lineNum">      37 </span>            : 
 <span class="lineNum">      38 </span>            :   // this is the current position (int bytes) in the binary
 <span class="lineNum">      39 </span>            :   // representation of the record that we are dealing with
-<span class="lineNum">      40 </span><span class="lineCov">    4608291 :   int currentPosInRec = sizeof(int) * (n + 1);</span>
+<span class="lineNum">      40 </span><span class="lineCov">   11468274 :   int currentPosInRec = sizeof(int) * (n + 1);</span>
 <span class="lineNum">      41 </span>            : 
 <span class="lineNum">      42 </span>            :   // loop through all of the attributes
-<span class="lineNum">      43 </span><span class="lineCov">    8488943 :   for (int i = 0; i &lt; n; i++) {</span>
+<span class="lineNum">      43 </span><span class="lineCov">   21125726 :   for (int i = 0; i &lt; n; i++) {</span>
 <span class="lineNum">      44 </span>            :     // first we suck in the next attribute value
-<span class="lineNum">      45 </span><span class="lineCov">   29277529 :     int len = 0;</span>
-<span class="lineNum">      46 </span><span class="lineCov">   29277529 :     while (1) {</span>
-<span class="lineNum">      47 </span><span class="lineCov">   29277529 :       int nextChar = getc(textFile);</span>
-<span class="lineNum">      48 </span><span class="lineCov">   29277529 :       if (nextChar == '|')</span>
-<span class="lineNum">      49 </span><span class="lineCov">    3880656 :         break;</span>
-<span class="lineNum">      50 </span><span class="lineCov">   25396873 :       else if (nextChar == EOF) {</span>
-<span class="lineNum">      51 </span><span class="lineCov">          8 :         delete[] space;</span>
-<span class="lineNum">      52 </span><span class="lineCov">          8 :         delete[] recSpace;</span>
-<span class="lineNum">      53 </span><span class="lineCov">          4 :         return 0;</span>
+<span class="lineNum">      45 </span><span class="lineCov">   72863053 :     int len = 0;</span>
+<span class="lineNum">      46 </span><span class="lineCov">   72863053 :     while (1) {</span>
+<span class="lineNum">      47 </span><span class="lineCov">   72863053 :       int nextChar = getc(textFile);</span>
+<span class="lineNum">      48 </span><span class="lineCov">   72863053 :       if (nextChar == '|')</span>
+<span class="lineNum">      49 </span><span class="lineCov">    9657462 :         break;</span>
+<span class="lineNum">      50 </span><span class="lineCov">   63205591 :       else if (nextChar == EOF) {</span>
+<span class="lineNum">      51 </span><span class="lineCov">         20 :         delete[] space;</span>
+<span class="lineNum">      52 </span><span class="lineCov">         20 :         delete[] recSpace;</span>
+<span class="lineNum">      53 </span><span class="lineCov">         10 :         return 0;</span>
 <span class="lineNum">      54 </span>            :       }
 <span class="lineNum">      55 </span>            : 
-<span class="lineNum">      56 </span><span class="lineCov">   25396869 :       space[len] = nextChar;</span>
-<span class="lineNum">      57 </span><span class="lineCov">   25396869 :       len++;</span>
-<span class="lineNum">      58 </span><span class="lineCov">   25396869 :     }</span>
+<span class="lineNum">      56 </span><span class="lineCov">   63205581 :       space[len] = nextChar;</span>
+<span class="lineNum">      57 </span><span class="lineCov">   63205581 :       len++;</span>
+<span class="lineNum">      58 </span><span class="lineCov">   63205581 :     }</span>
 <span class="lineNum">      59 </span>            : 
 <span class="lineNum">      60 </span>            :     // set up the pointer to the current attribute in the record
-<span class="lineNum">      61 </span><span class="lineCov">    3880656 :     ((int *)recSpace)[i + 1] = currentPosInRec;</span>
+<span class="lineNum">      61 </span><span class="lineCov">    9657462 :     ((int *)recSpace)[i + 1] = currentPosInRec;</span>
 <span class="lineNum">      62 </span>            : 
 <span class="lineNum">      63 </span>            :     // null terminate the string
-<span class="lineNum">      64 </span><span class="lineCov">    3880656 :     space[len] = 0;</span>
-<span class="lineNum">      65 </span><span class="lineCov">    3880656 :     len++;</span>
+<span class="lineNum">      64 </span><span class="lineCov">    9657462 :     space[len] = 0;</span>
+<span class="lineNum">      65 </span><span class="lineCov">    9657462 :     len++;</span>
 <span class="lineNum">      66 </span>            : 
 <span class="lineNum">      67 </span>            :     // then we convert the data to the correct binary representation
-<span class="lineNum">      68 </span><span class="lineCov">    3880656 :     if (atts[i].myType == Int) {</span>
-<span class="lineNum">      69 </span><span class="lineCov">     970164 :       *((int *)&amp;(recSpace[currentPosInRec])) = atoi(space);</span>
-<span class="lineNum">      70 </span><span class="lineCov">     970164 :       currentPosInRec += sizeof(int);</span>
+<span class="lineNum">      68 </span><span class="lineCov">    9657462 :     if (atts[i].myType == Int) {</span>
+<span class="lineNum">      69 </span><span class="lineCov">    2414370 :       *((int *)&amp;(recSpace[currentPosInRec])) = atoi(space);</span>
+<span class="lineNum">      70 </span><span class="lineCov">    2414370 :       currentPosInRec += sizeof(int);</span>
 <span class="lineNum">      71 </span>            : 
-<span class="lineNum">      72 </span><span class="lineCov">    3880656 :     } else if (atts[i].myType == Double) {</span>
+<span class="lineNum">      72 </span><span class="lineCov">    9657462 :     } else if (atts[i].myType == Double) {</span>
 <span class="lineNum">      73 </span>            :       // make sure that we are starting at a double-aligned position;
 <span class="lineNum">      74 </span>            :       // if not, then we put some extra space in there
-<span class="lineNum">      75 </span><span class="lineCov">    2425410 :       while (currentPosInRec % sizeof(double) != 0) {</span>
-<span class="lineNum">      76 </span><span class="lineCov">     242541 :         currentPosInRec += sizeof(int);</span>
-<span class="lineNum">      77 </span><span class="lineCov">     242541 :         ((int *)recSpace)[i + 1] = currentPosInRec;</span>
+<span class="lineNum">      75 </span><span class="lineCov">    6035910 :       while (currentPosInRec % sizeof(double) != 0) {</span>
+<span class="lineNum">      76 </span><span class="lineCov">     603591 :         currentPosInRec += sizeof(int);</span>
+<span class="lineNum">      77 </span><span class="lineCov">     603591 :         ((int *)recSpace)[i + 1] = currentPosInRec;</span>
 <span class="lineNum">      78 </span>            :       }
 <span class="lineNum">      79 </span>            : 
-<span class="lineNum">      80 </span><span class="lineCov">     970164 :       *((double *)&amp;(recSpace[currentPosInRec])) = atof(space);</span>
-<span class="lineNum">      81 </span><span class="lineCov">     970164 :       currentPosInRec += sizeof(double);</span>
+<span class="lineNum">      80 </span><span class="lineCov">    2414364 :       *((double *)&amp;(recSpace[currentPosInRec])) = atof(space);</span>
+<span class="lineNum">      81 </span><span class="lineCov">    2414364 :       currentPosInRec += sizeof(double);</span>
 <span class="lineNum">      82 </span>            : 
-<span class="lineNum">      83 </span><span class="lineCov">    2910492 :     } else if (atts[i].myType == String) {</span>
+<span class="lineNum">      83 </span><span class="lineCov">    7243092 :     } else if (atts[i].myType == String) {</span>
 <span class="lineNum">      84 </span>            :       // align things to the size of an integer if needed
-<span class="lineNum">      85 </span><span class="lineCov">    1940328 :       if (len % sizeof(int) != 0) {</span>
-<span class="lineNum">      86 </span><span class="lineCov">    1711483 :         len += sizeof(int) - (len % sizeof(int));</span>
-<span class="lineNum">      87 </span><span class="lineCov">    1711483 :       }</span>
+<span class="lineNum">      85 </span><span class="lineCov">    4828728 :       if (len % sizeof(int) != 0) {</span>
+<span class="lineNum">      86 </span><span class="lineCov">    4259215 :         len += sizeof(int) - (len % sizeof(int));</span>
+<span class="lineNum">      87 </span><span class="lineCov">    4259215 :       }</span>
 <span class="lineNum">      88 </span>            : 
-<span class="lineNum">      89 </span><span class="lineCov">    1940328 :       strcpy(&amp;(recSpace[currentPosInRec]), space);</span>
-<span class="lineNum">      90 </span><span class="lineCov">    1940328 :       currentPosInRec += len;</span>
-<span class="lineNum">      91 </span><span class="lineCov">    1940328 :     }</span>
-<span class="lineNum">      92 </span><span class="lineCov">    3880656 :   }</span>
+<span class="lineNum">      89 </span><span class="lineCov">    4828728 :       strcpy(&amp;(recSpace[currentPosInRec]), space);</span>
+<span class="lineNum">      90 </span><span class="lineCov">    4828728 :       currentPosInRec += len;</span>
+<span class="lineNum">      91 </span><span class="lineCov">    4828728 :     }</span>
+<span class="lineNum">      92 </span><span class="lineCov">    9657462 :   }</span>
 <span class="lineNum">      93 </span>            : 
 <span class="lineNum">      94 </span>            :   // the last thing is to set up the pointer to just past the end of the reocrd
-<span class="lineNum">      95 </span><span class="lineCov">     242541 :   ((int *)recSpace)[0] = currentPosInRec;</span>
+<span class="lineNum">      95 </span><span class="lineCov">     603594 :   ((int *)recSpace)[0] = currentPosInRec;</span>
 <span class="lineNum">      96 </span>            : 
 <span class="lineNum">      97 </span>            :   // and copy over the bits
-<span class="lineNum">      98 </span><span class="lineCov">     242541 :   bits = new (std::nothrow) char[currentPosInRec];</span>
-<span class="lineNum">      99 </span><span class="lineCov">     242541 :   if (bits == NULL) {</span>
+<span class="lineNum">      98 </span><span class="lineCov">     603594 :   bits = new (std::nothrow) char[currentPosInRec];</span>
+<span class="lineNum">      99 </span><span class="lineCov">     603594 :   if (bits == NULL) {</span>
 <span class="lineNum">     100 </span><span class="lineNoCov">          0 :     cout &lt;&lt; &quot;ERROR : Not enough memory. EXIT !!!\n&quot;;</span>
 <span class="lineNum">     101 </span><span class="lineNoCov">          0 :     exit(1);</span>
 <span class="lineNum">     102 </span>            :   }
 <span class="lineNum">     103 </span>            : 
-<span class="lineNum">     104 </span><span class="lineCov">     242541 :   memcpy(bits, recSpace, currentPosInRec);</span>
+<span class="lineNum">     104 </span><span class="lineCov">     603594 :   memcpy(bits, recSpace, currentPosInRec);</span>
 <span class="lineNum">     105 </span>            : 
-<span class="lineNum">     106 </span><span class="lineCov">     485082 :   delete[] space;</span>
-<span class="lineNum">     107 </span><span class="lineCov">     485082 :   delete[] recSpace;</span>
+<span class="lineNum">     106 </span><span class="lineCov">    1207188 :   delete[] space;</span>
+<span class="lineNum">     107 </span><span class="lineCov">    1207188 :   delete[] recSpace;</span>
 <span class="lineNum">     108 </span>            : 
-<span class="lineNum">     109 </span><span class="lineCov">     242541 :   return 1;</span>
-<a name="110"><span class="lineNum">     110 </span><span class="lineCov">     242545 : }</span></a>
+<span class="lineNum">     109 </span><span class="lineCov">     603594 :   return 1;</span>
+<a name="110"><span class="lineNum">     110 </span><span class="lineCov">     603604 : }</span></a>
 <span class="lineNum">     111 </span>            : 
 <span class="lineNum">     112 </span>            : void Record ::SetBits(char *bits) {
 <span class="lineNum">     113 </span><span class="lineNoCov">          0 :   delete[] this-&gt;bits;</span>
 <span class="lineNum">     114 </span><span class="lineNoCov">          0 :   this-&gt;bits = bits;</span>
 <a name="115"><span class="lineNum">     115 </span><span class="lineNoCov">          0 : }</span></a>
 <span class="lineNum">     116 </span>            : 
-<a name="117"><span class="lineNum">     117 </span><span class="lineCov">    2191688 : char *Record ::GetBits(void) { return bits; }</span></a>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">    7005100 : char *Record ::GetBits(void) { return bits; }</span></a>
 <span class="lineNum">     118 </span>            : 
 <span class="lineNum">     119 </span>            : void Record ::CopyBits(char *bits, int b_len) {
-<span class="lineNum">     120 </span><span class="lineCov">     493624 :   delete[] this-&gt;bits;</span>
+<span class="lineNum">     120 </span><span class="lineCov">    1462488 :   delete[] this-&gt;bits;</span>
 <span class="lineNum">     121 </span>            : 
-<span class="lineNum">     122 </span><span class="lineCov">     246812 :   this-&gt;bits = new (std::nothrow) char[b_len];</span>
-<span class="lineNum">     123 </span><span class="lineCov">     246812 :   if (this-&gt;bits == NULL) {</span>
+<span class="lineNum">     122 </span><span class="lineCov">     731244 :   this-&gt;bits = new (std::nothrow) char[b_len];</span>
+<span class="lineNum">     123 </span><span class="lineCov">     731244 :   if (this-&gt;bits == NULL) {</span>
 <span class="lineNum">     124 </span><span class="lineNoCov">          0 :     cout &lt;&lt; &quot;ERROR : Not enough memory. EXIT !!!\n&quot;;</span>
 <span class="lineNum">     125 </span><span class="lineNoCov">          0 :     exit(1);</span>
 <span class="lineNum">     126 </span>            :   }
 <span class="lineNum">     127 </span>            : 
-<span class="lineNum">     128 </span><span class="lineCov">     246812 :   memcpy(this-&gt;bits, bits, b_len);</span>
-<a name="129"><span class="lineNum">     129 </span><span class="lineCov">     246812 : }</span></a>
+<span class="lineNum">     128 </span><span class="lineCov">     731244 :   memcpy(this-&gt;bits, bits, b_len);</span>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">     731244 : }</span></a>
 <span class="lineNum">     130 </span>            : 
 <span class="lineNum">     131 </span>            : void Record ::Consume(Record *fromMe) {
-<span class="lineNum">     132 </span><span class="lineCov">    2074144 :   delete[] bits;</span>
-<span class="lineNum">     133 </span><span class="lineCov">    1037072 :   bits = fromMe-&gt;bits;</span>
-<span class="lineNum">     134 </span><span class="lineCov">    1037072 :   fromMe-&gt;bits = NULL;</span>
-<a name="135"><span class="lineNum">     135 </span><span class="lineCov">    1037072 : }</span></a>
+<span class="lineNum">     132 </span><span class="lineCov">    6168600 :   delete[] bits;</span>
+<span class="lineNum">     133 </span><span class="lineCov">    3084300 :   bits = fromMe-&gt;bits;</span>
+<span class="lineNum">     134 </span><span class="lineCov">    3084300 :   fromMe-&gt;bits = NULL;</span>
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">    3084300 : }</span></a>
 <span class="lineNum">     136 </span>            : 
 <span class="lineNum">     137 </span>            : void Record ::Copy(Record *copyMe) {
 <span class="lineNum">     138 </span>            :   // this is a deep copy, so allocate the bits and move them over!

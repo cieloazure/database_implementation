@@ -31,18 +31,18 @@
             <td class="headerValue">P1.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntry">43</td>
             <td class="headerCovTableEntry">135</td>
-            <td class="headerCovTableEntryLo">14.8 %</td>
+            <td class="headerCovTableEntryLo">31.9 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 11:06:24</td>
+            <td class="headerValue">2019-02-02 18:20:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">3</td>
             <td class="headerCovTableEntry">6</td>
-            <td class="headerCovTableEntryLo">16.7 %</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
           </tr>
           <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -203,20 +203,20 @@
 <span class="lineNum">     141 </span>            : int ComparisonEngine ::Compare(Record *left, Record *literal,
 <span class="lineNum">     142 </span>            :                                CNF *myComparison) {
 <span class="lineNum">     143 </span>            : 
-<span class="lineNum">     144 </span><span class="lineNoCov">          0 :   for (int i = 0; i &lt; myComparison-&gt;numAnds; i++) {</span>
+<span class="lineNum">     144 </span><span class="lineCov">     301004 :   for (int i = 0; i &lt; myComparison-&gt;numAnds; i++) {</span>
 <span class="lineNum">     145 </span>            : 
-<span class="lineNum">     146 </span><span class="lineNoCov">          0 :     for (int j = 0; j &lt; myComparison-&gt;orLens[i]; j++) {</span>
+<span class="lineNum">     146 </span><span class="lineCov">     240706 :     for (int j = 0; j &lt; myComparison-&gt;orLens[i]; j++) {</span>
 <span class="lineNum">     147 </span>            : 
 <span class="lineNum">     148 </span>            :       // this returns a 0 if the comparison did not eval to true
-<span class="lineNum">     149 </span><span class="lineNoCov">          0 :       int result = Run(left, literal, &amp;myComparison-&gt;orList[i][j]);</span>
+<span class="lineNum">     149 </span><span class="lineCov">     120353 :       int result = Run(left, literal, &amp;myComparison-&gt;orList[i][j]);</span>
 <span class="lineNum">     150 </span>            : 
-<span class="lineNum">     151 </span><span class="lineNoCov">          0 :       if (result != 0) {</span>
-<span class="lineNum">     152 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     151 </span><span class="lineCov">     120353 :       if (result != 0) {</span>
+<span class="lineNum">     152 </span><span class="lineCov">      60183 :         break;</span>
 <span class="lineNum">     153 </span>            :       }
 <span class="lineNum">     154 </span>            : 
 <span class="lineNum">     155 </span>            :       // if we made it through all of the comparisons without a hit, return a 0
-<span class="lineNum">     156 </span><span class="lineNoCov">          0 :       if (j == myComparison-&gt;orLens[i] - 1) {</span>
-<span class="lineNum">     157 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     156 </span><span class="lineCov">      60170 :       if (j == myComparison-&gt;orLens[i] - 1) {</span>
+<span class="lineNum">     157 </span><span class="lineCov">      60170 :         return 0;</span>
 <span class="lineNum">     158 </span>            :       }
 <span class="lineNum">     159 </span><span class="lineNoCov">          0 :     }</span>
 <span class="lineNum">     160 </span>            : 
@@ -226,8 +226,8 @@
 <span class="lineNum">     164 </span>            : 
 <span class="lineNum">     165 </span>            :   // this ends the for-loop for the AND-list... if we made it this far, then we
 <span class="lineNum">     166 </span>            :   // know that we have satisfied the overall CNF expression
-<span class="lineNum">     167 </span><span class="lineNoCov">          0 :   return 1;</span>
-<span class="lineNum">     168 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     167 </span><span class="lineCov">         32 :   return 1;</span>
+<span class="lineNum">     168 </span><span class="lineCov">      60202 : }</span>
 <a name="169"><span class="lineNum">     169 </span>            : </a>
 <span class="lineNum">     170 </span>            : // this is just like the last one, except that it deals with a pair of records
 <span class="lineNum">     171 </span>            : int ComparisonEngine ::Compare(Record *left, Record *right, Record *literal,
@@ -264,44 +264,44 @@
 <span class="lineNum">     202 </span>            : 
 <span class="lineNum">     203 </span>            :   char *val1, *val2;
 <span class="lineNum">     204 </span>            : 
-<span class="lineNum">     205 </span><span class="lineNoCov">          0 :   char *left_bits = left-&gt;GetBits();</span>
-<span class="lineNum">     206 </span><span class="lineNoCov">          0 :   char *lit_bits = literal-&gt;GetBits();</span>
+<span class="lineNum">     205 </span><span class="lineCov">     240706 :   char *left_bits = left-&gt;GetBits();</span>
+<span class="lineNum">     206 </span><span class="lineCov">     120353 :   char *lit_bits = literal-&gt;GetBits();</span>
 <span class="lineNum">     207 </span>            : 
 <span class="lineNum">     208 </span>            :   // first get a pointer to the first value to compare
-<span class="lineNum">     209 </span><span class="lineNoCov">          0 :   if (c-&gt;operand1 == Left) {</span>
-<span class="lineNum">     210 </span><span class="lineNoCov">          0 :     val1 = left_bits + ((int *)left_bits)[c-&gt;whichAtt1 + 1];</span>
-<span class="lineNum">     211 </span><span class="lineNoCov">          0 :   } else {</span>
+<span class="lineNum">     209 </span><span class="lineCov">     120353 :   if (c-&gt;operand1 == Left) {</span>
+<span class="lineNum">     210 </span><span class="lineCov">     120353 :     val1 = left_bits + ((int *)left_bits)[c-&gt;whichAtt1 + 1];</span>
+<span class="lineNum">     211 </span><span class="lineCov">     120353 :   } else {</span>
 <span class="lineNum">     212 </span><span class="lineNoCov">          0 :     val1 = lit_bits + ((int *)lit_bits)[c-&gt;whichAtt1 + 1];</span>
 <span class="lineNum">     213 </span>            :   }
 <span class="lineNum">     214 </span>            : 
 <span class="lineNum">     215 </span>            :   // next get a pointer to the second value to compare
-<span class="lineNum">     216 </span><span class="lineNoCov">          0 :   if (c-&gt;operand2 == Left) {</span>
+<span class="lineNum">     216 </span><span class="lineCov">     120353 :   if (c-&gt;operand2 == Left) {</span>
 <span class="lineNum">     217 </span><span class="lineNoCov">          0 :     val2 = left_bits + ((int *)left_bits)[c-&gt;whichAtt2 + 1];</span>
 <span class="lineNum">     218 </span><span class="lineNoCov">          0 :   } else {</span>
-<span class="lineNum">     219 </span><span class="lineNoCov">          0 :     val2 = lit_bits + ((int *)lit_bits)[c-&gt;whichAtt2 + 1];</span>
+<span class="lineNum">     219 </span><span class="lineCov">     120353 :     val2 = lit_bits + ((int *)lit_bits)[c-&gt;whichAtt2 + 1];</span>
 <span class="lineNum">     220 </span>            :   }
 <span class="lineNum">     221 </span>            : 
 <span class="lineNum">     222 </span>            :   int val1Int, val2Int, tempResult;
 <span class="lineNum">     223 </span>            :   double val1Double, val2Double;
 <span class="lineNum">     224 </span>            : 
 <span class="lineNum">     225 </span>            :   // now check the type and the comparison operation
-<span class="lineNum">     226 </span><span class="lineNoCov">          0 :   switch (c-&gt;attType) {</span>
+<span class="lineNum">     226 </span><span class="lineCov">     120353 :   switch (c-&gt;attType) {</span>
 <span class="lineNum">     227 </span>            : 
 <span class="lineNum">     228 </span>            :   // first case: we are dealing with integers
 <span class="lineNum">     229 </span>            :   case Int:
 <span class="lineNum">     230 </span>            : 
-<span class="lineNum">     231 </span><span class="lineNoCov">          0 :     val1Int = *((int *)val1);</span>
-<span class="lineNum">     232 </span><span class="lineNoCov">          0 :     val2Int = *((int *)val2);</span>
+<span class="lineNum">     231 </span><span class="lineCov">     120353 :     val1Int = *((int *)val1);</span>
+<span class="lineNum">     232 </span><span class="lineCov">     120353 :     val2Int = *((int *)val2);</span>
 <span class="lineNum">     233 </span>            : 
 <span class="lineNum">     234 </span>            :     // and check the operation type in order to actually do the comparison
-<span class="lineNum">     235 </span><span class="lineNoCov">          0 :     switch (c-&gt;op) {</span>
+<span class="lineNum">     235 </span><span class="lineCov">     120353 :     switch (c-&gt;op) {</span>
 <span class="lineNum">     236 </span>            : 
 <span class="lineNum">     237 </span>            :     case LessThan:
-<span class="lineNum">     238 </span><span class="lineNoCov">          0 :       return (val1Int &lt; val2Int);</span>
+<span class="lineNum">     238 </span><span class="lineCov">      60152 :       return (val1Int &lt; val2Int);</span>
 <span class="lineNum">     239 </span>            :       break;
 <span class="lineNum">     240 </span>            : 
 <span class="lineNum">     241 </span>            :     case GreaterThan:
-<span class="lineNum">     242 </span><span class="lineNoCov">          0 :       return (val1Int &gt; val2Int);</span>
+<span class="lineNum">     242 </span><span class="lineCov">      60201 :       return (val1Int &gt; val2Int);</span>
 <span class="lineNum">     243 </span>            :       break;
 <span class="lineNum">     244 </span>            : 
 <span class="lineNum">     245 </span>            :     default:
@@ -353,7 +353,7 @@
 <span class="lineNum">     291 </span>            :     }
 <span class="lineNum">     292 </span>            :     break;
 <span class="lineNum">     293 </span>            :   }
-<span class="lineNum">     294 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     294 </span><span class="lineCov">     120353 : }</span>
 <a name="295"><span class="lineNum">     295 </span>            : </a>
 <span class="lineNum">     296 </span>            : // This is an internal function used by the comparison engine
 <span class="lineNum">     297 </span>            : int ComparisonEngine ::Run(Record *left, Record *right, Record *literal,
