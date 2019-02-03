@@ -1,0 +1,40 @@
+﻿Project 1
+
+
+Group Info:
+
+Akash Shingte 		4874-1966
+Varun Patni		8969-9355
+
+
+What is complete? 
+
+All the requirements are implemented.
+
+
+Execution Instructions:
+
+### Pre-requisite
+
+1. g++ compiler 
+2. gtest installed and the executables in appropriate directory
+3. make functionality 
+4. Flex and Bison(lex and yacc)
+
+### Installation instructions 
+
+1. Unzip the content of the directory '<put zip file directory name here>'
+2. Do `make clean` as a precaution
+
+#### For Running *test.cc*
+
+1. Run `make test.out` to create the test executable
+2. Execute it using `./test.out`
+3. Follow the instruction displayed on the standard input. 
+4. To execute a different path, run `./test.out` again.
+
+#### For Running tests in *gtest_main.cc*
+
+1. Run `make gtest_main.out`
+2. Execute it using `./gtest_main.out`
+
