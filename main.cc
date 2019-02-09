@@ -3,6 +3,7 @@
 #include <iostream>
 #include "DBFile.h"
 #include "Record.h"
+#include "TwoWayList.cc"
 using namespace std;
 
 extern "C" {
@@ -10,6 +11,25 @@ int yyparse(void);  // defined in y.tab.c
 }
 
 extern struct AndList *final;
+
+class Test {
+ public:
+  int *num;
+  Test() { num = new int; }
+  Test(int a) {
+    num = new int;
+    (*num) = a;
+  }
+
+  void Consume(Test *fromme) { num = fromme->num; }
+};
+
+bool compare(void *i1, void *i2) {
+  Test *i = (Test *)i1;
+  Test *j = (Test *)i2;
+
+  return *(i->num) < *(j->num);
+}
 
 int main() {
   /*
@@ -222,13 +242,68 @@ int main() {
     // temp3->Print(&mySchema);
     heapFile->Close();
     */
-  DBFile *heapFile = new DBFile();
-  fType f = heap;
-  heapFile->Create("test.tbl", heap, NULL);
+  // DBFile *heapFile = new DBFile();
+  // fType f = heap;
+  // heapFile->Create("test.tbl", heap, NULL);
 
-  const char *loadpath = "data_files/lineitem.tbl";
+  // const char *loadpath = "data_files/lineitem.tbl";
 
+  // Schema mySchema("catalog", "lineitem");
+  // heapFile->Load(mySchema, loadpath);
+  // heapFile->Close();
+
+  // TwoWayList<Record> *myRecs = new (std::nothrow) TwoWayList<Record>;
+
+  TwoWayList<Test> *myRecs = new (std::nothrow) TwoWayList<Test>;
+  FILE *tableFile = fopen("data_files/lineitem.tbl", "r");
+
+  Record *temp = new Record();
   Schema mySchema("catalog", "lineitem");
-  heapFile->Load(mySchema, loadpath);
-  heapFile->Close();
+
+  int arr[] = {6,  7,  0,    3,   1,   2,     5,   6,   9,
+               -1, -2, -100, 101, 600, -1000, 200, -300};
+  int length = sizeof(arr) / sizeof(*arr);
+  // int length = 10;
+  for (int i = 0; i < length; i++) {
+    // temp->SuckNextRecord(&mySchema, tableFile);
+    // temp->Print(&mySchema);
+    // cout << endl;
+    // myRecs->Insert(temp);
+    Test *t = new Test(arr[i]);
+    myRecs->Insert(t);
+  }
+
+  OrderMaker order(&mySchema);
+  ComparisonEngine comp;
+  auto c = [&order, &comp](void *i1, void *i2) -> bool {
+    Record *i = (Record *)i1;
+    Record *j = (Record *)i2;
+
+    return comp.Compare(i, j, &order) > 0;
+  };
+  // auto compareLamb = [](void *i1, void *i2) -> bool {
+  //   Test *i = (Test *)i1;
+  //   Test *j = (Test *)i2;
+
+  //   return *(i->num) < *(j->num);
+  // };
+  myRecs->Sort(compare);
+
+  myRecs->MoveToStart();
+
+  int count = myRecs->RightLength();
+  // // Record *temp2;
+  cout << "==========================  Now sorted record "
+          "=========================="
+       << endl;
+  while (count > 0) {
+    // Record *temp2 = myRecs->Current(0);
+    // temp2->Print(&mySchema);
+    Test *temp2 = myRecs->Current(0);
+    cout << *(temp2->num);
+    cout << endl;
+    myRecs->Advance();
+    count--;
+  }
+  return 0;
 }
