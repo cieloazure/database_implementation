@@ -10,8 +10,8 @@ ifdef linux
 tag = -n
 endif
 
-gtest_main.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o DBFileTest.o y.tab.o lex.yy.o gtest_main.o 
-	$(TEST) -o gtest_main.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o DBFileTest.o y.tab.o lex.yy.o gtest_main.o -ll -lgtest -lpthread  
+gtest_main.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o DBFileTest.o TwoWayListTest.o y.tab.o lex.yy.o gtest_main.o 
+	$(TEST) -o gtest_main.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o DBFileTest.o TwoWayListTest.o y.tab.o lex.yy.o gtest_main.o -ll -lgtest -lpthread  
 
 test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o
 	$(CC) -o test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o -ll
@@ -59,6 +59,9 @@ gtest_main.o: gtest_main.cc
 DBFileTest.o: DBFileTest.cc
 	$(TEST) -g -c DBFileTest.cc
 
+TwoWayListTest.o: TwoWayListTest.cc
+	$(TEST) -g -c TwoWayListTest.cc
+
 clean: 
 	rm -f *.o
 	rm -f *.out
@@ -67,6 +70,11 @@ clean:
 	rm -f y.tab.h
 	rm -f *.header
 	rm -f *.tbl
+	rm -f *.gcda
+	rm -f *.gcov
+	rm -f *.gcno
+
+test_clean:
 	rm -f *.gcda
 	rm -f *.gcov
 	rm -f *.gcno

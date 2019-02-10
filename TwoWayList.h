@@ -1,10 +1,6 @@
 #ifndef _TWO_WAY_LIST_H
 #define _TWO_WAY_LIST_H
 
-#include <functional>
-#include "Comparison.h"
-
-class Comparison;
 class OrderMaker;
 
 template <class Type>

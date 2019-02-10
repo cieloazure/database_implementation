@@ -13,33 +13,28 @@ extern struct AndList *final;
 namespace dbi {
 
 // The fixture for testing class Foo.
-class DBFileTest : public ::testing::Test
-{
-protected:
+class DBFileTest : public ::testing::Test {
+ protected:
   // You can remove any or all of the following functions if its body
   // is empty.
 
-  DBFileTest()
-  {
+  DBFileTest() {
     // You can do set-up work for each test here.
   }
 
-  ~DBFileTest() override
-  {
+  ~DBFileTest() override {
     // You can do clean-up work that doesn't throw exceptions here.
   }
 
   // If the constructor and destructor are not enough for setting up
   // and cleaning up each test, you can define the following methods:
 
-  void SetUp() override
-  {
+  void SetUp() override {
     // Code here will be called immediately after the constructor (right
     // before each test).
   }
 
-  void TearDown() override
-  {
+  void TearDown() override {
     // Code here will be called immediately after each test (right
     // before the destructor).
     remove("gtest.bin");
@@ -50,20 +45,18 @@ protected:
 };
 
 /* Unit tests */
-TEST_F(DBFileTest, CreateSuccess) {
+TEST_F(DBFileTest, CREATE_SUCCESS) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
   EXPECT_TRUE(heapFile->Create("gtest.bin", t, NULL));
   delete heapFile;
 }
 
-TEST_F(DBFileTest, CreateFailureWhenFileNameIsTooLarge)
-{
+TEST_F(DBFileTest, CREATE_FAILURE_WHEN_FILE_NAME_IS_TOO_LARGE) {
   string a = "a";
   int MAX_FILE_NAME_SIZE = 255;
   string s;
-  for (int i = 0; i < MAX_FILE_NAME_SIZE; i++)
-  {
+  for (int i = 0; i < MAX_FILE_NAME_SIZE; i++) {
     s.append(a);
   }
   s += ".bin";
@@ -74,39 +67,33 @@ TEST_F(DBFileTest, CreateFailureWhenFileNameIsTooLarge)
   delete heapFile;
 }
 
-TEST_F(DBFileTest, CreateFailureWhenFileNameIsAnEmptyString)
-{
+TEST_F(DBFileTest, CREATE_FAILURE_WHEN_FILENAME_IS_AN_EMPTY_STRING) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
   EXPECT_FALSE(heapFile->Create("", t, NULL));
   delete heapFile;
 }
 
-TEST_F(DBFileTest, CreateFailureWhenFileIsInvalid)
-{
+TEST_F(DBFileTest, CREATE_FAILURE_WHEN_FILE_IS_INVALID) {
   DBFile *heapFile = new DBFile();
   EXPECT_FALSE(heapFile->Create("gtest.bin", (fType)4, NULL));
   delete heapFile;
 }
 
-TEST_F(DBFileTest, OpenSuccess)
-{
+TEST_F(DBFileTest, OPEN_SUCCESS) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.bin", t, NULL))
-  {
+  if (heapFile->Create("gtest.bin", t, NULL)) {
     heapFile->Close();
     EXPECT_TRUE(heapFile->Open("gtest.bin"));
   }
   delete heapFile;
 }
 
-TEST_F(DBFileTest, OpenFailureMissingMetadataFile)
-{
+TEST_F(DBFileTest, OPEN_FAILURE_MISSING_METADATA_FILE) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.bin", t, NULL))
-  {
+  if (heapFile->Create("gtest.bin", t, NULL)) {
     heapFile->Close();
     remove("gtest.header");
     EXPECT_FALSE(heapFile->Open("gtest.bin"));
@@ -114,12 +101,10 @@ TEST_F(DBFileTest, OpenFailureMissingMetadataFile)
   delete heapFile;
 }
 
-TEST_F(DBFileTest, OpenFailureOnInvalidFileTypeInMetadataFile)
-{
+TEST_F(DBFileTest, OPEN_FAILURE_ON_INVALID_FILE_TYPE_IN_METADATA_FILE) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.bin", t, NULL))
-  {
+  if (heapFile->Create("gtest.bin", t, NULL)) {
     heapFile->Close();
     int fd = open("gtest.header", O_RDWR, S_IRUSR | S_IWUSR);
     lseek(fd, 0, SEEK_SET);
@@ -130,31 +115,26 @@ TEST_F(DBFileTest, OpenFailureOnInvalidFileTypeInMetadataFile)
   delete heapFile;
 }
 
-TEST_F(DBFileTest, OpenFailureWhenAFileDoesNotExists)
-{
+TEST_F(DBFileTest, OPEN_FAILURE_WHEN_A_FILE_DOES_NOT_EXISTS) {
   DBFile *heapFile = new DBFile();
   EXPECT_FALSE(heapFile->Open("gtest2.bin"));
   delete heapFile;
 }
 
-TEST_F(DBFileTest, OpenFailureWhenAFileNameIsInvalid)
-{
+TEST_F(DBFileTest, OPEN_FAILURE_WHEN_A_FILE_NAME_IS_INVALID) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.bin", t, NULL))
-  {
+  if (heapFile->Create("gtest.bin", t, NULL)) {
     heapFile->Close();
     EXPECT_FALSE(heapFile->Open(""));
   }
   delete heapFile;
 }
 
-TEST_F(DBFileTest, MoveFirstWhenGetNextHaveBeenCalledBefore)
-{
+TEST_F(DBFileTest, MOVE_FIRST_WHEN_GET_NEXT_HAVE_BEEN_CALLED_BEFORE) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.bin", t, NULL))
-  {
+  if (heapFile->Create("gtest.bin", t, NULL)) {
     const char *loadpath = "data_files/lineitem.tbl";
 
     Schema mySchema("catalog", "lineitem");
@@ -164,11 +144,9 @@ TEST_F(DBFileTest, MoveFirstWhenGetNextHaveBeenCalledBefore)
     Record *temp_source_file_record = new Record();
     Record *temp_heap_file_record = new Record();
     Record *first = new Record();
-    for (int i = 0; i < 3; i++)
-    {
+    for (int i = 0; i < 3; i++) {
       temp_source_file_record->SuckNextRecord(&mySchema, load_file);
-      if (i == 0)
-      {
+      if (i == 0) {
         first->Copy(temp_source_file_record);
       }
       heapFile->GetNext(*temp_heap_file_record);
@@ -192,12 +170,10 @@ TEST_F(DBFileTest, MoveFirstWhenGetNextHaveBeenCalledBefore)
   }
 }
 
-TEST_F(DBFileTest, MoveFirstOnFirstRecord)
-{
+TEST_F(DBFileTest, MOVE_FIRST_ON_FIRST_RECORD) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.bin", t, NULL))
-  {
+  if (heapFile->Create("gtest.bin", t, NULL)) {
     const char *loadpath = "data_files/lineitem.tbl";
 
     Schema mySchema("catalog", "lineitem");
@@ -207,11 +183,9 @@ TEST_F(DBFileTest, MoveFirstOnFirstRecord)
     Record *temp_source_file_record = new Record();
     Record *temp_heap_file_record = new Record();
     Record *first = new Record();
-    for (int i = 0; i < 1; i++)
-    {
+    for (int i = 0; i < 1; i++) {
       temp_source_file_record->SuckNextRecord(&mySchema, load_file);
-      if (i == 0)
-      {
+      if (i == 0) {
         first->Copy(temp_source_file_record);
       }
       // No Get Next is being called
@@ -236,12 +210,10 @@ TEST_F(DBFileTest, MoveFirstOnFirstRecord)
   }
 }
 
-TEST_F(DBFileTest, MoveFirstWithNoRecords)
-{
+TEST_F(DBFileTest, MOVE_FIRST_WITH_NO_RECORDS) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.bin", t, NULL))
-  {
+  if (heapFile->Create("gtest.bin", t, NULL)) {
     // Just opened a file and moving first
     Record *temp_heap_file_record = new Record();
     heapFile->MoveFirst();
@@ -251,20 +223,17 @@ TEST_F(DBFileTest, MoveFirstWithNoRecords)
   }
 }
 
-TEST_F(DBFileTest, MoveFirstWithoutCreation)
-{
+TEST_F(DBFileTest, MOVE_FIRST_WITHOUT_CREATION) {
   DBFile *heapFile = new DBFile();
   EXPECT_THROW(heapFile->MoveFirst(), runtime_error);
 }
 
-TEST_F(DBFileTest, SuccessfullyAddRecordIntoBuffer)
-{
+TEST_F(DBFileTest, SUCCESSFULLY_ADD_RECORD_INTO_BUFFER) {
   DBFile *heapFile = new DBFile();
   Record *temp = new Record();
   cout << "1";
   fType t = heap;
-  if (heapFile->Create("gtest.tbl", t, NULL))
-  {
+  if (heapFile->Create("gtest.tbl", t, NULL)) {
     const char *loadpath = "data_files/lineitem.tbl";
     FILE *load_file = fopen(loadpath, "r");
     Schema mySchema("catalog", "lineitem");
@@ -283,16 +252,14 @@ TEST_F(DBFileTest, SuccessfullyAddRecordIntoBuffer)
   }
 }
 
-TEST_F(DBFileTest, LoadWithNoOpenDBFile)
-{
+TEST_F(DBFileTest, LOAD_WITH_NO_OPEN_DBFILE) {
   DBFile *heapFile = new DBFile();
   Schema mySchema("catalog", "lineitem");
   const char *tpch_dir = "data_files/lineitem.tbl";
   EXPECT_THROW(heapFile->Load(mySchema, tpch_dir), runtime_error);
 }
 
-TEST_F(DBFileTest, LoadWithNoExistingTableFile)
-{
+TEST_F(DBFileTest, LOAD_WITH_NO_EXISTING_TABLEFILE) {
   DBFile *heapFile = new DBFile();
   if (heapFile->Create("gtest.bin", heap, NULL) == 1) {
     Schema mySchema("catalog", "lineitem");
@@ -302,26 +269,22 @@ TEST_F(DBFileTest, LoadWithNoExistingTableFile)
   }
 }
 
-TEST_F(DBFileTest, LoadSuccess)
-{
+TEST_F(DBFileTest, LOAD_SUCCESS) {
   DBFile *heapFile = new DBFile();
-  if (heapFile->Create("gtest.bin", heap, NULL) == 1)
-  {
+  if (heapFile->Create("gtest.bin", heap, NULL) == 1) {
     Schema mySchema("catalog", "lineitem");
     const char *tpch_dir = "data_files/lineitem.tbl";
     FILE *f = fopen(tpch_dir, "r");
     Record temp;
     int expected_count = 0;
-    while (temp.SuckNextRecord(&mySchema, f))
-    {
+    while (temp.SuckNextRecord(&mySchema, f)) {
       expected_count++;
     }
 
     heapFile->Load(mySchema, tpch_dir);
 
     int actual_count = 0;
-    while (heapFile->GetNext(temp))
-    {
+    while (heapFile->GetNext(temp)) {
       actual_count++;
     }
 
@@ -330,10 +293,9 @@ TEST_F(DBFileTest, LoadSuccess)
   }
 }
 
-TEST_F(DBFileTest, AddWhenItJustAddsToBufferWithoutCreatingANewPage) {
+TEST_F(DBFileTest, ADD_WHEN_IT_JUST_ADDS_TO_BUFFER_WITHOUT_CREATING_A_NEWPAGE) {
   DBFile *heapFile = new DBFile();
-  if (heapFile->Create("gtest.bin", heap, NULL))
-  {
+  if (heapFile->Create("gtest.bin", heap, NULL)) {
     Schema mySchema("catalog", "lineitem");
     const char *tpch_dir = "data_files/lineitem.tbl";
     FILE *f = fopen(tpch_dir, "r");
@@ -341,8 +303,7 @@ TEST_F(DBFileTest, AddWhenItJustAddsToBufferWithoutCreatingANewPage) {
     temp.SuckNextRecord(&mySchema, f);
     heapFile->Add(temp);
     int actual_count = 0;
-    while (heapFile->GetNext(temp))
-    {
+    while (heapFile->GetNext(temp)) {
       actual_count++;
     }
 
@@ -351,24 +312,19 @@ TEST_F(DBFileTest, AddWhenItJustAddsToBufferWithoutCreatingANewPage) {
   }
 }
 
-TEST_F(DBFileTest, AddWhenFirstFlushTakesPlace) {
+TEST_F(DBFileTest, ADD_WHEN_FIRST_FLUSH_TAKES_PLACE) {
   DBFile *heapFile = new DBFile();
-  if (heapFile->Create("gtest.bin", heap, NULL))
-  {
+  if (heapFile->Create("gtest.bin", heap, NULL)) {
     Schema mySchema("catalog", "lineitem");
     const char *tpch_dir = "data_files/lineitem.tbl";
     FILE *f = fopen(tpch_dir, "r");
     Record temp;
 
     int expected_count = 0;
-    while (temp.SuckNextRecord(&mySchema, f))
-    {
-      if (heapFile->WillBufferBeFull(temp))
-      {
+    while (temp.SuckNextRecord(&mySchema, f)) {
+      if (heapFile->WillBufferBeFull(temp)) {
         break;
-      }
-      else
-      {
+      } else {
         expected_count++;
         heapFile->Add(temp);
       }
@@ -381,8 +337,7 @@ TEST_F(DBFileTest, AddWhenFirstFlushTakesPlace) {
     heapFile->Add(temp);
 
     int actual_count = 0;
-    while (heapFile->GetNext(temp))
-    {
+    while (heapFile->GetNext(temp)) {
       actual_count++;
     }
 
@@ -394,10 +349,9 @@ TEST_F(DBFileTest, AddWhenFirstFlushTakesPlace) {
   }
 }
 
-TEST_F(DBFileTest, AddWhenSubsequentFlushesTakesPlace) {
+TEST_F(DBFileTest, ADD_WHEN_SUBSEQUENT_FLUSHES_TAKES_PLACE) {
   DBFile *heapFile = new DBFile();
-  if (heapFile->Create("gtest.bin", heap, NULL))
-  {
+  if (heapFile->Create("gtest.bin", heap, NULL)) {
     Schema mySchema("catalog", "lineitem");
     const char *tpch_dir = "data_files/lineitem.tbl";
     FILE *f = fopen(tpch_dir, "r");
@@ -405,26 +359,19 @@ TEST_F(DBFileTest, AddWhenSubsequentFlushesTakesPlace) {
 
     int expected_count = 0;
     int flush_count = 0;
-    while (temp.SuckNextRecord(&mySchema, f))
-    {
-      if (heapFile->WillBufferBeFull(temp))
-      {
+    while (temp.SuckNextRecord(&mySchema, f)) {
+      if (heapFile->WillBufferBeFull(temp)) {
         flush_count++;
-        if (flush_count == 2)
-        {
+        if (flush_count == 2) {
           break;
-        }
-        else
-        {
+        } else {
           expected_count++;
           heapFile->Add(temp);
           cout << "Buffer is full for the first time! But continuing to test "
                   "the subsequent flush"
                << endl;
         }
-      }
-      else
-      {
+      } else {
         expected_count++;
         heapFile->Add(temp);
       }
@@ -437,8 +384,7 @@ TEST_F(DBFileTest, AddWhenSubsequentFlushesTakesPlace) {
     heapFile->Add(temp);
 
     int actual_count = 0;
-    while (heapFile->GetNext(temp))
-    {
+    while (heapFile->GetNext(temp)) {
       actual_count++;
     }
 
@@ -450,19 +396,16 @@ TEST_F(DBFileTest, AddWhenSubsequentFlushesTakesPlace) {
   }
 }
 
-TEST_F(DBFileTest, AddWhenAnExistingPartiallyFilledPageIsUtilized)
-{
+TEST_F(DBFileTest, ADD_WHEN_AN_EXISTING_PARTIALLY_FILLEDPAGE_IS_UTILIZED) {
   DBFile *heapFile = new DBFile();
-  if (heapFile->Create("gtest.bin", heap, NULL))
-  {
+  if (heapFile->Create("gtest.bin", heap, NULL)) {
     Schema mySchema("catalog", "lineitem");
     const char *tpch_dir = "data_files/lineitem.tbl";
     FILE *f = fopen(tpch_dir, "r");
 
     Record temp;
     int expected_count = 0;
-    while (temp.SuckNextRecord(&mySchema, f) && expected_count <= 10)
-    {
+    while (temp.SuckNextRecord(&mySchema, f) && expected_count <= 10) {
       expected_count++;
       heapFile->Add(temp);
     }
@@ -475,15 +418,13 @@ TEST_F(DBFileTest, AddWhenAnExistingPartiallyFilledPageIsUtilized)
             "verify no new page was added or created"
          << endl;
 
-    if (temp.SuckNextRecord(&mySchema, f))
-    {
+    if (temp.SuckNextRecord(&mySchema, f)) {
       heapFile->Add(temp);
     }
 
     heapFile->MoveFirst();
     int actual_count = 0;
-    while (heapFile->GetNext(temp2))
-    {
+    while (heapFile->GetNext(temp2)) {
       actual_count++;
     }
 
@@ -495,13 +436,11 @@ TEST_F(DBFileTest, AddWhenAnExistingPartiallyFilledPageIsUtilized)
   }
 }
 
-TEST_F(DBFileTest, CloseNormal)
-{
+TEST_F(DBFileTest, CLOSE_NORMAL) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
 
-  if (heapFile->Create("gtest.bin", t, NULL))
-  {
+  if (heapFile->Create("gtest.bin", t, NULL)) {
     heapFile->Close();
   }
 
@@ -509,26 +448,20 @@ TEST_F(DBFileTest, CloseNormal)
   EXPECT_EQ(heapFile->GetCurrentWritePageIndex(), -1);
 }
 
-TEST_F(DBFileTest, CloseWhenFlushBuffer)
-{
+TEST_F(DBFileTest, CLOSE_WHEN_FLUSH_BUFFER) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.bin", t, NULL))
-  {
+  if (heapFile->Create("gtest.bin", t, NULL)) {
     Schema mySchema("catalog", "lineitem");
     const char *tpch_dir = "data_files/lineitem.tbl";
     FILE *f = fopen(tpch_dir, "r");
     Record temp;
 
     int expected_count = 0;
-    while (temp.SuckNextRecord(&mySchema, f))
-    {
-      if (heapFile->WillBufferBeFull(temp))
-      {
+    while (temp.SuckNextRecord(&mySchema, f)) {
+      if (heapFile->WillBufferBeFull(temp)) {
         break;
-      }
-      else
-      {
+      } else {
         expected_count++;
         heapFile->Add(temp);
       }
@@ -542,7 +475,7 @@ TEST_F(DBFileTest, CloseWhenFlushBuffer)
   EXPECT_GT(count, heapFile->GetNumRecsInBuffer());
 }
 
-TEST_F(DBFileTest, GetNextWhenThereAreNoRecordsInTheFile) {
+TEST_F(DBFileTest, GET_NEXT_WHEN_THERE_ARE_NO_RECORDS_IN_THE_FILE) {
   DBFile *heapFile = new DBFile();
   if (heapFile->Create("gtest.bin", heap, NULL)) {
     Record temp;
@@ -551,7 +484,7 @@ TEST_F(DBFileTest, GetNextWhenThereAreNoRecordsInTheFile) {
   }
 }
 
-TEST_F(DBFileTest, GetNextWhenThereAreRecordsInTheFile) {
+TEST_F(DBFileTest, GET_NEXT_WHEN_THERE_ARE_RECORDS_IN_THE_FILE) {
   DBFile *heapFile = new DBFile();
   if (heapFile->Create("gtest.bin", heap, NULL)) {
     const char *loadpath = "data_files/lineitem.tbl";
@@ -564,7 +497,7 @@ TEST_F(DBFileTest, GetNextWhenThereAreRecordsInTheFile) {
   }
 }
 
-TEST_F(DBFileTest, GetNextWhenYouReachTheEndOfTheFile) {
+TEST_F(DBFileTest, GET_NEXT_WHEN_YOU_REACH_THE_END_OF_THE_FILE) {
   DBFile *heapFile = new DBFile();
   if (heapFile->Create("gtest.bin", heap, NULL)) {
     const char *loadpath = "data_files/lineitem.tbl";
@@ -584,8 +517,9 @@ TEST_F(DBFileTest, GetNextWhenYouReachTheEndOfTheFile) {
   }
 }
 
-TEST_F(DBFileTest,
-       GetNextWhenThereAreNoMoreRecordsLeftInTheBufferAndThePageRollsOver) {
+TEST_F(
+    DBFileTest,
+    GET_NEXT_WHEN_THERE_ARE_NO_MORE_RECORDS_LEFT_IN_THE_BUFFER_AND_THE_PAGE_ROLLS_OVER) {
   DBFile *heapFile = new DBFile();
   if (heapFile->Create("gtest.bin", heap, NULL)) {
     const char *loadpath = "data_files/lineitem.tbl";
@@ -606,7 +540,7 @@ TEST_F(DBFileTest,
   }
 }
 
-TEST_F(DBFileTest, GetNextWithParametersGivenCondition) {
+TEST_F(DBFileTest, GET_NEXT_WITH_PARAMETERS_GIVEN_CONDITION) {
   DBFile *heapFile = new DBFile();
   if (heapFile->Create("gtest.bin", heap, NULL)) {
     const char *loadpath = "data_files/lineitem.tbl";
@@ -634,7 +568,7 @@ TEST_F(DBFileTest, GetNextWithParametersGivenCondition) {
   }
 }
 
-TEST_F(DBFileTest, GetNextWithParametersORCondition) {
+TEST_F(DBFileTest, GET_NEXT_WITH_PARAMETERS_OR_CONDITION) {
   DBFile *heapFile = new DBFile();
   if (heapFile->Create("gtest.bin", heap, NULL)) {
     const char *loadpath = "data_files/lineitem.tbl";
@@ -662,7 +596,7 @@ TEST_F(DBFileTest, GetNextWithParametersORCondition) {
   }
 }
 
-TEST_F(DBFileTest, GetNextWithParametersGivenConditionGetAllRecords) {
+TEST_F(DBFileTest, GET_NEXT_WITH_PARAMETERS_GIVEN_CONDITION_GET_ALL_RECORDS) {
   DBFile *heapFile = new DBFile();
   if (heapFile->Create("gtest.bin", heap, NULL)) {
     const char *loadpath = "data_files/lineitem.tbl";
@@ -695,14 +629,23 @@ TEST_F(DBFileTest, GetNextWithParametersGivenConditionGetAllRecords) {
   }
 }
 
-TEST_F(DBFileTest, CloseWithoutOpening) {
+TEST_F(DBFileTest, CLOSE_WITHOUT_OPENING) {
   DBFile *heapFile = new DBFile();
   EXPECT_FALSE(heapFile->Close());
 }
 
 // Integration tests
-TEST_F(DBFileTest, AddAfterASeriesOfGetNext) {}
-TEST_F(DBFileTest, GetNextAfterASeriesOfAdd) {}
-TEST_F(DBFileTest, AddAfterClosingTheFileAndOpeningItAgain) {}
-TEST_F(DBFileTest, GetNextAfterClosingTheFileAndOpeningItAgain) {}
+TEST_F(DBFileTest, ADD_AFTER_A_SERIES_OF_GETNEXT) {
+  cout << "NOT IMPLEMENTED! TODO FOR VARUN" << endl;
+}
+TEST_F(DBFileTest, GET_NEXT_AFTER_A_SERIES_OF_ADD) {
+  cout << "NOT IMPLEMENTED! TODO FOR VARUN" << endl;
+}
+TEST_F(DBFileTest, ADD_AFTER_CLOSING_THE_FILE_AND_OPENING_IT_AGAIN) {
+  cout << "NOT IMPLEMENTED! TODO FOR VARUN" << endl;
+}
+TEST_F(DBFileTest, GET_NEXT_AFTER_CLOSING_THE_FILE_AND_OPENING_IT_AGAIN) {
+  cout << "NOT IMPLEMENTED! TODO FOR VARUN" << endl;
+}
+
 }  // namespace dbi
