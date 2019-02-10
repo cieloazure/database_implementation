@@ -4,7 +4,7 @@
 
 namespace dbi {
 
-// The fixture for testing class Foo.
+// The fixture for testing class TwoWayList.
 class TwoWayListTest : public ::testing::Test {
  protected:
   // You can remove any or all of the following functions if its body

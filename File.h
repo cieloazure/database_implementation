@@ -50,6 +50,9 @@ class Page {
   // Get number of records
   int GetNumRecords();
 
+  // Sort the records in the page
+  void Sort(OrderMaker &sortOrder);
+
   // Test utility function
   // Find appropriate visiblity or change definition
   // Check the status of the page whether it will be full on addition of a new

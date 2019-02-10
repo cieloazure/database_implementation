@@ -80,7 +80,7 @@ int Page ::Append(Record *addMe) {
   return 1;
 }
 
-bool Page::IsPageFull(Record *to_be_added) {
+bool Page ::IsPageFull(Record *to_be_added) {
   char *b = to_be_added->GetBits();
 
   // first see if we can fit the record
@@ -157,6 +157,19 @@ void Page ::FromBinary(char *bits) {
   }
 
   delete temp;
+}
+
+void Page ::Sort(OrderMaker &sortOrder) {
+  ComparisonEngine comp;
+
+  auto c = [&sortOrder, &comp](void *i1, void *i2) -> bool {
+    Record *i = (Record *)i1;
+    Record *j = (Record *)i2;
+
+    return comp.Compare(i, j, &sortOrder) <= 0;
+  };
+
+  myRecs->Sort(c);
 }
 
 File ::File() {}

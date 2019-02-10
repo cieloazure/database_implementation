@@ -12,7 +12,7 @@ extern struct AndList *final;
 
 namespace dbi {
 
-// The fixture for testing class Foo.
+// The fixture for testing class DBFile.
 class DBFileTest : public ::testing::Test {
  protected:
   // You can remove any or all of the following functions if its body
