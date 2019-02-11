@@ -162,6 +162,10 @@ void Page ::FromBinary(char *bits) {
 void Page ::Sort(OrderMaker &sortOrder) {
   ComparisonEngine comp;
 
+  // TODO
+  // Decouple this behaviour
+  // Functionality to create a comparator for Page class
+  // Or a static variable called comparator which anyone can get access to
   auto c = [&sortOrder, &comp](void *i1, void *i2) -> bool {
     Record *i = (Record *)i1;
     Record *j = (Record *)i2;

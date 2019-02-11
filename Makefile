@@ -16,8 +16,8 @@ gtest_main.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.
 test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o
 	$(CC) -o test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o -ll
 	
-main: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o main.o 
-	$(CC) -o main Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o main.o -ll
+main: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o Pipe.o BigQ.o y.tab.o lex.yy.o main.o 
+	$(CC) -o main Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o Pipe.o BigQ.o y.tab.o lex.yy.o main.o -ll
 
 	
 test.o: test.cc
@@ -64,6 +64,12 @@ TwoWayListTest.o: TwoWayListTest.cc
 
 FileTest.o: FileTest.cc
 	$(TEST) -g -c FileTest.cc
+
+Pipe.o: Pipe.cc
+	$(CC) -g -c Pipe.cc
+
+BigQ.o: BigQ.cc
+	$(CC) -g -c BigQ.cc
 
 clean: 
 	rm -f *.o
