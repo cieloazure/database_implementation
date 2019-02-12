@@ -52,7 +52,7 @@ TEST_F(FileTest, PAGE_SORTED_TEST) {
   Record *curr = new Record();
   ComparisonEngine comp;
   while (page->GetFirst(curr) != 0) {
-    EXPECT_TRUE(comp.Compare(prev, curr, &order) <= 0);
+    EXPECT_FALSE(comp.Compare(prev, curr, &order) == 1);
     prev = curr;
   }
 }

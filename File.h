@@ -51,7 +51,7 @@ class Page {
   int GetNumRecords();
 
   // Sort the records in the page
-  void Sort(OrderMaker &sortOrder);
+  void Sort(OrderMaker &sortOrder, bool ascending = true);
 
   // Test utility function
   // Find appropriate visiblity or change definition
