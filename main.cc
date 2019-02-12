@@ -1,7 +1,12 @@
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <algorithm>
+#include <fstream>
 #include <iostream>
+#include <random>
+#include <string>
+#include <vector>
 #include "BigQ.h"
 #include "DBFile.h"
 #include "Pipe.h"
@@ -308,6 +313,44 @@ int main() {
   //   myRecs->Advance();
   //   count--;
   // }
+  // initialize random number generator
+  std::random_device rd;
+  std::mt19937 g(rd());
+
+  // open input file
+  string file_name{"data_files/lineitem.tbl"};
+  std::ifstream in_file{file_name};
+  if (!in_file) {
+    std::cerr << "Error: Failed to open file \"" << file_name << "\"\n";
+    return -1;
+  }
+
+  vector<string> words;
+  // if you want to avoid too many reallocations:
+  const int expected = 100000000;
+  words.reserve(expected);
+
+  string word;
+  while (!in_file.eof()) {
+    std::getline(in_file, word);
+    words.push_back(word);
+  }
+  words.pop_back();
+
+  std::cout << "Number of elements read: " << words.size() << '\n';
+  std::cout << "Beginning shuffle..." << std::endl;
+
+  std::shuffle(words.begin(), words.end(), g);
+
+  std::cout << "Shuffle done." << std::endl;
+
+  // do whatever you need to do with the shuffled vector...
+  std::ofstream out_file{"shuffled.tbl"};
+  for (auto it = words.begin(); it != words.end(); ++it) {
+    out_file << (*it);
+    out_file << "\n";
+  }
+  out_file.close();
 
   Pipe in(700);
   Pipe out(700);
@@ -315,17 +358,21 @@ int main() {
   OrderMaker order(&mySchema);
   BigQ *queue = new BigQ(in, out, order, 3);
 
-  FILE *tableFile = fopen("data_files/lineitem.tbl", "r");
+  FILE *tableFile = fopen("shuffled.tbl", "r");
 
   Record *temp = new Record();
 
+  int count = 0;
   while (temp->SuckNextRecord(&mySchema, tableFile) == 1) {
     // temp->Print(&mySchema);
     in.Insert(temp);
+    count++;
   }
 
+  cout << "Inserted " << count << endl;
+
   in.ShutDown();
-  sleep(5);
+  sleep(15);
 
   return 0;
 }

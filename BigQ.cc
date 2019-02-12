@@ -16,24 +16,20 @@ struct WorkerThreadParams {
 
 struct WorkerThreadParams thread_data;
 
-void CopyBufferToPage(Page *buffer, Page *flush_to_page) {
+void CopyBufferToPage(Page *from, Page *to) {
   Record to_be_copied;
-  while (buffer->GetFirst(&to_be_copied) != 0) {
-    flush_to_page->Append(&to_be_copied);
+  while (from->GetFirst(&to_be_copied) != 0) {
+    to->Append(&to_be_copied);
   }
 }
 
 // Phase 1
-void MergeKSortedPages(std::vector<Page *> &input, int k, File *runFile,
-                       OrderMaker &sortOrder) {
+template <typename F>
+int MergeKSortedPages(std::vector<Page *> &input, int k, File *runFile,
+                      F &comparator, int nextPageIndex) {
+  int record_count = 0;
   // initialize a page for the merge
   Page *mergedPage = new Page();
-
-  // Comparator for pair type in the priority queue
-  ComparisonEngine comp;
-  auto comparator = [&sortOrder, &comp](pq_elem_t i1, pq_elem_t i2) -> bool {
-    return comp.Compare(i1.first, i2.first, &sortOrder) <= 0;
-  };
 
   // Declaration and initialization of priority queue
   std::priority_queue<pq_elem_t, vector<pq_elem_t>, decltype(comparator)>
@@ -44,19 +40,20 @@ void MergeKSortedPages(std::vector<Page *> &input, int k, File *runFile,
   for (int i = 0; i < input.size(); i++) {
     Record *temp = new Record();
     Page *tempPage = input.at(i);
-    tempPage->GetFirst(temp);
-    pqueue.emplace(temp, i);
+    if (tempPage->GetFirst(temp) != 0) {
+      pqueue.emplace(temp, i);
+    }
   }
 
   // while the priority queue is not empty
   off_t pageIndex = 0;
-  int count = 0;
   while (!pqueue.empty()) {
     // remove the one with highest priority given by the comparator
     pq_elem_t dequeuedElem = pqueue.top();
     pqueue.pop();
 
     // put the record on the page we are merging
+    record_count++;
     if (mergedPage->Append(dequeuedElem.first) == 0) {
       // if the page is full, add the page to the file,
       Page *toBeAdded = new Page();
@@ -64,7 +61,8 @@ void MergeKSortedPages(std::vector<Page *> &input, int k, File *runFile,
           mergedPage,
           toBeAdded); /* Copy is required to avoid double free error */
       // create a new page
-      runFile->AddPage(toBeAdded, pageIndex);
+      cout << "Page added " << nextPageIndex + pageIndex << endl;
+      runFile->AddPage(toBeAdded, nextPageIndex + pageIndex);
       pageIndex++;
       // add the record which failed adding on the page back on the new page
       mergedPage->Append(dequeuedElem.first);
@@ -78,21 +76,63 @@ void MergeKSortedPages(std::vector<Page *> &input, int k, File *runFile,
       pqueue.emplace(temp, dequeuedElem.second);
     }
   }
+
+  Page *toBeAdded = new Page();
+  CopyBufferToPage(mergedPage, toBeAdded);
+  cout << "Page added " << nextPageIndex + pageIndex << endl;
+  runFile->AddPage(toBeAdded, nextPageIndex + pageIndex);
+  pageIndex++;
+
+  cout << "created a run with " << record_count << " records" << endl;
+  return record_count;
 }
 
-void CreateRun(std::vector<Page *> &input, int k, File *runFile,
-               OrderMaker sortOrder) {
-  MergeKSortedPages(input, k, runFile, sortOrder);
+int CreateRun(std::vector<Page *> &input, int k, File *runFile,
+              OrderMaker sortOrder, int runIndex) {
+  // Comparator for pair type in the priority queue
+  ComparisonEngine comp;
+  auto comparator = [&sortOrder, &comp](pq_elem_t i1, pq_elem_t i2) -> bool {
+    return comp.Compare(i1.first, i2.first, &sortOrder) <= 0;
+  };
+  return MergeKSortedPages(input, k, runFile, comparator, runIndex);
 }
 
 // End of phase 1
 
 // Phase 2
+// Possible methodology -
+// 1. Get the head of each run
+// 2. Get a page from each run in memory and put it in a vector(array)
+// 3. Initialize priority queue as in MergeKSortedPages
+// 4. Pop the element from priority queue and enter the next element from the
+// run 4.1. If the page of that run is out of records load the next page from
+// that run 4.1.1 If the run is out of pages we are done with that run
+// NOTE: Getting next elem from run -> Get the runIndex from the poppped element
+// pair, get the page from vector, if page is out of records get a new page from
+// disk, if the run is out of pages, we are done.
 void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
                        Pipe *out) {
-  // Calculate k
-  int k = ceil(runsCreated / runLength);
-  std::cout << "Streaming K sorted runs" << std::endl;
+  std::cout << "Streaming K=" << runsCreated << " sorted runs" << std::endl;
+
+  Schema mySchema("catalog", "lineitem");
+  int run = 0;
+  while (run < runsCreated) {
+    int page = 0;
+    cout << " *******  RUN #" << run << "****************" << endl;
+    cout << endl << endl;
+    while (page < runLength) {
+      Page *temp = new Page();
+      runFile->GetPage(temp, run * runLength + page);
+      Record *tempRec = new Record();
+      int count = 0;
+      while (temp->ReadNext(*tempRec, count) != 0) {
+        tempRec->Print(&mySchema);
+        count++;
+      }
+      page++;
+    }
+    run++;
+  }
 }
 // End of phase 2
 
@@ -113,6 +153,7 @@ void *WorkerThreadRoutine(void *threadparams) {
   runFile->Open(0, (char *)"runFile.bin");
 
   int runs = 0;
+  int total_record_count = 0;
   while (in->Remove(&temp) != 0) {
     if (buffer->Append(&temp) == 0) {
       // Page is full now
@@ -124,7 +165,9 @@ void *WorkerThreadRoutine(void *threadparams) {
 
       if (inputPagesForRun.size() == runlen) {
         // Run Phase 1 to TPPMS and put the run into a file
-        CreateRun(inputPagesForRun, runlen, runFile, sortOrder);
+        total_record_count += CreateRun(inputPagesForRun, runlen, runFile,
+                                        sortOrder, runs * runlen);
+
         runs++;
         // Empty inputPagesForRun
         inputPagesForRun.clear();
@@ -151,10 +194,15 @@ void *WorkerThreadRoutine(void *threadparams) {
   // Are there any pages in inputPagesForRun?
   // Run phase 1 for the last run
   if (inputPagesForRun.size() > 0) {
-    CreateRun(inputPagesForRun, inputPagesForRun.size(), runFile, sortOrder);
+    total_record_count +=
+        CreateRun(inputPagesForRun, inputPagesForRun.size(), runFile, sortOrder,
+                  runs * inputPagesForRun.size());
     runs++;
     inputPagesForRun.clear();
   }
+
+  cout << "Merging and Streaming " << total_record_count << " records from "
+       << runs << " runs" << endl;
 
   // Ready for phase 2
   // Run Phase 2

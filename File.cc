@@ -57,8 +57,12 @@ int Page ::GetFirst(Record *firstOne) {
 
 int Page ::ReadNext(Record &nextOne, int offset) {
   myRecs->MoveToStart();
-  nextOne = *(myRecs->Current(offset));
-  return 1;
+  if (offset < GetNumRecords()) {
+    nextOne = *(myRecs->Current(offset));
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 int Page ::Append(Record *addMe) {
