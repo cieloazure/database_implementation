@@ -368,7 +368,7 @@ union yyalloc
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  6
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  13
+#define YYNRULES  14
 /* YYNRULES -- Number of states.  */
 #define YYNSTATES  21
 
@@ -417,7 +417,7 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,     9,    13,    17,    19,    23,    25,    27,
-      29,    31,    33,    35
+      29,    31,    33,    35,    37
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -425,15 +425,15 @@ static const yytype_int8 yyrhs[] =
 {
       15,     0,    -1,     9,    16,    10,     4,    15,    -1,     9,
       16,    10,    -1,    17,     3,    16,    -1,    17,    -1,    19,
-      18,    19,    -1,    11,    -1,    12,    -1,    13,    -1,     6,
-      -1,     7,    -1,     8,    -1,     5,    -1
+      18,    19,    -1,    19,    -1,    11,    -1,    12,    -1,    13,
+      -1,     6,    -1,     7,    -1,     8,    -1,     5,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    55,    55,    70,    80,    88,    97,   106,   113,   120,
-     128,   136,   144,   152
+       0,    55,    55,    70,    80,    88,    97,   105,   113,   120,
+     127,   135,   143,   151,   159
 };
 #endif
 
@@ -461,15 +461,15 @@ static const yytype_uint16 yytoknum[] =
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    14,    15,    15,    16,    16,    17,    18,    18,    18,
-      19,    19,    19,    19
+       0,    14,    15,    15,    16,    16,    17,    17,    18,    18,
+      18,    19,    19,    19,    19
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     5,     3,     3,     1,     3,     1,     1,     1,
-       1,     1,     1,     1
+       1,     1,     1,     1,     1
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -477,8 +477,8 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     0,    13,    10,    11,    12,     0,     5,     0,
-       1,     3,     0,     7,     8,     9,     0,     0,     4,     6,
+       0,     0,     0,    14,    11,    12,    13,     0,     5,     7,
+       1,     3,     0,     8,     9,    10,     0,     0,     4,     6,
        2
 };
 
@@ -1400,11 +1400,12 @@ yyreduce:
     break;
 
   case 7:
-#line 107 "Parser.y"
+#line 106 "Parser.y"
     {
-	// construct and send up the comparison
 	(yyval.myComparison) = (struct ComparisonOp *) malloc (sizeof (struct ComparisonOp));
-	(yyval.myComparison)->code = LESS_THAN;
+	(yyval.myComparison)->code = EQUALS;
+	(yyval.myComparison)->left = (yyvsp[(1) - (1)].myOperand);
+	(yyval.myComparison)->right = (yyvsp[(1) - (1)].myOperand);
 }
     break;
 
@@ -1413,7 +1414,7 @@ yyreduce:
     {
 	// construct and send up the comparison
 	(yyval.myComparison) = (struct ComparisonOp *) malloc (sizeof (struct ComparisonOp));
-	(yyval.myComparison)->code = GREATER_THAN;
+	(yyval.myComparison)->code = LESS_THAN;
 }
     break;
 
@@ -1422,12 +1423,21 @@ yyreduce:
     {
 	// construct and send up the comparison
 	(yyval.myComparison) = (struct ComparisonOp *) malloc (sizeof (struct ComparisonOp));
-	(yyval.myComparison)->code = EQUALS;
+	(yyval.myComparison)->code = GREATER_THAN;
 }
     break;
 
   case 10:
-#line 129 "Parser.y"
+#line 128 "Parser.y"
+    {
+	// construct and send up the comparison
+	(yyval.myComparison) = (struct ComparisonOp *) malloc (sizeof (struct ComparisonOp));
+	(yyval.myComparison)->code = EQUALS;
+}
+    break;
+
+  case 11:
+#line 136 "Parser.y"
     {
 	// construct and send up the operand containing the string
 	(yyval.myOperand) = (struct Operand *) malloc (sizeof (struct Operand));
@@ -1436,8 +1446,8 @@ yyreduce:
 }
     break;
 
-  case 11:
-#line 137 "Parser.y"
+  case 12:
+#line 144 "Parser.y"
     {
 	// construct and send up the operand containing the FP number
 	(yyval.myOperand) = (struct Operand *) malloc (sizeof (struct Operand));
@@ -1446,8 +1456,8 @@ yyreduce:
 }
     break;
 
-  case 12:
-#line 145 "Parser.y"
+  case 13:
+#line 152 "Parser.y"
     {
 	// construct and send up the operand containing the integer
 	(yyval.myOperand) = (struct Operand *) malloc (sizeof (struct Operand));
@@ -1456,8 +1466,8 @@ yyreduce:
 }
     break;
 
-  case 13:
-#line 153 "Parser.y"
+  case 14:
+#line 160 "Parser.y"
     {
 	// construct and send up the operand containing the name 
 	(yyval.myOperand) = (struct Operand *) malloc (sizeof (struct Operand));
@@ -1468,7 +1478,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1472 "y.tab.c"
+#line 1482 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1682,7 +1692,7 @@ yyreturn:
 }
 
 
-#line 161 "Parser.y"
+#line 168 "Parser.y"
 
 
 

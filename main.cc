@@ -314,51 +314,52 @@ int main() {
   //   count--;
   // }
   // initialize random number generator
-  std::random_device rd;
-  std::mt19937 g(rd());
+  // std::random_device rd;
+  // std::mt19937 g(rd());
 
-  // open input file
-  string file_name{"data_files/lineitem.tbl"};
-  std::ifstream in_file{file_name};
-  if (!in_file) {
-    std::cerr << "Error: Failed to open file \"" << file_name << "\"\n";
-    return -1;
-  }
+  // // open input file
+  // string file_name{"data_files/lineitem.tbl"};
+  // std::ifstream in_file{file_name};
+  // if (!in_file) {
+  //   std::cerr << "Error: Failed to open file \"" << file_name << "\"\n";
+  //   return -1;
+  // }
 
-  vector<string> words;
-  // if you want to avoid too many reallocations:
-  const int expected = 100000000;
-  words.reserve(expected);
+  // vector<string> words;
+  // // if you want to avoid too many reallocations:
+  // const int expected = 100000000;
+  // words.reserve(expected);
 
-  string word;
-  while (!in_file.eof()) {
-    std::getline(in_file, word);
-    words.push_back(word);
-  }
-  words.pop_back();
+  // string word;
+  // while (!in_file.eof()) {
+  //   std::getline(in_file, word);
+  //   words.push_back(word);
+  // }
+  // words.pop_back();
 
-  std::cout << "Number of elements read: " << words.size() << '\n';
-  std::cout << "Beginning shuffle..." << std::endl;
+  // std::cout << "Number of elements read: " << words.size() << '\n';
+  // std::cout << "Beginning shuffle..." << std::endl;
 
-  std::shuffle(words.begin(), words.end(), g);
+  // std::shuffle(words.begin(), words.end(), g);
 
-  std::cout << "Shuffle done." << std::endl;
+  // std::cout << "Shuffle done." << std::endl;
 
-  // do whatever you need to do with the shuffled vector...
-  std::ofstream out_file{"shuffled.tbl"};
-  for (auto it = words.begin(); it != words.end(); ++it) {
-    out_file << (*it);
-    out_file << "\n";
-  }
-  out_file.close();
+  // // do whatever you need to do with the shuffled vector...
+  // std::ofstream out_file{"shuffled.tbl"};
+  // for (auto it = words.begin(); it != words.end(); ++it) {
+  //   out_file << (*it);
+  //   out_file << "\n";
+  // }
+  // out_file.close();
 
-  Pipe in(700);
-  Pipe out(700);
   Schema mySchema("catalog", "lineitem");
   OrderMaker order(&mySchema);
+  Pipe in(700);
+  Pipe out(700);
   BigQ *queue = new BigQ(in, out, order, 3);
 
-  FILE *tableFile = fopen("shuffled.tbl", "r");
+  // FILE *tableFile = fopen("shuffled.tbl", "r");
+  FILE *tableFile = fopen("data_files/lineitem.tbl", "r");
 
   Record *temp = new Record();
 
@@ -373,6 +374,20 @@ int main() {
 
   in.ShutDown();
   sleep(15);
+  // cout << "\n specify sort ordering (when done press ctrl-D):\n\t ";
+  // if (yyparse() != 0) {
+  //   cout << "Can't parse your sort CNF.\n";
+  //   exit(1);
+  // }
+  // cout << " \n";
+  // Record literal;
+  // CNF sort_pred;
+  // sort_pred.GrowFromParseTree(final, &mySchema,
+  //                             literal);  // constructs CNF predicate
+  // OrderMaker dummy;
+  // sort_pred.GetSortOrders(order, dummy);
+  // dummy.Print();
+  // order.Print();
 
   return 0;
 }

@@ -1,6 +1,7 @@
 #include "BigQ.h"
 #include <math.h>
 #include <pthread.h>
+#include <unistd.h>
 #include <queue>
 #include <utility>
 #include <vector>
@@ -41,6 +42,9 @@ int MergeKSortedPages(std::vector<Page *> &input, int k, File *runFile,
     Record *temp = new Record();
     Page *tempPage = input.at(i);
     if (tempPage->GetFirst(temp) != 0) {
+      Schema mySchema("catalog", "lineitem");
+      // cout << "Put in pqueue :" << endl;
+      // temp->Print(&mySchema);
       pqueue.emplace(temp, i);
     }
   }
@@ -51,6 +55,10 @@ int MergeKSortedPages(std::vector<Page *> &input, int k, File *runFile,
     // remove the one with highest priority given by the comparator
     pq_elem_t dequeuedElem = pqueue.top();
     pqueue.pop();
+
+    // cout << "Popped from pqueue " << endl;
+    Schema mySchema("catalog", "lineitem");
+    // dequeuedElem.first->Print(&mySchema);
 
     // put the record on the page we are merging
     record_count++;
@@ -92,7 +100,7 @@ int CreateRun(std::vector<Page *> &input, int k, File *runFile,
   // Comparator for pair type in the priority queue
   ComparisonEngine comp;
   auto comparator = [&sortOrder, &comp](pq_elem_t i1, pq_elem_t i2) -> bool {
-    return comp.Compare(i1.first, i2.first, &sortOrder) <= 0;
+    return comp.Compare(i1.first, i2.first, &sortOrder) >= 0;
   };
   return MergeKSortedPages(input, k, runFile, comparator, runIndex);
 }
@@ -122,7 +130,7 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
     cout << endl << endl;
     while (page < runLength) {
       Page *temp = new Page();
-      runFile->GetPage(temp, run * runLength + page);
+      runFile->GetPage(temp, (run * runLength) + page);
       Record *tempRec = new Record();
       int count = 0;
       while (temp->ReadNext(*tempRec, count) != 0) {
