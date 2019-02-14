@@ -9,6 +9,7 @@
 #include <vector>
 #include "BigQ.h"
 #include "DBFile.h"
+#include "Defs.h"
 #include "Pipe.h"
 #include "Record.h"
 #include "TwoWayList.cc"
@@ -37,6 +38,61 @@ bool compare(void *i1, void *i2) {
   Test *j = (Test *)i2;
 
   return *(i->num) < *(j->num);
+}
+
+unsigned long long getTotalSystemMemory() {
+  long page_size = sysconf(_SC_PAGE_SIZE);
+  cout << "System page size: " << page_size << endl;
+  long pages = sysconf(_SC_PHYS_PAGES);
+  cout << "System pages: " << pages << endl;
+  unsigned long long mem = pages * page_size;
+  cout << "Total memory available: " << mem << endl;
+  long max_pages = mem / PAGE_SIZE;
+  cout << "DBI PAGE_SIZE: " << PAGE_SIZE << endl;
+  cout << "Max number of pages that can fit in my memory: " << max_pages
+       << endl;
+  return max_pages;
+}
+
+void shuffle_file() {
+  // initialize random number generator
+  std::random_device rd;
+  std::mt19937 g(rd());
+
+  // open input file
+  string file_name{"data_files/lineitem.tbl"};
+  std::ifstream in_file{file_name};
+  if (!in_file) {
+    std::cerr << "Error: Failed to open file \"" << file_name << "\"\n";
+    return -1;
+  }
+
+  vector<string> words;
+  // if you want to avoid too many reallocations:
+  const int expected = 100000000;
+  words.reserve(expected);
+
+  string word;
+  while (!in_file.eof()) {
+    std::getline(in_file, word);
+    words.push_back(word);
+  }
+  words.pop_back();
+
+  std::cout << "Number of elements read: " << words.size() << '\n';
+  std::cout << "Beginning shuffle..." << std::endl;
+
+  std::shuffle(words.begin(), words.end(), g);
+
+  std::cout << "Shuffle done." << std::endl;
+
+  // do whatever you need to do with the shuffled vector...
+  std::ofstream out_file{"shuffled.tbl"};
+  for (auto it = words.begin(); it != words.end(); ++it) {
+    out_file << (*it);
+    out_file << "\n";
+  }
+  out_file.close();
 }
 
 int main() {
@@ -313,67 +369,28 @@ int main() {
   //   myRecs->Advance();
   //   count--;
   // }
-  // initialize random number generator
-  // std::random_device rd;
-  // std::mt19937 g(rd());
-
-  // // open input file
-  // string file_name{"data_files/lineitem.tbl"};
-  // std::ifstream in_file{file_name};
-  // if (!in_file) {
-  //   std::cerr << "Error: Failed to open file \"" << file_name << "\"\n";
-  //   return -1;
-  // }
-
-  // vector<string> words;
-  // // if you want to avoid too many reallocations:
-  // const int expected = 100000000;
-  // words.reserve(expected);
-
-  // string word;
-  // while (!in_file.eof()) {
-  //   std::getline(in_file, word);
-  //   words.push_back(word);
-  // }
-  // words.pop_back();
-
-  // std::cout << "Number of elements read: " << words.size() << '\n';
-  // std::cout << "Beginning shuffle..." << std::endl;
-
-  // std::shuffle(words.begin(), words.end(), g);
-
-  // std::cout << "Shuffle done." << std::endl;
-
-  // // do whatever you need to do with the shuffled vector...
-  // std::ofstream out_file{"shuffled.tbl"};
-  // for (auto it = words.begin(); it != words.end(); ++it) {
-  //   out_file << (*it);
-  //   out_file << "\n";
-  // }
-  // out_file.close();
-
   Schema mySchema("catalog", "lineitem");
   OrderMaker order(&mySchema);
-  Pipe in(700);
-  Pipe out(700);
-  BigQ *queue = new BigQ(in, out, order, 3);
+  // Pipe in(700);
+  // Pipe out(700);
+  // BigQ *queue = new BigQ(in, out, order, 3);
 
-  // FILE *tableFile = fopen("shuffled.tbl", "r");
-  FILE *tableFile = fopen("data_files/lineitem.tbl", "r");
+  // // FILE *tableFile = fopen("shuffled.tbl", "r");
+  // FILE *tableFile = fopen("data_files/lineitem.tbl", "r");
 
-  Record *temp = new Record();
+  // Record *temp = new Record();
 
-  int count = 0;
-  while (temp->SuckNextRecord(&mySchema, tableFile) == 1) {
-    // temp->Print(&mySchema);
-    in.Insert(temp);
-    count++;
-  }
+  // int count = 0;
+  // while (temp->SuckNextRecord(&mySchema, tableFile) == 1) {
+  //   // temp->Print(&mySchema);
+  //   in.Insert(temp);
+  //   count++;
+  // }
 
-  cout << "Inserted " << count << endl;
+  // cout << "Inserted " << count << endl;
 
-  in.ShutDown();
-  sleep(15);
+  // in.ShutDown();
+  // sleep(15);
   // cout << "\n specify sort ordering (when done press ctrl-D):\n\t ";
   // if (yyparse() != 0) {
   //   cout << "Can't parse your sort CNF.\n";
