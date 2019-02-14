@@ -118,29 +118,115 @@ int CreateRun(std::vector<Page *> &input, int k, File *runFile,
 // NOTE: Getting next elem from run -> Get the runIndex from the poppped element
 // pair, get the page from vector, if page is out of records get a new page from
 // disk, if the run is out of pages, we are done.
-void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
+void StreamKSortedRuns(File *runFile, int runsCreated, int runLength, OrderMaker sortOrder,
                        Pipe *out) {
   std::cout << "Streaming K=" << runsCreated << " sorted runs" << std::endl;
 
+  ComparisonEngine comp;
+  auto comparator = [&sortOrder, &comp](pq_elem_t i1, pq_elem_t i2) -> bool {
+    return comp.Compare(i1.first, i2.first, &sortOrder) <= 0;
+  };
+
+  std::priority_queue<pq_elem_t, vector<pq_elem_t>, decltype(comparator)> pqueue(comparator);
+  int pageIndexes[runsCreated];
+  vector<Page *> listOfHeads;
   Schema mySchema("catalog", "lineitem");
+
   int run = 0;
-  while (run < runsCreated) {
-    int page = 0;
-    cout << " *******  RUN #" << run << "****************" << endl;
-    cout << endl << endl;
-    while (page < runLength) {
-      Page *temp = new Page();
-      runFile->GetPage(temp, (run * runLength) + page);
-      Record *tempRec = new Record();
-      int count = 0;
-      while (temp->ReadNext(*tempRec, count) != 0) {
-        tempRec->Print(&mySchema);
-        count++;
-      }
-      page++;
-    }
+
+  //populate first page of every run
+  //TDO: sanity check for empty runs
+  while (run < runsCreated)
+  {
+    Page *temp = new Page();
+    runFile->GetPage(temp, (run * runLength));
+    listOfHeads.push_back(temp);
+    pageIndexes[run] = 0;
     run++;
   }
+  cout << "Pages populated successfully" << endl;
+  //populate first rec in every page of listOfHeads into the priority queue.
+
+  int runCounter = 0;
+  int runsEnded = 0;
+  int recordCounter = 0;
+  while (runsEnded < runsCreated)
+  {
+    for (auto i : listOfHeads)
+    {
+      if (pageIndexes[runCounter] == -1)
+      {
+        //skip the process if this run is out of pages.
+        runCounter++;
+        continue;
+      }
+      Record *tempRec = new Record();
+      if (i->GetFirst(tempRec) == 1)
+      {
+        pqueue.emplace(tempRec, runCounter);
+      }
+      else
+      {
+        //the page is empty, so replace it with a new page
+        //if no new page exists, skip this entry because we can't reduce the
+        //size of listOfHeads as we are iterating over it
+        pageIndexes[runCounter]++;
+
+        if (pageIndexes[runCounter] == runLength - 1)
+        {
+          //this run is out of pages.
+          pageIndexes[runCounter] = -1;
+          runsEnded++;
+          cout << "Number of runs processed: " << runsEnded << endl;
+        }
+        else
+        {
+          //if this run has another page, get it's first record and
+          //replace the empty page with this new one
+          Page *temp = new Page();
+          runFile->GetPage(temp, (runCounter * runLength) + pageIndexes[runCounter]);
+          temp->GetFirst(tempRec);
+          pqueue.emplace(tempRec, runCounter);
+
+          listOfHeads[runCounter] = temp;
+        }
+      }
+      runCounter++;
+    }
+    runCounter = 0;
+    cout << "Priority queue size: " << pqueue.size() << endl;
+    while (!pqueue.empty())
+    {
+      pq_elem_t dequeuedElem = pqueue.top();
+      pqueue.pop();
+
+      out->Insert(dequeuedElem.first);
+      //cout << "Record " << ++recordCounter << " is processed";
+    }
+  }
+
+  // Schema mySchema("catalog", "lineitem");
+  // while (run < runsCreated)
+  // {
+  //   int page = 0;
+  //   cout << " *******  RUN #" << run << "****************" << endl;
+  //   cout << endl
+  //        << endl;
+  //   while (page < runLength)
+  //   {
+  //     Page *temp = new Page();
+  //     runFile->GetPage(temp, (run * runLength) + page);
+  //     Record *tempRec = new Record();
+  //     int count = 0;
+  //     while (temp->ReadNext(*tempRec, count) != 0)
+  //     {
+  //       tempRec->Print(&mySchema);
+  //       count++;
+  //     }
+  //     page++;
+  //   }
+  //   run++;
+  // }
 }
 // End of phase 2
 
@@ -214,7 +300,7 @@ void *WorkerThreadRoutine(void *threadparams) {
 
   // Ready for phase 2
   // Run Phase 2
-  StreamKSortedRuns(runFile, runs, runlen, out);
+  StreamKSortedRuns(runFile, runs, runlen, sortOrder, out);
 
   // Done with phase 2
   out->ShutDown();
