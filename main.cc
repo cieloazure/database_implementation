@@ -377,7 +377,8 @@ int main() {
   BigQ *queue = new BigQ(in, out, order, 3);
 
   // FILE *tableFile = fopen("shuffled.tbl", "r");
-  FILE *tableFile = fopen("data_files/lineitem.tbl", "r");
+  shuffle_file();
+  FILE *tableFile = fopen("shuffled.tbl", "r");
 
   Record *temp = new Record();
 
