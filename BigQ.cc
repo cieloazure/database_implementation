@@ -99,6 +99,7 @@ int CreateRun(std::vector<Page *> &input, int k, File *runFile,
               OrderMaker sortOrder, int runIndex) {
   // Comparator for pair type in the priority queue
   ComparisonEngine comp;
+  // Priority queue comparator has reverse order than the sort order required
   auto comparator = [&sortOrder, &comp](pq_elem_t i1, pq_elem_t i2) -> bool {
     return comp.Compare(i1.first, i2.first, &sortOrder) >= 0;
   };
@@ -123,8 +124,9 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
   std::cout << "Streaming K=" << runsCreated << " sorted runs" << std::endl;
 
   ComparisonEngine comp;
+  // Priority queue comparator has reverse order than the sort order required
   auto comparator = [&sortOrder, &comp](pq_elem_t i1, pq_elem_t i2) -> bool {
-    return comp.Compare(i1.first, i2.first, &sortOrder) <= 0;
+    return comp.Compare(i1.first, i2.first, &sortOrder) >= 0;
   };
 
   std::priority_queue<pq_elem_t, vector<pq_elem_t>, decltype(comparator)>
@@ -204,7 +206,15 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
     out->Insert(dequeuedElem.first);
     //   // ***************************** TODO **************************
     //   get the run from dequeuedElem.second
-    //   check for pages in that run
+    //   check if records exists in the page in the vector
+    //   If no records exists on that page get the next page of that run in the
+    //   vector and put it in the same index as dequeuedElem.second r
+    //    if(pageIndex[runIndex] < runlen){
+    //   runIndex = dequeuedElem.second
+    //   pageIndexes[runIndex]++
+    //   }else{
+    //  Nothing to do
+    //   }
   }
 
   // ************** IGNORE ***********************

@@ -391,6 +391,11 @@ int main() {
   cout << "Inserted " << count << endl;
 
   in.ShutDown();
+  Record *temp2 = new Record();
+  while (out.Remove(temp2) != 0) {
+    temp2->Print(&mySchema);
+    cout << endl;
+  }
   sleep(15);
   // cout << "\n specify sort ordering (when done press ctrl-D):\n\t ";
   // if (yyparse() != 0) {
