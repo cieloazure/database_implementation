@@ -54,7 +54,7 @@ unsigned long long getTotalSystemMemory() {
   return max_pages;
 }
 
-void shuffle_file() {
+int shuffle_file() {
   // initialize random number generator
   std::random_device rd;
   std::mt19937 g(rd());
@@ -93,6 +93,7 @@ void shuffle_file() {
     out_file << "\n";
   }
   out_file.close();
+  return 0;
 }
 
 int main() {
@@ -371,26 +372,26 @@ int main() {
   // }
   Schema mySchema("catalog", "lineitem");
   OrderMaker order(&mySchema);
-  // Pipe in(700);
-  // Pipe out(700);
-  // BigQ *queue = new BigQ(in, out, order, 3);
+  Pipe in(700);
+  Pipe out(700);
+  BigQ *queue = new BigQ(in, out, order, 3);
 
-  // // FILE *tableFile = fopen("shuffled.tbl", "r");
-  // FILE *tableFile = fopen("data_files/lineitem.tbl", "r");
+  // FILE *tableFile = fopen("shuffled.tbl", "r");
+  FILE *tableFile = fopen("data_files/lineitem.tbl", "r");
 
-  // Record *temp = new Record();
+  Record *temp = new Record();
 
-  // int count = 0;
-  // while (temp->SuckNextRecord(&mySchema, tableFile) == 1) {
-  //   // temp->Print(&mySchema);
-  //   in.Insert(temp);
-  //   count++;
-  // }
+  int count = 0;
+  while (temp->SuckNextRecord(&mySchema, tableFile) == 1) {
+    // temp->Print(&mySchema);
+    in.Insert(temp);
+    count++;
+  }
 
-  // cout << "Inserted " << count << endl;
+  cout << "Inserted " << count << endl;
 
-  // in.ShutDown();
-  // sleep(15);
+  in.ShutDown();
+  sleep(15);
   // cout << "\n specify sort ordering (when done press ctrl-D):\n\t ";
   // if (yyparse() != 0) {
   //   cout << "Can't parse your sort CNF.\n";

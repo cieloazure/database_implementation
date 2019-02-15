@@ -118,8 +118,8 @@ int CreateRun(std::vector<Page *> &input, int k, File *runFile,
 // NOTE: Getting next elem from run -> Get the runIndex from the poppped element
 // pair, get the page from vector, if page is out of records get a new page from
 // disk, if the run is out of pages, we are done.
-void StreamKSortedRuns(File *runFile, int runsCreated, int runLength, OrderMaker sortOrder,
-                       Pipe *out) {
+void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
+                       OrderMaker sortOrder, Pipe *out) {
   std::cout << "Streaming K=" << runsCreated << " sorted runs" << std::endl;
 
   ComparisonEngine comp;
@@ -127,17 +127,17 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength, OrderMaker
     return comp.Compare(i1.first, i2.first, &sortOrder) <= 0;
   };
 
-  std::priority_queue<pq_elem_t, vector<pq_elem_t>, decltype(comparator)> pqueue(comparator);
+  std::priority_queue<pq_elem_t, vector<pq_elem_t>, decltype(comparator)>
+      pqueue(comparator);
   int pageIndexes[runsCreated];
   vector<Page *> listOfHeads;
   Schema mySchema("catalog", "lineitem");
 
   int run = 0;
 
-  //populate first page of every run
-  //TDO: sanity check for empty runs
-  while (run < runsCreated)
-  {
+  // populate first page of every run
+  // TDO: sanity check for empty runs
+  while (run < runsCreated) {
     Page *temp = new Page();
     runFile->GetPage(temp, (run * runLength));
     listOfHeads.push_back(temp);
@@ -145,66 +145,67 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength, OrderMaker
     run++;
   }
   cout << "Pages populated successfully" << endl;
-  //populate first rec in every page of listOfHeads into the priority queue.
+  // populate first rec in every page of listOfHeads into the priority queue.
 
   int runCounter = 0;
   int runsEnded = 0;
   int recordCounter = 0;
-  while (runsEnded < runsCreated)
-  {
-    for (auto i : listOfHeads)
-    {
-      if (pageIndexes[runCounter] == -1)
-      {
-        //skip the process if this run is out of pages.
-        runCounter++;
-        continue;
-      }
-      Record *tempRec = new Record();
-      if (i->GetFirst(tempRec) == 1)
-      {
-        pqueue.emplace(tempRec, runCounter);
-      }
-      else
-      {
-        //the page is empty, so replace it with a new page
-        //if no new page exists, skip this entry because we can't reduce the
-        //size of listOfHeads as we are iterating over it
-        pageIndexes[runCounter]++;
 
-        if (pageIndexes[runCounter] == runLength - 1)
-        {
-          //this run is out of pages.
-          pageIndexes[runCounter] = -1;
-          runsEnded++;
-          cout << "Number of runs processed: " << runsEnded << endl;
-        }
-        else
-        {
-          //if this run has another page, get it's first record and
-          //replace the empty page with this new one
-          Page *temp = new Page();
-          runFile->GetPage(temp, (runCounter * runLength) + pageIndexes[runCounter]);
-          temp->GetFirst(tempRec);
-          pqueue.emplace(tempRec, runCounter);
-
-          listOfHeads[runCounter] = temp;
-        }
-      }
+  // priority queue initialization
+  for (auto i : listOfHeads) {
+    if (pageIndexes[runCounter] == -1) {
+      // skip the process if this run is out of pages.
       runCounter++;
+      continue;
     }
-    runCounter = 0;
-    cout << "Priority queue size: " << pqueue.size() << endl;
-    while (!pqueue.empty())
-    {
-      pq_elem_t dequeuedElem = pqueue.top();
-      pqueue.pop();
+    Record *tempRec = new Record();
+    if (i->GetFirst(tempRec) == 1) {
+      pqueue.emplace(tempRec, runCounter);
+    } else {
+      // the page is empty, so replace it with a new page
+      // if no new page exists, skip this entry because we can't reduce the
+      // size of listOfHeads as we are iterating over it
+      pageIndexes[runCounter]++;
 
-      out->Insert(dequeuedElem.first);
-      //cout << "Record " << ++recordCounter << " is processed";
+      if (pageIndexes[runCounter] == runLength - 1) {
+        // this run is out of pages.
+        pageIndexes[runCounter] = -1;
+        runsEnded++;
+        cout << "Number of runs processed: " << runsEnded << endl;
+      } else {
+        // if this run has another page, get it's first record and
+        // replace the empty page with this new one
+        Page *temp = new Page();
+        runFile->GetPage(temp,
+                         (runCounter * runLength) + pageIndexes[runCounter]);
+        temp->GetFirst(tempRec);
+        pqueue.emplace(tempRec, runCounter);
+
+        listOfHeads[runCounter] = temp;
+      }
     }
+    runCounter++;
   }
 
+  cout << "Priority queue size: " << pqueue.size() << endl;
+
+  // ************** TODO: IMPORTANT ***************************************
+  // pop the element from priority queue
+  // fetch the next record from run index
+  // while fetching the record check if a page exists in that run using the
+  // pageIndexes[] array
+  // COMMENT OUT IF RUNNING MAIN
+  while (!pqueue.empty()) {
+    pq_elem_t dequeuedElem = pqueue.top();
+    pqueue.pop();
+
+    out->Insert(dequeuedElem.first);
+    //   // ***************************** TODO **************************
+    //   get the run from dequeuedElem.second
+    //   check for pages in that run
+  }
+
+  // ************** IGNORE ***********************
   // Schema mySchema("catalog", "lineitem");
   // while (run < runsCreated)
   // {
