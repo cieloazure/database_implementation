@@ -152,6 +152,8 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
   int recordCounter = 0;
 
   // priority queue initialization
+  // TODO: can be moved after putting the page in the vector in order to save
+  // time
   for (auto i : listOfHeads) {
     if (pageIndexes[runCounter] == -1) {
       // skip the process if this run is out of pages.
