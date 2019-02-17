@@ -136,6 +136,7 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
   Schema mySchema("catalog", "lineitem");
 
   int run = 0;
+  int runCounter = 0;
 
   // populate first page of every run
   // TDO: sanity check for empty runs
@@ -149,49 +150,19 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
   cout << "Pages populated successfully" << endl;
   // populate first rec in every page of listOfHeads into the priority queue.
 
-  int runCounter = 0;
-  int runsEnded = 0;
-  int recordCounter = 0;
 
   // priority queue initialization
   // TODO: can be moved after putting the page in the vector in order to save
   // time
   for (auto i : listOfHeads) {
-    if (pageIndexes[runCounter] == -1) {
-      // skip the process if this run is out of pages.
-      runCounter++;
-      continue;
-    }
     Record *tempRec = new Record();
     if (i->GetFirst(tempRec) == 1) {
       pqueue.emplace(tempRec, runCounter);
     } else {
-      // the page is empty, so replace it with a new page
-      // if no new page exists, skip this entry because we can't reduce the
-      // size of listOfHeads as we are iterating over it
-      pageIndexes[runCounter]++;
-
-      if (pageIndexes[runCounter] == runLength - 1) {
-        // this run is out of pages.
-        pageIndexes[runCounter] = -1;
-        runsEnded++;
-        cout << "Number of runs processed: " << runsEnded << endl;
-      } else {
-        // if this run has another page, get it's first record and
-        // replace the empty page with this new one
-        Page *temp = new Page();
-        runFile->GetPage(temp,
-                         (runCounter * runLength) + pageIndexes[runCounter]);
-        temp->GetFirst(tempRec);
-        pqueue.emplace(tempRec, runCounter);
-
-        listOfHeads[runCounter] = temp;
-      }
+      cout<< "BAD run encountered." << endl;
     }
     runCounter++;
   }
-
-  cout << "Priority queue size: " << pqueue.size() << endl;
 
   // ************** TODO: IMPORTANT ***************************************
   // pop the element from priority queue
@@ -203,9 +174,12 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
     pq_elem_t dequeuedElem = pqueue.top();
     pqueue.pop();
 
+    // get current run from dequeuedElem.second
+    int currentRun = dequeuedElem.second;
+
     out->Insert(dequeuedElem.first);
     //   // ***************************** TODO **************************
-    //   get the run from dequeuedElem.second
+    
     //   check if records exists in the page in the vector
     //   If no records exists on that page get the next page of that run in the
     //   vector and put it in the same index as dequeuedElem.second r
@@ -215,7 +189,53 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
     //   }else{
     //  Nothing to do
     //   }
+
+    //   get the run from dequeuedElem.second
+    
+    Record *tempRec = new Record();
+
+    if (listOfHeads[currentRun]->GetFirst(tempRec) == 1) 
+    {
+      pqueue.emplace(tempRec, currentRun);
+    } 
+    else 
+    {
+      pageIndexes[currentRun]++;
+      if(pageIndexes[currentRun] < runLength)
+      {
+        
+        Page *temp = new Page();
+        runFile->GetPage(temp,
+                          (currentRun * runLength) + pageIndexes[currentRun]);
+        
+        if(temp->GetFirst(tempRec) == 1)
+        {
+          pqueue.emplace(tempRec, currentRun);
+
+          listOfHeads[currentRun] = temp;
+        }
+      }
+      else 
+      {
+        //else the run is exausted and there is nothing to be done.
+        cout<<"Run: " << currentRun <<" is exausted."<<endl;
+      }
+      
+    }
   }
+
+  // int page = 0;
+  // while (page < runsCreated * runLength) {
+  //   Page *temp = new Page();
+  //   runFile->GetPage(temp, (page));
+
+  //   Record *tempRec = new Record;
+  //   if(temp->GetFirst(tempRec) == 1){
+  //     cout<<"DATA IS STILL PRESENT"<<endl;
+  //     cout<<"Run: "<<floor(page/runLength) <<" Page: "<<page<<endl;
+  //   }
+  //   page++;
+  // }
 
   // ************** IGNORE ***********************
   // Schema mySchema("catalog", "lineitem");
