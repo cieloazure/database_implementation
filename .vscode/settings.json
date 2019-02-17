@@ -1,2 +1,6 @@
 {
+    "files.associations": {
+        "ostream": "cpp",
+        "utility": "cpp"
+    }
 }

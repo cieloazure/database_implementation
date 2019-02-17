@@ -393,11 +393,14 @@ int main() {
 
   in.ShutDown();
   Record *temp2 = new Record();
+  count = 0;
   while (out.Remove(temp2) != 0) {
-    temp2->Print(&mySchema);
-    cout << endl;
+    // temp2->Print(&mySchema);
+    // cout << endl;
+    count++;
   }
-  sleep(15);
+  sleep(10);
+  cout << count << endl;
   // cout << "\n specify sort ordering (when done press ctrl-D):\n\t ";
   // if (yyparse() != 0) {
   //   cout << "Can't parse your sort CNF.\n";

@@ -41,6 +41,7 @@ int MergeKSortedPages(std::vector<Page *> &input, int k, File *runFile,
   for (int i = 0; i < input.size(); i++) {
     Record *temp = new Record();
     Page *tempPage = input.at(i);
+    cout << "Records in PageIndex "<<i<<" "<< tempPage->GetNumRecords()<<endl;
     if (tempPage->GetFirst(temp) != 0) {
       Schema mySchema("catalog", "lineitem");
       // cout << "Put in pqueue :" << endl;
@@ -51,6 +52,7 @@ int MergeKSortedPages(std::vector<Page *> &input, int k, File *runFile,
 
   // while the priority queue is not empty
   off_t pageIndex = 0;
+  int pg_rec_count = 0;
   while (!pqueue.empty()) {
     // remove the one with highest priority given by the comparator
     pq_elem_t dequeuedElem = pqueue.top();
@@ -64,13 +66,17 @@ int MergeKSortedPages(std::vector<Page *> &input, int k, File *runFile,
     record_count++;
     if (mergedPage->Append(dequeuedElem.first) == 0) {
       // if the page is full, add the page to the file,
+      cout << "Run file length: " << runFile->GetLength() << endl;
+      cout << "Next page added is: "<<  nextPageIndex+pageIndex << endl;
       Page *toBeAdded = new Page();
       CopyBufferToPage(
           mergedPage,
           toBeAdded); /* Copy is required to avoid double free error */
       // create a new page
-      cout << "Page added " << nextPageIndex + pageIndex << endl;
       runFile->AddPage(toBeAdded, nextPageIndex + pageIndex);
+      cout << "Page added " << nextPageIndex + pageIndex << " with "
+           << toBeAdded->GetNumRecords() << endl;
+      pg_rec_count += toBeAdded->GetNumRecords();
       pageIndex++;
       // add the record which failed adding on the page back on the new page
       mergedPage->Append(dequeuedElem.first);
@@ -85,13 +91,21 @@ int MergeKSortedPages(std::vector<Page *> &input, int k, File *runFile,
     }
   }
 
-  Page *toBeAdded = new Page();
-  CopyBufferToPage(mergedPage, toBeAdded);
-  cout << "Page added " << nextPageIndex + pageIndex << endl;
-  runFile->AddPage(toBeAdded, nextPageIndex + pageIndex);
-  pageIndex++;
-
-  cout << "created a run with " << record_count << " records" << endl;
+  if (mergedPage->GetNumRecords() > 0) {
+    if (pageIndex == input.size()) {
+      cout << " **************  Records are guaranteed to fit in runlength number of pages hence any page will have space ****************"<<endl;
+    } 
+      Page *toBeAdded = new Page();
+      CopyBufferToPage(mergedPage, toBeAdded);
+      runFile->AddPage(toBeAdded, nextPageIndex + pageIndex);
+      cout << "Page added " << nextPageIndex + pageIndex << " with "
+           << toBeAdded->GetNumRecords() << endl;
+      pg_rec_count += toBeAdded->GetNumRecords();
+    // cout << "Page added " << nextPageIndex + pageIndex << endl;
+    pageIndex++;
+  }
+  cout << "Actual # of recs " << pg_rec_count << endl;
+  cout << "Expected # of recs " << record_count << " records" << endl;
   return record_count;
 }
 
@@ -122,6 +136,10 @@ int CreateRun(std::vector<Page *> &input, int k, File *runFile,
 void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
                        OrderMaker sortOrder, Pipe *out) {
   std::cout << "Streaming K=" << runsCreated << " sorted runs" << std::endl;
+  bool arr[runsCreated];
+  for (int i = 0; i < runsCreated; i++) {
+    arr[i] = false;
+  }
 
   ComparisonEngine comp;
   // Priority queue comparator has reverse order than the sort order required
@@ -140,9 +158,12 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
 
   // populate first page of every run
   // TDO: sanity check for empty runs
+  bool page_arr[runsCreated * runLength];
   while (run < runsCreated) {
     Page *temp = new Page();
     runFile->GetPage(temp, (run * runLength));
+    cout << "Got page in vector:" << run * runLength << endl;
+    page_arr[run * runLength] = true;
     listOfHeads.push_back(temp);
     pageIndexes[run] = 0;
     run++;
@@ -150,16 +171,18 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
   cout << "Pages populated successfully" << endl;
   // populate first rec in every page of listOfHeads into the priority queue.
 
-
   // priority queue initialization
   // TODO: can be moved after putting the page in the vector in order to save
   // time
+  int record_count = 0;
   for (auto i : listOfHeads) {
     Record *tempRec = new Record();
     if (i->GetFirst(tempRec) == 1) {
       pqueue.emplace(tempRec, runCounter);
+      record_count++;
+      // cout << record_count << endl;
     } else {
-      cout<< "BAD run encountered." << endl;
+      cout << "BAD run encountered." << endl;
     }
     runCounter++;
   }
@@ -179,7 +202,7 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
 
     out->Insert(dequeuedElem.first);
     //   // ***************************** TODO **************************
-    
+
     //   check if records exists in the page in the vector
     //   If no records exists on that page get the next page of that run in the
     //   vector and put it in the same index as dequeuedElem.second r
@@ -191,38 +214,49 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
     //   }
 
     //   get the run from dequeuedElem.second
-    
+
     Record *tempRec = new Record();
 
-    if (listOfHeads[currentRun]->GetFirst(tempRec) == 1) 
-    {
+    if (listOfHeads[currentRun]->GetFirst(tempRec) == 1) {
       pqueue.emplace(tempRec, currentRun);
-    } 
-    else 
-    {
+      record_count++;
+      // cout << record_count << endl;
+    } else {
       pageIndexes[currentRun]++;
-      if(pageIndexes[currentRun] < runLength)
-      {
-        
+      cout << "Getting next page from run " << currentRun << "  i.e. "
+           << (currentRun * runLength) + pageIndexes[currentRun] << endl;
+      page_arr[(currentRun * runLength) + pageIndexes[currentRun]] = true;
+      if (pageIndexes[currentRun] < runLength) {
         Page *temp = new Page();
         runFile->GetPage(temp,
-                          (currentRun * runLength) + pageIndexes[currentRun]);
-        
-        if(temp->GetFirst(tempRec) == 1)
-        {
+                         (currentRun * runLength) + pageIndexes[currentRun]);
+
+        if (temp->GetFirst(tempRec) == 1) {
           pqueue.emplace(tempRec, currentRun);
+          record_count++;
+          // cout << record_count << endl;
 
           listOfHeads[currentRun] = temp;
         }
+      } else {
+        // else the run is exausted and there is nothing to be done.
+        cout << "Run: " << currentRun << " is exausted." << endl;
+        arr[currentRun] = true;
       }
-      else 
-      {
-        //else the run is exausted and there is nothing to be done.
-        cout<<"Run: " << currentRun <<" is exausted."<<endl;
-      }
-      
     }
   }
+
+  int temp2 = 0;
+  for (int i = 0; i < runsCreated * runLength; i++) {
+    cout << i << ":" << page_arr[i] << "  " << endl;
+    Page *temp = new Page();
+    runFile->GetPage(temp, i);
+    temp2 += temp->GetNumRecords();
+    cout << "Records: " << temp->GetNumRecords() << endl;
+  }
+  cout << temp2 << endl;
+
+  // cout << "PQueue size:"<<pqueue.size() << endl;
 
   // int page = 0;
   // while (page < runsCreated * runLength) {
