@@ -8,8 +8,7 @@
 
 typedef std::pair<Record *, int> pq_elem_t;
 
-struct WorkerThreadParams
-{
+struct WorkerThreadParams {
   Pipe *in;
   Pipe *out;
   OrderMaker sortOrder;
@@ -18,11 +17,9 @@ struct WorkerThreadParams
 
 struct WorkerThreadParams thread_data;
 
-void CopyBufferToPage(Page *from, Page *to)
-{
+void CopyBufferToPage(Page *from, Page *to) {
   Record to_be_copied;
-  while (from->GetFirst(&to_be_copied) != 0)
-  {
+  while (from->GetFirst(&to_be_copied) != 0) {
     to->Append(&to_be_copied);
   }
 }
@@ -111,8 +108,7 @@ void CreateRun(std::vector<Page *> &input, int k, File *runFile,
 
 // Phase 2
 void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
-                       OrderMaker sortOrder, Pipe *out)
-{
+                       OrderMaker sortOrder, Pipe *out) {
   std::cout << "Streaming K=" << runsCreated << " sorted runs" << std::endl;
 
   // priority queue initialization
@@ -128,30 +124,33 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
 
   int pageIndexes[runsCreated];
   vector<Page *> listOfHeads;
-  Schema mySchema("catalog", "lineitem");
 
-  int totalPages = runFile->GetLength() - 1; //function returns total pages + 1.
+  int totalPages =
+      runFile->GetLength() - 1;  // function returns total pages + 1.
   int run = 0;
   int runCounter = 0;
 
   // populate first page of every run
-  // TODO: sanity check for empty runs
-  while (run < runsCreated) {
-    Page *temp = new Page();
-    runFile->GetPage(temp, (run * runLength));
-    listOfHeads.push_back(temp);
-    pageIndexes[run] = 0;
-    run++;
+  if (totalPages > 0) {
+    while (run < runsCreated) {
+      Page *temp = new Page();
+      runFile->GetPage(temp, (run * runLength));
+      listOfHeads.push_back(temp);
+      pageIndexes[run] = 0;
+      run++;
+    }
+  } else {
+    cout << "Runs are empty" << endl;
+    exit(1);
   }
 
+  cout << "Pages populated successfully" << endl;
   // populate first rec in every page of listOfHeads into the priority queue.
-  // priority queue initialization
-  // TODO: can be moved after putting the page in the vector in order to save
-  // time
+
+  int record_count = 0;
   for (auto i : listOfHeads) {
     Record *tempRec = new Record();
-    if (i->GetFirst(tempRec) == 1)
-    {
+    if (i->GetFirst(tempRec) == 1) {
       pqueue.emplace(tempRec, runCounter);
     } else {
       cout << "BAD run encountered." << endl;
@@ -169,24 +168,36 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
     out->Insert(dequeuedElem.first);
 
     Record *tempRec = new Record();
-    if (listOfHeads[currentRun]->GetFirst(tempRec) == 1)
-    {
+    if (listOfHeads[currentRun]->GetFirst(tempRec) == 1) {
       pqueue.emplace(tempRec, currentRun);
+      record_count++;
     } else {
       pageIndexes[currentRun]++;
+      cout << "Getting next page from run " << currentRun << "  i.e. "
+           << (currentRun * runLength) + pageIndexes[currentRun] << endl;
+
       if (pageIndexes[currentRun] < runLength) {
+        // treat the last run differently, because it might not contain
+        // runLength number of pages
+        if (totalPages % runLength !=
+            0)  // less than runLength pages in the last run
+        {
+          if ((currentRun == runsCreated - 1) &&
+              (pageIndexes[currentRun] >= totalPages % runLength)) {
+            cout << "Run: " << currentRun << " is exausted." << endl;
+            continue;
+          }
+        }
+
         Page *temp = new Page();
         runFile->GetPage(temp,
                          (currentRun * runLength) + pageIndexes[currentRun]);
 
-        if (temp->GetFirst(tempRec) == 1)
-        {
+        if (temp->GetFirst(tempRec) == 1) {
           pqueue.emplace(tempRec, currentRun);
           listOfHeads[currentRun] = temp;
         }
-      }
-      else
-      {
+      } else {
         // else the run is exausted and there is nothing to be done.
         cout << "Run: " << currentRun << " is exausted." << endl;
       }
@@ -223,8 +234,7 @@ void *WorkerThreadRoutine(void *threadparams) {
       // allocate a new Page for buffer
       buffer = new Page();
 
-      if (inputPagesForRun.size() == runlen)
-      {
+      if (inputPagesForRun.size() == runlen) {
         // Run Phase 1 to TPPMS and put the run into a file
         CreateRun(inputPagesForRun, runlen, runFile, sortOrder, runs * runlen,
                   buffer);
@@ -244,8 +254,7 @@ void *WorkerThreadRoutine(void *threadparams) {
 
   // Are there any records in buffer?
   // Sort the page and put it in the vector
-  if (buffer->GetNumRecords() > 0)
-  {
+  if (buffer->GetNumRecords() > 0) {
     buffer->Sort(sortOrder);
     inputPagesForRun.push_back(buffer);
   }
@@ -274,8 +283,7 @@ void *WorkerThreadRoutine(void *threadparams) {
 // construct priority queue over sorted runs and dump sorted data
 // into the out pipe
 // finally shut down the out pipe
-BigQ ::BigQ(Pipe &in, Pipe &out, OrderMaker &sortorder, int runlen)
-{
+BigQ ::BigQ(Pipe &in, Pipe &out, OrderMaker &sortorder, int runlen) {
   pthread_t threadid;
 
   // The worker thread is detached from the main thread
@@ -283,18 +291,12 @@ BigQ ::BigQ(Pipe &in, Pipe &out, OrderMaker &sortorder, int runlen)
   // The caller should be expected the sorted records to appear on out and
   // not terminate
   pthread_attr_t attr;
-  if (pthread_attr_init(&attr) == 0)
-  {
-    if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) == 0)
-    {
-    }
-    else
-    {
+  if (pthread_attr_init(&attr) == 0) {
+    if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) == 0) {
+    } else {
       throw runtime_error("Error spawning BigQ worker");
     }
-  }
-  else
-  {
+  } else {
     throw runtime_error("Error spawning BigQ worker");
   }
 
