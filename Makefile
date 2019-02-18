@@ -1,7 +1,7 @@
 #CC = clang++ -fsanitize=address -O1 -fno-omit-frame-pointer -g 
 # CC = g++ -O2 -Wno-deprecated -std=c++11 -fprofile-arcs -ftest-coverage 
-CC = g++ -std=c++11 -fprofile-arcs -ftest-coverage 
-TEST = clang++ -fsanitize=address -O1 -fno-omit-frame-pointer -g -std=c++11 -stdlib=libc++ -fprofile-arcs -ftest-coverage 
+CC = g++ -std=c++11 -fprofile-arcs -ftest-coverage -fsanitize=address
+TEST = clang++ -fsanitize=address -fno-omit-frame-pointer -g -std=c++11 -stdlib=libc++ -fprofile-arcs -ftest-coverage 
 
 
 tag = -i
@@ -16,14 +16,14 @@ gtest_main.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.
 test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o
 	$(CC) -o test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o -ll
 	
-test2.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o BigQ.o DBFile.o Pipe.o y.tab.o lex.yy.o test2.o
-	$(CC) -o test2.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o BigQ.o DBFile.o Pipe.o y.tab.o lex.yy.o test2.o -ll -lpthread
+test2_1.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o BigQ.o DBFile.o Pipe.o y.tab.o lex.yy.o test2_1.o
+	$(CC) -o test2_1.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o BigQ.o DBFile.o Pipe.o y.tab.o lex.yy.o test2_1.o -ll -lpthread
 
 main: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o Pipe.o BigQ.o y.tab.o lex.yy.o main.o 
 	$(CC) -o main Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o Pipe.o BigQ.o y.tab.o lex.yy.o main.o -ll
 
-test2.o: test.cc
-	$(CC) -g -c test2.cc
+test2_1.o: test2_1.cc
+	$(CC) -g -c test2_1.cc
 	
 test.o: test.cc
 	$(CC) -g -c test.cc
@@ -51,7 +51,7 @@ Schema.o: Schema.cc
 	
 y.tab.o: Parser.y
 	yacc -d Parser.y
-	sed $(tag)  -e "s/  __attribute__ ((__unused__))$$/# ifndef __cplusplus\n  __attribute__ ((__unused__));\n# endif/" y.tab.c
+	sed $(tag) -e "s/  __attribute__ ((__unused__))$$/# ifndef __cplusplus\n  __attribute__ ((__unused__));\n# endif/" y.tab.c
 	g++ -c y.tab.c
 
 lex.yy.o: Lexer.l

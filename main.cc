@@ -60,7 +60,7 @@ int shuffle_file() {
   std::mt19937 g(rd());
 
   // open input file
-  string file_name{"data_files/lineitem.tbl"};
+  string file_name{"data_files/10M/lineitem.tbl"};
   std::ifstream in_file{file_name};
   if (!in_file) {
     std::cerr << "Error: Failed to open file \"" << file_name << "\"\n";
@@ -395,8 +395,8 @@ int main() {
   Record *temp2 = new Record();
   count = 0;
   while (out.Remove(temp2) != 0) {
-    // temp2->Print(&mySchema);
-    // cout << endl;
+    temp2->Print(&mySchema);
+    cout << endl;
     count++;
   }
   sleep(10);

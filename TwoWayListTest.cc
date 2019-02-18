@@ -1,3 +1,4 @@
+#include "DBFile.h"
 #include "Record.h"
 #include "TwoWayList.cc"
 #include "gtest/gtest.h"
@@ -187,15 +188,19 @@ TEST_F(TwoWayListTest, SORT_RECORD_USING_A_LAMBDA_ASC) {
 
 TEST_F(TwoWayListTest, SORT_RECORD_USING_A_LAMBDA_DSC) {
   TwoWayList<Record> *myRecs = new (std::nothrow) TwoWayList<Record>;
-  FILE *tableFile = fopen("data_files/lineitem.tbl", "r");
+  // FILE *tableFile = fopen("data_files/lineitem.tbl", "r");
+  DBFile dbFile;
+  dbFile.Open("lineitem.bin");
 
-  Record *temp = new Record();
+  // Record *temp = new Record();
+  Record temp;
   Schema mySchema("catalog", "lineitem");
 
   int length = 10;
   for (int i = 0; i < length; i++) {
-    temp->SuckNextRecord(&mySchema, tableFile);
-    myRecs->Insert(temp);
+    dbFile.GetNext(temp);
+    myRecs->Insert(&temp);
+    // myRecs->Insert(temp);
   }
 
   OrderMaker order(&mySchema);

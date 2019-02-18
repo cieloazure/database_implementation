@@ -4,6 +4,7 @@
 #include "TwoWayList.h"
 #include <stdlib.h>
 #include <iostream>
+#include "Schema.h"
 
 using namespace std;
 
@@ -288,6 +289,7 @@ void TwoWayList<Type>::Merge(Header *mergedList, Node *list1, int length1,
   Node *iter2 = list2;
   int count2 = 0;
 
+  Schema mySchema("catalog", "lineitem");
   while (iter1 != NULL && count1 < length1 && iter2 != NULL &&
          count2 < length2) {
     if (compare(iter1->data, iter2->data)) {
