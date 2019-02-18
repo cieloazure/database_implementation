@@ -178,11 +178,9 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
         // treat the last run differently, because it might not contain
         // runLength number of pages
         if (totalPages % runLength !=
-            0)  // less than runLength pages in the last run
-        {
+            0) {  // less than runLength pages in the last run
           if ((currentRun == runsCreated - 1) &&
               (pageIndexes[currentRun] >= totalPages % runLength)) {
-            cout << "Run: " << currentRun << " is exausted." << endl;
             continue;
           }
         }
@@ -197,7 +195,7 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
         }
       } else {
         // else the run is exausted and there is nothing to be done.
-        cout << "Run: " << currentRun << " is exausted." << endl;
+        // cout << "Run: " << currentRun << " is exausted." << endl;
       }
     }
   }
@@ -261,7 +259,7 @@ void *WorkerThreadRoutine(void *threadparams) {
   // Run phase 1 for the last run
   if (inputPagesForRun.size() > 0) {
     CreateRun(inputPagesForRun, inputPagesForRun.size(), runFile, sortOrder,
-              runs * inputPagesForRun.size(), buffer);
+              runs * runlen, buffer);
     runs++;
     inputPagesForRun.clear();
   }
