@@ -141,7 +141,7 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
     }
   } else {
     cout << "Runs are empty" << endl;
-    exit(1);
+    return;
   }
 
   cout << "Pages populated successfully" << endl;
@@ -173,8 +173,6 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
       record_count++;
     } else {
       pageIndexes[currentRun]++;
-      cout << "Getting next page from run " << currentRun << "  i.e. "
-           << (currentRun * runLength) + pageIndexes[currentRun] << endl;
 
       if (pageIndexes[currentRun] < runLength) {
         // treat the last run differently, because it might not contain
