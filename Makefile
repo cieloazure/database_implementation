@@ -10,8 +10,8 @@ ifdef linux
 tag = -n
 endif
 
-gtest_main.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o DBFileTest.o TwoWayListTest.o FileTest.o y.tab.o lex.yy.o gtest_main.o 
-	$(TEST) -o gtest_main.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o DBFileTest.o TwoWayListTest.o FileTest.o y.tab.o lex.yy.o gtest_main.o -ll -lgtest -lpthread  
+gtest_main.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o Pipe.o DBFileTest.o TwoWayListTest.o FileTest.o BigQTest.o y.tab.o lex.yy.o gtest_main.o 
+	$(TEST) -o gtest_main.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o Pipe.o DBFileTest.o TwoWayListTest.o FileTest.o BigQTest.o y.tab.o lex.yy.o gtest_main.o -ll -lgtest -lpthread  
 
 test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o
 	$(CC) -o test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o -ll
@@ -69,6 +69,9 @@ TwoWayListTest.o: TwoWayListTest.cc
 
 FileTest.o: FileTest.cc
 	$(TEST) -g -c FileTest.cc
+
+BigQTest.o: BigQTest.cc
+	$(TEST) -g -c BigQTest.cc
 
 Pipe.o: Pipe.cc
 	$(CC) -g -c Pipe.cc

@@ -210,6 +210,11 @@ void *WorkerThreadRoutine(void *threadparams) {
   OrderMaker sortOrder = params->sortOrder;
   int runlen = params->runlen;
 
+  if (runlen <= 0) {
+    std::cout << "Run length is required to be greater than 0" << std::endl;
+    out->ShutDown();
+    pthread_exit(NULL);
+  }
   Record *temp = new Record();
 
   Page *buffer = new Page();
