@@ -68,90 +68,7 @@ namespace dbi {
 // The fixture for testing class BigQ.
 class BigQTest : public ::testing::Test {
  public:
-  static void SetUpTestSuite() {
-    cout << "In setup" << endl;
-    DBFile *heapFile = new DBFile();
-    fType t = heap;
-    heapFile->Create("gtest.bin", t, NULL);
-    Schema mySchema("catalog", "lineitem");
-    heapFile->Load(mySchema, "data_files/lineitem.tbl");
-    heapFile->Close();
-  }
-
-  static void TearDownTestSuite() {
-    remove("gtest.bin");
-    remove("gtest.header");
-  }
-
- protected:
-  // You can remove any or all of the following functions if its body
-  // is empty.
-
-  BigQTest() {
-    // You can do set-up work for each test here.
-  }
-
-  ~BigQTest() override {
-    // You can do clean-up work that doesn't throw exceptions here.
-  }
-
-  // If the constructor and destructor are not enough for setting up
-  // and cleaning up each test, you can define the following methods:
-  void SetUp() override {
-    // Code here will be called immediately after the constructor (right
-    // before each test).
-  }
-
-  void TearDown() override {
-    // Code here will be called immediately after each test (right
-    // before the destructor).
-  }
-
-  // Objects declared here can be used by all tests in the test case for Foo.
-
-  void testRunLength(int runlen, void *(*prod)(void *)) {
-    Pipe *input = new Pipe(100);
-    Pipe *output = new Pipe(100);
-
-    threadArg.inputPipe = input;
-    threadArg.path = (char *)"gtest.bin";
-
-    pthread_t thread1;
-    pthread_create(&thread1, NULL, prod, (void *)&threadArg);
-
-    Schema mySchema("catalog", "lineitem");
-    OrderMaker sortOrder(&mySchema);
-    // Expected number of pages is 100
-    BigQ bq(*input, *output, sortOrder, runlen);
-
-    ComparisonEngine ceng;
-
-    int err = 0;
-    int i = 0;
-
-    Record rec[2];
-    Record *last = NULL, *prev = NULL;
-
-    while (output->Remove(&rec[i % 2])) {
-      prev = last;
-      last = &rec[i % 2];
-
-      if (prev && last) {
-        if (ceng.Compare(prev, last, &sortOrder) == 1) {
-          err++;
-        }
-      }
-      i++;
-    }
-
-    cout << " consumer: removed " << i << " recs from the pipe\n";
-
-    EXPECT_FALSE(err);
-    pthread_join(thread1, NULL);
-    EXPECT_EQ(i, threadArg.result);
-  }
-
-  int shuffle_file() {
+  static int shuffle_file() {
     // initialize random number generator
     std::random_device rd;
     std::mt19937 g(rd());
@@ -192,9 +109,107 @@ class BigQTest : public ::testing::Test {
     out_file.close();
     return 0;
   }
+  static void SetUpTestSuite() {
+    cout << "In setup" << endl;
+    DBFile *heapFile = new DBFile();
+    fType t = heap;
+    heapFile->Create("gtest.bin", t, NULL);
+    Schema mySchema("catalog", "lineitem");
+    heapFile->Load(mySchema, "data_files/lineitem.tbl");
+    heapFile->Close();
+
+    shuffle_file();
+    DBFile *heapFileShuffled = new DBFile();
+    heapFileShuffled->Create("gtest_shuffled.bin", t, NULL);
+    heapFileShuffled->Load(mySchema, "shuffled.tbl");
+    heapFileShuffled->Close();
+  }
+
+  static void TearDownTestSuite() {
+    remove("gtest.bin");
+    remove("gtest.header");
+  }
+
+ protected:
+  // You can remove any or all of the following functions if its body
+  // is empty.
+
+  BigQTest() {
+    // You can do set-up work for each test here.
+  }
+
+  ~BigQTest() override {
+    // You can do clean-up work that doesn't throw exceptions here.
+  }
+
+  // If the constructor and destructor are not enough for setting up
+  // and cleaning up each test, you can define the following methods:
+  void SetUp() override {
+    // Code here will be called immediately after the constructor (right
+    // before each test).
+  }
+
+  void TearDown() override {
+    // Code here will be called immediately after each test (right
+    // before the destructor).
+  }
+
+  // Objects declared here can be used by all tests in the test case for Foo.
+
+  void testRunLength(int runlen, void *(*prod)(void *), bool shuffled = false) {
+    Pipe *input = new Pipe(100);
+    Pipe *output = new Pipe(100);
+
+    threadArg.inputPipe = input;
+    if (shuffled) {
+      threadArg.path = (char *)"gtest_shuffled.bin";
+    } else {
+      threadArg.path = (char *)"gtest.bin";
+    }
+
+    pthread_t thread1;
+    pthread_create(&thread1, NULL, prod, (void *)&threadArg);
+
+    Schema mySchema("catalog", "lineitem");
+    OrderMaker sortOrder(&mySchema);
+    // Expected number of pages is 100
+    BigQ bq(*input, *output, sortOrder, runlen);
+
+    ComparisonEngine ceng;
+
+    int err = 0;
+    int i = 0;
+
+    Record rec[2];
+    Record *last = NULL, *prev = NULL;
+
+    while (output->Remove(&rec[i % 2])) {
+      prev = last;
+      last = &rec[i % 2];
+
+      if (prev && last) {
+        if (ceng.Compare(prev, last, &sortOrder) == 1) {
+          err++;
+        }
+      }
+      i++;
+    }
+
+    cout << " consumer: removed " << i << " recs from the pipe\n";
+
+    EXPECT_FALSE(err);
+    pthread_join(thread1, NULL);
+    EXPECT_EQ(i, threadArg.result);
+  }
 };
 
-TEST_F(BigQTest, OUTPUT_PIPE_HAS_SORTED_RECORDS) { testRunLength(3, producer); }
+TEST_F(BigQTest, OUTPUT_PIPE_HAS_SORTED_RECORDS_WITH_AN_ALREADY_SORTED_FILE) {
+  testRunLength(3, producer);
+}
+
+TEST_F(BigQTest, OUTPUT_PIPE_HAS_SORTED_RECORDS_WITH_A_SHUFFLED_FILE) {
+  testRunLength(3, producer, true);
+}
 
 TEST_F(BigQTest, WHEN_THE_INPUT_PIPE_HAS_NO_RECORDS) {
   testRunLength(3, producerNoRecords);

@@ -31,18 +31,18 @@
             <td class="headerValue">P1.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">0</td>
-            <td class="headerCovTableEntry">5</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntryMed">77.1 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 18:28:20</td>
+            <td class="headerValue">2019-02-18 20:57:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">0</td>
-            <td class="headerCovTableEntry">2</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryMed">80.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -249,8 +249,8 @@
 <span class="lineNum">     187 </span>            : 
 <a name="188"><span class="lineNum">     188 </span>            :     // 27.7.1.1.1 Constructor/destructor:</a>
 <span class="lineNum">     189 </span>            :     inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
-<span class="lineNum">     190 </span><span class="lineNoCov">          0 :     explicit basic_istream(basic_streambuf&lt;char_type, traits_type&gt;* __sb) : __gc_(0)</span>
-<span class="lineNum">     191 </span><span class="lineNoCov">          0 :     { this-&gt;init(__sb); }</span>
+<span class="lineNum">     190 </span><span class="lineCov">          1 :     explicit basic_istream(basic_streambuf&lt;char_type, traits_type&gt;* __sb) : __gc_(0)</span>
+<span class="lineNum">     191 </span><span class="lineCov">          2 :     { this-&gt;init(__sb); }</span>
 <span class="lineNum">     192 </span>            :     virtual ~basic_istream();
 <span class="lineNum">     193 </span>            : protected:
 <span class="lineNum">     194 </span>            : #ifndef _LIBCPP_CXX03_LANG
@@ -363,9 +363,9 @@
 <span class="lineNum">     301 </span>            :     explicit sentry(basic_istream&lt;_CharT, _Traits&gt;&amp; __is, bool __noskipws = false);
 <span class="lineNum">     302 </span>            : //    ~sentry() = default;
 <span class="lineNum">     303 </span>            : 
-<span class="lineNum">     304 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<a name="304"><span class="lineNum">     304 </span>            :     _LIBCPP_INLINE_VISIBILITY</a>
 <span class="lineNum">     305 </span>            :         _LIBCPP_EXPLICIT
-<span class="lineNum">     306 </span>            :         operator bool() const {return __ok_;}
+<span class="lineNum">     306 </span><span class="lineCov">      60176 :         operator bool() const {return __ok_;}</span>
 <span class="lineNum">     307 </span>            : };
 <span class="lineNum">     308 </span>            : 
 <span class="lineNum">     309 </span>            : template &lt;class _CharT, class _Traits&gt;
@@ -1616,7 +1616,7 @@
 <span class="lineNum">    1554 </span>            :     return __is;
 <span class="lineNum">    1555 </span>            : }
 <span class="lineNum">    1556 </span>            : 
-<span class="lineNum">    1557 </span>            : template&lt;class _CharT, class _Traits, class _Allocator&gt;
+<a name="1557"><span class="lineNum">    1557 </span>            : template&lt;class _CharT, class _Traits, class _Allocator&gt;</a>
 <span class="lineNum">    1558 </span>            : basic_istream&lt;_CharT, _Traits&gt;&amp;
 <span class="lineNum">    1559 </span>            : getline(basic_istream&lt;_CharT, _Traits&gt;&amp; __is,
 <span class="lineNum">    1560 </span>            :         basic_string&lt;_CharT, _Traits, _Allocator&gt;&amp; __str, _CharT __dlm)
@@ -1625,52 +1625,52 @@
 <span class="lineNum">    1563 </span>            :     try
 <span class="lineNum">    1564 </span>            :     {
 <span class="lineNum">    1565 </span>            : #endif  // _LIBCPP_NO_EXCEPTIONS
-<span class="lineNum">    1566 </span>            :         typename basic_istream&lt;_CharT, _Traits&gt;::sentry __sen(__is, true);
-<span class="lineNum">    1567 </span>            :         if (__sen)
+<span class="lineNum">    1566 </span><span class="lineCov">      60176 :         typename basic_istream&lt;_CharT, _Traits&gt;::sentry __sen(__is, true);</span>
+<span class="lineNum">    1567 </span><span class="lineCov">     120352 :         if (__sen)</span>
 <span class="lineNum">    1568 </span>            :         {
-<span class="lineNum">    1569 </span>            :             __str.clear();
-<span class="lineNum">    1570 </span>            :             ios_base::iostate __err = ios_base::goodbit;
-<span class="lineNum">    1571 </span>            :             streamsize __extr = 0;
-<span class="lineNum">    1572 </span>            :             while (true)
+<span class="lineNum">    1569 </span><span class="lineCov">      60176 :             __str.clear();</span>
+<span class="lineNum">    1570 </span><span class="lineCov">      60176 :             ios_base::iostate __err = ios_base::goodbit;</span>
+<span class="lineNum">    1571 </span><span class="lineCov">      60176 :             streamsize __extr = 0;</span>
+<span class="lineNum">    1572 </span><span class="lineCov">   14528502 :             while (true)</span>
 <span class="lineNum">    1573 </span>            :             {
-<span class="lineNum">    1574 </span>            :                 typename _Traits::int_type __i = __is.rdbuf()-&gt;sbumpc();
-<span class="lineNum">    1575 </span>            :                 if (_Traits::eq_int_type(__i, _Traits::eof()))
+<span class="lineNum">    1574 </span><span class="lineCov">   21792753 :                 typename _Traits::int_type __i = __is.rdbuf()-&gt;sbumpc();</span>
+<span class="lineNum">    1575 </span><span class="lineCov">    7264251 :                 if (_Traits::eq_int_type(__i, _Traits::eof()))</span>
 <span class="lineNum">    1576 </span>            :                 {
-<span class="lineNum">    1577 </span>            :                    __err |= ios_base::eofbit;
-<span class="lineNum">    1578 </span>            :                    break;
+<span class="lineNum">    1577 </span><span class="lineCov">          1 :                    __err |= ios_base::eofbit;</span>
+<span class="lineNum">    1578 </span><span class="lineCov">          1 :                    break;</span>
 <span class="lineNum">    1579 </span>            :                 }
-<span class="lineNum">    1580 </span>            :                 ++__extr;
-<span class="lineNum">    1581 </span>            :                 _CharT __ch = _Traits::to_char_type(__i);
-<span class="lineNum">    1582 </span>            :                 if (_Traits::eq(__ch, __dlm))
-<span class="lineNum">    1583 </span>            :                     break;
-<span class="lineNum">    1584 </span>            :                 __str.push_back(__ch);
-<span class="lineNum">    1585 </span>            :                 if (__str.size() == __str.max_size())
+<span class="lineNum">    1580 </span><span class="lineCov">    7264250 :                 ++__extr;</span>
+<span class="lineNum">    1581 </span><span class="lineCov">    7264250 :                 _CharT __ch = _Traits::to_char_type(__i);</span>
+<span class="lineNum">    1582 </span><span class="lineCov">    7264250 :                 if (_Traits::eq(__ch, __dlm))</span>
+<span class="lineNum">    1583 </span><span class="lineCov">      60175 :                     break;</span>
+<span class="lineNum">    1584 </span><span class="lineCov">    7204075 :                 __str.push_back(__ch);</span>
+<span class="lineNum">    1585 </span><span class="lineCov">    7204075 :                 if (__str.size() == __str.max_size())</span>
 <span class="lineNum">    1586 </span>            :                 {
-<span class="lineNum">    1587 </span>            :                     __err |= ios_base::failbit;
-<span class="lineNum">    1588 </span>            :                     break;
+<span class="lineNum">    1587 </span><span class="lineNoCov">          0 :                     __err |= ios_base::failbit;</span>
+<span class="lineNum">    1588 </span><span class="lineNoCov">          0 :                     break;</span>
 <span class="lineNum">    1589 </span>            :                 }
-<span class="lineNum">    1590 </span>            :             }
-<span class="lineNum">    1591 </span>            :             if (__extr == 0)
-<span class="lineNum">    1592 </span>            :                __err |= ios_base::failbit;
-<span class="lineNum">    1593 </span>            :             __is.setstate(__err);
-<span class="lineNum">    1594 </span>            :         }
+<span class="lineNum">    1590 </span><span class="lineCov">   21732576 :             }</span>
+<span class="lineNum">    1591 </span><span class="lineCov">      60176 :             if (__extr == 0)</span>
+<span class="lineNum">    1592 </span><span class="lineCov">          1 :                __err |= ios_base::failbit;</span>
+<span class="lineNum">    1593 </span><span class="lineCov">      60176 :             __is.setstate(__err);</span>
+<span class="lineNum">    1594 </span><span class="lineCov">      60176 :         }</span>
 <span class="lineNum">    1595 </span>            : #ifndef _LIBCPP_NO_EXCEPTIONS
-<span class="lineNum">    1596 </span>            :     }
+<span class="lineNum">    1596 </span><span class="lineCov">      60176 :     }</span>
 <span class="lineNum">    1597 </span>            :     catch (...)
 <span class="lineNum">    1598 </span>            :     {
-<span class="lineNum">    1599 </span>            :         __is.__set_badbit_and_consider_rethrow();
-<span class="lineNum">    1600 </span>            :     }
+<span class="lineNum">    1599 </span><span class="lineNoCov">          0 :         __is.__set_badbit_and_consider_rethrow();</span>
+<span class="lineNum">    1600 </span><span class="lineNoCov">          0 :     }</span>
 <span class="lineNum">    1601 </span>            : #endif  // _LIBCPP_NO_EXCEPTIONS
-<span class="lineNum">    1602 </span>            :     return __is;
-<span class="lineNum">    1603 </span>            : }
+<span class="lineNum">    1602 </span><span class="lineCov">      60176 :     return __is;</span>
+<span class="lineNum">    1603 </span><span class="lineNoCov">          0 : }</span>
 <span class="lineNum">    1604 </span>            : 
 <span class="lineNum">    1605 </span>            : template&lt;class _CharT, class _Traits, class _Allocator&gt;
-<span class="lineNum">    1606 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<a name="1606"><span class="lineNum">    1606 </span>            : inline _LIBCPP_INLINE_VISIBILITY</a>
 <span class="lineNum">    1607 </span>            : basic_istream&lt;_CharT, _Traits&gt;&amp;
 <span class="lineNum">    1608 </span>            : getline(basic_istream&lt;_CharT, _Traits&gt;&amp; __is,
 <span class="lineNum">    1609 </span>            :         basic_string&lt;_CharT, _Traits, _Allocator&gt;&amp; __str)
 <span class="lineNum">    1610 </span>            : {
-<span class="lineNum">    1611 </span>            :     return getline(__is, __str, __is.widen('\n'));
+<span class="lineNum">    1611 </span><span class="lineCov">      60176 :     return getline(__is, __str, __is.widen('\n'));</span>
 <span class="lineNum">    1612 </span>            : }
 <span class="lineNum">    1613 </span>            : 
 <span class="lineNum">    1614 </span>            : #ifndef _LIBCPP_CXX03_LANG

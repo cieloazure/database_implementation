@@ -31,18 +31,18 @@
             <td class="headerValue">P1.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">3</td>
-            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">7</td>
             <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 18:28:20</td>
+            <td class="headerValue">2019-02-18 20:57:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">5</td>
-            <td class="headerCovTableEntry">5</td>
-            <td class="headerCovTableEntryHi">100.0 %</td>
+            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntryHi">97.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -510,7 +510,7 @@
 <span class="lineNum">     448 </span>            : _Tp*
 <span class="lineNum">     449 </span>            : addressof(_Tp&amp; __x) _NOEXCEPT
 <span class="lineNum">     450 </span>            : {
-<span class="lineNum">     451 </span><span class="lineCov">        814 :     return __builtin_addressof(__x);</span>
+<span class="lineNum">     451 </span><span class="lineCov">        718 :     return __builtin_addressof(__x);</span>
 <span class="lineNum">     452 </span>            : }
 <span class="lineNum">     453 </span>            : 
 <span class="lineNum">     454 </span>            : #else
@@ -2347,12 +2347,12 @@
 <span class="lineNum">    2285 </span>            : #ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
 <span class="lineNum">    2286 </span>            : 
 <span class="lineNum">    2287 </span>            : template &lt;class _Tp&gt;
-<span class="lineNum">    2288 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR
+<a name="2288"><span class="lineNum">    2288 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR</a>
 <span class="lineNum">    2289 </span>            : typename remove_reference&lt;_Tp&gt;::type&amp;&amp;
 <span class="lineNum">    2290 </span>            : move(_Tp&amp;&amp; __t) _NOEXCEPT
 <span class="lineNum">    2291 </span>            : {
 <span class="lineNum">    2292 </span>            :     typedef typename remove_reference&lt;_Tp&gt;::type _Up;
-<span class="lineNum">    2293 </span>            :     return static_cast&lt;_Up&amp;&amp;&gt;(__t);
+<span class="lineNum">    2293 </span><span class="lineCov">    7807253 :     return static_cast&lt;_Up&amp;&amp;&gt;(__t);</span>
 <span class="lineNum">    2294 </span>            : }
 <span class="lineNum">    2295 </span>            : 
 <span class="lineNum">    2296 </span>            : template &lt;class _Tp&gt;
@@ -2360,7 +2360,7 @@
 <span class="lineNum">    2298 </span>            : _Tp&amp;&amp;
 <span class="lineNum">    2299 </span>            : forward(typename remove_reference&lt;_Tp&gt;::type&amp; __t) _NOEXCEPT
 <span class="lineNum">    2300 </span>            : {
-<span class="lineNum">    2301 </span><span class="lineCov">        228 :     return static_cast&lt;_Tp&amp;&amp;&gt;(__t);</span>
+<span class="lineNum">    2301 </span><span class="lineCov">   16618391 :     return static_cast&lt;_Tp&amp;&amp;&gt;(__t);</span>
 <span class="lineNum">    2302 </span>            : }
 <span class="lineNum">    2303 </span>            : 
 <span class="lineNum">    2304 </span>            : template &lt;class _Tp&gt;
@@ -2392,11 +2392,11 @@
 <span class="lineNum">    2330 </span>            : }
 <span class="lineNum">    2331 </span>            : 
 <span class="lineNum">    2332 </span>            : template &lt;class _Tp&gt;
-<a name="2333"><span class="lineNum">    2333 </span>            : inline _LIBCPP_INLINE_VISIBILITY</a>
+<span class="lineNum">    2333 </span>            : inline _LIBCPP_INLINE_VISIBILITY
 <span class="lineNum">    2334 </span>            : _Tp&amp;
 <span class="lineNum">    2335 </span>            : forward(typename remove_reference&lt;_Tp&gt;::type&amp; __t) _NOEXCEPT
 <span class="lineNum">    2336 </span>            : {
-<span class="lineNum">    2337 </span><span class="lineCov">        216 :     return __t;</span>
+<span class="lineNum">    2337 </span>            :     return __t;
 <span class="lineNum">    2338 </span>            : }
 <span class="lineNum">    2339 </span>            : 
 <span class="lineNum">    2340 </span>            : 
@@ -4646,15 +4646,15 @@
 <span class="lineNum">    4584 </span>            :     is_move_assignable&lt;_Tp&gt;::value
 <span class="lineNum">    4585 </span>            : &gt;::type
 <span class="lineNum">    4586 </span>            : #else
-<span class="lineNum">    4587 </span>            : void
+<a name="4587"><span class="lineNum">    4587 </span>            : void</a>
 <span class="lineNum">    4588 </span>            : #endif
 <span class="lineNum">    4589 </span>            : swap(_Tp&amp; __x, _Tp&amp; __y) _NOEXCEPT_(is_nothrow_move_constructible&lt;_Tp&gt;::value &amp;&amp;
 <span class="lineNum">    4590 </span>            :                                     is_nothrow_move_assignable&lt;_Tp&gt;::value)
 <span class="lineNum">    4591 </span>            : {
-<span class="lineNum">    4592 </span>            :     _Tp __t(_VSTD::move(__x));
-<span class="lineNum">    4593 </span>            :     __x = _VSTD::move(__y);
-<span class="lineNum">    4594 </span>            :     __y = _VSTD::move(__t);
-<span class="lineNum">    4595 </span>            : }
+<span class="lineNum">    4592 </span><span class="lineCov">    1146320 :     _Tp __t(_VSTD::move(__x));</span>
+<span class="lineNum">    4593 </span><span class="lineCov">    1146320 :     __x = _VSTD::move(__y);</span>
+<span class="lineNum">    4594 </span><span class="lineCov">    1146320 :     __y = _VSTD::move(__t);</span>
+<span class="lineNum">    4595 </span><span class="lineCov">    1146320 : }</span>
 <span class="lineNum">    4596 </span>            : 
 <span class="lineNum">    4597 </span>            : template&lt;class _Tp, size_t _Np&gt;
 <span class="lineNum">    4598 </span>            : inline _LIBCPP_INLINE_VISIBILITY

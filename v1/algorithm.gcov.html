@@ -31,18 +31,18 @@
             <td class="headerValue">P1.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">3</td>
-            <td class="headerCovTableEntry">3</td>
-            <td class="headerCovTableEntryHi">100.0 %</td>
+            <td class="headerCovTableEntry">116</td>
+            <td class="headerCovTableEntry">136</td>
+            <td class="headerCovTableEntryMed">85.3 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 18:28:20</td>
+            <td class="headerValue">2019-02-18 20:57:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">3</td>
-            <td class="headerCovTableEntry">3</td>
-            <td class="headerCovTableEntryHi">100.0 %</td>
+            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntry">34</td>
+            <td class="headerCovTableEntryHi">91.2 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -778,7 +778,7 @@
 <span class="lineNum">     716 </span>            : struct __less&lt;_T1, _T1&gt;
 <a name="717"><span class="lineNum">     717 </span>            : {</a>
 <span class="lineNum">     718 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
-<span class="lineNum">     719 </span><span class="lineCov">         89 :     bool operator()(const _T1&amp; __x, const _T1&amp; __y) const {return __x &lt; __y;}</span>
+<span class="lineNum">     719 </span><span class="lineCov">       2964 :     bool operator()(const _T1&amp; __x, const _T1&amp; __y) const {return __x &lt; __y;}</span>
 <span class="lineNum">     720 </span>            : };
 <span class="lineNum">     721 </span>            : 
 <span class="lineNum">     722 </span>            : template &lt;class _T1&gt;
@@ -926,11 +926,11 @@
 <span class="lineNum">     864 </span>            :     return __clz(static_cast&lt;unsigned&gt;(__x));
 <span class="lineNum">     865 </span>            : #endif
 <span class="lineNum">     866 </span>            : }
-<span class="lineNum">     867 </span>            : 
+<a name="867"><span class="lineNum">     867 </span>            : </a>
 <span class="lineNum">     868 </span>            : inline _LIBCPP_INLINE_VISIBILITY
 <span class="lineNum">     869 </span>            : unsigned long long __clz(unsigned long long __x) {
 <span class="lineNum">     870 </span>            : #ifndef _LIBCPP_COMPILER_MSVC
-<span class="lineNum">     871 </span>            :     return static_cast&lt;unsigned long long&gt;(__builtin_clzll(__x));
+<span class="lineNum">     871 </span><span class="lineCov">      60174 :     return static_cast&lt;unsigned long long&gt;(__builtin_clzll(__x));</span>
 <span class="lineNum">     872 </span>            : #else
 <span class="lineNum">     873 </span>            :   unsigned long where;
 <span class="lineNum">     874 </span>            : // BitScanReverse scans from MSB to LSB for first set bit.
@@ -2701,19 +2701,19 @@
 <span class="lineNum">    2639 </span>            : // min
 <span class="lineNum">    2640 </span>            : 
 <span class="lineNum">    2641 </span>            : template &lt;class _Tp, class _Compare&gt;
-<span class="lineNum">    2642 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<a name="2642"><span class="lineNum">    2642 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11</a>
 <span class="lineNum">    2643 </span>            : const _Tp&amp;
 <span class="lineNum">    2644 </span>            : min(const _Tp&amp; __a, const _Tp&amp; __b, _Compare __comp)
 <span class="lineNum">    2645 </span>            : {
-<span class="lineNum">    2646 </span>            :     return __comp(__b, __a) ? __b : __a;
+<span class="lineNum">    2646 </span><span class="lineCov">       6942 :     return __comp(__b, __a) ? __b : __a;</span>
 <span class="lineNum">    2647 </span>            : }
 <span class="lineNum">    2648 </span>            : 
 <span class="lineNum">    2649 </span>            : template &lt;class _Tp&gt;
-<span class="lineNum">    2650 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<a name="2650"><span class="lineNum">    2650 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11</a>
 <span class="lineNum">    2651 </span>            : const _Tp&amp;
 <span class="lineNum">    2652 </span>            : min(const _Tp&amp; __a, const _Tp&amp; __b)
 <span class="lineNum">    2653 </span>            : {
-<span class="lineNum">    2654 </span>            :     return _VSTD::min(__a, __b, __less&lt;_Tp&gt;());
+<span class="lineNum">    2654 </span><span class="lineCov">       2314 :     return _VSTD::min(__a, __b, __less&lt;_Tp&gt;());</span>
 <span class="lineNum">    2655 </span>            : }
 <span class="lineNum">    2656 </span>            : 
 <span class="lineNum">    2657 </span>            : #ifndef _LIBCPP_CXX03_LANG
@@ -2770,7 +2770,7 @@
 <span class="lineNum">    2708 </span>            : const _Tp&amp;
 <span class="lineNum">    2709 </span>            : max(const _Tp&amp; __a, const _Tp&amp; __b, _Compare __comp)
 <span class="lineNum">    2710 </span>            : {
-<span class="lineNum">    2711 </span><span class="lineCov">        267 :     return __comp(__a, __b) ? __b : __a;</span>
+<span class="lineNum">    2711 </span><span class="lineCov">       1950 :     return __comp(__a, __b) ? __b : __a;</span>
 <span class="lineNum">    2712 </span>            : }
 <span class="lineNum">    2713 </span>            : 
 <span class="lineNum">    2714 </span>            : template &lt;class _Tp&gt;
@@ -2778,7 +2778,7 @@
 <span class="lineNum">    2716 </span>            : const _Tp&amp;
 <span class="lineNum">    2717 </span>            : max(const _Tp&amp; __a, const _Tp&amp; __b)
 <span class="lineNum">    2718 </span>            : {
-<span class="lineNum">    2719 </span><span class="lineCov">         89 :     return _VSTD::max(__a, __b, __less&lt;_Tp&gt;());</span>
+<span class="lineNum">    2719 </span><span class="lineCov">        650 :     return _VSTD::max(__a, __b, __less&lt;_Tp&gt;());</span>
 <span class="lineNum">    2720 </span>            : }
 <span class="lineNum">    2721 </span>            : 
 <span class="lineNum">    2722 </span>            : #ifndef _LIBCPP_CXX03_LANG
@@ -3019,49 +3019,49 @@
 <span class="lineNum">    2957 </span>            : public:
 <span class="lineNum">    2958 </span>            :     // constructors and seeding functions
 <span class="lineNum">    2959 </span>            :     __independent_bits_engine(_Engine&amp; __e, size_t __w);
-<span class="lineNum">    2960 </span>            : 
+<a name="2960"><span class="lineNum">    2960 </span>            : </a>
 <span class="lineNum">    2961 </span>            :     // generating functions
-<span class="lineNum">    2962 </span>            :     result_type operator()() {return __eval(integral_constant&lt;bool, _Rp != 0&gt;());}
+<span class="lineNum">    2962 </span><span class="lineCov">      84950 :     result_type operator()() {return __eval(integral_constant&lt;bool, _Rp != 0&gt;());}</span>
 <span class="lineNum">    2963 </span>            : 
 <span class="lineNum">    2964 </span>            : private:
 <span class="lineNum">    2965 </span>            :     result_type __eval(false_type);
 <span class="lineNum">    2966 </span>            :     result_type __eval(true_type);
 <span class="lineNum">    2967 </span>            : };
 <span class="lineNum">    2968 </span>            : 
-<span class="lineNum">    2969 </span>            : template&lt;class _Engine, class _UIntType&gt;
+<a name="2969"><span class="lineNum">    2969 </span>            : template&lt;class _Engine, class _UIntType&gt;</a>
 <span class="lineNum">    2970 </span>            : __independent_bits_engine&lt;_Engine, _UIntType&gt;
 <span class="lineNum">    2971 </span>            :     ::__independent_bits_engine(_Engine&amp; __e, size_t __w)
-<span class="lineNum">    2972 </span>            :         : __e_(__e),
-<span class="lineNum">    2973 </span>            :           __w_(__w)
-<span class="lineNum">    2974 </span>            : {
-<span class="lineNum">    2975 </span>            :     __n_ = __w_ / __m + (__w_ % __m != 0);
-<span class="lineNum">    2976 </span>            :     __w0_ = __w_ / __n_;
+<span class="lineNum">    2972 </span><span class="lineCov">      60174 :         : __e_(__e),</span>
+<span class="lineNum">    2973 </span><span class="lineCov">      60174 :           __w_(__w)</span>
+<span class="lineNum">    2974 </span><span class="lineCov">      60174 : {</span>
+<span class="lineNum">    2975 </span><span class="lineCov">      60174 :     __n_ = __w_ / __m + (__w_ % __m != 0);</span>
+<span class="lineNum">    2976 </span><span class="lineCov">      60174 :     __w0_ = __w_ / __n_;</span>
 <span class="lineNum">    2977 </span>            :     if (_Rp == 0)
 <span class="lineNum">    2978 </span>            :         __y0_ = _Rp;
-<span class="lineNum">    2979 </span>            :     else if (__w0_ &lt; _WDt)
-<span class="lineNum">    2980 </span>            :         __y0_ = (_Rp &gt;&gt; __w0_) &lt;&lt; __w0_;
+<span class="lineNum">    2979 </span><span class="lineCov">      60174 :     else if (__w0_ &lt; _WDt)</span>
+<span class="lineNum">    2980 </span><span class="lineCov">      60174 :         __y0_ = (_Rp &gt;&gt; __w0_) &lt;&lt; __w0_;</span>
 <span class="lineNum">    2981 </span>            :     else
-<span class="lineNum">    2982 </span>            :         __y0_ = 0;
-<span class="lineNum">    2983 </span>            :     if (_Rp - __y0_ &gt; __y0_ / __n_)
+<span class="lineNum">    2982 </span><span class="lineNoCov">          0 :         __y0_ = 0;</span>
+<span class="lineNum">    2983 </span><span class="lineCov">      60174 :     if (_Rp - __y0_ &gt; __y0_ / __n_)</span>
 <span class="lineNum">    2984 </span>            :     {
-<span class="lineNum">    2985 </span>            :         ++__n_;
-<span class="lineNum">    2986 </span>            :         __w0_ = __w_ / __n_;
-<span class="lineNum">    2987 </span>            :         if (__w0_ &lt; _WDt)
-<span class="lineNum">    2988 </span>            :             __y0_ = (_Rp &gt;&gt; __w0_) &lt;&lt; __w0_;
+<span class="lineNum">    2985 </span><span class="lineNoCov">          0 :         ++__n_;</span>
+<span class="lineNum">    2986 </span><span class="lineNoCov">          0 :         __w0_ = __w_ / __n_;</span>
+<span class="lineNum">    2987 </span><span class="lineNoCov">          0 :         if (__w0_ &lt; _WDt)</span>
+<span class="lineNum">    2988 </span><span class="lineNoCov">          0 :             __y0_ = (_Rp &gt;&gt; __w0_) &lt;&lt; __w0_;</span>
 <span class="lineNum">    2989 </span>            :         else
-<span class="lineNum">    2990 </span>            :             __y0_ = 0;
-<span class="lineNum">    2991 </span>            :     }
-<span class="lineNum">    2992 </span>            :     __n0_ = __n_ - __w_ % __n_;
-<span class="lineNum">    2993 </span>            :     if (__w0_ &lt; _WDt - 1)
-<span class="lineNum">    2994 </span>            :         __y1_ = (_Rp &gt;&gt; (__w0_ + 1)) &lt;&lt; (__w0_ + 1);
+<span class="lineNum">    2990 </span><span class="lineNoCov">          0 :             __y0_ = 0;</span>
+<span class="lineNum">    2991 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">    2992 </span><span class="lineCov">      60174 :     __n0_ = __n_ - __w_ % __n_;</span>
+<span class="lineNum">    2993 </span><span class="lineCov">      60174 :     if (__w0_ &lt; _WDt - 1)</span>
+<span class="lineNum">    2994 </span><span class="lineCov">      60174 :         __y1_ = (_Rp &gt;&gt; (__w0_ + 1)) &lt;&lt; (__w0_ + 1);</span>
 <span class="lineNum">    2995 </span>            :     else
-<span class="lineNum">    2996 </span>            :         __y1_ = 0;
-<span class="lineNum">    2997 </span>            :     __mask0_ = __w0_ &gt; 0 ? _Engine_result_type(~0) &gt;&gt; (_EDt - __w0_) :
+<span class="lineNum">    2996 </span><span class="lineNoCov">          0 :         __y1_ = 0;</span>
+<span class="lineNum">    2997 </span><span class="lineCov">     180522 :     __mask0_ = __w0_ &gt; 0 ? _Engine_result_type(~0) &gt;&gt; (_EDt - __w0_) :</span>
 <span class="lineNum">    2998 </span>            :                           _Engine_result_type(0);
-<span class="lineNum">    2999 </span>            :     __mask1_ = __w0_ &lt; _EDt - 1 ?
-<span class="lineNum">    3000 </span>            :                                _Engine_result_type(~0) &gt;&gt; (_EDt - (__w0_ + 1)) :
+<span class="lineNum">    2999 </span><span class="lineCov">     180522 :     __mask1_ = __w0_ &lt; _EDt - 1 ?</span>
+<span class="lineNum">    3000 </span><span class="lineCov">      60174 :                                _Engine_result_type(~0) &gt;&gt; (_EDt - (__w0_ + 1)) :</span>
 <span class="lineNum">    3001 </span>            :                                _Engine_result_type(~0);
-<span class="lineNum">    3002 </span>            : }
+<span class="lineNum">    3002 </span><span class="lineCov">     120348 : }</span>
 <span class="lineNum">    3003 </span>            : 
 <span class="lineNum">    3004 </span>            : template&lt;class _Engine, class _UIntType&gt;
 <span class="lineNum">    3005 </span>            : inline
@@ -3071,40 +3071,40 @@
 <span class="lineNum">    3009 </span>            :     return static_cast&lt;result_type&gt;(__e_() &amp; __mask0_);
 <span class="lineNum">    3010 </span>            : }
 <span class="lineNum">    3011 </span>            : 
-<span class="lineNum">    3012 </span>            : template&lt;class _Engine, class _UIntType&gt;
+<a name="3012"><span class="lineNum">    3012 </span>            : template&lt;class _Engine, class _UIntType&gt;</a>
 <span class="lineNum">    3013 </span>            : _UIntType
 <span class="lineNum">    3014 </span>            : __independent_bits_engine&lt;_Engine, _UIntType&gt;::__eval(true_type)
 <span class="lineNum">    3015 </span>            : {
-<span class="lineNum">    3016 </span>            :     const size_t _WRt = numeric_limits&lt;result_type&gt;::digits;
-<span class="lineNum">    3017 </span>            :     result_type _Sp = 0;
-<span class="lineNum">    3018 </span>            :     for (size_t __k = 0; __k &lt; __n0_; ++__k)
+<span class="lineNum">    3016 </span><span class="lineCov">      84950 :     const size_t _WRt = numeric_limits&lt;result_type&gt;::digits;</span>
+<span class="lineNum">    3017 </span><span class="lineCov">      84950 :     result_type _Sp = 0;</span>
+<span class="lineNum">    3018 </span><span class="lineCov">     424750 :     for (size_t __k = 0; __k &lt; __n0_; ++__k)</span>
 <span class="lineNum">    3019 </span>            :     {
-<span class="lineNum">    3020 </span>            :         _Engine_result_type __u;
-<span class="lineNum">    3021 </span>            :         do
+<span class="lineNum">    3020 </span><span class="lineCov">      84950 :         _Engine_result_type __u;</span>
+<span class="lineNum">    3021 </span><span class="lineCov">      84950 :         do</span>
 <span class="lineNum">    3022 </span>            :         {
-<span class="lineNum">    3023 </span>            :             __u = __e_() - _Engine::min();
-<span class="lineNum">    3024 </span>            :         } while (__u &gt;= __y0_);
-<span class="lineNum">    3025 </span>            :         if (__w0_ &lt; _WRt)
-<span class="lineNum">    3026 </span>            :             _Sp &lt;&lt;= __w0_;
+<span class="lineNum">    3023 </span><span class="lineCov">      84950 :             __u = __e_() - _Engine::min();</span>
+<span class="lineNum">    3024 </span><span class="lineCov">     169900 :         } while (__u &gt;= __y0_);</span>
+<span class="lineNum">    3025 </span><span class="lineCov">      84950 :         if (__w0_ &lt; _WRt)</span>
+<span class="lineNum">    3026 </span><span class="lineCov">      84950 :             _Sp &lt;&lt;= __w0_;</span>
 <span class="lineNum">    3027 </span>            :         else
-<span class="lineNum">    3028 </span>            :             _Sp = 0;
-<span class="lineNum">    3029 </span>            :         _Sp += __u &amp; __mask0_;
-<span class="lineNum">    3030 </span>            :     }
-<span class="lineNum">    3031 </span>            :     for (size_t __k = __n0_; __k &lt; __n_; ++__k)
+<span class="lineNum">    3028 </span><span class="lineNoCov">          0 :             _Sp = 0;</span>
+<span class="lineNum">    3029 </span><span class="lineCov">      84950 :         _Sp += __u &amp; __mask0_;</span>
+<span class="lineNum">    3030 </span><span class="lineCov">      84950 :     }</span>
+<span class="lineNum">    3031 </span><span class="lineCov">     254850 :     for (size_t __k = __n0_; __k &lt; __n_; ++__k)</span>
 <span class="lineNum">    3032 </span>            :     {
-<span class="lineNum">    3033 </span>            :         _Engine_result_type __u;
-<span class="lineNum">    3034 </span>            :         do
+<span class="lineNum">    3033 </span><span class="lineNoCov">          0 :         _Engine_result_type __u;</span>
+<span class="lineNum">    3034 </span><span class="lineNoCov">          0 :         do</span>
 <span class="lineNum">    3035 </span>            :         {
-<span class="lineNum">    3036 </span>            :             __u = __e_() - _Engine::min();
-<span class="lineNum">    3037 </span>            :         } while (__u &gt;= __y1_);
-<span class="lineNum">    3038 </span>            :         if (__w0_ &lt; _WRt - 1)
-<span class="lineNum">    3039 </span>            :             _Sp &lt;&lt;= __w0_ + 1;
+<span class="lineNum">    3036 </span><span class="lineNoCov">          0 :             __u = __e_() - _Engine::min();</span>
+<span class="lineNum">    3037 </span><span class="lineNoCov">          0 :         } while (__u &gt;= __y1_);</span>
+<span class="lineNum">    3038 </span><span class="lineNoCov">          0 :         if (__w0_ &lt; _WRt - 1)</span>
+<span class="lineNum">    3039 </span><span class="lineNoCov">          0 :             _Sp &lt;&lt;= __w0_ + 1;</span>
 <span class="lineNum">    3040 </span>            :         else
-<span class="lineNum">    3041 </span>            :             _Sp = 0;
-<span class="lineNum">    3042 </span>            :         _Sp += __u &amp; __mask1_;
-<span class="lineNum">    3043 </span>            :     }
-<span class="lineNum">    3044 </span>            :     return _Sp;
-<span class="lineNum">    3045 </span>            : }
+<span class="lineNum">    3041 </span><span class="lineNoCov">          0 :             _Sp = 0;</span>
+<span class="lineNum">    3042 </span><span class="lineNoCov">          0 :         _Sp += __u &amp; __mask1_;</span>
+<span class="lineNum">    3043 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">    3044 </span><span class="lineCov">     169900 :     return _Sp;</span>
+<span class="lineNum">    3045 </span><span class="lineCov">      84950 : }</span>
 <span class="lineNum">    3046 </span>            : 
 <span class="lineNum">    3047 </span>            : // uniform_int_distribution
 <span class="lineNum">    3048 </span>            : 
@@ -3120,14 +3120,14 @@
 <span class="lineNum">    3058 </span>            :         result_type __a_;
 <span class="lineNum">    3059 </span>            :         result_type __b_;
 <span class="lineNum">    3060 </span>            :     public:
-<span class="lineNum">    3061 </span>            :         typedef uniform_int_distribution distribution_type;
+<a name="3061"><span class="lineNum">    3061 </span>            :         typedef uniform_int_distribution distribution_type;</a>
 <span class="lineNum">    3062 </span>            : 
 <span class="lineNum">    3063 </span>            :         explicit param_type(result_type __a = 0,
 <span class="lineNum">    3064 </span>            :                             result_type __b = numeric_limits&lt;result_type&gt;::max())
-<span class="lineNum">    3065 </span>            :             : __a_(__a), __b_(__b) {}
-<span class="lineNum">    3066 </span>            : 
-<span class="lineNum">    3067 </span>            :         result_type a() const {return __a_;}
-<span class="lineNum">    3068 </span>            :         result_type b() const {return __b_;}
+<a name="3065"><span class="lineNum">    3065 </span><span class="lineCov">     120350 :             : __a_(__a), __b_(__b) {}</span></a>
+<a name="3066"><span class="lineNum">    3066 </span>            : </a>
+<span class="lineNum">    3067 </span><span class="lineCov">     120348 :         result_type a() const {return __a_;}</span>
+<span class="lineNum">    3068 </span><span class="lineCov">      60174 :         result_type b() const {return __b_;}</span>
 <span class="lineNum">    3069 </span>            : 
 <span class="lineNum">    3070 </span>            :         friend bool operator==(const param_type&amp; __x, const param_type&amp; __y)
 <span class="lineNum">    3071 </span>            :             {return __x.__a_ == __y.__a_ &amp;&amp; __x.__b_ == __y.__b_;}
@@ -3138,11 +3138,11 @@
 <span class="lineNum">    3076 </span>            : private:
 <span class="lineNum">    3077 </span>            :     param_type __p_;
 <span class="lineNum">    3078 </span>            : 
-<span class="lineNum">    3079 </span>            : public:
+<a name="3079"><span class="lineNum">    3079 </span>            : public:</a>
 <span class="lineNum">    3080 </span>            :     // constructors and reset functions
 <span class="lineNum">    3081 </span>            :     explicit uniform_int_distribution(result_type __a = 0,
 <span class="lineNum">    3082 </span>            :                                       result_type __b = numeric_limits&lt;result_type&gt;::max())
-<span class="lineNum">    3083 </span>            :         : __p_(param_type(__a, __b)) {}
+<span class="lineNum">    3083 </span><span class="lineCov">          2 :         : __p_(param_type(__a, __b)) {}</span>
 <span class="lineNum">    3084 </span>            :     explicit uniform_int_distribution(const param_type&amp; __p) : __p_(__p) {}
 <span class="lineNum">    3085 </span>            :     void reset() {}
 <span class="lineNum">    3086 </span>            : 
@@ -3170,30 +3170,30 @@
 <span class="lineNum">    3108 </span>            : };
 <span class="lineNum">    3109 </span>            : 
 <span class="lineNum">    3110 </span>            : template&lt;class _IntType&gt;
-<span class="lineNum">    3111 </span>            : template&lt;class _URNG&gt;
+<a name="3111"><span class="lineNum">    3111 </span>            : template&lt;class _URNG&gt;</a>
 <span class="lineNum">    3112 </span>            : typename uniform_int_distribution&lt;_IntType&gt;::result_type
 <span class="lineNum">    3113 </span>            : uniform_int_distribution&lt;_IntType&gt;::operator()(_URNG&amp; __g, const param_type&amp; __p)
 <span class="lineNum">    3114 </span>            : {
 <span class="lineNum">    3115 </span>            :     typedef typename conditional&lt;sizeof(result_type) &lt;= sizeof(uint32_t),
 <span class="lineNum">    3116 </span>            :                                             uint32_t, uint64_t&gt;::type _UIntType;
-<span class="lineNum">    3117 </span>            :     const _UIntType _Rp = __p.b() - __p.a() + _UIntType(1);
-<span class="lineNum">    3118 </span>            :     if (_Rp == 1)
-<span class="lineNum">    3119 </span>            :         return __p.a();
-<span class="lineNum">    3120 </span>            :     const size_t _Dt = numeric_limits&lt;_UIntType&gt;::digits;
+<span class="lineNum">    3117 </span><span class="lineCov">      60174 :     const _UIntType _Rp = __p.b() - __p.a() + _UIntType(1);</span>
+<span class="lineNum">    3118 </span><span class="lineCov">      60174 :     if (_Rp == 1)</span>
+<span class="lineNum">    3119 </span><span class="lineNoCov">          0 :         return __p.a();</span>
+<span class="lineNum">    3120 </span><span class="lineCov">      60174 :     const size_t _Dt = numeric_limits&lt;_UIntType&gt;::digits;</span>
 <span class="lineNum">    3121 </span>            :     typedef __independent_bits_engine&lt;_URNG, _UIntType&gt; _Eng;
-<span class="lineNum">    3122 </span>            :     if (_Rp == 0)
-<span class="lineNum">    3123 </span>            :         return static_cast&lt;result_type&gt;(_Eng(__g, _Dt)());
-<span class="lineNum">    3124 </span>            :     size_t __w = _Dt - __clz(_Rp) - 1;
-<span class="lineNum">    3125 </span>            :     if ((_Rp &amp; (std::numeric_limits&lt;_UIntType&gt;::max() &gt;&gt; (_Dt - __w))) != 0)
-<span class="lineNum">    3126 </span>            :         ++__w;
-<span class="lineNum">    3127 </span>            :     _Eng __e(__g, __w);
-<span class="lineNum">    3128 </span>            :     _UIntType __u;
-<span class="lineNum">    3129 </span>            :     do
+<span class="lineNum">    3122 </span><span class="lineCov">      60174 :     if (_Rp == 0)</span>
+<span class="lineNum">    3123 </span><span class="lineNoCov">          0 :         return static_cast&lt;result_type&gt;(_Eng(__g, _Dt)());</span>
+<span class="lineNum">    3124 </span><span class="lineCov">      60174 :     size_t __w = _Dt - __clz(_Rp) - 1;</span>
+<span class="lineNum">    3125 </span><span class="lineCov">      60174 :     if ((_Rp &amp; (std::numeric_limits&lt;_UIntType&gt;::max() &gt;&gt; (_Dt - __w))) != 0)</span>
+<span class="lineNum">    3126 </span><span class="lineCov">      60159 :         ++__w;</span>
+<span class="lineNum">    3127 </span><span class="lineCov">      60174 :     _Eng __e(__g, __w);</span>
+<span class="lineNum">    3128 </span><span class="lineCov">      60174 :     _UIntType __u;</span>
+<span class="lineNum">    3129 </span><span class="lineCov">      60174 :     do</span>
 <span class="lineNum">    3130 </span>            :     {
-<span class="lineNum">    3131 </span>            :         __u = __e();
-<span class="lineNum">    3132 </span>            :     } while (__u &gt;= _Rp);
-<span class="lineNum">    3133 </span>            :     return static_cast&lt;result_type&gt;(__u + __p.a());
-<span class="lineNum">    3134 </span>            : }
+<span class="lineNum">    3131 </span><span class="lineCov">      84950 :         __u = __e();</span>
+<span class="lineNum">    3132 </span><span class="lineCov">     169900 :     } while (__u &gt;= _Rp);</span>
+<span class="lineNum">    3133 </span><span class="lineCov">      60174 :     return static_cast&lt;result_type&gt;(__u + __p.a());</span>
+<span class="lineNum">    3134 </span><span class="lineCov">     180522 : }</span>
 <span class="lineNum">    3135 </span>            : 
 <span class="lineNum">    3136 </span>            : #if _LIBCPP_STD_VER &lt;= 14 || defined(_LIBCPP_ENABLE_CXX17_REMOVED_RANDOM_SHUFFLE) \
 <span class="lineNum">    3137 </span>            :   || defined(_LIBCPP_BUILDING_LIBRARY)
@@ -3339,7 +3339,7 @@
 <span class="lineNum">    3277 </span>            :     return _VSTD::__sample(__first, __last, __output_iter, __n, __g);
 <span class="lineNum">    3278 </span>            : }
 <span class="lineNum">    3279 </span>            : #endif // _LIBCPP_STD_VER &gt; 14
-<span class="lineNum">    3280 </span>            : 
+<a name="3280"><span class="lineNum">    3280 </span>            : </a>
 <span class="lineNum">    3281 </span>            : template&lt;class _RandomAccessIterator, class _UniformRandomNumberGenerator&gt;
 <span class="lineNum">    3282 </span>            :     void shuffle(_RandomAccessIterator __first, _RandomAccessIterator __last,
 <span class="lineNum">    3283 </span>            : #ifndef _LIBCPP_CXX03_LANG
@@ -3351,18 +3351,18 @@
 <span class="lineNum">    3289 </span>            :     typedef typename iterator_traits&lt;_RandomAccessIterator&gt;::difference_type difference_type;
 <span class="lineNum">    3290 </span>            :     typedef uniform_int_distribution&lt;ptrdiff_t&gt; _Dp;
 <span class="lineNum">    3291 </span>            :     typedef typename _Dp::param_type _Pp;
-<span class="lineNum">    3292 </span>            :     difference_type __d = __last - __first;
-<span class="lineNum">    3293 </span>            :     if (__d &gt; 1)
+<span class="lineNum">    3292 </span><span class="lineCov">          1 :     difference_type __d = __last - __first;</span>
+<span class="lineNum">    3293 </span><span class="lineCov">          1 :     if (__d &gt; 1)</span>
 <span class="lineNum">    3294 </span>            :     {
-<span class="lineNum">    3295 </span>            :         _Dp __uid;
-<span class="lineNum">    3296 </span>            :         for (--__last, --__d; __first &lt; __last; ++__first, --__d)
+<span class="lineNum">    3295 </span><span class="lineCov">          1 :         _Dp __uid;</span>
+<span class="lineNum">    3296 </span><span class="lineCov">     120350 :         for (--__last, --__d; __first &lt; __last; ++__first, --__d)</span>
 <span class="lineNum">    3297 </span>            :         {
-<span class="lineNum">    3298 </span>            :             difference_type __i = __uid(__g, _Pp(0, __d));
-<span class="lineNum">    3299 </span>            :             if (__i != difference_type(0))
-<span class="lineNum">    3300 </span>            :                 swap(*__first, *(__first + __i));
-<span class="lineNum">    3301 </span>            :         }
-<span class="lineNum">    3302 </span>            :     }
-<span class="lineNum">    3303 </span>            : }
+<span class="lineNum">    3298 </span><span class="lineCov">      60174 :             difference_type __i = __uid(__g, _Pp(0, __d));</span>
+<span class="lineNum">    3299 </span><span class="lineCov">      60174 :             if (__i != difference_type(0))</span>
+<span class="lineNum">    3300 </span><span class="lineCov">      60158 :                 swap(*__first, *(__first + __i));</span>
+<span class="lineNum">    3301 </span><span class="lineCov">      60174 :         }</span>
+<span class="lineNum">    3302 </span><span class="lineCov">          1 :     }</span>
+<span class="lineNum">    3303 </span><span class="lineCov">          1 : }</span>
 <span class="lineNum">    3304 </span>            : 
 <span class="lineNum">    3305 </span>            : template &lt;class _InputIterator, class _Predicate&gt;
 <span class="lineNum">    3306 </span>            : bool
@@ -5022,35 +5022,35 @@
 <span class="lineNum">    4960 </span>            : 
 <span class="lineNum">    4961 </span>            : // push_heap
 <span class="lineNum">    4962 </span>            : 
-<span class="lineNum">    4963 </span>            : template &lt;class _Compare, class _RandomAccessIterator&gt;
+<a name="4963"><span class="lineNum">    4963 </span>            : template &lt;class _Compare, class _RandomAccessIterator&gt;</a>
 <span class="lineNum">    4964 </span>            : void
 <span class="lineNum">    4965 </span>            : __sift_up(_RandomAccessIterator __first, _RandomAccessIterator __last, _Compare __comp,
 <span class="lineNum">    4966 </span>            :           typename iterator_traits&lt;_RandomAccessIterator&gt;::difference_type __len)
 <span class="lineNum">    4967 </span>            : {
 <span class="lineNum">    4968 </span>            :     typedef typename iterator_traits&lt;_RandomAccessIterator&gt;::value_type value_type;
-<span class="lineNum">    4969 </span>            :     if (__len &gt; 1)
+<span class="lineNum">    4969 </span><span class="lineCov">     782419 :     if (__len &gt; 1)</span>
 <span class="lineNum">    4970 </span>            :     {
-<span class="lineNum">    4971 </span>            :         __len = (__len - 2) / 2;
-<span class="lineNum">    4972 </span>            :         _RandomAccessIterator __ptr = __first + __len;
-<span class="lineNum">    4973 </span>            :         if (__comp(*__ptr, *--__last))
+<span class="lineNum">    4971 </span><span class="lineCov">     542305 :         __len = (__len - 2) / 2;</span>
+<span class="lineNum">    4972 </span><span class="lineCov">     542305 :         _RandomAccessIterator __ptr = __first + __len;</span>
+<span class="lineNum">    4973 </span><span class="lineCov">     542305 :         if (__comp(*__ptr, *--__last))</span>
 <span class="lineNum">    4974 </span>            :         {
-<span class="lineNum">    4975 </span>            :             value_type __t(_VSTD::move(*__last));
-<span class="lineNum">    4976 </span>            :             do
+<span class="lineNum">    4975 </span><span class="lineCov">     468812 :             value_type __t(_VSTD::move(*__last));</span>
+<span class="lineNum">    4976 </span><span class="lineCov">     468812 :             do</span>
 <span class="lineNum">    4977 </span>            :             {
-<span class="lineNum">    4978 </span>            :                 *__last = _VSTD::move(*__ptr);
-<span class="lineNum">    4979 </span>            :                 __last = __ptr;
-<span class="lineNum">    4980 </span>            :                 if (__len == 0)
-<span class="lineNum">    4981 </span>            :                     break;
-<span class="lineNum">    4982 </span>            :                 __len = (__len - 1) / 2;
-<span class="lineNum">    4983 </span>            :                 __ptr = __first + __len;
-<span class="lineNum">    4984 </span>            :             } while (__comp(*__ptr, __t));
-<span class="lineNum">    4985 </span>            :             *__last = _VSTD::move(__t);
-<span class="lineNum">    4986 </span>            :         }
-<span class="lineNum">    4987 </span>            :     }
-<span class="lineNum">    4988 </span>            : }
+<span class="lineNum">    4978 </span><span class="lineCov">    1461165 :                 *__last = _VSTD::move(*__ptr);</span>
+<span class="lineNum">    4979 </span><span class="lineCov">    1461165 :                 __last = __ptr;</span>
+<span class="lineNum">    4980 </span><span class="lineCov">    1461165 :                 if (__len == 0)</span>
+<span class="lineNum">    4981 </span><span class="lineCov">     442450 :                     break;</span>
+<span class="lineNum">    4982 </span><span class="lineCov">    1018715 :                 __len = (__len - 1) / 2;</span>
+<span class="lineNum">    4983 </span><span class="lineCov">    1018715 :                 __ptr = __first + __len;</span>
+<span class="lineNum">    4984 </span><span class="lineCov">    2037430 :             } while (__comp(*__ptr, __t));</span>
+<span class="lineNum">    4985 </span><span class="lineCov">     468812 :             *__last = _VSTD::move(__t);</span>
+<span class="lineNum">    4986 </span><span class="lineCov">     468812 :         }</span>
+<span class="lineNum">    4987 </span><span class="lineCov">     542305 :     }</span>
+<span class="lineNum">    4988 </span><span class="lineCov">     782419 : }</span>
 <span class="lineNum">    4989 </span>            : 
 <span class="lineNum">    4990 </span>            : template &lt;class _RandomAccessIterator, class _Compare&gt;
-<span class="lineNum">    4991 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<a name="4991"><span class="lineNum">    4991 </span>            : inline _LIBCPP_INLINE_VISIBILITY</a>
 <span class="lineNum">    4992 </span>            : void
 <span class="lineNum">    4993 </span>            : push_heap(_RandomAccessIterator __first, _RandomAccessIterator __last, _Compare __comp)
 <span class="lineNum">    4994 </span>            : {
@@ -5060,9 +5060,9 @@
 <span class="lineNum">    4998 </span>            :     __sift_up&lt;_Comp_ref&gt;(__first, __last, __c, __last - __first);
 <span class="lineNum">    4999 </span>            : #else  // _LIBCPP_DEBUG
 <span class="lineNum">    5000 </span>            :     typedef typename add_lvalue_reference&lt;_Compare&gt;::type _Comp_ref;
-<span class="lineNum">    5001 </span>            :     __sift_up&lt;_Comp_ref&gt;(__first, __last, __comp, __last - __first);
+<span class="lineNum">    5001 </span><span class="lineCov">     782419 :     __sift_up&lt;_Comp_ref&gt;(__first, __last, __comp, __last - __first);</span>
 <span class="lineNum">    5002 </span>            : #endif  // _LIBCPP_DEBUG
-<span class="lineNum">    5003 </span>            : }
+<span class="lineNum">    5003 </span><span class="lineCov">     782419 : }</span>
 <span class="lineNum">    5004 </span>            : 
 <span class="lineNum">    5005 </span>            : template &lt;class _RandomAccessIterator&gt;
 <span class="lineNum">    5006 </span>            : inline _LIBCPP_INLINE_VISIBILITY
@@ -5074,7 +5074,7 @@
 <span class="lineNum">    5012 </span>            : 
 <span class="lineNum">    5013 </span>            : // pop_heap
 <span class="lineNum">    5014 </span>            : 
-<span class="lineNum">    5015 </span>            : template &lt;class _Compare, class _RandomAccessIterator&gt;
+<a name="5015"><span class="lineNum">    5015 </span>            : template &lt;class _Compare, class _RandomAccessIterator&gt;</a>
 <span class="lineNum">    5016 </span>            : void
 <span class="lineNum">    5017 </span>            : __sift_down(_RandomAccessIterator __first, _RandomAccessIterator /*__last*/,
 <span class="lineNum">    5018 </span>            :             _Compare __comp,
@@ -5085,65 +5085,65 @@
 <span class="lineNum">    5023 </span>            :     typedef typename iterator_traits&lt;_RandomAccessIterator&gt;::value_type value_type;
 <span class="lineNum">    5024 </span>            :     // left-child of __start is at 2 * __start + 1
 <span class="lineNum">    5025 </span>            :     // right-child of __start is at 2 * __start + 2
-<span class="lineNum">    5026 </span>            :     difference_type __child = __start - __first;
+<span class="lineNum">    5026 </span><span class="lineCov">     542274 :     difference_type __child = __start - __first;</span>
 <span class="lineNum">    5027 </span>            : 
-<span class="lineNum">    5028 </span>            :     if (__len &lt; 2 || (__len - 2) / 2 &lt; __child)
-<span class="lineNum">    5029 </span>            :         return;
+<span class="lineNum">    5028 </span><span class="lineCov">    1022922 :     if (__len &lt; 2 || (__len - 2) / 2 &lt; __child)</span>
+<span class="lineNum">    5029 </span><span class="lineCov">      61626 :         return;</span>
 <span class="lineNum">    5030 </span>            : 
-<span class="lineNum">    5031 </span>            :     __child = 2 * __child + 1;
-<span class="lineNum">    5032 </span>            :     _RandomAccessIterator __child_i = __first + __child;
+<span class="lineNum">    5031 </span><span class="lineCov">     480648 :     __child = 2 * __child + 1;</span>
+<span class="lineNum">    5032 </span><span class="lineCov">     480648 :     _RandomAccessIterator __child_i = __first + __child;</span>
 <span class="lineNum">    5033 </span>            : 
-<span class="lineNum">    5034 </span>            :     if ((__child + 1) &lt; __len &amp;&amp; __comp(*__child_i, *(__child_i + 1))) {
+<span class="lineNum">    5034 </span><span class="lineCov">     839610 :     if ((__child + 1) &lt; __len &amp;&amp; __comp(*__child_i, *(__child_i + 1))) {</span>
 <span class="lineNum">    5035 </span>            :         // right-child exists and is greater than left-child
-<span class="lineNum">    5036 </span>            :         ++__child_i;
-<span class="lineNum">    5037 </span>            :         ++__child;
-<span class="lineNum">    5038 </span>            :     }
+<span class="lineNum">    5036 </span><span class="lineCov">     128285 :         ++__child_i;</span>
+<span class="lineNum">    5037 </span><span class="lineCov">     128285 :         ++__child;</span>
+<span class="lineNum">    5038 </span><span class="lineCov">     128285 :     }</span>
 <span class="lineNum">    5039 </span>            : 
 <span class="lineNum">    5040 </span>            :     // check if we are in heap-order
-<span class="lineNum">    5041 </span>            :     if (__comp(*__child_i, *__start))
+<span class="lineNum">    5041 </span><span class="lineCov">     480648 :     if (__comp(*__child_i, *__start))</span>
 <span class="lineNum">    5042 </span>            :         // we are, __start is larger than it's largest child
-<span class="lineNum">    5043 </span>            :         return;
+<span class="lineNum">    5043 </span><span class="lineCov">     101779 :         return;</span>
 <span class="lineNum">    5044 </span>            : 
-<span class="lineNum">    5045 </span>            :     value_type __top(_VSTD::move(*__start));
-<span class="lineNum">    5046 </span>            :     do
+<span class="lineNum">    5045 </span><span class="lineCov">     378869 :     value_type __top(_VSTD::move(*__start));</span>
+<span class="lineNum">    5046 </span><span class="lineCov">     378869 :     do</span>
 <span class="lineNum">    5047 </span>            :     {
 <span class="lineNum">    5048 </span>            :         // we are not in heap-order, swap the parent with it's largest child
-<span class="lineNum">    5049 </span>            :         *__start = _VSTD::move(*__child_i);
-<span class="lineNum">    5050 </span>            :         __start = __child_i;
+<span class="lineNum">    5049 </span><span class="lineCov">    1211612 :         *__start = _VSTD::move(*__child_i);</span>
+<span class="lineNum">    5050 </span><span class="lineCov">    1211612 :         __start = __child_i;</span>
 <span class="lineNum">    5051 </span>            : 
-<span class="lineNum">    5052 </span>            :         if ((__len - 2) / 2 &lt; __child)
-<span class="lineNum">    5053 </span>            :             break;
+<span class="lineNum">    5052 </span><span class="lineCov">    1211612 :         if ((__len - 2) / 2 &lt; __child)</span>
+<span class="lineNum">    5053 </span><span class="lineCov">     205989 :             break;</span>
 <span class="lineNum">    5054 </span>            : 
 <span class="lineNum">    5055 </span>            :         // recompute the child based off of the updated parent
-<span class="lineNum">    5056 </span>            :         __child = 2 * __child + 1;
-<span class="lineNum">    5057 </span>            :         __child_i = __first + __child;
+<span class="lineNum">    5056 </span><span class="lineCov">    1005623 :         __child = 2 * __child + 1;</span>
+<span class="lineNum">    5057 </span><span class="lineCov">    1005623 :         __child_i = __first + __child;</span>
 <span class="lineNum">    5058 </span>            : 
-<span class="lineNum">    5059 </span>            :         if ((__child + 1) &lt; __len &amp;&amp; __comp(*__child_i, *(__child_i + 1))) {
+<span class="lineNum">    5059 </span><span class="lineCov">    1847537 :         if ((__child + 1) &lt; __len &amp;&amp; __comp(*__child_i, *(__child_i + 1))) {</span>
 <span class="lineNum">    5060 </span>            :             // right-child exists and is greater than left-child
-<span class="lineNum">    5061 </span>            :             ++__child_i;
-<span class="lineNum">    5062 </span>            :             ++__child;
-<span class="lineNum">    5063 </span>            :         }
+<span class="lineNum">    5061 </span><span class="lineCov">     371183 :             ++__child_i;</span>
+<span class="lineNum">    5062 </span><span class="lineCov">     371183 :             ++__child;</span>
+<span class="lineNum">    5063 </span><span class="lineCov">     371183 :         }</span>
 <span class="lineNum">    5064 </span>            : 
 <span class="lineNum">    5065 </span>            :         // check if we are in heap-order
-<span class="lineNum">    5066 </span>            :     } while (!__comp(*__child_i, __top));
-<span class="lineNum">    5067 </span>            :     *__start = _VSTD::move(__top);
-<span class="lineNum">    5068 </span>            : }
+<span class="lineNum">    5066 </span><span class="lineCov">    2011246 :     } while (!__comp(*__child_i, __top));</span>
+<span class="lineNum">    5067 </span><span class="lineCov">     378869 :     *__start = _VSTD::move(__top);</span>
+<span class="lineNum">    5068 </span><span class="lineCov">    1944065 : }</span>
 <span class="lineNum">    5069 </span>            : 
 <span class="lineNum">    5070 </span>            : template &lt;class _Compare, class _RandomAccessIterator&gt;
-<span class="lineNum">    5071 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<a name="5071"><span class="lineNum">    5071 </span>            : inline _LIBCPP_INLINE_VISIBILITY</a>
 <span class="lineNum">    5072 </span>            : void
 <span class="lineNum">    5073 </span>            : __pop_heap(_RandomAccessIterator __first, _RandomAccessIterator __last, _Compare __comp,
 <span class="lineNum">    5074 </span>            :            typename iterator_traits&lt;_RandomAccessIterator&gt;::difference_type __len)
 <span class="lineNum">    5075 </span>            : {
-<span class="lineNum">    5076 </span>            :     if (__len &gt; 1)
+<span class="lineNum">    5076 </span><span class="lineCov">     782387 :     if (__len &gt; 1)</span>
 <span class="lineNum">    5077 </span>            :     {
-<span class="lineNum">    5078 </span>            :         swap(*__first, *--__last);
-<span class="lineNum">    5079 </span>            :         __sift_down&lt;_Compare&gt;(__first, __last, __comp, __len - 1, __first);
-<span class="lineNum">    5080 </span>            :     }
-<span class="lineNum">    5081 </span>            : }
+<span class="lineNum">    5078 </span><span class="lineCov">     542274 :         swap(*__first, *--__last);</span>
+<span class="lineNum">    5079 </span><span class="lineCov">     542274 :         __sift_down&lt;_Compare&gt;(__first, __last, __comp, __len - 1, __first);</span>
+<span class="lineNum">    5080 </span><span class="lineCov">     542274 :     }</span>
+<span class="lineNum">    5081 </span><span class="lineCov">     782387 : }</span>
 <span class="lineNum">    5082 </span>            : 
 <span class="lineNum">    5083 </span>            : template &lt;class _RandomAccessIterator, class _Compare&gt;
-<span class="lineNum">    5084 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<a name="5084"><span class="lineNum">    5084 </span>            : inline _LIBCPP_INLINE_VISIBILITY</a>
 <span class="lineNum">    5085 </span>            : void
 <span class="lineNum">    5086 </span>            : pop_heap(_RandomAccessIterator __first, _RandomAccessIterator __last, _Compare __comp)
 <span class="lineNum">    5087 </span>            : {
@@ -5153,9 +5153,9 @@
 <span class="lineNum">    5091 </span>            :     __pop_heap&lt;_Comp_ref&gt;(__first, __last, __c, __last - __first);
 <span class="lineNum">    5092 </span>            : #else  // _LIBCPP_DEBUG
 <span class="lineNum">    5093 </span>            :     typedef typename add_lvalue_reference&lt;_Compare&gt;::type _Comp_ref;
-<span class="lineNum">    5094 </span>            :     __pop_heap&lt;_Comp_ref&gt;(__first, __last, __comp, __last - __first);
+<span class="lineNum">    5094 </span><span class="lineCov">     782387 :     __pop_heap&lt;_Comp_ref&gt;(__first, __last, __comp, __last - __first);</span>
 <span class="lineNum">    5095 </span>            : #endif  // _LIBCPP_DEBUG
-<span class="lineNum">    5096 </span>            : }
+<span class="lineNum">    5096 </span><span class="lineCov">     782387 : }</span>
 <span class="lineNum">    5097 </span>            : 
 <span class="lineNum">    5098 </span>            : template &lt;class _RandomAccessIterator&gt;
 <span class="lineNum">    5099 </span>            : inline _LIBCPP_INLINE_VISIBILITY

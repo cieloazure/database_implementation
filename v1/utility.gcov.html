@@ -1,0 +1,1670 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - P1.info - v1/utility</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">v1</a> - utility<span style="font-size: 80%;"> (source / <a href="utility.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">P1.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryHi">90.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-02-18 20:57:58</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryMed">83.3 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // -*- C++ -*-</a>
+<span class="lineNum">       2 </span>            : //===-------------------------- utility -----------------------------------===//
+<span class="lineNum">       3 </span>            : //
+<span class="lineNum">       4 </span>            : //                     The LLVM Compiler Infrastructure
+<span class="lineNum">       5 </span>            : //
+<span class="lineNum">       6 </span>            : // This file is dual licensed under the MIT and the University of Illinois Open
+<span class="lineNum">       7 </span>            : // Source Licenses. See LICENSE.TXT for details.
+<span class="lineNum">       8 </span>            : //
+<span class="lineNum">       9 </span>            : //===----------------------------------------------------------------------===//
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : #ifndef _LIBCPP_UTILITY
+<span class="lineNum">      12 </span>            : #define _LIBCPP_UTILITY
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : /*
+<span class="lineNum">      15 </span>            :     utility synopsis
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : namespace std
+<span class="lineNum">      18 </span>            : {
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : template &lt;class T&gt;
+<span class="lineNum">      21 </span>            :     void
+<span class="lineNum">      22 </span>            :     swap(T&amp; a, T&amp; b);
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : namespace rel_ops
+<span class="lineNum">      25 </span>            : {
+<span class="lineNum">      26 </span>            :     template&lt;class T&gt; bool operator!=(const T&amp;, const T&amp;);
+<span class="lineNum">      27 </span>            :     template&lt;class T&gt; bool operator&gt; (const T&amp;, const T&amp;);
+<span class="lineNum">      28 </span>            :     template&lt;class T&gt; bool operator&lt;=(const T&amp;, const T&amp;);
+<span class="lineNum">      29 </span>            :     template&lt;class T&gt; bool operator&gt;=(const T&amp;, const T&amp;);
+<span class="lineNum">      30 </span>            : }
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : template&lt;class T&gt;
+<span class="lineNum">      33 </span>            : void
+<span class="lineNum">      34 </span>            : swap(T&amp; a, T&amp; b) noexcept(is_nothrow_move_constructible&lt;T&gt;::value &amp;&amp;
+<span class="lineNum">      35 </span>            :                           is_nothrow_move_assignable&lt;T&gt;::value);
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : template &lt;class T, size_t N&gt;
+<span class="lineNum">      38 </span>            : void
+<span class="lineNum">      39 </span>            : swap(T (&amp;a)[N], T (&amp;b)[N]) noexcept(noexcept(swap(*a, *b)));
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : template &lt;class T&gt; T&amp;&amp; forward(typename remove_reference&lt;T&gt;::type&amp; t) noexcept;  // constexpr in C++14
+<span class="lineNum">      42 </span>            : template &lt;class T&gt; T&amp;&amp; forward(typename remove_reference&lt;T&gt;::type&amp;&amp; t) noexcept; // constexpr in C++14
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : template &lt;class T&gt; typename remove_reference&lt;T&gt;::type&amp;&amp; move(T&amp;&amp;) noexcept;      // constexpr in C++14
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : template &lt;class T&gt;
+<span class="lineNum">      47 </span>            :     typename conditional
+<span class="lineNum">      48 </span>            :     &lt;
+<span class="lineNum">      49 </span>            :         !is_nothrow_move_constructible&lt;T&gt;::value &amp;&amp; is_copy_constructible&lt;T&gt;::value,
+<span class="lineNum">      50 </span>            :         const T&amp;,
+<span class="lineNum">      51 </span>            :         T&amp;&amp;
+<span class="lineNum">      52 </span>            :     &gt;::type
+<span class="lineNum">      53 </span>            :     move_if_noexcept(T&amp; x) noexcept; // constexpr in C++14
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : template &lt;class T&gt; constexpr add_const&lt;T&gt;_t&amp; as_const(T&amp; t) noexcept;      // C++17
+<span class="lineNum">      56 </span>            : template &lt;class T&gt;                      void as_const(const T&amp;&amp;) = delete; // C++17
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            : template &lt;class T&gt; typename add_rvalue_reference&lt;T&gt;::type declval() noexcept;
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            : template &lt;class T1, class T2&gt;
+<span class="lineNum">      61 </span>            : struct pair
+<span class="lineNum">      62 </span>            : {
+<span class="lineNum">      63 </span>            :     typedef T1 first_type;
+<span class="lineNum">      64 </span>            :     typedef T2 second_type;
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span>            :     T1 first;
+<span class="lineNum">      67 </span>            :     T2 second;
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            :     pair(const pair&amp;) = default;
+<span class="lineNum">      70 </span>            :     pair(pair&amp;&amp;) = default;
+<span class="lineNum">      71 </span>            :     constexpr pair();
+<span class="lineNum">      72 </span>            :     pair(const T1&amp; x, const T2&amp; y);                          // constexpr in C++14
+<span class="lineNum">      73 </span>            :     template &lt;class U, class V&gt; pair(U&amp;&amp; x, V&amp;&amp; y);          // constexpr in C++14
+<span class="lineNum">      74 </span>            :     template &lt;class U, class V&gt; pair(const pair&lt;U, V&gt;&amp; p);   // constexpr in C++14
+<span class="lineNum">      75 </span>            :     template &lt;class U, class V&gt; pair(pair&lt;U, V&gt;&amp;&amp; p);        // constexpr in C++14
+<span class="lineNum">      76 </span>            :     template &lt;class... Args1, class... Args2&gt;
+<span class="lineNum">      77 </span>            :         pair(piecewise_construct_t, tuple&lt;Args1...&gt; first_args,
+<span class="lineNum">      78 </span>            :              tuple&lt;Args2...&gt; second_args);
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            :     template &lt;class U, class V&gt; pair&amp; operator=(const pair&lt;U, V&gt;&amp; p);
+<span class="lineNum">      81 </span>            :     pair&amp; operator=(pair&amp;&amp; p) noexcept(is_nothrow_move_assignable&lt;T1&gt;::value &amp;&amp;
+<span class="lineNum">      82 </span>            :                                        is_nothrow_move_assignable&lt;T2&gt;::value);
+<span class="lineNum">      83 </span>            :     template &lt;class U, class V&gt; pair&amp; operator=(pair&lt;U, V&gt;&amp;&amp; p);
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            :     void swap(pair&amp; p) noexcept(is_nothrow_swappable_v&lt;T1&gt; &amp;&amp;
+<span class="lineNum">      86 </span>            :                                 is_nothrow_swappable_v&lt;T2&gt;);
+<span class="lineNum">      87 </span>            : };
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            : template &lt;class T1, class T2&gt; bool operator==(const pair&lt;T1,T2&gt;&amp;, const pair&lt;T1,T2&gt;&amp;); // constexpr in C++14
+<span class="lineNum">      90 </span>            : template &lt;class T1, class T2&gt; bool operator!=(const pair&lt;T1,T2&gt;&amp;, const pair&lt;T1,T2&gt;&amp;); // constexpr in C++14
+<span class="lineNum">      91 </span>            : template &lt;class T1, class T2&gt; bool operator&lt; (const pair&lt;T1,T2&gt;&amp;, const pair&lt;T1,T2&gt;&amp;); // constexpr in C++14
+<span class="lineNum">      92 </span>            : template &lt;class T1, class T2&gt; bool operator&gt; (const pair&lt;T1,T2&gt;&amp;, const pair&lt;T1,T2&gt;&amp;); // constexpr in C++14
+<span class="lineNum">      93 </span>            : template &lt;class T1, class T2&gt; bool operator&gt;=(const pair&lt;T1,T2&gt;&amp;, const pair&lt;T1,T2&gt;&amp;); // constexpr in C++14
+<span class="lineNum">      94 </span>            : template &lt;class T1, class T2&gt; bool operator&lt;=(const pair&lt;T1,T2&gt;&amp;, const pair&lt;T1,T2&gt;&amp;); // constexpr in C++14
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            : template &lt;class T1, class T2&gt; pair&lt;V1, V2&gt; make_pair(T1&amp;&amp;, T2&amp;&amp;);   // constexpr in C++14
+<span class="lineNum">      97 </span>            : template &lt;class T1, class T2&gt;
+<span class="lineNum">      98 </span>            : void
+<span class="lineNum">      99 </span>            : swap(pair&lt;T1, T2&gt;&amp; x, pair&lt;T1, T2&gt;&amp; y) noexcept(noexcept(x.swap(y)));
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            : struct piecewise_construct_t { };
+<span class="lineNum">     102 </span>            : inline constexpr piecewise_construct_t piecewise_construct = piecewise_construct_t();
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            : template &lt;class T&gt; class tuple_size;
+<span class="lineNum">     105 </span>            : template &lt;size_t I, class T&gt; class tuple_element;
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span>            : template &lt;class T1, class T2&gt; struct tuple_size&lt;pair&lt;T1, T2&gt; &gt;;
+<span class="lineNum">     108 </span>            : template &lt;class T1, class T2&gt; struct tuple_element&lt;0, pair&lt;T1, T2&gt; &gt;;
+<span class="lineNum">     109 </span>            : template &lt;class T1, class T2&gt; struct tuple_element&lt;1, pair&lt;T1, T2&gt; &gt;;
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            : template&lt;size_t I, class T1, class T2&gt;
+<span class="lineNum">     112 </span>            :     typename tuple_element&lt;I, pair&lt;T1, T2&gt; &gt;::type&amp;
+<span class="lineNum">     113 </span>            :     get(pair&lt;T1, T2&gt;&amp;) noexcept; // constexpr in C++14
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span>            : template&lt;size_t I, class T1, class T2&gt;
+<span class="lineNum">     116 </span>            :     const typename tuple_element&lt;I, pair&lt;T1, T2&gt; &gt;::type&amp;
+<span class="lineNum">     117 </span>            :     get(const pair&lt;T1, T2&gt;&amp;) noexcept; // constexpr in C++14
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span>            : template&lt;size_t I, class T1, class T2&gt;
+<span class="lineNum">     120 </span>            :     typename tuple_element&lt;I, pair&lt;T1, T2&gt; &gt;::type&amp;&amp;
+<span class="lineNum">     121 </span>            :     get(pair&lt;T1, T2&gt;&amp;&amp;) noexcept; // constexpr in C++14
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span>            : template&lt;size_t I, class T1, class T2&gt;
+<span class="lineNum">     124 </span>            :     const typename tuple_element&lt;I, pair&lt;T1, T2&gt; &gt;::type&amp;&amp;
+<span class="lineNum">     125 </span>            :     get(const pair&lt;T1, T2&gt;&amp;&amp;) noexcept; // constexpr in C++14
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span>            : template&lt;class T1, class T2&gt;
+<span class="lineNum">     128 </span>            :     constexpr T1&amp; get(pair&lt;T1, T2&gt;&amp;) noexcept; // C++14
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            : template&lt;class T1, class T2&gt;
+<span class="lineNum">     131 </span>            :     constexpr const T1&amp; get(const pair&lt;T1, T2&gt;&amp;) noexcept; // C++14
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            : template&lt;class T1, class T2&gt;
+<span class="lineNum">     134 </span>            :     constexpr T1&amp;&amp; get(pair&lt;T1, T2&gt;&amp;&amp;) noexcept; // C++14
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            : template&lt;class T1, class T2&gt;
+<span class="lineNum">     137 </span>            :     constexpr const T1&amp;&amp; get(const pair&lt;T1, T2&gt;&amp;&amp;) noexcept; // C++14
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span>            : template&lt;class T1, class T2&gt;
+<span class="lineNum">     140 </span>            :     constexpr T1&amp; get(pair&lt;T2, T1&gt;&amp;) noexcept; // C++14
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            : template&lt;class T1, class T2&gt;
+<span class="lineNum">     143 </span>            :     constexpr const T1&amp; get(const pair&lt;T2, T1&gt;&amp;) noexcept; // C++14
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span>            : template&lt;class T1, class T2&gt;
+<span class="lineNum">     146 </span>            :     constexpr T1&amp;&amp; get(pair&lt;T2, T1&gt;&amp;&amp;) noexcept; // C++14
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span>            : template&lt;class T1, class T2&gt;
+<span class="lineNum">     149 </span>            :     constexpr const T1&amp;&amp; get(const pair&lt;T2, T1&gt;&amp;&amp;) noexcept; // C++14
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span>            : // C++14
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            : template&lt;class T, T... I&gt;
+<span class="lineNum">     154 </span>            : struct integer_sequence
+<span class="lineNum">     155 </span>            : {
+<span class="lineNum">     156 </span>            :     typedef T value_type;
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            :     static constexpr size_t size() noexcept;
+<span class="lineNum">     159 </span>            : };
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span>            : template&lt;size_t... I&gt;
+<span class="lineNum">     162 </span>            :   using index_sequence = integer_sequence&lt;size_t, I...&gt;;
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span>            : template&lt;class T, T N&gt;
+<span class="lineNum">     165 </span>            :   using make_integer_sequence = integer_sequence&lt;T, 0, 1, ..., N-1&gt;;
+<span class="lineNum">     166 </span>            : template&lt;size_t N&gt;
+<span class="lineNum">     167 </span>            :   using make_index_sequence = make_integer_sequence&lt;size_t, N&gt;;
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            : template&lt;class... T&gt;
+<span class="lineNum">     170 </span>            :   using index_sequence_for = make_index_sequence&lt;sizeof...(T)&gt;;
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span>            : template&lt;class T, class U=T&gt;
+<span class="lineNum">     173 </span>            :     T exchange(T&amp; obj, U&amp;&amp; new_value);
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span>            : // 20.2.7, in-place construction // C++17
+<span class="lineNum">     176 </span>            : struct in_place_t {
+<span class="lineNum">     177 </span>            :   explicit in_place_t() = default;
+<span class="lineNum">     178 </span>            : };
+<span class="lineNum">     179 </span>            : inline constexpr in_place_t in_place{};
+<span class="lineNum">     180 </span>            : template &lt;class T&gt;
+<span class="lineNum">     181 </span>            :   struct in_place_type_t {
+<span class="lineNum">     182 </span>            :     explicit in_place_type_t() = default;
+<span class="lineNum">     183 </span>            :   };
+<span class="lineNum">     184 </span>            : template &lt;class T&gt;
+<span class="lineNum">     185 </span>            :   inline constexpr in_place_type_t&lt;T&gt; in_place_type{};
+<span class="lineNum">     186 </span>            : template &lt;size_t I&gt;
+<span class="lineNum">     187 </span>            :   struct in_place_index_t {
+<span class="lineNum">     188 </span>            :     explicit in_place_index_t() = default;
+<span class="lineNum">     189 </span>            :   };
+<span class="lineNum">     190 </span>            : template &lt;size_t I&gt;
+<span class="lineNum">     191 </span>            :   inline constexpr in_place_index_t&lt;I&gt; in_place_index{};
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span>            : }  // std
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span>            : */
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span>            : #include &lt;__config&gt;
+<span class="lineNum">     198 </span>            : #include &lt;__tuple&gt;
+<span class="lineNum">     199 </span>            : #include &lt;type_traits&gt;
+<span class="lineNum">     200 </span>            : #include &lt;initializer_list&gt;
+<span class="lineNum">     201 </span>            : #include &lt;cstddef&gt;
+<span class="lineNum">     202 </span>            : #include &lt;cstring&gt;
+<span class="lineNum">     203 </span>            : #include &lt;cstdint&gt;
+<span class="lineNum">     204 </span>            : #include &lt;__debug&gt;
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            : #if !defined(_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER)
+<span class="lineNum">     207 </span>            : #pragma GCC system_header
+<span class="lineNum">     208 </span>            : #endif
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span>            : _LIBCPP_BEGIN_NAMESPACE_STD
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span>            : namespace rel_ops
+<span class="lineNum">     213 </span>            : {
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span>            : template&lt;class _Tp&gt;
+<span class="lineNum">     216 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     217 </span>            : bool
+<span class="lineNum">     218 </span>            : operator!=(const _Tp&amp; __x, const _Tp&amp; __y)
+<span class="lineNum">     219 </span>            : {
+<span class="lineNum">     220 </span>            :     return !(__x == __y);
+<span class="lineNum">     221 </span>            : }
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span>            : template&lt;class _Tp&gt;
+<span class="lineNum">     224 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     225 </span>            : bool
+<span class="lineNum">     226 </span>            : operator&gt; (const _Tp&amp; __x, const _Tp&amp; __y)
+<span class="lineNum">     227 </span>            : {
+<span class="lineNum">     228 </span>            :     return __y &lt; __x;
+<span class="lineNum">     229 </span>            : }
+<span class="lineNum">     230 </span>            : 
+<span class="lineNum">     231 </span>            : template&lt;class _Tp&gt;
+<span class="lineNum">     232 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     233 </span>            : bool
+<span class="lineNum">     234 </span>            : operator&lt;=(const _Tp&amp; __x, const _Tp&amp; __y)
+<span class="lineNum">     235 </span>            : {
+<span class="lineNum">     236 </span>            :     return !(__y &lt; __x);
+<span class="lineNum">     237 </span>            : }
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span>            : template&lt;class _Tp&gt;
+<span class="lineNum">     240 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     241 </span>            : bool
+<span class="lineNum">     242 </span>            : operator&gt;=(const _Tp&amp; __x, const _Tp&amp; __y)
+<span class="lineNum">     243 </span>            : {
+<span class="lineNum">     244 </span>            :     return !(__x &lt; __y);
+<span class="lineNum">     245 </span>            : }
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span>            : }  // rel_ops
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span>            : // swap_ranges
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            : 
+<span class="lineNum">     252 </span>            : template &lt;class _ForwardIterator1, class _ForwardIterator2&gt;
+<span class="lineNum">     253 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     254 </span>            : _ForwardIterator2
+<span class="lineNum">     255 </span>            : swap_ranges(_ForwardIterator1 __first1, _ForwardIterator1 __last1, _ForwardIterator2 __first2)
+<span class="lineNum">     256 </span>            : {
+<span class="lineNum">     257 </span>            :     for(; __first1 != __last1; ++__first1, (void) ++__first2)
+<span class="lineNum">     258 </span>            :         swap(*__first1, *__first2);
+<span class="lineNum">     259 </span>            :     return __first2;
+<span class="lineNum">     260 </span>            : }
+<span class="lineNum">     261 </span>            : 
+<span class="lineNum">     262 </span>            : // forward declared in &lt;type_traits&gt;
+<span class="lineNum">     263 </span>            : template&lt;class _Tp, size_t _Np&gt;
+<span class="lineNum">     264 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     265 </span>            : typename enable_if&lt;
+<span class="lineNum">     266 </span>            :     __is_swappable&lt;_Tp&gt;::value
+<span class="lineNum">     267 </span>            : &gt;::type
+<span class="lineNum">     268 </span>            : swap(_Tp (&amp;__a)[_Np], _Tp (&amp;__b)[_Np]) _NOEXCEPT_(__is_nothrow_swappable&lt;_Tp&gt;::value)
+<span class="lineNum">     269 </span>            : {
+<span class="lineNum">     270 </span>            :     _VSTD::swap_ranges(__a, __a + _Np, __b);
+<span class="lineNum">     271 </span>            : }
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     274 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     275 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     276 </span>            : typename conditional
+<span class="lineNum">     277 </span>            : &lt;
+<span class="lineNum">     278 </span>            :     !is_nothrow_move_constructible&lt;_Tp&gt;::value &amp;&amp; is_copy_constructible&lt;_Tp&gt;::value,
+<span class="lineNum">     279 </span>            :     const _Tp&amp;,
+<span class="lineNum">     280 </span>            :     _Tp&amp;&amp;
+<span class="lineNum">     281 </span>            : &gt;::type
+<span class="lineNum">     282 </span>            : #else  // _LIBCPP_CXX03_LANG
+<a name="283"><span class="lineNum">     283 </span>            : const _Tp&amp;</a>
+<span class="lineNum">     284 </span>            : #endif
+<span class="lineNum">     285 </span>            : move_if_noexcept(_Tp&amp; __x) _NOEXCEPT
+<span class="lineNum">     286 </span>            : {
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :     return _VSTD::move(__x);</span>
+<span class="lineNum">     288 </span>            : }
+<span class="lineNum">     289 </span>            : 
+<span class="lineNum">     290 </span>            : #if _LIBCPP_STD_VER &gt; 14
+<span class="lineNum">     291 </span>            : template &lt;class _Tp&gt; constexpr add_const_t&lt;_Tp&gt;&amp; as_const(_Tp&amp; __t) noexcept { return __t; }
+<span class="lineNum">     292 </span>            : template &lt;class _Tp&gt;                        void as_const(const _Tp&amp;&amp;) = delete;
+<span class="lineNum">     293 </span>            : #endif
+<span class="lineNum">     294 </span>            : 
+<span class="lineNum">     295 </span>            : struct _LIBCPP_TEMPLATE_VIS piecewise_construct_t { };
+<span class="lineNum">     296 </span>            : #if defined(_LIBCPP_CXX03_LANG) || defined(_LIBCPP_BUILDING_UTILITY)
+<span class="lineNum">     297 </span>            : extern const piecewise_construct_t piecewise_construct;// = piecewise_construct_t();
+<span class="lineNum">     298 </span>            : #else
+<span class="lineNum">     299 </span>            : /* _LIBCPP_INLINE_VAR */ constexpr piecewise_construct_t piecewise_construct = piecewise_construct_t();
+<span class="lineNum">     300 </span>            : #endif
+<span class="lineNum">     301 </span>            : 
+<span class="lineNum">     302 </span>            : #if defined(_LIBCPP_DEPRECATED_ABI_DISABLE_PAIR_TRIVIAL_COPY_CTOR)
+<span class="lineNum">     303 </span>            : struct __non_trivially_copyable_base {
+<span class="lineNum">     304 </span>            :   _LIBCPP_CONSTEXPR _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     305 </span>            :   __non_trivially_copyable_base() _NOEXCEPT {}
+<span class="lineNum">     306 </span>            :   _LIBCPP_CONSTEXPR_AFTER_CXX11 _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     307 </span>            :   __non_trivially_copyable_base(__non_trivially_copyable_base const&amp;) _NOEXCEPT {}
+<span class="lineNum">     308 </span>            : };
+<span class="lineNum">     309 </span>            : #endif
+<span class="lineNum">     310 </span>            : 
+<span class="lineNum">     311 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     312 </span>            : struct _LIBCPP_TEMPLATE_VIS pair
+<span class="lineNum">     313 </span>            : #if defined(_LIBCPP_DEPRECATED_ABI_DISABLE_PAIR_TRIVIAL_COPY_CTOR)
+<span class="lineNum">     314 </span>            : : private __non_trivially_copyable_base
+<span class="lineNum">     315 </span>            : #endif
+<span class="lineNum">     316 </span>            : {
+<span class="lineNum">     317 </span>            :     typedef _T1 first_type;
+<span class="lineNum">     318 </span>            :     typedef _T2 second_type;
+<span class="lineNum">     319 </span>            : 
+<span class="lineNum">     320 </span>            :     _T1 first;
+<span class="lineNum">     321 </span>            :     _T2 second;
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span>            : #if !defined(_LIBCPP_CXX03_LANG)
+<span class="lineNum">     324 </span>            :     pair(pair const&amp;) = default;
+<span class="lineNum">     325 </span>            :     pair(pair&amp;&amp;) = default;
+<span class="lineNum">     326 </span>            : #else
+<span class="lineNum">     327 </span>            :   // Use the implicitly declared copy constructor in C++03
+<span class="lineNum">     328 </span>            : #endif
+<span class="lineNum">     329 </span>            : 
+<span class="lineNum">     330 </span>            : #ifdef _LIBCPP_CXX03_LANG
+<span class="lineNum">     331 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     332 </span>            :     pair() : first(), second() {}
+<span class="lineNum">     333 </span>            : 
+<span class="lineNum">     334 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     335 </span>            :     pair(_T1 const&amp; __t1, _T2 const&amp; __t2) : first(__t1), second(__t2) {}
+<span class="lineNum">     336 </span>            : 
+<span class="lineNum">     337 </span>            :     template &lt;class _U1, class _U2&gt;
+<span class="lineNum">     338 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     339 </span>            :     pair(const pair&lt;_U1, _U2&gt;&amp; __p) : first(__p.first), second(__p.second) {}
+<span class="lineNum">     340 </span>            : 
+<span class="lineNum">     341 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     342 </span>            :     pair&amp; operator=(pair const&amp; __p) {
+<span class="lineNum">     343 </span>            :         first = __p.first;
+<span class="lineNum">     344 </span>            :         second = __p.second;
+<span class="lineNum">     345 </span>            :         return *this;
+<span class="lineNum">     346 </span>            :     }
+<span class="lineNum">     347 </span>            : #else
+<span class="lineNum">     348 </span>            :     template &lt;bool _Val&gt;
+<span class="lineNum">     349 </span>            :     using _EnableB = typename enable_if&lt;_Val, bool&gt;::type;
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span>            :     struct _CheckArgs {
+<span class="lineNum">     352 </span>            :       template &lt;class _U1, class _U2&gt;
+<span class="lineNum">     353 </span>            :       static constexpr bool __enable_default() {
+<span class="lineNum">     354 </span>            :           return is_default_constructible&lt;_U1&gt;::value
+<span class="lineNum">     355 </span>            :               &amp;&amp; is_default_constructible&lt;_U2&gt;::value;
+<span class="lineNum">     356 </span>            :       }
+<span class="lineNum">     357 </span>            : 
+<span class="lineNum">     358 </span>            :       template &lt;class _U1, class _U2&gt;
+<span class="lineNum">     359 </span>            :       static constexpr bool __enable_explicit() {
+<span class="lineNum">     360 </span>            :           return is_constructible&lt;first_type, _U1&gt;::value
+<span class="lineNum">     361 </span>            :               &amp;&amp; is_constructible&lt;second_type, _U2&gt;::value
+<span class="lineNum">     362 </span>            :               &amp;&amp; (!is_convertible&lt;_U1, first_type&gt;::value
+<span class="lineNum">     363 </span>            :                   || !is_convertible&lt;_U2, second_type&gt;::value);
+<span class="lineNum">     364 </span>            :       }
+<span class="lineNum">     365 </span>            : 
+<span class="lineNum">     366 </span>            :       template &lt;class _U1, class _U2&gt;
+<span class="lineNum">     367 </span>            :       static constexpr bool __enable_implicit() {
+<span class="lineNum">     368 </span>            :           return is_constructible&lt;first_type, _U1&gt;::value
+<span class="lineNum">     369 </span>            :               &amp;&amp; is_constructible&lt;second_type, _U2&gt;::value
+<span class="lineNum">     370 </span>            :               &amp;&amp; is_convertible&lt;_U1, first_type&gt;::value
+<span class="lineNum">     371 </span>            :               &amp;&amp; is_convertible&lt;_U2, second_type&gt;::value;
+<span class="lineNum">     372 </span>            :       }
+<span class="lineNum">     373 </span>            :     };
+<span class="lineNum">     374 </span>            : 
+<span class="lineNum">     375 </span>            :     template &lt;bool _MaybeEnable&gt;
+<span class="lineNum">     376 </span>            :     using _CheckArgsDep = typename conditional&lt;
+<span class="lineNum">     377 </span>            :       _MaybeEnable, _CheckArgs, __check_tuple_constructor_fail&gt;::type;
+<span class="lineNum">     378 </span>            : 
+<span class="lineNum">     379 </span>            :     struct _CheckTupleLikeConstructor {
+<span class="lineNum">     380 </span>            :         template &lt;class _Tuple&gt;
+<span class="lineNum">     381 </span>            :         static constexpr bool __enable_implicit() {
+<span class="lineNum">     382 </span>            :             return __tuple_convertible&lt;_Tuple, pair&gt;::value;
+<span class="lineNum">     383 </span>            :         }
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span>            :         template &lt;class _Tuple&gt;
+<span class="lineNum">     386 </span>            :         static constexpr bool __enable_explicit() {
+<span class="lineNum">     387 </span>            :             return __tuple_constructible&lt;_Tuple, pair&gt;::value
+<span class="lineNum">     388 </span>            :                &amp;&amp; !__tuple_convertible&lt;_Tuple, pair&gt;::value;
+<span class="lineNum">     389 </span>            :         }
+<span class="lineNum">     390 </span>            : 
+<span class="lineNum">     391 </span>            :         template &lt;class _Tuple&gt;
+<span class="lineNum">     392 </span>            :         static constexpr bool __enable_assign() {
+<span class="lineNum">     393 </span>            :             return __tuple_assignable&lt;_Tuple, pair&gt;::value;
+<span class="lineNum">     394 </span>            :         }
+<span class="lineNum">     395 </span>            :     };
+<span class="lineNum">     396 </span>            : 
+<span class="lineNum">     397 </span>            :     template &lt;class _Tuple&gt;
+<span class="lineNum">     398 </span>            :     using _CheckTLC = typename conditional&lt;
+<span class="lineNum">     399 </span>            :         __tuple_like_with_size&lt;_Tuple, 2&gt;::value
+<span class="lineNum">     400 </span>            :             &amp;&amp; !is_same&lt;typename decay&lt;_Tuple&gt;::type, pair&gt;::value,
+<span class="lineNum">     401 </span>            :         _CheckTupleLikeConstructor,
+<span class="lineNum">     402 </span>            :         __check_tuple_constructor_fail
+<span class="lineNum">     403 </span>            :     &gt;::type;
+<span class="lineNum">     404 </span>            : 
+<span class="lineNum">     405 </span>            :     template&lt;bool _Dummy = true, _EnableB&lt;
+<span class="lineNum">     406 </span>            :             _CheckArgsDep&lt;_Dummy&gt;::template __enable_default&lt;_T1, _T2&gt;()
+<span class="lineNum">     407 </span>            :     &gt; = false&gt;
+<span class="lineNum">     408 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR
+<span class="lineNum">     409 </span>            :     pair() : first(), second() {}
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span>            :     template &lt;bool _Dummy = true, _EnableB&lt;
+<span class="lineNum">     412 </span>            :              _CheckArgsDep&lt;_Dummy&gt;::template __enable_explicit&lt;_T1 const&amp;, _T2 const&amp;&gt;()
+<span class="lineNum">     413 </span>            :     &gt; = false&gt;
+<span class="lineNum">     414 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     415 </span>            :     explicit pair(_T1 const&amp; __t1, _T2 const&amp; __t2)
+<span class="lineNum">     416 </span>            :         : first(__t1), second(__t2) {}
+<span class="lineNum">     417 </span>            : 
+<span class="lineNum">     418 </span>            :     template&lt;bool _Dummy = true, _EnableB&lt;
+<span class="lineNum">     419 </span>            :             _CheckArgsDep&lt;_Dummy&gt;::template __enable_implicit&lt;_T1 const&amp;, _T2 const&amp;&gt;()
+<span class="lineNum">     420 </span>            :     &gt; = false&gt;
+<span class="lineNum">     421 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     422 </span>            :     pair(_T1 const&amp; __t1, _T2 const&amp; __t2)
+<span class="lineNum">     423 </span>            :         : first(__t1), second(__t2) {}
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            :     template&lt;class _U1, class _U2, _EnableB&lt;
+<span class="lineNum">     426 </span>            :              _CheckArgs::template __enable_explicit&lt;_U1, _U2&gt;()
+<span class="lineNum">     427 </span>            :     &gt; = false&gt;
+<span class="lineNum">     428 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     429 </span>            :     explicit pair(_U1&amp;&amp; __u1, _U2&amp;&amp; __u2)
+<span class="lineNum">     430 </span>            :         : first(_VSTD::forward&lt;_U1&gt;(__u1)), second(_VSTD::forward&lt;_U2&gt;(__u2)) {}
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span>            :     template&lt;class _U1, class _U2, _EnableB&lt;
+<span class="lineNum">     433 </span>            :             _CheckArgs::template __enable_implicit&lt;_U1, _U2&gt;()
+<a name="434"><span class="lineNum">     434 </span>            :     &gt; = false&gt;</a>
+<span class="lineNum">     435 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     436 </span>            :     pair(_U1&amp;&amp; __u1, _U2&amp;&amp; __u2)
+<span class="lineNum">     437 </span><span class="lineCov">    1564838 :         : first(_VSTD::forward&lt;_U1&gt;(__u1)), second(_VSTD::forward&lt;_U2&gt;(__u2)) {}</span>
+<span class="lineNum">     438 </span>            : 
+<span class="lineNum">     439 </span>            :     template&lt;class _U1, class _U2, _EnableB&lt;
+<span class="lineNum">     440 </span>            :             _CheckArgs::template __enable_explicit&lt;_U1 const&amp;, _U2 const&amp;&gt;()
+<span class="lineNum">     441 </span>            :     &gt; = false&gt;
+<span class="lineNum">     442 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     443 </span>            :     explicit pair(pair&lt;_U1, _U2&gt; const&amp; __p)
+<span class="lineNum">     444 </span>            :         : first(__p.first), second(__p.second) {}
+<span class="lineNum">     445 </span>            : 
+<span class="lineNum">     446 </span>            :     template&lt;class _U1, class _U2, _EnableB&lt;
+<span class="lineNum">     447 </span>            :             _CheckArgs::template __enable_implicit&lt;_U1 const&amp;, _U2 const&amp;&gt;()
+<span class="lineNum">     448 </span>            :     &gt; = false&gt;
+<span class="lineNum">     449 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     450 </span>            :     pair(pair&lt;_U1, _U2&gt; const&amp; __p)
+<span class="lineNum">     451 </span>            :         : first(__p.first), second(__p.second) {}
+<span class="lineNum">     452 </span>            : 
+<span class="lineNum">     453 </span>            :     template&lt;class _U1, class _U2, _EnableB&lt;
+<span class="lineNum">     454 </span>            :             _CheckArgs::template __enable_explicit&lt;_U1, _U2&gt;()
+<span class="lineNum">     455 </span>            :     &gt; = false&gt;
+<span class="lineNum">     456 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     457 </span>            :     explicit pair(pair&lt;_U1, _U2&gt;&amp;&amp;__p)
+<span class="lineNum">     458 </span>            :         : first(_VSTD::forward&lt;_U1&gt;(__p.first)), second(_VSTD::forward&lt;_U2&gt;(__p.second)) {}
+<span class="lineNum">     459 </span>            : 
+<span class="lineNum">     460 </span>            :     template&lt;class _U1, class _U2, _EnableB&lt;
+<span class="lineNum">     461 </span>            :             _CheckArgs::template __enable_implicit&lt;_U1, _U2&gt;()
+<span class="lineNum">     462 </span>            :     &gt; = false&gt;
+<span class="lineNum">     463 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     464 </span>            :     pair(pair&lt;_U1, _U2&gt;&amp;&amp; __p)
+<span class="lineNum">     465 </span>            :         : first(_VSTD::forward&lt;_U1&gt;(__p.first)), second(_VSTD::forward&lt;_U2&gt;(__p.second)) {}
+<span class="lineNum">     466 </span>            : 
+<span class="lineNum">     467 </span>            :     template&lt;class _Tuple, _EnableB&lt;
+<span class="lineNum">     468 </span>            :             _CheckTLC&lt;_Tuple&gt;::template __enable_explicit&lt;_Tuple&gt;()
+<span class="lineNum">     469 </span>            :     &gt; = false&gt;
+<span class="lineNum">     470 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     471 </span>            :     explicit pair(_Tuple&amp;&amp; __p)
+<span class="lineNum">     472 </span>            :         : first(_VSTD::get&lt;0&gt;(_VSTD::forward&lt;_Tuple&gt;(__p))),
+<span class="lineNum">     473 </span>            :           second(_VSTD::get&lt;1&gt;(_VSTD::forward&lt;_Tuple&gt;(__p))) {}
+<span class="lineNum">     474 </span>            : 
+<span class="lineNum">     475 </span>            :     template&lt;class _Tuple, _EnableB&lt;
+<span class="lineNum">     476 </span>            :             _CheckTLC&lt;_Tuple&gt;::template __enable_implicit&lt;_Tuple&gt;()
+<span class="lineNum">     477 </span>            :     &gt; = false&gt;
+<span class="lineNum">     478 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     479 </span>            :     pair(_Tuple&amp;&amp; __p)
+<span class="lineNum">     480 </span>            :         : first(_VSTD::get&lt;0&gt;(_VSTD::forward&lt;_Tuple&gt;(__p))),
+<span class="lineNum">     481 </span>            :           second(_VSTD::get&lt;1&gt;(_VSTD::forward&lt;_Tuple&gt;(__p))) {}
+<span class="lineNum">     482 </span>            : 
+<span class="lineNum">     483 </span>            :     template &lt;class... _Args1, class... _Args2&gt;
+<span class="lineNum">     484 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     485 </span>            :     pair(piecewise_construct_t __pc,
+<span class="lineNum">     486 </span>            :          tuple&lt;_Args1...&gt; __first_args, tuple&lt;_Args2...&gt; __second_args)
+<span class="lineNum">     487 </span>            :         : pair(__pc, __first_args, __second_args,
+<span class="lineNum">     488 </span>            :                 typename __make_tuple_indices&lt;sizeof...(_Args1)&gt;::type(),
+<span class="lineNum">     489 </span>            :                 typename __make_tuple_indices&lt;sizeof...(_Args2) &gt;::type()) {}
+<span class="lineNum">     490 </span>            : 
+<span class="lineNum">     491 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     492 </span>            :     pair&amp; operator=(typename conditional&lt;
+<span class="lineNum">     493 </span>            :                         is_copy_assignable&lt;first_type&gt;::value &amp;&amp;
+<span class="lineNum">     494 </span>            :                         is_copy_assignable&lt;second_type&gt;::value,
+<span class="lineNum">     495 </span>            :                     pair, __nat&gt;::type const&amp; __p)
+<span class="lineNum">     496 </span>            :         _NOEXCEPT_(is_nothrow_copy_assignable&lt;first_type&gt;::value &amp;&amp;
+<span class="lineNum">     497 </span>            :                    is_nothrow_copy_assignable&lt;second_type&gt;::value)
+<span class="lineNum">     498 </span>            :     {
+<span class="lineNum">     499 </span>            :         first = __p.first;
+<span class="lineNum">     500 </span>            :         second = __p.second;
+<span class="lineNum">     501 </span>            :         return *this;
+<span class="lineNum">     502 </span>            :     }
+<a name="503"><span class="lineNum">     503 </span>            : </a>
+<span class="lineNum">     504 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     505 </span>            :     pair&amp; operator=(typename conditional&lt;
+<span class="lineNum">     506 </span>            :                         is_move_assignable&lt;first_type&gt;::value &amp;&amp;
+<span class="lineNum">     507 </span>            :                         is_move_assignable&lt;second_type&gt;::value,
+<span class="lineNum">     508 </span>            :                     pair, __nat&gt;::type&amp;&amp; __p)
+<span class="lineNum">     509 </span>            :         _NOEXCEPT_(is_nothrow_move_assignable&lt;first_type&gt;::value &amp;&amp;
+<span class="lineNum">     510 </span>            :                    is_nothrow_move_assignable&lt;second_type&gt;::value)
+<span class="lineNum">     511 </span>            :     {
+<span class="lineNum">     512 </span><span class="lineCov">    3520458 :         first = _VSTD::forward&lt;first_type&gt;(__p.first);</span>
+<span class="lineNum">     513 </span><span class="lineCov">    3520458 :         second = _VSTD::forward&lt;second_type&gt;(__p.second);</span>
+<span class="lineNum">     514 </span><span class="lineCov">    3520458 :         return *this;</span>
+<span class="lineNum">     515 </span>            :     }
+<span class="lineNum">     516 </span>            : 
+<span class="lineNum">     517 </span>            :     template &lt;class _Tuple, _EnableB&lt;
+<span class="lineNum">     518 </span>            :             _CheckTLC&lt;_Tuple&gt;::template __enable_assign&lt;_Tuple&gt;()
+<span class="lineNum">     519 </span>            :      &gt; = false&gt;
+<span class="lineNum">     520 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     521 </span>            :     pair&amp; operator=(_Tuple&amp;&amp; __p) {
+<span class="lineNum">     522 </span>            :         first = _VSTD::get&lt;0&gt;(_VSTD::forward&lt;_Tuple&gt;(__p));
+<span class="lineNum">     523 </span>            :         second = _VSTD::get&lt;1&gt;(_VSTD::forward&lt;_Tuple&gt;(__p));
+<span class="lineNum">     524 </span>            :         return *this;
+<span class="lineNum">     525 </span>            :     }
+<span class="lineNum">     526 </span>            : #endif
+<span class="lineNum">     527 </span>            : 
+<a name="528"><span class="lineNum">     528 </span>            :     _LIBCPP_INLINE_VISIBILITY</a>
+<span class="lineNum">     529 </span>            :     void
+<span class="lineNum">     530 </span>            :     swap(pair&amp; __p) _NOEXCEPT_(__is_nothrow_swappable&lt;first_type&gt;::value &amp;&amp;
+<span class="lineNum">     531 </span>            :                                __is_nothrow_swappable&lt;second_type&gt;::value)
+<span class="lineNum">     532 </span>            :     {
+<span class="lineNum">     533 </span>            :         using _VSTD::swap;
+<span class="lineNum">     534 </span><span class="lineCov">     542274 :         swap(first,  __p.first);</span>
+<span class="lineNum">     535 </span><span class="lineCov">     542274 :         swap(second, __p.second);</span>
+<span class="lineNum">     536 </span><span class="lineCov">     542274 :     }</span>
+<span class="lineNum">     537 </span>            : private:
+<span class="lineNum">     538 </span>            : 
+<span class="lineNum">     539 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     540 </span>            :     template &lt;class... _Args1, class... _Args2, size_t... _I1, size_t... _I2&gt;
+<span class="lineNum">     541 </span>            :         _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     542 </span>            :         pair(piecewise_construct_t,
+<span class="lineNum">     543 </span>            :              tuple&lt;_Args1...&gt;&amp; __first_args, tuple&lt;_Args2...&gt;&amp; __second_args,
+<span class="lineNum">     544 </span>            :              __tuple_indices&lt;_I1...&gt;, __tuple_indices&lt;_I2...&gt;);
+<span class="lineNum">     545 </span>            : #endif
+<span class="lineNum">     546 </span>            : };
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span>            : #ifndef _LIBCPP_HAS_NO_DEDUCTION_GUIDES
+<span class="lineNum">     549 </span>            : template&lt;class _T1, class _T2&gt;
+<span class="lineNum">     550 </span>            : pair(_T1, _T2) -&gt; pair&lt;_T1, _T2&gt;;
+<span class="lineNum">     551 </span>            : #endif // _LIBCPP_HAS_NO_DEDUCTION_GUIDES
+<span class="lineNum">     552 </span>            : 
+<span class="lineNum">     553 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     554 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     555 </span>            : bool
+<span class="lineNum">     556 </span>            : operator==(const pair&lt;_T1,_T2&gt;&amp; __x, const pair&lt;_T1,_T2&gt;&amp; __y)
+<span class="lineNum">     557 </span>            : {
+<span class="lineNum">     558 </span>            :     return __x.first == __y.first &amp;&amp; __x.second == __y.second;
+<span class="lineNum">     559 </span>            : }
+<span class="lineNum">     560 </span>            : 
+<span class="lineNum">     561 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     562 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     563 </span>            : bool
+<span class="lineNum">     564 </span>            : operator!=(const pair&lt;_T1,_T2&gt;&amp; __x, const pair&lt;_T1,_T2&gt;&amp; __y)
+<span class="lineNum">     565 </span>            : {
+<span class="lineNum">     566 </span>            :     return !(__x == __y);
+<span class="lineNum">     567 </span>            : }
+<span class="lineNum">     568 </span>            : 
+<span class="lineNum">     569 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     570 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     571 </span>            : bool
+<span class="lineNum">     572 </span>            : operator&lt; (const pair&lt;_T1,_T2&gt;&amp; __x, const pair&lt;_T1,_T2&gt;&amp; __y)
+<span class="lineNum">     573 </span>            : {
+<span class="lineNum">     574 </span>            :     return __x.first &lt; __y.first || (!(__y.first &lt; __x.first) &amp;&amp; __x.second &lt; __y.second);
+<span class="lineNum">     575 </span>            : }
+<span class="lineNum">     576 </span>            : 
+<span class="lineNum">     577 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     578 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     579 </span>            : bool
+<span class="lineNum">     580 </span>            : operator&gt; (const pair&lt;_T1,_T2&gt;&amp; __x, const pair&lt;_T1,_T2&gt;&amp; __y)
+<span class="lineNum">     581 </span>            : {
+<span class="lineNum">     582 </span>            :     return __y &lt; __x;
+<span class="lineNum">     583 </span>            : }
+<span class="lineNum">     584 </span>            : 
+<span class="lineNum">     585 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     586 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     587 </span>            : bool
+<span class="lineNum">     588 </span>            : operator&gt;=(const pair&lt;_T1,_T2&gt;&amp; __x, const pair&lt;_T1,_T2&gt;&amp; __y)
+<span class="lineNum">     589 </span>            : {
+<span class="lineNum">     590 </span>            :     return !(__x &lt; __y);
+<span class="lineNum">     591 </span>            : }
+<span class="lineNum">     592 </span>            : 
+<span class="lineNum">     593 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     594 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     595 </span>            : bool
+<span class="lineNum">     596 </span>            : operator&lt;=(const pair&lt;_T1,_T2&gt;&amp; __x, const pair&lt;_T1,_T2&gt;&amp; __y)
+<span class="lineNum">     597 </span>            : {
+<span class="lineNum">     598 </span>            :     return !(__y &lt; __x);
+<span class="lineNum">     599 </span>            : }
+<span class="lineNum">     600 </span>            : 
+<span class="lineNum">     601 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     602 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     603 </span>            : typename enable_if
+<span class="lineNum">     604 </span>            : &lt;
+<span class="lineNum">     605 </span>            :     __is_swappable&lt;_T1&gt;::value &amp;&amp;
+<span class="lineNum">     606 </span>            :     __is_swappable&lt;_T2&gt;::value,
+<a name="607"><span class="lineNum">     607 </span>            :     void</a>
+<span class="lineNum">     608 </span>            : &gt;::type
+<span class="lineNum">     609 </span>            : swap(pair&lt;_T1, _T2&gt;&amp; __x, pair&lt;_T1, _T2&gt;&amp; __y)
+<span class="lineNum">     610 </span>            :                      _NOEXCEPT_((__is_nothrow_swappable&lt;_T1&gt;::value &amp;&amp;
+<span class="lineNum">     611 </span>            :                                  __is_nothrow_swappable&lt;_T2&gt;::value))
+<span class="lineNum">     612 </span>            : {
+<span class="lineNum">     613 </span><span class="lineCov">     542274 :     __x.swap(__y);</span>
+<span class="lineNum">     614 </span><span class="lineCov">     542274 : }</span>
+<span class="lineNum">     615 </span>            : 
+<span class="lineNum">     616 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     617 </span>            : 
+<span class="lineNum">     618 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     619 </span>            : struct __make_pair_return_impl
+<span class="lineNum">     620 </span>            : {
+<span class="lineNum">     621 </span>            :     typedef _Tp type;
+<span class="lineNum">     622 </span>            : };
+<span class="lineNum">     623 </span>            : 
+<span class="lineNum">     624 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     625 </span>            : struct __make_pair_return_impl&lt;reference_wrapper&lt;_Tp&gt;&gt;
+<span class="lineNum">     626 </span>            : {
+<span class="lineNum">     627 </span>            :     typedef _Tp&amp; type;
+<span class="lineNum">     628 </span>            : };
+<span class="lineNum">     629 </span>            : 
+<span class="lineNum">     630 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     631 </span>            : struct __make_pair_return
+<span class="lineNum">     632 </span>            : {
+<span class="lineNum">     633 </span>            :     typedef typename __make_pair_return_impl&lt;typename decay&lt;_Tp&gt;::type&gt;::type type;
+<span class="lineNum">     634 </span>            : };
+<span class="lineNum">     635 </span>            : 
+<span class="lineNum">     636 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     637 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     638 </span>            : pair&lt;typename __make_pair_return&lt;_T1&gt;::type, typename __make_pair_return&lt;_T2&gt;::type&gt;
+<span class="lineNum">     639 </span>            : make_pair(_T1&amp;&amp; __t1, _T2&amp;&amp; __t2)
+<span class="lineNum">     640 </span>            : {
+<span class="lineNum">     641 </span>            :     return pair&lt;typename __make_pair_return&lt;_T1&gt;::type, typename __make_pair_return&lt;_T2&gt;::type&gt;
+<span class="lineNum">     642 </span>            :                (_VSTD::forward&lt;_T1&gt;(__t1), _VSTD::forward&lt;_T2&gt;(__t2));
+<span class="lineNum">     643 </span>            : }
+<span class="lineNum">     644 </span>            : 
+<span class="lineNum">     645 </span>            : #else  // _LIBCPP_CXX03_LANG
+<span class="lineNum">     646 </span>            : 
+<span class="lineNum">     647 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     648 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     649 </span>            : pair&lt;_T1,_T2&gt;
+<span class="lineNum">     650 </span>            : make_pair(_T1 __x, _T2 __y)
+<span class="lineNum">     651 </span>            : {
+<span class="lineNum">     652 </span>            :     return pair&lt;_T1, _T2&gt;(__x, __y);
+<span class="lineNum">     653 </span>            : }
+<span class="lineNum">     654 </span>            : 
+<span class="lineNum">     655 </span>            : #endif  // _LIBCPP_CXX03_LANG
+<span class="lineNum">     656 </span>            : 
+<span class="lineNum">     657 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     658 </span>            :   class _LIBCPP_TEMPLATE_VIS tuple_size&lt;pair&lt;_T1, _T2&gt; &gt;
+<span class="lineNum">     659 </span>            :     : public integral_constant&lt;size_t, 2&gt; {};
+<span class="lineNum">     660 </span>            : 
+<span class="lineNum">     661 </span>            : template &lt;size_t _Ip, class _T1, class _T2&gt;
+<span class="lineNum">     662 </span>            : class _LIBCPP_TEMPLATE_VIS tuple_element&lt;_Ip, pair&lt;_T1, _T2&gt; &gt;
+<span class="lineNum">     663 </span>            : {
+<span class="lineNum">     664 </span>            :     static_assert(_Ip &lt; 2, &quot;Index out of bounds in std::tuple_element&lt;std::pair&lt;T1, T2&gt;&gt;&quot;);
+<span class="lineNum">     665 </span>            : };
+<span class="lineNum">     666 </span>            : 
+<span class="lineNum">     667 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     668 </span>            : class _LIBCPP_TEMPLATE_VIS tuple_element&lt;0, pair&lt;_T1, _T2&gt; &gt;
+<span class="lineNum">     669 </span>            : {
+<span class="lineNum">     670 </span>            : public:
+<span class="lineNum">     671 </span>            :     typedef _T1 type;
+<span class="lineNum">     672 </span>            : };
+<span class="lineNum">     673 </span>            : 
+<span class="lineNum">     674 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     675 </span>            : class _LIBCPP_TEMPLATE_VIS tuple_element&lt;1, pair&lt;_T1, _T2&gt; &gt;
+<span class="lineNum">     676 </span>            : {
+<span class="lineNum">     677 </span>            : public:
+<span class="lineNum">     678 </span>            :     typedef _T2 type;
+<span class="lineNum">     679 </span>            : };
+<span class="lineNum">     680 </span>            : 
+<span class="lineNum">     681 </span>            : template &lt;size_t _Ip&gt; struct __get_pair;
+<span class="lineNum">     682 </span>            : 
+<span class="lineNum">     683 </span>            : template &lt;&gt;
+<span class="lineNum">     684 </span>            : struct __get_pair&lt;0&gt;
+<span class="lineNum">     685 </span>            : {
+<span class="lineNum">     686 </span>            :     template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     687 </span>            :     static
+<span class="lineNum">     688 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     689 </span>            :     _T1&amp;
+<span class="lineNum">     690 </span>            :     get(pair&lt;_T1, _T2&gt;&amp; __p) _NOEXCEPT {return __p.first;}
+<span class="lineNum">     691 </span>            : 
+<span class="lineNum">     692 </span>            :     template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     693 </span>            :     static
+<span class="lineNum">     694 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     695 </span>            :     const _T1&amp;
+<span class="lineNum">     696 </span>            :     get(const pair&lt;_T1, _T2&gt;&amp; __p) _NOEXCEPT {return __p.first;}
+<span class="lineNum">     697 </span>            : 
+<span class="lineNum">     698 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     699 </span>            :     template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     700 </span>            :     static
+<span class="lineNum">     701 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     702 </span>            :     _T1&amp;&amp;
+<span class="lineNum">     703 </span>            :     get(pair&lt;_T1, _T2&gt;&amp;&amp; __p) _NOEXCEPT {return _VSTD::forward&lt;_T1&gt;(__p.first);}
+<span class="lineNum">     704 </span>            : 
+<span class="lineNum">     705 </span>            :     template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     706 </span>            :     static
+<span class="lineNum">     707 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     708 </span>            :     const _T1&amp;&amp;
+<span class="lineNum">     709 </span>            :     get(const pair&lt;_T1, _T2&gt;&amp;&amp; __p) _NOEXCEPT {return _VSTD::forward&lt;const _T1&gt;(__p.first);}
+<span class="lineNum">     710 </span>            : #endif  // _LIBCPP_CXX03_LANG
+<span class="lineNum">     711 </span>            : };
+<span class="lineNum">     712 </span>            : 
+<span class="lineNum">     713 </span>            : template &lt;&gt;
+<span class="lineNum">     714 </span>            : struct __get_pair&lt;1&gt;
+<span class="lineNum">     715 </span>            : {
+<span class="lineNum">     716 </span>            :     template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     717 </span>            :     static
+<span class="lineNum">     718 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     719 </span>            :     _T2&amp;
+<span class="lineNum">     720 </span>            :     get(pair&lt;_T1, _T2&gt;&amp; __p) _NOEXCEPT {return __p.second;}
+<span class="lineNum">     721 </span>            : 
+<span class="lineNum">     722 </span>            :     template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     723 </span>            :     static
+<span class="lineNum">     724 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     725 </span>            :     const _T2&amp;
+<span class="lineNum">     726 </span>            :     get(const pair&lt;_T1, _T2&gt;&amp; __p) _NOEXCEPT {return __p.second;}
+<span class="lineNum">     727 </span>            : 
+<span class="lineNum">     728 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     729 </span>            :     template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     730 </span>            :     static
+<span class="lineNum">     731 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     732 </span>            :     _T2&amp;&amp;
+<span class="lineNum">     733 </span>            :     get(pair&lt;_T1, _T2&gt;&amp;&amp; __p) _NOEXCEPT {return _VSTD::forward&lt;_T2&gt;(__p.second);}
+<span class="lineNum">     734 </span>            : 
+<span class="lineNum">     735 </span>            :     template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     736 </span>            :     static
+<span class="lineNum">     737 </span>            :     _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     738 </span>            :     const _T2&amp;&amp;
+<span class="lineNum">     739 </span>            :     get(const pair&lt;_T1, _T2&gt;&amp;&amp; __p) _NOEXCEPT {return _VSTD::forward&lt;const _T2&gt;(__p.second);}
+<span class="lineNum">     740 </span>            : #endif  // _LIBCPP_CXX03_LANG
+<span class="lineNum">     741 </span>            : };
+<span class="lineNum">     742 </span>            : 
+<span class="lineNum">     743 </span>            : template &lt;size_t _Ip, class _T1, class _T2&gt;
+<span class="lineNum">     744 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     745 </span>            : typename tuple_element&lt;_Ip, pair&lt;_T1, _T2&gt; &gt;::type&amp;
+<span class="lineNum">     746 </span>            : get(pair&lt;_T1, _T2&gt;&amp; __p) _NOEXCEPT
+<span class="lineNum">     747 </span>            : {
+<span class="lineNum">     748 </span>            :     return __get_pair&lt;_Ip&gt;::get(__p);
+<span class="lineNum">     749 </span>            : }
+<span class="lineNum">     750 </span>            : 
+<span class="lineNum">     751 </span>            : template &lt;size_t _Ip, class _T1, class _T2&gt;
+<span class="lineNum">     752 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     753 </span>            : const typename tuple_element&lt;_Ip, pair&lt;_T1, _T2&gt; &gt;::type&amp;
+<span class="lineNum">     754 </span>            : get(const pair&lt;_T1, _T2&gt;&amp; __p) _NOEXCEPT
+<span class="lineNum">     755 </span>            : {
+<span class="lineNum">     756 </span>            :     return __get_pair&lt;_Ip&gt;::get(__p);
+<span class="lineNum">     757 </span>            : }
+<span class="lineNum">     758 </span>            : 
+<span class="lineNum">     759 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">     760 </span>            : template &lt;size_t _Ip, class _T1, class _T2&gt;
+<span class="lineNum">     761 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     762 </span>            : typename tuple_element&lt;_Ip, pair&lt;_T1, _T2&gt; &gt;::type&amp;&amp;
+<span class="lineNum">     763 </span>            : get(pair&lt;_T1, _T2&gt;&amp;&amp; __p) _NOEXCEPT
+<span class="lineNum">     764 </span>            : {
+<span class="lineNum">     765 </span>            :     return __get_pair&lt;_Ip&gt;::get(_VSTD::move(__p));
+<span class="lineNum">     766 </span>            : }
+<span class="lineNum">     767 </span>            : 
+<span class="lineNum">     768 </span>            : template &lt;size_t _Ip, class _T1, class _T2&gt;
+<span class="lineNum">     769 </span>            : inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
+<span class="lineNum">     770 </span>            : const typename tuple_element&lt;_Ip, pair&lt;_T1, _T2&gt; &gt;::type&amp;&amp;
+<span class="lineNum">     771 </span>            : get(const pair&lt;_T1, _T2&gt;&amp;&amp; __p) _NOEXCEPT
+<span class="lineNum">     772 </span>            : {
+<span class="lineNum">     773 </span>            :     return __get_pair&lt;_Ip&gt;::get(_VSTD::move(__p));
+<span class="lineNum">     774 </span>            : }
+<span class="lineNum">     775 </span>            : #endif  // _LIBCPP_CXX03_LANG
+<span class="lineNum">     776 </span>            : 
+<span class="lineNum">     777 </span>            : #if _LIBCPP_STD_VER &gt; 11
+<span class="lineNum">     778 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     779 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     780 </span>            : constexpr _T1 &amp; get(pair&lt;_T1, _T2&gt;&amp; __p) _NOEXCEPT
+<span class="lineNum">     781 </span>            : {
+<span class="lineNum">     782 </span>            :     return __get_pair&lt;0&gt;::get(__p);
+<span class="lineNum">     783 </span>            : }
+<span class="lineNum">     784 </span>            : 
+<span class="lineNum">     785 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     786 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     787 </span>            : constexpr _T1 const &amp; get(pair&lt;_T1, _T2&gt; const&amp; __p) _NOEXCEPT
+<span class="lineNum">     788 </span>            : {
+<span class="lineNum">     789 </span>            :     return __get_pair&lt;0&gt;::get(__p);
+<span class="lineNum">     790 </span>            : }
+<span class="lineNum">     791 </span>            : 
+<span class="lineNum">     792 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     793 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     794 </span>            : constexpr _T1 &amp;&amp; get(pair&lt;_T1, _T2&gt;&amp;&amp; __p) _NOEXCEPT
+<span class="lineNum">     795 </span>            : {
+<span class="lineNum">     796 </span>            :     return __get_pair&lt;0&gt;::get(_VSTD::move(__p));
+<span class="lineNum">     797 </span>            : }
+<span class="lineNum">     798 </span>            : 
+<span class="lineNum">     799 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     800 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     801 </span>            : constexpr _T1 const &amp;&amp; get(pair&lt;_T1, _T2&gt; const&amp;&amp; __p) _NOEXCEPT
+<span class="lineNum">     802 </span>            : {
+<span class="lineNum">     803 </span>            :     return __get_pair&lt;0&gt;::get(_VSTD::move(__p));
+<span class="lineNum">     804 </span>            : }
+<span class="lineNum">     805 </span>            : 
+<span class="lineNum">     806 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     807 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     808 </span>            : constexpr _T1 &amp; get(pair&lt;_T2, _T1&gt;&amp; __p) _NOEXCEPT
+<span class="lineNum">     809 </span>            : {
+<span class="lineNum">     810 </span>            :     return __get_pair&lt;1&gt;::get(__p);
+<span class="lineNum">     811 </span>            : }
+<span class="lineNum">     812 </span>            : 
+<span class="lineNum">     813 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     814 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     815 </span>            : constexpr _T1 const &amp; get(pair&lt;_T2, _T1&gt; const&amp; __p) _NOEXCEPT
+<span class="lineNum">     816 </span>            : {
+<span class="lineNum">     817 </span>            :     return __get_pair&lt;1&gt;::get(__p);
+<span class="lineNum">     818 </span>            : }
+<span class="lineNum">     819 </span>            : 
+<span class="lineNum">     820 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     821 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     822 </span>            : constexpr _T1 &amp;&amp; get(pair&lt;_T2, _T1&gt;&amp;&amp; __p) _NOEXCEPT
+<span class="lineNum">     823 </span>            : {
+<span class="lineNum">     824 </span>            :     return __get_pair&lt;1&gt;::get(_VSTD::move(__p));
+<span class="lineNum">     825 </span>            : }
+<span class="lineNum">     826 </span>            : 
+<span class="lineNum">     827 </span>            : template &lt;class _T1, class _T2&gt;
+<span class="lineNum">     828 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     829 </span>            : constexpr _T1 const &amp;&amp; get(pair&lt;_T2, _T1&gt; const&amp;&amp; __p) _NOEXCEPT
+<span class="lineNum">     830 </span>            : {
+<span class="lineNum">     831 </span>            :     return __get_pair&lt;1&gt;::get(_VSTD::move(__p));
+<span class="lineNum">     832 </span>            : }
+<span class="lineNum">     833 </span>            : 
+<span class="lineNum">     834 </span>            : #endif
+<span class="lineNum">     835 </span>            : 
+<span class="lineNum">     836 </span>            : #if _LIBCPP_STD_VER &gt; 11
+<span class="lineNum">     837 </span>            : 
+<span class="lineNum">     838 </span>            : template&lt;class _Tp, _Tp... _Ip&gt;
+<span class="lineNum">     839 </span>            : struct _LIBCPP_TEMPLATE_VIS integer_sequence
+<span class="lineNum">     840 </span>            : {
+<span class="lineNum">     841 </span>            :     typedef _Tp value_type;
+<span class="lineNum">     842 </span>            :     static_assert( is_integral&lt;_Tp&gt;::value,
+<span class="lineNum">     843 </span>            :                   &quot;std::integer_sequence can only be instantiated with an integral type&quot; );
+<span class="lineNum">     844 </span>            :     static
+<span class="lineNum">     845 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     846 </span>            :     constexpr
+<span class="lineNum">     847 </span>            :     size_t
+<span class="lineNum">     848 </span>            :     size() noexcept { return sizeof...(_Ip); }
+<span class="lineNum">     849 </span>            : };
+<span class="lineNum">     850 </span>            : 
+<span class="lineNum">     851 </span>            : template&lt;size_t... _Ip&gt;
+<span class="lineNum">     852 </span>            :     using index_sequence = integer_sequence&lt;size_t, _Ip...&gt;;
+<span class="lineNum">     853 </span>            : 
+<span class="lineNum">     854 </span>            : #if __has_builtin(__make_integer_seq) &amp;&amp; !defined(_LIBCPP_TESTING_FALLBACK_MAKE_INTEGER_SEQUENCE)
+<span class="lineNum">     855 </span>            : 
+<span class="lineNum">     856 </span>            : template &lt;class _Tp, _Tp _Ep&gt;
+<span class="lineNum">     857 </span>            : using __make_integer_sequence = __make_integer_seq&lt;integer_sequence, _Tp, _Ep&gt;;
+<span class="lineNum">     858 </span>            : 
+<span class="lineNum">     859 </span>            : #else
+<span class="lineNum">     860 </span>            : 
+<span class="lineNum">     861 </span>            : template&lt;typename _Tp, _Tp _Np&gt; using __make_integer_sequence_unchecked =
+<span class="lineNum">     862 </span>            :   typename __detail::__make&lt;_Np&gt;::type::template __convert&lt;integer_sequence, _Tp&gt;;
+<span class="lineNum">     863 </span>            : 
+<span class="lineNum">     864 </span>            : template &lt;class _Tp, _Tp _Ep&gt;
+<span class="lineNum">     865 </span>            : struct __make_integer_sequence_checked
+<span class="lineNum">     866 </span>            : {
+<span class="lineNum">     867 </span>            :     static_assert(is_integral&lt;_Tp&gt;::value,
+<span class="lineNum">     868 </span>            :                   &quot;std::make_integer_sequence can only be instantiated with an integral type&quot; );
+<span class="lineNum">     869 </span>            :     static_assert(0 &lt;= _Ep, &quot;std::make_integer_sequence must have a non-negative sequence length&quot;);
+<span class="lineNum">     870 </span>            :     // Workaround GCC bug by preventing bad installations when 0 &lt;= _Ep
+<span class="lineNum">     871 </span>            :     // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68929
+<span class="lineNum">     872 </span>            :     typedef __make_integer_sequence_unchecked&lt;_Tp, 0 &lt;= _Ep ? _Ep : 0&gt; type;
+<span class="lineNum">     873 </span>            : };
+<span class="lineNum">     874 </span>            : 
+<span class="lineNum">     875 </span>            : template &lt;class _Tp, _Tp _Ep&gt;
+<span class="lineNum">     876 </span>            : using __make_integer_sequence = typename __make_integer_sequence_checked&lt;_Tp, _Ep&gt;::type;
+<span class="lineNum">     877 </span>            : 
+<span class="lineNum">     878 </span>            : #endif
+<span class="lineNum">     879 </span>            : 
+<span class="lineNum">     880 </span>            : template&lt;class _Tp, _Tp _Np&gt;
+<span class="lineNum">     881 </span>            :     using make_integer_sequence = __make_integer_sequence&lt;_Tp, _Np&gt;;
+<span class="lineNum">     882 </span>            : 
+<span class="lineNum">     883 </span>            : template&lt;size_t _Np&gt;
+<span class="lineNum">     884 </span>            :     using make_index_sequence = make_integer_sequence&lt;size_t, _Np&gt;;
+<span class="lineNum">     885 </span>            : 
+<span class="lineNum">     886 </span>            : template&lt;class... _Tp&gt;
+<span class="lineNum">     887 </span>            :     using index_sequence_for = make_index_sequence&lt;sizeof...(_Tp)&gt;;
+<span class="lineNum">     888 </span>            : 
+<span class="lineNum">     889 </span>            : #endif  // _LIBCPP_STD_VER &gt; 11
+<span class="lineNum">     890 </span>            : 
+<span class="lineNum">     891 </span>            : #if _LIBCPP_STD_VER &gt; 11
+<span class="lineNum">     892 </span>            : template&lt;class _T1, class _T2 = _T1&gt;
+<span class="lineNum">     893 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     894 </span>            : _T1 exchange(_T1&amp; __obj, _T2 &amp;&amp; __new_value)
+<span class="lineNum">     895 </span>            : {
+<span class="lineNum">     896 </span>            :     _T1 __old_value = _VSTD::move(__obj);
+<span class="lineNum">     897 </span>            :     __obj = _VSTD::forward&lt;_T2&gt;(__new_value);
+<span class="lineNum">     898 </span>            :     return __old_value;
+<span class="lineNum">     899 </span>            : }
+<span class="lineNum">     900 </span>            : #endif  // _LIBCPP_STD_VER &gt; 11
+<span class="lineNum">     901 </span>            : 
+<span class="lineNum">     902 </span>            : #if _LIBCPP_STD_VER &gt; 14
+<span class="lineNum">     903 </span>            : 
+<span class="lineNum">     904 </span>            : struct _LIBCPP_TYPE_VIS in_place_t {
+<span class="lineNum">     905 </span>            :     explicit in_place_t() = default;
+<span class="lineNum">     906 </span>            : };
+<span class="lineNum">     907 </span>            : _LIBCPP_INLINE_VAR constexpr in_place_t in_place{};
+<span class="lineNum">     908 </span>            : 
+<span class="lineNum">     909 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     910 </span>            : struct _LIBCPP_TEMPLATE_VIS in_place_type_t {
+<span class="lineNum">     911 </span>            :     explicit in_place_type_t() = default;
+<span class="lineNum">     912 </span>            : };
+<span class="lineNum">     913 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     914 </span>            : _LIBCPP_INLINE_VAR constexpr in_place_type_t&lt;_Tp&gt; in_place_type{};
+<span class="lineNum">     915 </span>            : 
+<span class="lineNum">     916 </span>            : template &lt;size_t _Idx&gt;
+<span class="lineNum">     917 </span>            : struct _LIBCPP_TYPE_VIS in_place_index_t {
+<span class="lineNum">     918 </span>            :     explicit in_place_index_t() = default;
+<span class="lineNum">     919 </span>            : };
+<span class="lineNum">     920 </span>            : template &lt;size_t _Idx&gt;
+<span class="lineNum">     921 </span>            : _LIBCPP_INLINE_VAR constexpr in_place_index_t&lt;_Idx&gt; in_place_index{};
+<span class="lineNum">     922 </span>            : 
+<span class="lineNum">     923 </span>            : template &lt;class _Tp&gt; struct __is_inplace_type_imp : false_type {};
+<span class="lineNum">     924 </span>            : template &lt;class _Tp&gt; struct __is_inplace_type_imp&lt;in_place_type_t&lt;_Tp&gt;&gt; : true_type {};
+<span class="lineNum">     925 </span>            : 
+<span class="lineNum">     926 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     927 </span>            : using __is_inplace_type = __is_inplace_type_imp&lt;__uncvref_t&lt;_Tp&gt;&gt;;
+<span class="lineNum">     928 </span>            : 
+<span class="lineNum">     929 </span>            : template &lt;class _Tp&gt; struct __is_inplace_index_imp : false_type {};
+<span class="lineNum">     930 </span>            : template &lt;size_t _Idx&gt; struct __is_inplace_index_imp&lt;in_place_index_t&lt;_Idx&gt;&gt; : true_type {};
+<span class="lineNum">     931 </span>            : 
+<span class="lineNum">     932 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">     933 </span>            : using __is_inplace_index = __is_inplace_index_imp&lt;__uncvref_t&lt;_Tp&gt;&gt;;
+<span class="lineNum">     934 </span>            : 
+<span class="lineNum">     935 </span>            : #endif // _LIBCPP_STD_VER &gt; 14
+<span class="lineNum">     936 </span>            : 
+<span class="lineNum">     937 </span>            : template &lt;class _Arg, class _Result&gt;
+<span class="lineNum">     938 </span>            : struct _LIBCPP_TEMPLATE_VIS unary_function
+<span class="lineNum">     939 </span>            : {
+<span class="lineNum">     940 </span>            :     typedef _Arg    argument_type;
+<span class="lineNum">     941 </span>            :     typedef _Result result_type;
+<span class="lineNum">     942 </span>            : };
+<span class="lineNum">     943 </span>            : 
+<span class="lineNum">     944 </span>            : template &lt;class _Size&gt;
+<span class="lineNum">     945 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">     946 </span>            : _Size
+<span class="lineNum">     947 </span>            : __loadword(const void* __p)
+<span class="lineNum">     948 </span>            : {
+<span class="lineNum">     949 </span>            :     _Size __r;
+<span class="lineNum">     950 </span>            :     std::memcpy(&amp;__r, __p, sizeof(__r));
+<span class="lineNum">     951 </span>            :     return __r;
+<span class="lineNum">     952 </span>            : }
+<span class="lineNum">     953 </span>            : 
+<span class="lineNum">     954 </span>            : // We use murmur2 when size_t is 32 bits, and cityhash64 when size_t
+<span class="lineNum">     955 </span>            : // is 64 bits.  This is because cityhash64 uses 64bit x 64bit
+<span class="lineNum">     956 </span>            : // multiplication, which can be very slow on 32-bit systems.
+<span class="lineNum">     957 </span>            : template &lt;class _Size, size_t = sizeof(_Size)*__CHAR_BIT__&gt;
+<span class="lineNum">     958 </span>            : struct __murmur2_or_cityhash;
+<span class="lineNum">     959 </span>            : 
+<span class="lineNum">     960 </span>            : template &lt;class _Size&gt;
+<span class="lineNum">     961 </span>            : struct __murmur2_or_cityhash&lt;_Size, 32&gt;
+<span class="lineNum">     962 </span>            : {
+<span class="lineNum">     963 </span>            :     inline _Size operator()(const void* __key, _Size __len)
+<span class="lineNum">     964 </span>            :          _LIBCPP_DISABLE_UBSAN_UNSIGNED_INTEGER_CHECK;
+<span class="lineNum">     965 </span>            : };
+<span class="lineNum">     966 </span>            : 
+<span class="lineNum">     967 </span>            : // murmur2
+<span class="lineNum">     968 </span>            : template &lt;class _Size&gt;
+<span class="lineNum">     969 </span>            : _Size
+<span class="lineNum">     970 </span>            : __murmur2_or_cityhash&lt;_Size, 32&gt;::operator()(const void* __key, _Size __len)
+<span class="lineNum">     971 </span>            : {
+<span class="lineNum">     972 </span>            :     const _Size __m = 0x5bd1e995;
+<span class="lineNum">     973 </span>            :     const _Size __r = 24;
+<span class="lineNum">     974 </span>            :     _Size __h = __len;
+<span class="lineNum">     975 </span>            :     const unsigned char* __data = static_cast&lt;const unsigned char*&gt;(__key);
+<span class="lineNum">     976 </span>            :     for (; __len &gt;= 4; __data += 4, __len -= 4)
+<span class="lineNum">     977 </span>            :     {
+<span class="lineNum">     978 </span>            :         _Size __k = __loadword&lt;_Size&gt;(__data);
+<span class="lineNum">     979 </span>            :         __k *= __m;
+<span class="lineNum">     980 </span>            :         __k ^= __k &gt;&gt; __r;
+<span class="lineNum">     981 </span>            :         __k *= __m;
+<span class="lineNum">     982 </span>            :         __h *= __m;
+<span class="lineNum">     983 </span>            :         __h ^= __k;
+<span class="lineNum">     984 </span>            :     }
+<span class="lineNum">     985 </span>            :     switch (__len)
+<span class="lineNum">     986 </span>            :     {
+<span class="lineNum">     987 </span>            :     case 3:
+<span class="lineNum">     988 </span>            :         __h ^= __data[2] &lt;&lt; 16;
+<span class="lineNum">     989 </span>            :     case 2:
+<span class="lineNum">     990 </span>            :         __h ^= __data[1] &lt;&lt; 8;
+<span class="lineNum">     991 </span>            :     case 1:
+<span class="lineNum">     992 </span>            :         __h ^= __data[0];
+<span class="lineNum">     993 </span>            :         __h *= __m;
+<span class="lineNum">     994 </span>            :     }
+<span class="lineNum">     995 </span>            :     __h ^= __h &gt;&gt; 13;
+<span class="lineNum">     996 </span>            :     __h *= __m;
+<span class="lineNum">     997 </span>            :     __h ^= __h &gt;&gt; 15;
+<span class="lineNum">     998 </span>            :     return __h;
+<span class="lineNum">     999 </span>            : }
+<span class="lineNum">    1000 </span>            : 
+<span class="lineNum">    1001 </span>            : template &lt;class _Size&gt;
+<span class="lineNum">    1002 </span>            : struct __murmur2_or_cityhash&lt;_Size, 64&gt;
+<span class="lineNum">    1003 </span>            : {
+<span class="lineNum">    1004 </span>            :     inline _Size operator()(const void* __key, _Size __len)  _LIBCPP_DISABLE_UBSAN_UNSIGNED_INTEGER_CHECK;
+<span class="lineNum">    1005 </span>            : 
+<span class="lineNum">    1006 </span>            :  private:
+<span class="lineNum">    1007 </span>            :   // Some primes between 2^63 and 2^64.
+<span class="lineNum">    1008 </span>            :   static const _Size __k0 = 0xc3a5c85c97cb3127ULL;
+<span class="lineNum">    1009 </span>            :   static const _Size __k1 = 0xb492b66fbe98f273ULL;
+<span class="lineNum">    1010 </span>            :   static const _Size __k2 = 0x9ae16a3b2f90404fULL;
+<span class="lineNum">    1011 </span>            :   static const _Size __k3 = 0xc949d7c7509e6557ULL;
+<span class="lineNum">    1012 </span>            : 
+<span class="lineNum">    1013 </span>            :   static _Size __rotate(_Size __val, int __shift) {
+<span class="lineNum">    1014 </span>            :     return __shift == 0 ? __val : ((__val &gt;&gt; __shift) | (__val &lt;&lt; (64 - __shift)));
+<span class="lineNum">    1015 </span>            :   }
+<span class="lineNum">    1016 </span>            : 
+<span class="lineNum">    1017 </span>            :   static _Size __rotate_by_at_least_1(_Size __val, int __shift) {
+<span class="lineNum">    1018 </span>            :     return (__val &gt;&gt; __shift) | (__val &lt;&lt; (64 - __shift));
+<span class="lineNum">    1019 </span>            :   }
+<span class="lineNum">    1020 </span>            : 
+<span class="lineNum">    1021 </span>            :   static _Size __shift_mix(_Size __val) {
+<span class="lineNum">    1022 </span>            :     return __val ^ (__val &gt;&gt; 47);
+<span class="lineNum">    1023 </span>            :   }
+<span class="lineNum">    1024 </span>            : 
+<span class="lineNum">    1025 </span>            :   static _Size __hash_len_16(_Size __u, _Size __v)
+<span class="lineNum">    1026 </span>            :      _LIBCPP_DISABLE_UBSAN_UNSIGNED_INTEGER_CHECK
+<span class="lineNum">    1027 </span>            :   {
+<span class="lineNum">    1028 </span>            :     const _Size __mul = 0x9ddfea08eb382d69ULL;
+<span class="lineNum">    1029 </span>            :     _Size __a = (__u ^ __v) * __mul;
+<span class="lineNum">    1030 </span>            :     __a ^= (__a &gt;&gt; 47);
+<span class="lineNum">    1031 </span>            :     _Size __b = (__v ^ __a) * __mul;
+<span class="lineNum">    1032 </span>            :     __b ^= (__b &gt;&gt; 47);
+<span class="lineNum">    1033 </span>            :     __b *= __mul;
+<span class="lineNum">    1034 </span>            :     return __b;
+<span class="lineNum">    1035 </span>            :   }
+<span class="lineNum">    1036 </span>            : 
+<span class="lineNum">    1037 </span>            :   static _Size __hash_len_0_to_16(const char* __s, _Size __len)
+<span class="lineNum">    1038 </span>            :      _LIBCPP_DISABLE_UBSAN_UNSIGNED_INTEGER_CHECK
+<span class="lineNum">    1039 </span>            :   {
+<span class="lineNum">    1040 </span>            :     if (__len &gt; 8) {
+<span class="lineNum">    1041 </span>            :       const _Size __a = __loadword&lt;_Size&gt;(__s);
+<span class="lineNum">    1042 </span>            :       const _Size __b = __loadword&lt;_Size&gt;(__s + __len - 8);
+<span class="lineNum">    1043 </span>            :       return __hash_len_16(__a, __rotate_by_at_least_1(__b + __len, __len)) ^ __b;
+<span class="lineNum">    1044 </span>            :     }
+<span class="lineNum">    1045 </span>            :     if (__len &gt;= 4) {
+<span class="lineNum">    1046 </span>            :       const uint32_t __a = __loadword&lt;uint32_t&gt;(__s);
+<span class="lineNum">    1047 </span>            :       const uint32_t __b = __loadword&lt;uint32_t&gt;(__s + __len - 4);
+<span class="lineNum">    1048 </span>            :       return __hash_len_16(__len + (__a &lt;&lt; 3), __b);
+<span class="lineNum">    1049 </span>            :     }
+<span class="lineNum">    1050 </span>            :     if (__len &gt; 0) {
+<span class="lineNum">    1051 </span>            :       const unsigned char __a = __s[0];
+<span class="lineNum">    1052 </span>            :       const unsigned char __b = __s[__len &gt;&gt; 1];
+<span class="lineNum">    1053 </span>            :       const unsigned char __c = __s[__len - 1];
+<span class="lineNum">    1054 </span>            :       const uint32_t __y = static_cast&lt;uint32_t&gt;(__a) +
+<span class="lineNum">    1055 </span>            :                            (static_cast&lt;uint32_t&gt;(__b) &lt;&lt; 8);
+<span class="lineNum">    1056 </span>            :       const uint32_t __z = __len + (static_cast&lt;uint32_t&gt;(__c) &lt;&lt; 2);
+<span class="lineNum">    1057 </span>            :       return __shift_mix(__y * __k2 ^ __z * __k3) * __k2;
+<span class="lineNum">    1058 </span>            :     }
+<span class="lineNum">    1059 </span>            :     return __k2;
+<span class="lineNum">    1060 </span>            :   }
+<span class="lineNum">    1061 </span>            : 
+<span class="lineNum">    1062 </span>            :   static _Size __hash_len_17_to_32(const char *__s, _Size __len)
+<span class="lineNum">    1063 </span>            :      _LIBCPP_DISABLE_UBSAN_UNSIGNED_INTEGER_CHECK
+<span class="lineNum">    1064 </span>            :   {
+<span class="lineNum">    1065 </span>            :     const _Size __a = __loadword&lt;_Size&gt;(__s) * __k1;
+<span class="lineNum">    1066 </span>            :     const _Size __b = __loadword&lt;_Size&gt;(__s + 8);
+<span class="lineNum">    1067 </span>            :     const _Size __c = __loadword&lt;_Size&gt;(__s + __len - 8) * __k2;
+<span class="lineNum">    1068 </span>            :     const _Size __d = __loadword&lt;_Size&gt;(__s + __len - 16) * __k0;
+<span class="lineNum">    1069 </span>            :     return __hash_len_16(__rotate(__a - __b, 43) + __rotate(__c, 30) + __d,
+<span class="lineNum">    1070 </span>            :                          __a + __rotate(__b ^ __k3, 20) - __c + __len);
+<span class="lineNum">    1071 </span>            :   }
+<span class="lineNum">    1072 </span>            : 
+<span class="lineNum">    1073 </span>            :   // Return a 16-byte hash for 48 bytes.  Quick and dirty.
+<span class="lineNum">    1074 </span>            :   // Callers do best to use &quot;random-looking&quot; values for a and b.
+<span class="lineNum">    1075 </span>            :   static pair&lt;_Size, _Size&gt; __weak_hash_len_32_with_seeds(
+<span class="lineNum">    1076 </span>            :       _Size __w, _Size __x, _Size __y, _Size __z, _Size __a, _Size __b)
+<span class="lineNum">    1077 </span>            :         _LIBCPP_DISABLE_UBSAN_UNSIGNED_INTEGER_CHECK
+<span class="lineNum">    1078 </span>            :   {
+<span class="lineNum">    1079 </span>            :     __a += __w;
+<span class="lineNum">    1080 </span>            :     __b = __rotate(__b + __a + __z, 21);
+<span class="lineNum">    1081 </span>            :     const _Size __c = __a;
+<span class="lineNum">    1082 </span>            :     __a += __x;
+<span class="lineNum">    1083 </span>            :     __a += __y;
+<span class="lineNum">    1084 </span>            :     __b += __rotate(__a, 44);
+<span class="lineNum">    1085 </span>            :     return pair&lt;_Size, _Size&gt;(__a + __z, __b + __c);
+<span class="lineNum">    1086 </span>            :   }
+<span class="lineNum">    1087 </span>            : 
+<span class="lineNum">    1088 </span>            :   // Return a 16-byte hash for s[0] ... s[31], a, and b.  Quick and dirty.
+<span class="lineNum">    1089 </span>            :   static pair&lt;_Size, _Size&gt; __weak_hash_len_32_with_seeds(
+<span class="lineNum">    1090 </span>            :       const char* __s, _Size __a, _Size __b)
+<span class="lineNum">    1091 </span>            :     _LIBCPP_DISABLE_UBSAN_UNSIGNED_INTEGER_CHECK
+<span class="lineNum">    1092 </span>            :   {
+<span class="lineNum">    1093 </span>            :     return __weak_hash_len_32_with_seeds(__loadword&lt;_Size&gt;(__s),
+<span class="lineNum">    1094 </span>            :                                          __loadword&lt;_Size&gt;(__s + 8),
+<span class="lineNum">    1095 </span>            :                                          __loadword&lt;_Size&gt;(__s + 16),
+<span class="lineNum">    1096 </span>            :                                          __loadword&lt;_Size&gt;(__s + 24),
+<span class="lineNum">    1097 </span>            :                                          __a,
+<span class="lineNum">    1098 </span>            :                                          __b);
+<span class="lineNum">    1099 </span>            :   }
+<span class="lineNum">    1100 </span>            : 
+<span class="lineNum">    1101 </span>            :   // Return an 8-byte hash for 33 to 64 bytes.
+<span class="lineNum">    1102 </span>            :   static _Size __hash_len_33_to_64(const char *__s, size_t __len)
+<span class="lineNum">    1103 </span>            :     _LIBCPP_DISABLE_UBSAN_UNSIGNED_INTEGER_CHECK
+<span class="lineNum">    1104 </span>            :   {
+<span class="lineNum">    1105 </span>            :     _Size __z = __loadword&lt;_Size&gt;(__s + 24);
+<span class="lineNum">    1106 </span>            :     _Size __a = __loadword&lt;_Size&gt;(__s) +
+<span class="lineNum">    1107 </span>            :                 (__len + __loadword&lt;_Size&gt;(__s + __len - 16)) * __k0;
+<span class="lineNum">    1108 </span>            :     _Size __b = __rotate(__a + __z, 52);
+<span class="lineNum">    1109 </span>            :     _Size __c = __rotate(__a, 37);
+<span class="lineNum">    1110 </span>            :     __a += __loadword&lt;_Size&gt;(__s + 8);
+<span class="lineNum">    1111 </span>            :     __c += __rotate(__a, 7);
+<span class="lineNum">    1112 </span>            :     __a += __loadword&lt;_Size&gt;(__s + 16);
+<span class="lineNum">    1113 </span>            :     _Size __vf = __a + __z;
+<span class="lineNum">    1114 </span>            :     _Size __vs = __b + __rotate(__a, 31) + __c;
+<span class="lineNum">    1115 </span>            :     __a = __loadword&lt;_Size&gt;(__s + 16) + __loadword&lt;_Size&gt;(__s + __len - 32);
+<span class="lineNum">    1116 </span>            :     __z += __loadword&lt;_Size&gt;(__s + __len - 8);
+<span class="lineNum">    1117 </span>            :     __b = __rotate(__a + __z, 52);
+<span class="lineNum">    1118 </span>            :     __c = __rotate(__a, 37);
+<span class="lineNum">    1119 </span>            :     __a += __loadword&lt;_Size&gt;(__s + __len - 24);
+<span class="lineNum">    1120 </span>            :     __c += __rotate(__a, 7);
+<span class="lineNum">    1121 </span>            :     __a += __loadword&lt;_Size&gt;(__s + __len - 16);
+<span class="lineNum">    1122 </span>            :     _Size __wf = __a + __z;
+<span class="lineNum">    1123 </span>            :     _Size __ws = __b + __rotate(__a, 31) + __c;
+<span class="lineNum">    1124 </span>            :     _Size __r = __shift_mix((__vf + __ws) * __k2 + (__wf + __vs) * __k0);
+<span class="lineNum">    1125 </span>            :     return __shift_mix(__r * __k0 + __vs) * __k2;
+<span class="lineNum">    1126 </span>            :   }
+<span class="lineNum">    1127 </span>            : };
+<span class="lineNum">    1128 </span>            : 
+<span class="lineNum">    1129 </span>            : // cityhash64
+<span class="lineNum">    1130 </span>            : template &lt;class _Size&gt;
+<span class="lineNum">    1131 </span>            : _Size
+<span class="lineNum">    1132 </span>            : __murmur2_or_cityhash&lt;_Size, 64&gt;::operator()(const void* __key, _Size __len)
+<span class="lineNum">    1133 </span>            : {
+<span class="lineNum">    1134 </span>            :   const char* __s = static_cast&lt;const char*&gt;(__key);
+<span class="lineNum">    1135 </span>            :   if (__len &lt;= 32) {
+<span class="lineNum">    1136 </span>            :     if (__len &lt;= 16) {
+<span class="lineNum">    1137 </span>            :       return __hash_len_0_to_16(__s, __len);
+<span class="lineNum">    1138 </span>            :     } else {
+<span class="lineNum">    1139 </span>            :       return __hash_len_17_to_32(__s, __len);
+<span class="lineNum">    1140 </span>            :     }
+<span class="lineNum">    1141 </span>            :   } else if (__len &lt;= 64) {
+<span class="lineNum">    1142 </span>            :     return __hash_len_33_to_64(__s, __len);
+<span class="lineNum">    1143 </span>            :   }
+<span class="lineNum">    1144 </span>            : 
+<span class="lineNum">    1145 </span>            :   // For strings over 64 bytes we hash the end first, and then as we
+<span class="lineNum">    1146 </span>            :   // loop we keep 56 bytes of state: v, w, x, y, and z.
+<span class="lineNum">    1147 </span>            :   _Size __x = __loadword&lt;_Size&gt;(__s + __len - 40);
+<span class="lineNum">    1148 </span>            :   _Size __y = __loadword&lt;_Size&gt;(__s + __len - 16) +
+<span class="lineNum">    1149 </span>            :               __loadword&lt;_Size&gt;(__s + __len - 56);
+<span class="lineNum">    1150 </span>            :   _Size __z = __hash_len_16(__loadword&lt;_Size&gt;(__s + __len - 48) + __len,
+<span class="lineNum">    1151 </span>            :                           __loadword&lt;_Size&gt;(__s + __len - 24));
+<span class="lineNum">    1152 </span>            :   pair&lt;_Size, _Size&gt; __v = __weak_hash_len_32_with_seeds(__s + __len - 64, __len, __z);
+<span class="lineNum">    1153 </span>            :   pair&lt;_Size, _Size&gt; __w = __weak_hash_len_32_with_seeds(__s + __len - 32, __y + __k1, __x);
+<span class="lineNum">    1154 </span>            :   __x = __x * __k1 + __loadword&lt;_Size&gt;(__s);
+<span class="lineNum">    1155 </span>            : 
+<span class="lineNum">    1156 </span>            :   // Decrease len to the nearest multiple of 64, and operate on 64-byte chunks.
+<span class="lineNum">    1157 </span>            :   __len = (__len - 1) &amp; ~static_cast&lt;_Size&gt;(63);
+<span class="lineNum">    1158 </span>            :   do {
+<span class="lineNum">    1159 </span>            :     __x = __rotate(__x + __y + __v.first + __loadword&lt;_Size&gt;(__s + 8), 37) * __k1;
+<span class="lineNum">    1160 </span>            :     __y = __rotate(__y + __v.second + __loadword&lt;_Size&gt;(__s + 48), 42) * __k1;
+<span class="lineNum">    1161 </span>            :     __x ^= __w.second;
+<span class="lineNum">    1162 </span>            :     __y += __v.first + __loadword&lt;_Size&gt;(__s + 40);
+<span class="lineNum">    1163 </span>            :     __z = __rotate(__z + __w.first, 33) * __k1;
+<span class="lineNum">    1164 </span>            :     __v = __weak_hash_len_32_with_seeds(__s, __v.second * __k1, __x + __w.first);
+<span class="lineNum">    1165 </span>            :     __w = __weak_hash_len_32_with_seeds(__s + 32, __z + __w.second,
+<span class="lineNum">    1166 </span>            :                                         __y + __loadword&lt;_Size&gt;(__s + 16));
+<span class="lineNum">    1167 </span>            :     std::swap(__z, __x);
+<span class="lineNum">    1168 </span>            :     __s += 64;
+<span class="lineNum">    1169 </span>            :     __len -= 64;
+<span class="lineNum">    1170 </span>            :   } while (__len != 0);
+<span class="lineNum">    1171 </span>            :   return __hash_len_16(
+<span class="lineNum">    1172 </span>            :       __hash_len_16(__v.first, __w.first) + __shift_mix(__y) * __k1 + __z,
+<span class="lineNum">    1173 </span>            :       __hash_len_16(__v.second, __w.second) + __x);
+<span class="lineNum">    1174 </span>            : }
+<span class="lineNum">    1175 </span>            : 
+<span class="lineNum">    1176 </span>            : template &lt;class _Tp, size_t = sizeof(_Tp) / sizeof(size_t)&gt;
+<span class="lineNum">    1177 </span>            : struct __scalar_hash;
+<span class="lineNum">    1178 </span>            : 
+<span class="lineNum">    1179 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">    1180 </span>            : struct __scalar_hash&lt;_Tp, 0&gt;
+<span class="lineNum">    1181 </span>            :     : public unary_function&lt;_Tp, size_t&gt;
+<span class="lineNum">    1182 </span>            : {
+<span class="lineNum">    1183 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1184 </span>            :     size_t operator()(_Tp __v) const _NOEXCEPT
+<span class="lineNum">    1185 </span>            :     {
+<span class="lineNum">    1186 </span>            :         union
+<span class="lineNum">    1187 </span>            :         {
+<span class="lineNum">    1188 </span>            :             _Tp    __t;
+<span class="lineNum">    1189 </span>            :             size_t __a;
+<span class="lineNum">    1190 </span>            :         } __u;
+<span class="lineNum">    1191 </span>            :         __u.__a = 0;
+<span class="lineNum">    1192 </span>            :         __u.__t = __v;
+<span class="lineNum">    1193 </span>            :         return __u.__a;
+<span class="lineNum">    1194 </span>            :     }
+<span class="lineNum">    1195 </span>            : };
+<span class="lineNum">    1196 </span>            : 
+<span class="lineNum">    1197 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">    1198 </span>            : struct __scalar_hash&lt;_Tp, 1&gt;
+<span class="lineNum">    1199 </span>            :     : public unary_function&lt;_Tp, size_t&gt;
+<span class="lineNum">    1200 </span>            : {
+<span class="lineNum">    1201 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1202 </span>            :     size_t operator()(_Tp __v) const _NOEXCEPT
+<span class="lineNum">    1203 </span>            :     {
+<span class="lineNum">    1204 </span>            :         union
+<span class="lineNum">    1205 </span>            :         {
+<span class="lineNum">    1206 </span>            :             _Tp    __t;
+<span class="lineNum">    1207 </span>            :             size_t __a;
+<span class="lineNum">    1208 </span>            :         } __u;
+<span class="lineNum">    1209 </span>            :         __u.__t = __v;
+<span class="lineNum">    1210 </span>            :         return __u.__a;
+<span class="lineNum">    1211 </span>            :     }
+<span class="lineNum">    1212 </span>            : };
+<span class="lineNum">    1213 </span>            : 
+<span class="lineNum">    1214 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">    1215 </span>            : struct __scalar_hash&lt;_Tp, 2&gt;
+<span class="lineNum">    1216 </span>            :     : public unary_function&lt;_Tp, size_t&gt;
+<span class="lineNum">    1217 </span>            : {
+<span class="lineNum">    1218 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1219 </span>            :     size_t operator()(_Tp __v) const _NOEXCEPT
+<span class="lineNum">    1220 </span>            :     {
+<span class="lineNum">    1221 </span>            :         union
+<span class="lineNum">    1222 </span>            :         {
+<span class="lineNum">    1223 </span>            :             _Tp __t;
+<span class="lineNum">    1224 </span>            :             struct
+<span class="lineNum">    1225 </span>            :             {
+<span class="lineNum">    1226 </span>            :                 size_t __a;
+<span class="lineNum">    1227 </span>            :                 size_t __b;
+<span class="lineNum">    1228 </span>            :             } __s;
+<span class="lineNum">    1229 </span>            :         } __u;
+<span class="lineNum">    1230 </span>            :         __u.__t = __v;
+<span class="lineNum">    1231 </span>            :         return __murmur2_or_cityhash&lt;size_t&gt;()(&amp;__u, sizeof(__u));
+<span class="lineNum">    1232 </span>            :     }
+<span class="lineNum">    1233 </span>            : };
+<span class="lineNum">    1234 </span>            : 
+<span class="lineNum">    1235 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">    1236 </span>            : struct __scalar_hash&lt;_Tp, 3&gt;
+<span class="lineNum">    1237 </span>            :     : public unary_function&lt;_Tp, size_t&gt;
+<span class="lineNum">    1238 </span>            : {
+<span class="lineNum">    1239 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1240 </span>            :     size_t operator()(_Tp __v) const _NOEXCEPT
+<span class="lineNum">    1241 </span>            :     {
+<span class="lineNum">    1242 </span>            :         union
+<span class="lineNum">    1243 </span>            :         {
+<span class="lineNum">    1244 </span>            :             _Tp __t;
+<span class="lineNum">    1245 </span>            :             struct
+<span class="lineNum">    1246 </span>            :             {
+<span class="lineNum">    1247 </span>            :                 size_t __a;
+<span class="lineNum">    1248 </span>            :                 size_t __b;
+<span class="lineNum">    1249 </span>            :                 size_t __c;
+<span class="lineNum">    1250 </span>            :             } __s;
+<span class="lineNum">    1251 </span>            :         } __u;
+<span class="lineNum">    1252 </span>            :         __u.__t = __v;
+<span class="lineNum">    1253 </span>            :         return __murmur2_or_cityhash&lt;size_t&gt;()(&amp;__u, sizeof(__u));
+<span class="lineNum">    1254 </span>            :     }
+<span class="lineNum">    1255 </span>            : };
+<span class="lineNum">    1256 </span>            : 
+<span class="lineNum">    1257 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">    1258 </span>            : struct __scalar_hash&lt;_Tp, 4&gt;
+<span class="lineNum">    1259 </span>            :     : public unary_function&lt;_Tp, size_t&gt;
+<span class="lineNum">    1260 </span>            : {
+<span class="lineNum">    1261 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1262 </span>            :     size_t operator()(_Tp __v) const _NOEXCEPT
+<span class="lineNum">    1263 </span>            :     {
+<span class="lineNum">    1264 </span>            :         union
+<span class="lineNum">    1265 </span>            :         {
+<span class="lineNum">    1266 </span>            :             _Tp __t;
+<span class="lineNum">    1267 </span>            :             struct
+<span class="lineNum">    1268 </span>            :             {
+<span class="lineNum">    1269 </span>            :                 size_t __a;
+<span class="lineNum">    1270 </span>            :                 size_t __b;
+<span class="lineNum">    1271 </span>            :                 size_t __c;
+<span class="lineNum">    1272 </span>            :                 size_t __d;
+<span class="lineNum">    1273 </span>            :             } __s;
+<span class="lineNum">    1274 </span>            :         } __u;
+<span class="lineNum">    1275 </span>            :         __u.__t = __v;
+<span class="lineNum">    1276 </span>            :         return __murmur2_or_cityhash&lt;size_t&gt;()(&amp;__u, sizeof(__u));
+<span class="lineNum">    1277 </span>            :     }
+<span class="lineNum">    1278 </span>            : };
+<span class="lineNum">    1279 </span>            : 
+<span class="lineNum">    1280 </span>            : struct _PairT {
+<span class="lineNum">    1281 </span>            :   size_t first;
+<span class="lineNum">    1282 </span>            :   size_t second;
+<span class="lineNum">    1283 </span>            : };
+<span class="lineNum">    1284 </span>            : 
+<span class="lineNum">    1285 </span>            : _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1286 </span>            : inline size_t __hash_combine(size_t __lhs, size_t __rhs) _NOEXCEPT {
+<span class="lineNum">    1287 </span>            :     typedef __scalar_hash&lt;_PairT&gt; _HashT;
+<span class="lineNum">    1288 </span>            :     const _PairT __p = {__lhs, __rhs};
+<span class="lineNum">    1289 </span>            :     return _HashT()(__p);
+<span class="lineNum">    1290 </span>            : }
+<span class="lineNum">    1291 </span>            : 
+<span class="lineNum">    1292 </span>            : template&lt;class _Tp&gt;
+<span class="lineNum">    1293 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;_Tp*&gt;
+<span class="lineNum">    1294 </span>            :     : public unary_function&lt;_Tp*, size_t&gt;
+<span class="lineNum">    1295 </span>            : {
+<span class="lineNum">    1296 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1297 </span>            :     size_t operator()(_Tp* __v) const _NOEXCEPT
+<span class="lineNum">    1298 </span>            :     {
+<span class="lineNum">    1299 </span>            :         union
+<span class="lineNum">    1300 </span>            :         {
+<span class="lineNum">    1301 </span>            :             _Tp* __t;
+<span class="lineNum">    1302 </span>            :             size_t __a;
+<span class="lineNum">    1303 </span>            :         } __u;
+<span class="lineNum">    1304 </span>            :         __u.__t = __v;
+<span class="lineNum">    1305 </span>            :         return __murmur2_or_cityhash&lt;size_t&gt;()(&amp;__u, sizeof(__u));
+<span class="lineNum">    1306 </span>            :     }
+<span class="lineNum">    1307 </span>            : };
+<span class="lineNum">    1308 </span>            : 
+<span class="lineNum">    1309 </span>            : 
+<span class="lineNum">    1310 </span>            : template &lt;&gt;
+<span class="lineNum">    1311 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;bool&gt;
+<span class="lineNum">    1312 </span>            :     : public unary_function&lt;bool, size_t&gt;
+<span class="lineNum">    1313 </span>            : {
+<span class="lineNum">    1314 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1315 </span>            :     size_t operator()(bool __v) const _NOEXCEPT {return static_cast&lt;size_t&gt;(__v);}
+<span class="lineNum">    1316 </span>            : };
+<span class="lineNum">    1317 </span>            : 
+<span class="lineNum">    1318 </span>            : template &lt;&gt;
+<span class="lineNum">    1319 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;char&gt;
+<span class="lineNum">    1320 </span>            :     : public unary_function&lt;char, size_t&gt;
+<span class="lineNum">    1321 </span>            : {
+<span class="lineNum">    1322 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1323 </span>            :     size_t operator()(char __v) const _NOEXCEPT {return static_cast&lt;size_t&gt;(__v);}
+<span class="lineNum">    1324 </span>            : };
+<span class="lineNum">    1325 </span>            : 
+<span class="lineNum">    1326 </span>            : template &lt;&gt;
+<span class="lineNum">    1327 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;signed char&gt;
+<span class="lineNum">    1328 </span>            :     : public unary_function&lt;signed char, size_t&gt;
+<span class="lineNum">    1329 </span>            : {
+<span class="lineNum">    1330 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1331 </span>            :     size_t operator()(signed char __v) const _NOEXCEPT {return static_cast&lt;size_t&gt;(__v);}
+<span class="lineNum">    1332 </span>            : };
+<span class="lineNum">    1333 </span>            : 
+<span class="lineNum">    1334 </span>            : template &lt;&gt;
+<span class="lineNum">    1335 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;unsigned char&gt;
+<span class="lineNum">    1336 </span>            :     : public unary_function&lt;unsigned char, size_t&gt;
+<span class="lineNum">    1337 </span>            : {
+<span class="lineNum">    1338 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1339 </span>            :     size_t operator()(unsigned char __v) const _NOEXCEPT {return static_cast&lt;size_t&gt;(__v);}
+<span class="lineNum">    1340 </span>            : };
+<span class="lineNum">    1341 </span>            : 
+<span class="lineNum">    1342 </span>            : #ifndef _LIBCPP_HAS_NO_UNICODE_CHARS
+<span class="lineNum">    1343 </span>            : 
+<span class="lineNum">    1344 </span>            : template &lt;&gt;
+<span class="lineNum">    1345 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;char16_t&gt;
+<span class="lineNum">    1346 </span>            :     : public unary_function&lt;char16_t, size_t&gt;
+<span class="lineNum">    1347 </span>            : {
+<span class="lineNum">    1348 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1349 </span>            :     size_t operator()(char16_t __v) const _NOEXCEPT {return static_cast&lt;size_t&gt;(__v);}
+<span class="lineNum">    1350 </span>            : };
+<span class="lineNum">    1351 </span>            : 
+<span class="lineNum">    1352 </span>            : template &lt;&gt;
+<span class="lineNum">    1353 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;char32_t&gt;
+<span class="lineNum">    1354 </span>            :     : public unary_function&lt;char32_t, size_t&gt;
+<span class="lineNum">    1355 </span>            : {
+<span class="lineNum">    1356 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1357 </span>            :     size_t operator()(char32_t __v) const _NOEXCEPT {return static_cast&lt;size_t&gt;(__v);}
+<span class="lineNum">    1358 </span>            : };
+<span class="lineNum">    1359 </span>            : 
+<span class="lineNum">    1360 </span>            : #endif  // _LIBCPP_HAS_NO_UNICODE_CHARS
+<span class="lineNum">    1361 </span>            : 
+<span class="lineNum">    1362 </span>            : template &lt;&gt;
+<span class="lineNum">    1363 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;wchar_t&gt;
+<span class="lineNum">    1364 </span>            :     : public unary_function&lt;wchar_t, size_t&gt;
+<span class="lineNum">    1365 </span>            : {
+<span class="lineNum">    1366 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1367 </span>            :     size_t operator()(wchar_t __v) const _NOEXCEPT {return static_cast&lt;size_t&gt;(__v);}
+<span class="lineNum">    1368 </span>            : };
+<span class="lineNum">    1369 </span>            : 
+<span class="lineNum">    1370 </span>            : template &lt;&gt;
+<span class="lineNum">    1371 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;short&gt;
+<span class="lineNum">    1372 </span>            :     : public unary_function&lt;short, size_t&gt;
+<span class="lineNum">    1373 </span>            : {
+<span class="lineNum">    1374 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1375 </span>            :     size_t operator()(short __v) const _NOEXCEPT {return static_cast&lt;size_t&gt;(__v);}
+<span class="lineNum">    1376 </span>            : };
+<span class="lineNum">    1377 </span>            : 
+<span class="lineNum">    1378 </span>            : template &lt;&gt;
+<span class="lineNum">    1379 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;unsigned short&gt;
+<span class="lineNum">    1380 </span>            :     : public unary_function&lt;unsigned short, size_t&gt;
+<span class="lineNum">    1381 </span>            : {
+<span class="lineNum">    1382 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1383 </span>            :     size_t operator()(unsigned short __v) const _NOEXCEPT {return static_cast&lt;size_t&gt;(__v);}
+<span class="lineNum">    1384 </span>            : };
+<span class="lineNum">    1385 </span>            : 
+<span class="lineNum">    1386 </span>            : template &lt;&gt;
+<span class="lineNum">    1387 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;int&gt;
+<span class="lineNum">    1388 </span>            :     : public unary_function&lt;int, size_t&gt;
+<span class="lineNum">    1389 </span>            : {
+<span class="lineNum">    1390 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1391 </span>            :     size_t operator()(int __v) const _NOEXCEPT {return static_cast&lt;size_t&gt;(__v);}
+<span class="lineNum">    1392 </span>            : };
+<span class="lineNum">    1393 </span>            : 
+<span class="lineNum">    1394 </span>            : template &lt;&gt;
+<span class="lineNum">    1395 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;unsigned int&gt;
+<span class="lineNum">    1396 </span>            :     : public unary_function&lt;unsigned int, size_t&gt;
+<span class="lineNum">    1397 </span>            : {
+<span class="lineNum">    1398 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1399 </span>            :     size_t operator()(unsigned int __v) const _NOEXCEPT {return static_cast&lt;size_t&gt;(__v);}
+<span class="lineNum">    1400 </span>            : };
+<span class="lineNum">    1401 </span>            : 
+<span class="lineNum">    1402 </span>            : template &lt;&gt;
+<span class="lineNum">    1403 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;long&gt;
+<span class="lineNum">    1404 </span>            :     : public unary_function&lt;long, size_t&gt;
+<span class="lineNum">    1405 </span>            : {
+<span class="lineNum">    1406 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1407 </span>            :     size_t operator()(long __v) const _NOEXCEPT {return static_cast&lt;size_t&gt;(__v);}
+<span class="lineNum">    1408 </span>            : };
+<span class="lineNum">    1409 </span>            : 
+<span class="lineNum">    1410 </span>            : template &lt;&gt;
+<span class="lineNum">    1411 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;unsigned long&gt;
+<span class="lineNum">    1412 </span>            :     : public unary_function&lt;unsigned long, size_t&gt;
+<span class="lineNum">    1413 </span>            : {
+<span class="lineNum">    1414 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1415 </span>            :     size_t operator()(unsigned long __v) const _NOEXCEPT {return static_cast&lt;size_t&gt;(__v);}
+<span class="lineNum">    1416 </span>            : };
+<span class="lineNum">    1417 </span>            : 
+<span class="lineNum">    1418 </span>            : template &lt;&gt;
+<span class="lineNum">    1419 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;long long&gt;
+<span class="lineNum">    1420 </span>            :     : public __scalar_hash&lt;long long&gt;
+<span class="lineNum">    1421 </span>            : {
+<span class="lineNum">    1422 </span>            : };
+<span class="lineNum">    1423 </span>            : 
+<span class="lineNum">    1424 </span>            : template &lt;&gt;
+<span class="lineNum">    1425 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;unsigned long long&gt;
+<span class="lineNum">    1426 </span>            :     : public __scalar_hash&lt;unsigned long long&gt;
+<span class="lineNum">    1427 </span>            : {
+<span class="lineNum">    1428 </span>            : };
+<span class="lineNum">    1429 </span>            : 
+<span class="lineNum">    1430 </span>            : #ifndef _LIBCPP_HAS_NO_INT128
+<span class="lineNum">    1431 </span>            : 
+<span class="lineNum">    1432 </span>            : template &lt;&gt;
+<span class="lineNum">    1433 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;__int128_t&gt;
+<span class="lineNum">    1434 </span>            :     : public __scalar_hash&lt;__int128_t&gt;
+<span class="lineNum">    1435 </span>            : {
+<span class="lineNum">    1436 </span>            : };
+<span class="lineNum">    1437 </span>            : 
+<span class="lineNum">    1438 </span>            : template &lt;&gt;
+<span class="lineNum">    1439 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;__uint128_t&gt;
+<span class="lineNum">    1440 </span>            :     : public __scalar_hash&lt;__uint128_t&gt;
+<span class="lineNum">    1441 </span>            : {
+<span class="lineNum">    1442 </span>            : };
+<span class="lineNum">    1443 </span>            : 
+<span class="lineNum">    1444 </span>            : #endif
+<span class="lineNum">    1445 </span>            : 
+<span class="lineNum">    1446 </span>            : template &lt;&gt;
+<span class="lineNum">    1447 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;float&gt;
+<span class="lineNum">    1448 </span>            :     : public __scalar_hash&lt;float&gt;
+<span class="lineNum">    1449 </span>            : {
+<span class="lineNum">    1450 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1451 </span>            :     size_t operator()(float __v) const _NOEXCEPT
+<span class="lineNum">    1452 </span>            :     {
+<span class="lineNum">    1453 </span>            :         // -0.0 and 0.0 should return same hash
+<span class="lineNum">    1454 </span>            :        if (__v == 0)
+<span class="lineNum">    1455 </span>            :            return 0;
+<span class="lineNum">    1456 </span>            :         return __scalar_hash&lt;float&gt;::operator()(__v);
+<span class="lineNum">    1457 </span>            :     }
+<span class="lineNum">    1458 </span>            : };
+<span class="lineNum">    1459 </span>            : 
+<span class="lineNum">    1460 </span>            : template &lt;&gt;
+<span class="lineNum">    1461 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;double&gt;
+<span class="lineNum">    1462 </span>            :     : public __scalar_hash&lt;double&gt;
+<span class="lineNum">    1463 </span>            : {
+<span class="lineNum">    1464 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1465 </span>            :     size_t operator()(double __v) const _NOEXCEPT
+<span class="lineNum">    1466 </span>            :     {
+<span class="lineNum">    1467 </span>            :         // -0.0 and 0.0 should return same hash
+<span class="lineNum">    1468 </span>            :        if (__v == 0)
+<span class="lineNum">    1469 </span>            :            return 0;
+<span class="lineNum">    1470 </span>            :         return __scalar_hash&lt;double&gt;::operator()(__v);
+<span class="lineNum">    1471 </span>            :     }
+<span class="lineNum">    1472 </span>            : };
+<span class="lineNum">    1473 </span>            : 
+<span class="lineNum">    1474 </span>            : template &lt;&gt;
+<span class="lineNum">    1475 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;long double&gt;
+<span class="lineNum">    1476 </span>            :     : public __scalar_hash&lt;long double&gt;
+<span class="lineNum">    1477 </span>            : {
+<span class="lineNum">    1478 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1479 </span>            :     size_t operator()(long double __v) const _NOEXCEPT
+<span class="lineNum">    1480 </span>            :     {
+<span class="lineNum">    1481 </span>            :         // -0.0 and 0.0 should return same hash
+<span class="lineNum">    1482 </span>            :         if (__v == 0)
+<span class="lineNum">    1483 </span>            :             return 0;
+<span class="lineNum">    1484 </span>            : #if defined(__i386__)
+<span class="lineNum">    1485 </span>            :         // Zero out padding bits
+<span class="lineNum">    1486 </span>            :         union
+<span class="lineNum">    1487 </span>            :         {
+<span class="lineNum">    1488 </span>            :             long double __t;
+<span class="lineNum">    1489 </span>            :             struct
+<span class="lineNum">    1490 </span>            :             {
+<span class="lineNum">    1491 </span>            :                 size_t __a;
+<span class="lineNum">    1492 </span>            :                 size_t __b;
+<span class="lineNum">    1493 </span>            :                 size_t __c;
+<span class="lineNum">    1494 </span>            :                 size_t __d;
+<span class="lineNum">    1495 </span>            :             } __s;
+<span class="lineNum">    1496 </span>            :         } __u;
+<span class="lineNum">    1497 </span>            :         __u.__s.__a = 0;
+<span class="lineNum">    1498 </span>            :         __u.__s.__b = 0;
+<span class="lineNum">    1499 </span>            :         __u.__s.__c = 0;
+<span class="lineNum">    1500 </span>            :         __u.__s.__d = 0;
+<span class="lineNum">    1501 </span>            :         __u.__t = __v;
+<span class="lineNum">    1502 </span>            :         return __u.__s.__a ^ __u.__s.__b ^ __u.__s.__c ^ __u.__s.__d;
+<span class="lineNum">    1503 </span>            : #elif defined(__x86_64__)
+<span class="lineNum">    1504 </span>            :         // Zero out padding bits
+<span class="lineNum">    1505 </span>            :         union
+<span class="lineNum">    1506 </span>            :         {
+<span class="lineNum">    1507 </span>            :             long double __t;
+<span class="lineNum">    1508 </span>            :             struct
+<span class="lineNum">    1509 </span>            :             {
+<span class="lineNum">    1510 </span>            :                 size_t __a;
+<span class="lineNum">    1511 </span>            :                 size_t __b;
+<span class="lineNum">    1512 </span>            :             } __s;
+<span class="lineNum">    1513 </span>            :         } __u;
+<span class="lineNum">    1514 </span>            :         __u.__s.__a = 0;
+<span class="lineNum">    1515 </span>            :         __u.__s.__b = 0;
+<span class="lineNum">    1516 </span>            :         __u.__t = __v;
+<span class="lineNum">    1517 </span>            :         return __u.__s.__a ^ __u.__s.__b;
+<span class="lineNum">    1518 </span>            : #else
+<span class="lineNum">    1519 </span>            :         return __scalar_hash&lt;long double&gt;::operator()(__v);
+<span class="lineNum">    1520 </span>            : #endif
+<span class="lineNum">    1521 </span>            :     }
+<span class="lineNum">    1522 </span>            : };
+<span class="lineNum">    1523 </span>            : 
+<span class="lineNum">    1524 </span>            : #if _LIBCPP_STD_VER &gt; 11
+<span class="lineNum">    1525 </span>            : 
+<span class="lineNum">    1526 </span>            : template &lt;class _Tp, bool = is_enum&lt;_Tp&gt;::value&gt;
+<span class="lineNum">    1527 </span>            : struct _LIBCPP_TEMPLATE_VIS __enum_hash
+<span class="lineNum">    1528 </span>            :     : public unary_function&lt;_Tp, size_t&gt;
+<span class="lineNum">    1529 </span>            : {
+<span class="lineNum">    1530 </span>            :     _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1531 </span>            :     size_t operator()(_Tp __v) const _NOEXCEPT
+<span class="lineNum">    1532 </span>            :     {
+<span class="lineNum">    1533 </span>            :         typedef typename underlying_type&lt;_Tp&gt;::type type;
+<span class="lineNum">    1534 </span>            :         return hash&lt;type&gt;{}(static_cast&lt;type&gt;(__v));
+<span class="lineNum">    1535 </span>            :     }
+<span class="lineNum">    1536 </span>            : };
+<span class="lineNum">    1537 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">    1538 </span>            : struct _LIBCPP_TEMPLATE_VIS __enum_hash&lt;_Tp, false&gt; {
+<span class="lineNum">    1539 </span>            :     __enum_hash() = delete;
+<span class="lineNum">    1540 </span>            :     __enum_hash(__enum_hash const&amp;) = delete;
+<span class="lineNum">    1541 </span>            :     __enum_hash&amp; operator=(__enum_hash const&amp;) = delete;
+<span class="lineNum">    1542 </span>            : };
+<span class="lineNum">    1543 </span>            : 
+<span class="lineNum">    1544 </span>            : template &lt;class _Tp&gt;
+<span class="lineNum">    1545 </span>            : struct _LIBCPP_TEMPLATE_VIS hash : public __enum_hash&lt;_Tp&gt;
+<span class="lineNum">    1546 </span>            : {
+<span class="lineNum">    1547 </span>            : };
+<span class="lineNum">    1548 </span>            : #endif
+<span class="lineNum">    1549 </span>            : 
+<span class="lineNum">    1550 </span>            : #if _LIBCPP_STD_VER &gt; 14
+<span class="lineNum">    1551 </span>            : 
+<span class="lineNum">    1552 </span>            : template &lt;&gt;
+<span class="lineNum">    1553 </span>            : struct _LIBCPP_TEMPLATE_VIS hash&lt;nullptr_t&gt;
+<span class="lineNum">    1554 </span>            :   : public unary_function&lt;nullptr_t, size_t&gt;
+<span class="lineNum">    1555 </span>            : {
+<span class="lineNum">    1556 </span>            :   _LIBCPP_INLINE_VISIBILITY
+<span class="lineNum">    1557 </span>            :   size_t operator()(nullptr_t) const _NOEXCEPT {
+<span class="lineNum">    1558 </span>            :     return 662607004ull;
+<span class="lineNum">    1559 </span>            :   }
+<span class="lineNum">    1560 </span>            : };
+<span class="lineNum">    1561 </span>            : #endif
+<span class="lineNum">    1562 </span>            : 
+<span class="lineNum">    1563 </span>            : #ifndef _LIBCPP_CXX03_LANG
+<span class="lineNum">    1564 </span>            : template &lt;class _Key, class _Hash&gt;
+<span class="lineNum">    1565 </span>            : using __check_hash_requirements = integral_constant&lt;bool,
+<span class="lineNum">    1566 </span>            :     is_copy_constructible&lt;_Hash&gt;::value &amp;&amp;
+<span class="lineNum">    1567 </span>            :     is_move_constructible&lt;_Hash&gt;::value &amp;&amp;
+<span class="lineNum">    1568 </span>            :     __invokable_r&lt;size_t, _Hash, _Key const&amp;&gt;::value
+<span class="lineNum">    1569 </span>            : &gt;;
+<span class="lineNum">    1570 </span>            : 
+<span class="lineNum">    1571 </span>            : template &lt;class _Key, class _Hash = std::hash&lt;_Key&gt; &gt;
+<span class="lineNum">    1572 </span>            : using __has_enabled_hash = integral_constant&lt;bool,
+<span class="lineNum">    1573 </span>            :     __check_hash_requirements&lt;_Key, _Hash&gt;::value &amp;&amp;
+<span class="lineNum">    1574 </span>            :     is_default_constructible&lt;_Hash&gt;::value
+<span class="lineNum">    1575 </span>            : &gt;;
+<span class="lineNum">    1576 </span>            : 
+<span class="lineNum">    1577 </span>            : #if _LIBCPP_STD_VER &gt; 14
+<span class="lineNum">    1578 </span>            : template &lt;class _Type, class&gt;
+<span class="lineNum">    1579 </span>            : using __enable_hash_helper_imp = _Type;
+<span class="lineNum">    1580 </span>            : 
+<span class="lineNum">    1581 </span>            : template &lt;class _Type, class ..._Keys&gt;
+<span class="lineNum">    1582 </span>            : using __enable_hash_helper = __enable_hash_helper_imp&lt;_Type,
+<span class="lineNum">    1583 </span>            :   typename enable_if&lt;__all&lt;__has_enabled_hash&lt;_Keys&gt;::value...&gt;::value&gt;::type
+<span class="lineNum">    1584 </span>            : &gt;;
+<span class="lineNum">    1585 </span>            : #else
+<span class="lineNum">    1586 </span>            : template &lt;class _Type, class ...&gt;
+<span class="lineNum">    1587 </span>            : using __enable_hash_helper = _Type;
+<span class="lineNum">    1588 </span>            : #endif
+<span class="lineNum">    1589 </span>            : 
+<span class="lineNum">    1590 </span>            : #endif // !_LIBCPP_CXX03_LANG
+<span class="lineNum">    1591 </span>            : 
+<span class="lineNum">    1592 </span>            : _LIBCPP_END_NAMESPACE_STD
+<span class="lineNum">    1593 </span>            : 
+<span class="lineNum">    1594 </span>            : #endif  // _LIBCPP_UTILITY
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

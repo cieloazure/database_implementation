@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - P1.info - /Users/akashshingte/Projects/Cpp/DBI - Assignment 1/P1/Pipe.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../index.html">top level</a> - <a href="index.html">Users/akashshingte/Projects/Cpp/DBI - Assignment 1/P1</a> - Pipe.cc<span style="font-size: 80%;"> (source / <a href="Pipe.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">P1.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">42</td>
+            <td class="headerCovTableEntry">50</td>
+            <td class="headerCovTableEntryMed">84.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-02-18 20:57:58</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryLo">62.5 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #include &quot;Pipe.h&quot;</a>
+<span class="lineNum">       2 </span>            : 
+<span class="lineNum">       3 </span>            : #include &lt;iostream&gt;
+<a name="4"><span class="lineNum">       4 </span>            : #include &lt;stdlib.h&gt; </a>
+<span class="lineNum">       5 </span>            : 
+<span class="lineNum">       6 </span><span class="lineCov">         34 : Pipe :: Pipe (int bufferSize) {</span>
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            :         // set up the mutex assoicated with the pipe
+<span class="lineNum">       9 </span><span class="lineCov">         17 :         pthread_mutex_init (&amp;pipeMutex, NULL);</span>
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            :         // set up the condition variables associated with the pipe
+<span class="lineNum">      12 </span><span class="lineCov">         17 :         pthread_cond_init (&amp;producerVar, NULL);</span>
+<span class="lineNum">      13 </span><span class="lineCov">         17 :         pthread_cond_init (&amp;consumerVar, NULL);</span>
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            :         // set up the pipe's buffer
+<span class="lineNum">      16 </span><span class="lineCov">       3485 :         buffered = new (std::nothrow) Record[bufferSize];</span>
+<span class="lineNum">      17 </span><span class="lineCov">         17 :         if (buffered == NULL)</span>
+<span class="lineNum">      18 </span>            :         {
+<span class="lineNum">      19 </span><span class="lineNoCov">          0 :                 cout &lt;&lt; &quot;ERROR : Not enough memory. EXIT !!!\n&quot;;</span>
+<span class="lineNum">      20 </span><span class="lineNoCov">          0 :                 exit(1);</span>
+<span class="lineNum">      21 </span>            :         }
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span><span class="lineCov">         17 :         totSpace = bufferSize;</span>
+<span class="lineNum">      24 </span><span class="lineCov">         17 :         firstSlot = lastSlot = 0;</span>
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            :         // note that the pipe has not yet been turned off
+<span class="lineNum">      27 </span><span class="lineCov">         17 :         done = 0;</span>
+<a name="28"><span class="lineNum">      28 </span><span class="lineCov">         34 : }</span></a>
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span><span class="lineNoCov">          0 : Pipe :: ~Pipe () {</span>
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            :         // free everything up!
+<span class="lineNum">      33 </span><span class="lineNoCov">          0 :         delete [] buffered;</span>
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span><span class="lineNoCov">          0 :         pthread_mutex_destroy (&amp;pipeMutex);</span>
+<span class="lineNum">      36 </span><span class="lineNoCov">          0 :         pthread_cond_destroy (&amp;producerVar);</span>
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 :         pthread_cond_destroy (&amp;consumerVar);</span>
+<span class="lineNum">      38 </span>            :         
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 : }</span>
+<a name="40"><span class="lineNum">      40 </span>            : </a>
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : void Pipe :: Insert (Record *insertMe) {
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            :         // first, get a mutex on the pipeline
+<span class="lineNum">      45 </span><span class="lineCov">     782377 :         pthread_mutex_lock (&amp;pipeMutex);</span>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            :         // next, see if there is space in the pipe for more data; if
+<span class="lineNum">      48 </span>            :         // there is, then do the insertion
+<span class="lineNum">      49 </span><span class="lineCov">     782377 :         if (lastSlot - firstSlot &lt; totSpace) {</span>
+<span class="lineNum">      50 </span><span class="lineCov">     781292 :                 buffered [lastSlot % totSpace].Consume (insertMe);</span>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            :         // if there is not, then we need to wait until the consumer
+<span class="lineNum">      53 </span>            :         // frees up some space in the pipeline
+<span class="lineNum">      54 </span><span class="lineCov">     781292 :         } else {</span>
+<span class="lineNum">      55 </span><span class="lineCov">       1085 :                 pthread_cond_wait (&amp;producerVar, &amp;pipeMutex);</span>
+<span class="lineNum">      56 </span><span class="lineCov">       1085 :                 buffered [lastSlot % totSpace].Consume (insertMe);</span>
+<span class="lineNum">      57 </span>            :         }
+<span class="lineNum">      58 </span>            :         
+<span class="lineNum">      59 </span>            :         // note that we have added a new record
+<span class="lineNum">      60 </span><span class="lineCov">     782376 :         lastSlot++;</span>
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            :         // signal the consumer who might now want to suck up the new
+<span class="lineNum">      63 </span>            :         // record that has been added to the pipeline
+<span class="lineNum">      64 </span><span class="lineCov">     782376 :         pthread_cond_signal (&amp;consumerVar);</span>
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span>            :         // done!
+<span class="lineNum">      67 </span><span class="lineCov">     782376 :         pthread_mutex_unlock (&amp;pipeMutex);</span>
+<span class="lineNum">      68 </span><span class="lineCov">     782376 : }</span>
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : int Pipe :: Remove (Record *removeMe) {
+<span class="lineNum">      72 </span>            :          
+<span class="lineNum">      73 </span>            :         // first, get a mutex on the pipeline
+<span class="lineNum">      74 </span><span class="lineCov">     782292 :         pthread_mutex_lock (&amp;pipeMutex);</span>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            :         // next, see if there is anything in the pipeline; if
+<span class="lineNum">      77 </span>            :         // there is, then do the removal
+<span class="lineNum">      78 </span><span class="lineCov">     782292 :         if (lastSlot != firstSlot) {</span>
+<span class="lineNum">      79 </span>            :                 
+<span class="lineNum">      80 </span><span class="lineCov">     447112 :                 removeMe-&gt;Consume (&amp;buffered [firstSlot % totSpace]);</span>
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            :         // if there is not, then we need to wait until the producer
+<span class="lineNum">      83 </span>            :         // puts some data into the pipeline
+<span class="lineNum">      84 </span><span class="lineCov">     447112 :         } else {</span>
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            :                 // the pipeline is empty so we first see if this
+<span class="lineNum">      87 </span>            :                 // is because it was turned off
+<span class="lineNum">      88 </span><span class="lineCov">     335180 :                 if (done) {</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span><span class="lineCov">          2 :                         pthread_mutex_unlock (&amp;pipeMutex);</span>
+<span class="lineNum">      91 </span><span class="lineCov">          2 :                         return 0;</span>
+<span class="lineNum">      92 </span>            :                 }
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            :                 // wait until there is something there
+<span class="lineNum">      95 </span><span class="lineCov">     335178 :                 pthread_cond_wait (&amp;consumerVar, &amp;pipeMutex);</span>
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span>            :                 // since the producer may have decided to turn off
+<span class="lineNum">      98 </span>            :                 // the pipe, we need to check if it is still open
+<span class="lineNum">      99 </span><span class="lineCov">     335192 :                 if (done &amp;&amp; lastSlot == firstSlot) {</span>
+<span class="lineNum">     100 </span><span class="lineCov">         14 :                         pthread_mutex_unlock (&amp;pipeMutex);</span>
+<span class="lineNum">     101 </span><span class="lineCov">         14 :                         return 0;</span>
+<span class="lineNum">     102 </span>            :                 }
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span><span class="lineCov">     335164 :                 removeMe-&gt;Consume (&amp;buffered [firstSlot % totSpace]);</span>
+<span class="lineNum">     105 </span>            :         }
+<span class="lineNum">     106 </span>            :         
+<span class="lineNum">     107 </span>            :         // note that we have deleted a record
+<span class="lineNum">     108 </span><span class="lineCov">     782276 :         firstSlot++;</span>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span>            :         // signal the producer who might now want to take the slot
+<span class="lineNum">     111 </span>            :         // that has been freed up by the deletion
+<span class="lineNum">     112 </span><span class="lineCov">     782276 :         pthread_cond_signal (&amp;producerVar);</span>
+<span class="lineNum">     113 </span>            :         
+<span class="lineNum">     114 </span>            :         // done!
+<span class="lineNum">     115 </span><span class="lineCov">     782276 :         pthread_mutex_unlock (&amp;pipeMutex);</span>
+<span class="lineNum">     116 </span><span class="lineCov">     782276 :         return 1;</span>
+<span class="lineNum">     117 </span><span class="lineCov">     782292 : }</span>
+<a name="118"><span class="lineNum">     118 </span>            : </a>
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            : void Pipe :: ShutDown () {
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            :         // first, get a mutex on the pipeline
+<span class="lineNum">     123 </span><span class="lineCov">         17 :         pthread_mutex_lock (&amp;pipeMutex);</span>
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span>            :         // note that we are now done with the pipeline
+<span class="lineNum">     126 </span><span class="lineCov">         17 :         done = 1;</span>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            :         // signal the consumer who may be waiting
+<span class="lineNum">     129 </span><span class="lineCov">         17 :         pthread_cond_signal (&amp;consumerVar);</span>
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span>            :         // unlock the mutex
+<span class="lineNum">     132 </span><span class="lineCov">         17 :         pthread_mutex_unlock (&amp;pipeMutex);</span>
+<span class="lineNum">     133 </span>            :         
+<span class="lineNum">     134 </span><span class="lineCov">         17 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

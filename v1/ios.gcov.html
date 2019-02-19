@@ -31,18 +31,18 @@
             <td class="headerValue">P1.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">11</td>
-            <td class="headerCovTableEntry">23</td>
-            <td class="headerCovTableEntryLo">47.8 %</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntryHi">96.6 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 18:28:20</td>
+            <td class="headerValue">2019-02-18 20:57:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">7</td>
-            <td class="headerCovTableEntry">12</td>
-            <td class="headerCovTableEntryLo">58.3 %</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -395,11 +395,11 @@
 <span class="lineNum">     333 </span>            : 
 <a name="334"><span class="lineNum">     334 </span>            : protected:</a>
 <span class="lineNum">     335 </span>            :     _LIBCPP_INLINE_VISIBILITY
-<span class="lineNum">     336 </span><span class="lineNoCov">          0 :     ios_base() {// purposefully does no initialization</span>
-<span class="lineNum">     337 </span><span class="lineNoCov">          0 :                }</span>
+<span class="lineNum">     336 </span><span class="lineCov">          2 :     ios_base() {// purposefully does no initialization</span>
+<span class="lineNum">     337 </span><span class="lineCov">          2 :                }</span>
 <a name="338"><span class="lineNum">     338 </span>            : </a>
 <span class="lineNum">     339 </span>            :     void init(void* __sb);
-<span class="lineNum">     340 </span><span class="lineCov">        946 :     _LIBCPP_ALWAYS_INLINE void* rdbuf() const {return __rdbuf_;}</span>
+<span class="lineNum">     340 </span><span class="lineCov">    7385725 :     _LIBCPP_ALWAYS_INLINE void* rdbuf() const {return __rdbuf_;}</span>
 <span class="lineNum">     341 </span>            : 
 <span class="lineNum">     342 </span>            :     _LIBCPP_ALWAYS_INLINE
 <span class="lineNum">     343 </span>            :     void rdbuf(void* __sb)
@@ -501,7 +501,7 @@
 <span class="lineNum">     439 </span>            : ios_base::fmtflags
 <span class="lineNum">     440 </span>            : ios_base::flags() const
 <span class="lineNum">     441 </span>            : {
-<span class="lineNum">     442 </span><span class="lineCov">        946 :     return __fmtflags_;</span>
+<span class="lineNum">     442 </span><span class="lineCov">     121474 :     return __fmtflags_;</span>
 <span class="lineNum">     443 </span>            : }
 <span class="lineNum">     444 </span>            : 
 <span class="lineNum">     445 </span>            : inline _LIBCPP_INLINE_VISIBILITY
@@ -563,17 +563,17 @@
 <span class="lineNum">     501 </span>            : streamsize
 <span class="lineNum">     502 </span>            : ios_base::width() const
 <span class="lineNum">     503 </span>            : {
-<span class="lineNum">     504 </span><span class="lineCov">       1892 :     return __width_;</span>
+<span class="lineNum">     504 </span><span class="lineCov">     121474 :     return __width_;</span>
 <span class="lineNum">     505 </span>            : }
 <span class="lineNum">     506 </span>            : 
 <a name="507"><span class="lineNum">     507 </span>            : inline _LIBCPP_INLINE_VISIBILITY</a>
 <span class="lineNum">     508 </span>            : streamsize
 <span class="lineNum">     509 </span>            : ios_base::width(streamsize __wide)
 <span class="lineNum">     510 </span>            : {
-<span class="lineNum">     511 </span><span class="lineCov">       1892 :     streamsize __r = __width_;</span>
-<span class="lineNum">     512 </span><span class="lineCov">        946 :     __width_ = __wide;</span>
-<span class="lineNum">     513 </span><span class="lineCov">        946 :     return __r;</span>
-<span class="lineNum">     514 </span>            : }
+<span class="lineNum">     511 </span><span class="lineCov">     121474 :     streamsize __r = __width_;</span>
+<span class="lineNum">     512 </span><span class="lineCov">     121474 :     __width_ = __wide;</span>
+<span class="lineNum">     513 </span><span class="lineCov">     242948 :     return __r;</span>
+<span class="lineNum">     514 </span><span class="lineCov">     121474 : }</span>
 <span class="lineNum">     515 </span>            : 
 <span class="lineNum">     516 </span>            : // iostate
 <span class="lineNum">     517 </span>            : 
@@ -588,8 +588,8 @@
 <span class="lineNum">     526 </span>            : void
 <span class="lineNum">     527 </span>            : ios_base::setstate(iostate __state)
 <span class="lineNum">     528 </span>            : {
-<span class="lineNum">     529 </span><span class="lineNoCov">          0 :     clear(__rdstate_ | __state);</span>
-<span class="lineNum">     530 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     529 </span><span class="lineCov">      60176 :     clear(__rdstate_ | __state);</span>
+<span class="lineNum">     530 </span><span class="lineCov">      60176 : }</span>
 <span class="lineNum">     531 </span>            : 
 <span class="lineNum">     532 </span>            : inline _LIBCPP_INLINE_VISIBILITY
 <span class="lineNum">     533 </span>            : bool
@@ -598,18 +598,18 @@
 <span class="lineNum">     536 </span>            :     return __rdstate_ == 0;
 <span class="lineNum">     537 </span>            : }
 <span class="lineNum">     538 </span>            : 
-<span class="lineNum">     539 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<a name="539"><span class="lineNum">     539 </span>            : inline _LIBCPP_INLINE_VISIBILITY</a>
 <span class="lineNum">     540 </span>            : bool
 <span class="lineNum">     541 </span>            : ios_base::eof() const
 <span class="lineNum">     542 </span>            : {
-<span class="lineNum">     543 </span>            :     return (__rdstate_ &amp; eofbit) != 0;
+<span class="lineNum">     543 </span><span class="lineCov">      60177 :     return (__rdstate_ &amp; eofbit) != 0;</span>
 <span class="lineNum">     544 </span>            : }
 <span class="lineNum">     545 </span>            : 
-<span class="lineNum">     546 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<a name="546"><span class="lineNum">     546 </span>            : inline _LIBCPP_INLINE_VISIBILITY</a>
 <span class="lineNum">     547 </span>            : bool
 <span class="lineNum">     548 </span>            : ios_base::fail() const
 <span class="lineNum">     549 </span>            : {
-<span class="lineNum">     550 </span>            :     return (__rdstate_ &amp; (failbit | badbit)) != 0;
+<span class="lineNum">     550 </span><span class="lineCov">          1 :     return (__rdstate_ &amp; (failbit | badbit)) != 0;</span>
 <span class="lineNum">     551 </span>            : }
 <span class="lineNum">     552 </span>            : 
 <span class="lineNum">     553 </span>            : inline _LIBCPP_INLINE_VISIBILITY
@@ -665,15 +665,15 @@
 <span class="lineNum">     603 </span>            : #else
 <span class="lineNum">     604 </span>            :     _LIBCPP_ALWAYS_INLINE
 <span class="lineNum">     605 </span>            :     _LIBCPP_EXPLICIT operator bool() const {return !fail();}
-<span class="lineNum">     606 </span>            : #endif
+<a name="606"><span class="lineNum">     606 </span>            : #endif</a>
 <span class="lineNum">     607 </span>            : 
-<span class="lineNum">     608 </span>            :     _LIBCPP_ALWAYS_INLINE bool operator!() const    {return  fail();}
+<span class="lineNum">     608 </span><span class="lineCov">          1 :     _LIBCPP_ALWAYS_INLINE bool operator!() const    {return  fail();}</span>
 <a name="609"><span class="lineNum">     609 </span>            :     _LIBCPP_ALWAYS_INLINE iostate rdstate() const   {return ios_base::rdstate();}</a>
 <span class="lineNum">     610 </span>            :     _LIBCPP_ALWAYS_INLINE void clear(iostate __state = goodbit) {ios_base::clear(__state);}
-<span class="lineNum">     611 </span><span class="lineNoCov">          0 :     _LIBCPP_ALWAYS_INLINE void setstate(iostate __state) {ios_base::setstate(__state);}</span>
-<span class="lineNum">     612 </span>            :     _LIBCPP_ALWAYS_INLINE bool good() const {return ios_base::good();}
-<span class="lineNum">     613 </span>            :     _LIBCPP_ALWAYS_INLINE bool eof() const  {return ios_base::eof();}
-<span class="lineNum">     614 </span>            :     _LIBCPP_ALWAYS_INLINE bool fail() const {return ios_base::fail();}
+<a name="611"><span class="lineNum">     611 </span><span class="lineCov">      60176 :     _LIBCPP_ALWAYS_INLINE void setstate(iostate __state) {ios_base::setstate(__state);}</span></a>
+<a name="612"><span class="lineNum">     612 </span>            :     _LIBCPP_ALWAYS_INLINE bool good() const {return ios_base::good();}</a>
+<span class="lineNum">     613 </span><span class="lineCov">      60177 :     _LIBCPP_ALWAYS_INLINE bool eof() const  {return ios_base::eof();}</span>
+<span class="lineNum">     614 </span><span class="lineCov">          1 :     _LIBCPP_ALWAYS_INLINE bool fail() const {return ios_base::fail();}</span>
 <span class="lineNum">     615 </span>            :     _LIBCPP_ALWAYS_INLINE bool bad() const  {return ios_base::bad();}
 <span class="lineNum">     616 </span>            : 
 <span class="lineNum">     617 </span>            :     _LIBCPP_ALWAYS_INLINE iostate exceptions() const {return ios_base::exceptions();}
@@ -712,8 +712,8 @@
 <span class="lineNum">     650 </span>            : 
 <a name="651"><span class="lineNum">     651 </span>            : protected:</a>
 <span class="lineNum">     652 </span>            :     _LIBCPP_ALWAYS_INLINE
-<span class="lineNum">     653 </span><span class="lineNoCov">          0 :     basic_ios() {// purposefully does no initialization</span>
-<span class="lineNum">     654 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     653 </span><span class="lineCov">          2 :     basic_ios() {// purposefully does no initialization</span>
+<span class="lineNum">     654 </span><span class="lineCov">          2 :                 }</span>
 <span class="lineNum">     655 </span>            :     _LIBCPP_INLINE_VISIBILITY 
 <span class="lineNum">     656 </span>            :     void init(basic_streambuf&lt;char_type, traits_type&gt;* __sb);
 <span class="lineNum">     657 </span>            : 
@@ -749,10 +749,10 @@
 <span class="lineNum">     687 </span>            : void
 <span class="lineNum">     688 </span>            : basic_ios&lt;_CharT, _Traits&gt;::init(basic_streambuf&lt;char_type, traits_type&gt;* __sb)
 <span class="lineNum">     689 </span>            : {
-<span class="lineNum">     690 </span><span class="lineNoCov">          0 :     ios_base::init(__sb);</span>
-<span class="lineNum">     691 </span><span class="lineNoCov">          0 :     __tie_ = 0;</span>
-<span class="lineNum">     692 </span><span class="lineNoCov">          0 :     __fill_ = traits_type::eof();</span>
-<span class="lineNum">     693 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     690 </span><span class="lineCov">          2 :     ios_base::init(__sb);</span>
+<span class="lineNum">     691 </span><span class="lineCov">          2 :     __tie_ = 0;</span>
+<span class="lineNum">     692 </span><span class="lineCov">          2 :     __fill_ = traits_type::eof();</span>
+<span class="lineNum">     693 </span><span class="lineCov">          2 : }</span>
 <span class="lineNum">     694 </span>            : 
 <span class="lineNum">     695 </span>            : template &lt;class _CharT, class _Traits&gt;
 <span class="lineNum">     696 </span>            : inline _LIBCPP_INLINE_VISIBILITY
@@ -777,7 +777,7 @@
 <span class="lineNum">     715 </span>            : basic_streambuf&lt;_CharT, _Traits&gt;*
 <span class="lineNum">     716 </span>            : basic_ios&lt;_CharT, _Traits&gt;::rdbuf() const
 <span class="lineNum">     717 </span>            : {
-<span class="lineNum">     718 </span><span class="lineCov">        946 :     return static_cast&lt;basic_streambuf&lt;char_type, traits_type&gt;*&gt;(ios_base::rdbuf());</span>
+<span class="lineNum">     718 </span><span class="lineCov">    7385725 :     return static_cast&lt;basic_streambuf&lt;char_type, traits_type&gt;*&gt;(ios_base::rdbuf());</span>
 <span class="lineNum">     719 </span>            : }
 <span class="lineNum">     720 </span>            : 
 <span class="lineNum">     721 </span>            : template &lt;class _CharT, class _Traits&gt;
@@ -815,7 +815,7 @@
 <span class="lineNum">     753 </span>            : _CharT
 <span class="lineNum">     754 </span>            : basic_ios&lt;_CharT, _Traits&gt;::widen(char __c) const
 <span class="lineNum">     755 </span>            : {
-<span class="lineNum">     756 </span><span class="lineCov">        274 :     return use_facet&lt;ctype&lt;char_type&gt; &gt;(getloc()).widen(__c);</span>
+<span class="lineNum">     756 </span><span class="lineCov">     180846 :     return use_facet&lt;ctype&lt;char_type&gt; &gt;(getloc()).widen(__c);</span>
 <span class="lineNum">     757 </span><span class="lineNoCov">          0 : }</span>
 <span class="lineNum">     758 </span>            : 
 <span class="lineNum">     759 </span>            : template &lt;class _CharT, class _Traits&gt;
@@ -823,9 +823,9 @@
 <span class="lineNum">     761 </span>            : _CharT
 <span class="lineNum">     762 </span>            : basic_ios&lt;_CharT, _Traits&gt;::fill() const
 <span class="lineNum">     763 </span>            : {
-<span class="lineNum">     764 </span><span class="lineCov">        946 :     if (traits_type::eq_int_type(traits_type::eof(), __fill_))</span>
-<span class="lineNum">     765 </span><span class="lineCov">         39 :         __fill_ = widen(' ');</span>
-<span class="lineNum">     766 </span><span class="lineCov">        946 :     return __fill_;</span>
+<span class="lineNum">     764 </span><span class="lineCov">     121474 :     if (traits_type::eq_int_type(traits_type::eof(), __fill_))</span>
+<span class="lineNum">     765 </span><span class="lineCov">         40 :         __fill_ = widen(' ');</span>
+<span class="lineNum">     766 </span><span class="lineCov">     121474 :     return __fill_;</span>
 <span class="lineNum">     767 </span>            : }
 <span class="lineNum">     768 </span>            : 
 <span class="lineNum">     769 </span>            : template &lt;class _CharT, class _Traits&gt;

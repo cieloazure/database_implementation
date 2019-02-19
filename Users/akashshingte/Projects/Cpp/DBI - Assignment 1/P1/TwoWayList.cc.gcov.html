@@ -31,18 +31,18 @@
             <td class="headerValue">P1.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">50</td>
-            <td class="headerCovTableEntry">72</td>
-            <td class="headerCovTableEntryLo">69.4 %</td>
+            <td class="headerCovTableEntry">127</td>
+            <td class="headerCovTableEntry">156</td>
+            <td class="headerCovTableEntryMed">81.4 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 18:28:20</td>
+            <td class="headerValue">2019-02-18 20:57:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">9</td>
-            <td class="headerCovTableEntry">11</td>
-            <td class="headerCovTableEntryMed">81.8 %</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntryHi">94.6 %</td>
           </tr>
           <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -64,15 +64,15 @@
 <span class="lineNum">       2 </span>            : #define _TWO_WAY_LIST_C
 <span class="lineNum">       3 </span>            : 
 <span class="lineNum">       4 </span>            : #include &quot;TwoWayList.h&quot;
-<span class="lineNum">       5 </span>            : 
+<span class="lineNum">       5 </span>            : #include &lt;stdlib.h&gt;
 <span class="lineNum">       6 </span>            : #include &lt;iostream&gt;
-<span class="lineNum">       7 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">       7 </span>            : #include &quot;Schema.h&quot;
 <span class="lineNum">       8 </span>            : 
 <span class="lineNum">       9 </span>            : using namespace std;
 <span class="lineNum">      10 </span>            : 
 <span class="lineNum">      11 </span>            : // create an alias of the given TwoWayList
-<span class="lineNum">      12 </span>            : template &lt;class Type&gt; TwoWayList&lt;Type&gt;::TwoWayList(TwoWayList &amp;me) {
-<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      12 </span>            : template &lt;class Type&gt;
+<span class="lineNum">      13 </span>            : TwoWayList&lt;Type&gt;::TwoWayList(TwoWayList &amp;me) {
 <span class="lineNum">      14 </span>            :   list = new (std::nothrow) Header;
 <span class="lineNum">      15 </span>            :   if (list == NULL) {
 <span class="lineNum">      16 </span>            :     cout &lt;&lt; &quot;ERROR : Not enough memory. EXIT !!!\n&quot;;
@@ -85,40 +85,40 @@
 <span class="lineNum">      23 </span>            :   list-&gt;leftSize = me.list-&gt;leftSize;
 <span class="lineNum">      24 </span>            :   list-&gt;rightSize = me.list-&gt;rightSize;
 <span class="lineNum">      25 </span>            : }
-<a name="26"><span class="lineNum">      26 </span>            : </a>
-<span class="lineNum">      27 </span>            : // basic constructor function
-<span class="lineNum">      28 </span><span class="lineCov">       1888 : template &lt;class Type&gt; TwoWayList&lt;Type&gt;::TwoWayList() {</span>
-<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      26 </span>            : 
+<a name="27"><span class="lineNum">      27 </span>            : // basic constructor function</a>
+<span class="lineNum">      28 </span>            : template &lt;class Type&gt;
+<span class="lineNum">      29 </span><span class="lineCov">       3495 : TwoWayList&lt;Type&gt;::TwoWayList() {</span>
 <span class="lineNum">      30 </span>            :   // allocate space for the header
-<span class="lineNum">      31 </span><span class="lineCov">       3776 :   list = new (std::nothrow) Header;</span>
-<span class="lineNum">      32 </span><span class="lineCov">        944 :   if (list == NULL) {</span>
+<span class="lineNum">      31 </span><span class="lineCov">      10485 :   list = new (std::nothrow) Header;</span>
+<span class="lineNum">      32 </span><span class="lineCov">       3495 :   if (list == NULL) {</span>
 <span class="lineNum">      33 </span><span class="lineNoCov">          0 :     cout &lt;&lt; &quot;ERROR : Not enough memory. EXIT !!!\n&quot;;</span>
 <span class="lineNum">      34 </span><span class="lineNoCov">          0 :     exit(1);</span>
 <span class="lineNum">      35 </span>            :   }
 <span class="lineNum">      36 </span>            : 
 <span class="lineNum">      37 </span>            :   // set up the initial values for an empty list
-<span class="lineNum">      38 </span><span class="lineCov">       2832 :   list-&gt;first = new (std::nothrow) Node;</span>
-<span class="lineNum">      39 </span><span class="lineCov">        944 :   if (list-&gt;first == NULL) {</span>
+<span class="lineNum">      38 </span><span class="lineCov">      13980 :   list-&gt;first = new (std::nothrow) Node;</span>
+<span class="lineNum">      39 </span><span class="lineCov">       3495 :   if (list-&gt;first == NULL) {</span>
 <span class="lineNum">      40 </span><span class="lineNoCov">          0 :     cout &lt;&lt; &quot;ERROR : Not enough memory. EXIT !!!\n&quot;;</span>
 <span class="lineNum">      41 </span><span class="lineNoCov">          0 :     exit(1);</span>
 <span class="lineNum">      42 </span>            :   }
 <span class="lineNum">      43 </span>            : 
-<span class="lineNum">      44 </span><span class="lineCov">       2832 :   list-&gt;last = new (std::nothrow) Node;</span>
-<span class="lineNum">      45 </span><span class="lineCov">        944 :   if (list-&gt;last == NULL) {</span>
+<span class="lineNum">      44 </span><span class="lineCov">      13980 :   list-&gt;last = new (std::nothrow) Node;</span>
+<span class="lineNum">      45 </span><span class="lineCov">       3495 :   if (list-&gt;last == NULL) {</span>
 <span class="lineNum">      46 </span><span class="lineNoCov">          0 :     cout &lt;&lt; &quot;ERROR : Not enough memory. EXIT !!!\n&quot;;</span>
 <span class="lineNum">      47 </span><span class="lineNoCov">          0 :     exit(1);</span>
 <span class="lineNum">      48 </span>            :   }
 <span class="lineNum">      49 </span>            : 
-<span class="lineNum">      50 </span><span class="lineCov">        944 :   list-&gt;current = list-&gt;first;</span>
-<span class="lineNum">      51 </span><span class="lineCov">        944 :   list-&gt;leftSize = 0;</span>
-<span class="lineNum">      52 </span><span class="lineCov">        944 :   list-&gt;rightSize = 0;</span>
-<span class="lineNum">      53 </span><span class="lineCov">        944 :   list-&gt;first-&gt;next = list-&gt;last;</span>
-<span class="lineNum">      54 </span><span class="lineCov">        944 :   list-&gt;last-&gt;previous = list-&gt;first;</span>
-<span class="lineNum">      55 </span><span class="lineCov">       1888 : }</span>
-<a name="56"><span class="lineNum">      56 </span>            : </a>
-<span class="lineNum">      57 </span>            : // basic deconstructor function
-<span class="lineNum">      58 </span><span class="lineNoCov">          0 : template &lt;class Type&gt; TwoWayList&lt;Type&gt;::~TwoWayList() {</span>
-<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      50 </span><span class="lineCov">       3495 :   list-&gt;current = list-&gt;first;</span>
+<span class="lineNum">      51 </span><span class="lineCov">       3495 :   list-&gt;leftSize = 0;</span>
+<span class="lineNum">      52 </span><span class="lineCov">       3495 :   list-&gt;rightSize = 0;</span>
+<span class="lineNum">      53 </span><span class="lineCov">       3495 :   list-&gt;first-&gt;next = list-&gt;last;</span>
+<span class="lineNum">      54 </span><span class="lineCov">       3495 :   list-&gt;last-&gt;previous = list-&gt;first;</span>
+<span class="lineNum">      55 </span><span class="lineCov">       6990 : }</span>
+<span class="lineNum">      56 </span>            : 
+<a name="57"><span class="lineNum">      57 </span>            : // basic deconstructor function</a>
+<span class="lineNum">      58 </span>            : template &lt;class Type&gt;
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 : TwoWayList&lt;Type&gt;::~TwoWayList() {</span>
 <span class="lineNum">      60 </span>            :   // remove everything
 <span class="lineNum">      61 </span><span class="lineNoCov">          0 :   MoveToStart();</span>
 <span class="lineNum">      62 </span><span class="lineNoCov">          0 :   while (RightLength() &gt; 0) {</span>
@@ -130,7 +130,7 @@
 <span class="lineNum">      68 </span><span class="lineNoCov">          0 :   for (int i = 0; i &lt;= list-&gt;leftSize + list-&gt;rightSize; i++) {</span>
 <span class="lineNum">      69 </span><span class="lineNoCov">          0 :     list-&gt;first = list-&gt;first-&gt;next;</span>
 <span class="lineNum">      70 </span><span class="lineNoCov">          0 :     delete list-&gt;first-&gt;previous;</span>
-<span class="lineNum">      71 </span>            :   }
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :   }</span>
 <span class="lineNum">      72 </span><span class="lineNoCov">          0 :   delete list-&gt;first;</span>
 <span class="lineNum">      73 </span>            : 
 <span class="lineNum">      74 </span>            :   // kill the header
@@ -138,160 +138,292 @@
 <span class="lineNum">      76 </span><span class="lineNoCov">          0 : }</span>
 <span class="lineNum">      77 </span>            : 
 <span class="lineNum">      78 </span>            : // swap operator
-<span class="lineNum">      79 </span>            : template &lt;class Type&gt; void TwoWayList&lt;Type&gt;::operator&amp;=(TwoWayList &amp;List) {
-<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      79 </span>            : template &lt;class Type&gt;
+<span class="lineNum">      80 </span>            : void TwoWayList&lt;Type&gt;::operator&amp;=(TwoWayList &amp;List) {
 <span class="lineNum">      81 </span>            :   Header *temp = List.list;
 <span class="lineNum">      82 </span>            :   List.list = list;
 <span class="lineNum">      83 </span>            :   list = temp;
 <span class="lineNum">      84 </span>            : }
-<a name="85"><span class="lineNum">      85 </span>            : </a>
-<span class="lineNum">      86 </span>            : // make the first node the current node
-<span class="lineNum">      87 </span>            : template &lt;class Type&gt; void TwoWayList&lt;Type&gt;::MoveToStart() {
-<span class="lineNum">      88 </span>            : 
-<span class="lineNum">      89 </span><span class="lineCov">    2544296 :   list-&gt;current = list-&gt;first;</span>
-<span class="lineNum">      90 </span><span class="lineCov">    1272148 :   list-&gt;rightSize += list-&gt;leftSize;</span>
-<span class="lineNum">      91 </span><span class="lineCov">    1272148 :   list-&gt;leftSize = 0;</span>
-<span class="lineNum">      92 </span><span class="lineCov">    1272148 : }</span>
-<a name="93"><span class="lineNum">      93 </span>            : </a>
-<span class="lineNum">      94 </span>            : // make the first node the current node
-<span class="lineNum">      95 </span>            : template &lt;class Type&gt; void TwoWayList&lt;Type&gt;::MoveToFinish() {
-<span class="lineNum">      96 </span>            : 
-<span class="lineNum">      97 </span><span class="lineCov">    2177838 :   list-&gt;current = list-&gt;last-&gt;previous;</span>
-<span class="lineNum">      98 </span><span class="lineCov">    1088919 :   list-&gt;leftSize += list-&gt;rightSize;</span>
-<span class="lineNum">      99 </span><span class="lineCov">    1088919 :   list-&gt;rightSize = 0;</span>
-<span class="lineNum">     100 </span><span class="lineCov">    1088919 : }</span>
+<span class="lineNum">      85 </span>            : 
+<a name="86"><span class="lineNum">      86 </span>            : // make the first node the current node</a>
+<span class="lineNum">      87 </span>            : template &lt;class Type&gt;
+<span class="lineNum">      88 </span>            : void TwoWayList&lt;Type&gt;::MoveToStart() {
+<span class="lineNum">      89 </span><span class="lineCov">    3263870 :   list-&gt;current = list-&gt;first;</span>
+<span class="lineNum">      90 </span><span class="lineCov">    3263870 :   list-&gt;rightSize += list-&gt;leftSize;</span>
+<span class="lineNum">      91 </span><span class="lineCov">    3263870 :   list-&gt;leftSize = 0;</span>
+<span class="lineNum">      92 </span><span class="lineCov">    3263870 : }</span>
+<span class="lineNum">      93 </span>            : 
+<a name="94"><span class="lineNum">      94 </span>            : // make the first node the current node</a>
+<span class="lineNum">      95 </span>            : template &lt;class Type&gt;
+<span class="lineNum">      96 </span>            : void TwoWayList&lt;Type&gt;::MoveToFinish() {
+<span class="lineNum">      97 </span><span class="lineCov">    2714564 :   list-&gt;current = list-&gt;last-&gt;previous;</span>
+<span class="lineNum">      98 </span><span class="lineCov">    2714564 :   list-&gt;leftSize += list-&gt;rightSize;</span>
+<span class="lineNum">      99 </span><span class="lineCov">    2714564 :   list-&gt;rightSize = 0;</span>
+<span class="lineNum">     100 </span><span class="lineCov">    2714564 : }</span>
 <span class="lineNum">     101 </span>            : 
 <span class="lineNum">     102 </span>            : // determine the number of items to the left of the current node
-<span class="lineNum">     103 </span>            : template &lt;class Type&gt; int TwoWayList&lt;Type&gt;::LeftLength() {
-<span class="lineNum">     104 </span>            :   return (list-&gt;leftSize);
-<span class="lineNum">     105 </span>            : }
-<a name="106"><span class="lineNum">     106 </span>            : </a>
-<span class="lineNum">     107 </span>            : // determine the number of items to the right of the current node
-<span class="lineNum">     108 </span>            : template &lt;class Type&gt; int TwoWayList&lt;Type&gt;::RightLength() {
-<span class="lineNum">     109 </span><span class="lineCov">    2537952 :   return (list-&gt;rightSize);</span>
-<span class="lineNum">     110 </span>            : }
-<span class="lineNum">     111 </span>            : 
-<span class="lineNum">     112 </span>            : // swap the right sides of two lists
-<span class="lineNum">     113 </span>            : template &lt;class Type&gt; void TwoWayList&lt;Type&gt;::SwapRights(TwoWayList &amp;List) {
-<span class="lineNum">     114 </span>            : 
-<span class="lineNum">     115 </span>            :   // swap out everything after the current nodes
-<span class="lineNum">     116 </span>            :   Node *left_1 = list-&gt;current;
-<span class="lineNum">     117 </span>            :   Node *right_1 = list-&gt;current-&gt;next;
-<span class="lineNum">     118 </span>            :   Node *left_2 = List.list-&gt;current;
-<span class="lineNum">     119 </span>            :   Node *right_2 = List.list-&gt;current-&gt;next;
-<span class="lineNum">     120 </span>            : 
-<span class="lineNum">     121 </span>            :   left_1-&gt;next = right_2;
-<span class="lineNum">     122 </span>            :   right_2-&gt;previous = left_1;
-<span class="lineNum">     123 </span>            :   left_2-&gt;next = right_1;
-<span class="lineNum">     124 </span>            :   right_1-&gt;previous = left_2;
-<span class="lineNum">     125 </span>            : 
-<span class="lineNum">     126 </span>            :   // set the new endpoints
-<span class="lineNum">     127 </span>            :   Node *temp = list-&gt;last;
-<span class="lineNum">     128 </span>            :   list-&gt;last = List.list-&gt;last;
-<span class="lineNum">     129 </span>            :   List.list-&gt;last = temp;
-<span class="lineNum">     130 </span>            : 
-<span class="lineNum">     131 </span>            :   int tempint = List.list-&gt;rightSize;
-<span class="lineNum">     132 </span>            :   List.list-&gt;rightSize = list-&gt;rightSize;
-<span class="lineNum">     133 </span>            :   list-&gt;rightSize = tempint;
-<span class="lineNum">     134 </span>            : }
-<span class="lineNum">     135 </span>            : 
-<span class="lineNum">     136 </span>            : // swap the leftt sides of the two lists
-<span class="lineNum">     137 </span>            : template &lt;class Type&gt; void TwoWayList&lt;Type&gt;::SwapLefts(TwoWayList &amp;List) {
-<span class="lineNum">     138 </span>            : 
-<span class="lineNum">     139 </span>            :   // swap out everything after the current nodes
-<span class="lineNum">     140 </span>            :   Node *left_1 = list-&gt;current;
-<span class="lineNum">     141 </span>            :   Node *right_1 = list-&gt;current-&gt;next;
-<span class="lineNum">     142 </span>            :   Node *left_2 = List.list-&gt;current;
-<span class="lineNum">     143 </span>            :   Node *right_2 = List.list-&gt;current-&gt;next;
-<span class="lineNum">     144 </span>            : 
-<span class="lineNum">     145 </span>            :   left_1-&gt;next = right_2;
-<span class="lineNum">     146 </span>            :   right_2-&gt;previous = left_1;
-<span class="lineNum">     147 </span>            :   left_2-&gt;next = right_1;
-<span class="lineNum">     148 </span>            :   right_1-&gt;previous = left_2;
-<span class="lineNum">     149 </span>            : 
-<span class="lineNum">     150 </span>            :   // set the new frontpoints
-<span class="lineNum">     151 </span>            :   Node *temp = list-&gt;first;
-<span class="lineNum">     152 </span>            :   list-&gt;first = List.list-&gt;first;
-<span class="lineNum">     153 </span>            :   List.list-&gt;first = temp;
-<span class="lineNum">     154 </span>            : 
-<span class="lineNum">     155 </span>            :   // set the new current nodes
-<span class="lineNum">     156 </span>            :   temp = list-&gt;current;
-<span class="lineNum">     157 </span>            :   list-&gt;current = List.list-&gt;current;
-<span class="lineNum">     158 </span>            :   List.list-&gt;current = temp;
-<span class="lineNum">     159 </span>            : 
-<span class="lineNum">     160 </span>            :   int tempint = List.list-&gt;leftSize;
-<span class="lineNum">     161 </span>            :   List.list-&gt;leftSize = list-&gt;leftSize;
-<span class="lineNum">     162 </span>            :   list-&gt;leftSize = tempint;
-<span class="lineNum">     163 </span>            : }
-<a name="164"><span class="lineNum">     164 </span>            : </a>
-<span class="lineNum">     165 </span>            : // move forwards through the list
-<span class="lineNum">     166 </span>            : template &lt;class Type&gt; void TwoWayList&lt;Type&gt;::Advance() {
-<span class="lineNum">     167 </span>            : 
-<span class="lineNum">     168 </span><span class="lineCov">    3637334 :   (list-&gt;rightSize)--;</span>
-<span class="lineNum">     169 </span><span class="lineCov">    1818667 :   (list-&gt;leftSize)++;</span>
-<span class="lineNum">     170 </span><span class="lineCov">    1818667 :   list-&gt;current = list-&gt;current-&gt;next;</span>
-<span class="lineNum">     171 </span><span class="lineCov">    1818667 : }</span>
-<span class="lineNum">     172 </span>            : 
-<span class="lineNum">     173 </span>            : // move backwards through the list
-<span class="lineNum">     174 </span>            : template &lt;class Type&gt; void TwoWayList&lt;Type&gt;::Retreat() {
-<span class="lineNum">     175 </span>            : 
-<span class="lineNum">     176 </span>            :   (list-&gt;rightSize)++;
-<span class="lineNum">     177 </span>            :   (list-&gt;leftSize)--;
-<span class="lineNum">     178 </span>            :   list-&gt;current = list-&gt;current-&gt;previous;
-<span class="lineNum">     179 </span>            : }
-<a name="180"><span class="lineNum">     180 </span>            : </a>
-<span class="lineNum">     181 </span>            : // insert an item at the current poition
-<span class="lineNum">     182 </span>            : template &lt;class Type&gt; void TwoWayList&lt;Type&gt;::Insert(Type *Item) {
-<span class="lineNum">     183 </span>            : 
-<span class="lineNum">     184 </span><span class="lineCov">    7280652 :   Node *temp = new (std::nothrow) Node;</span>
-<span class="lineNum">     185 </span><span class="lineCov">    1820163 :   if (temp == NULL) {</span>
-<span class="lineNum">     186 </span><span class="lineNoCov">          0 :     cout &lt;&lt; &quot;ERROR : Not enough memory. EXIT !!!\n&quot;;</span>
-<span class="lineNum">     187 </span><span class="lineNoCov">          0 :     exit(1);</span>
-<span class="lineNum">     188 </span>            :   }
-<span class="lineNum">     189 </span>            : 
-<span class="lineNum">     190 </span><span class="lineCov">    1820163 :   Node *left = list-&gt;current;</span>
-<span class="lineNum">     191 </span><span class="lineCov">    1820163 :   Node *right = list-&gt;current-&gt;next;</span>
-<span class="lineNum">     192 </span>            : 
-<span class="lineNum">     193 </span><span class="lineCov">    1820163 :   left-&gt;next = temp;</span>
-<span class="lineNum">     194 </span><span class="lineCov">    1820163 :   temp-&gt;previous = left;</span>
-<span class="lineNum">     195 </span><span class="lineCov">    1820163 :   temp-&gt;next = right;</span>
-<span class="lineNum">     196 </span><span class="lineCov">    5460489 :   temp-&gt;data = new (std::nothrow) Type;</span>
-<span class="lineNum">     197 </span><span class="lineCov">    1820163 :   if (temp-&gt;data == NULL) {</span>
-<span class="lineNum">     198 </span><span class="lineNoCov">          0 :     cout &lt;&lt; &quot;ERROR : Not enough memory. EXIT !!!\n&quot;;</span>
-<span class="lineNum">     199 </span><span class="lineNoCov">          0 :     exit(1);</span>
-<span class="lineNum">     200 </span>            :   }
-<span class="lineNum">     201 </span>            : 
-<span class="lineNum">     202 </span><span class="lineCov">    1820163 :   right-&gt;previous = temp;</span>
+<span class="lineNum">     103 </span>            : template &lt;class Type&gt;
+<span class="lineNum">     104 </span>            : int TwoWayList&lt;Type&gt;::LeftLength() {
+<span class="lineNum">     105 </span>            :   return (list-&gt;leftSize);
+<span class="lineNum">     106 </span>            : }
+<span class="lineNum">     107 </span>            : 
+<a name="108"><span class="lineNum">     108 </span>            : // determine the number of items to the right of the current node</a>
+<span class="lineNum">     109 </span>            : template &lt;class Type&gt;
+<span class="lineNum">     110 </span>            : int TwoWayList&lt;Type&gt;::RightLength() {
+<span class="lineNum">     111 </span><span class="lineCov">    3256309 :   return (list-&gt;rightSize);</span>
+<span class="lineNum">     112 </span>            : }
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            : // swap the right sides of two lists
+<span class="lineNum">     115 </span>            : template &lt;class Type&gt;
+<span class="lineNum">     116 </span>            : void TwoWayList&lt;Type&gt;::SwapRights(TwoWayList &amp;List) {
+<span class="lineNum">     117 </span>            :   // swap out everything after the current nodes
+<span class="lineNum">     118 </span>            :   Node *left_1 = list-&gt;current;
+<span class="lineNum">     119 </span>            :   Node *right_1 = list-&gt;current-&gt;next;
+<span class="lineNum">     120 </span>            :   Node *left_2 = List.list-&gt;current;
+<span class="lineNum">     121 </span>            :   Node *right_2 = List.list-&gt;current-&gt;next;
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span>            :   left_1-&gt;next = right_2;
+<span class="lineNum">     124 </span>            :   right_2-&gt;previous = left_1;
+<span class="lineNum">     125 </span>            :   left_2-&gt;next = right_1;
+<span class="lineNum">     126 </span>            :   right_1-&gt;previous = left_2;
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            :   // set the new endpoints
+<span class="lineNum">     129 </span>            :   Node *temp = list-&gt;last;
+<span class="lineNum">     130 </span>            :   list-&gt;last = List.list-&gt;last;
+<span class="lineNum">     131 </span>            :   List.list-&gt;last = temp;
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            :   int tempint = List.list-&gt;rightSize;
+<span class="lineNum">     134 </span>            :   List.list-&gt;rightSize = list-&gt;rightSize;
+<span class="lineNum">     135 </span>            :   list-&gt;rightSize = tempint;
+<span class="lineNum">     136 </span>            : }
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            : // swap the leftt sides of the two lists
+<span class="lineNum">     139 </span>            : template &lt;class Type&gt;
+<span class="lineNum">     140 </span>            : void TwoWayList&lt;Type&gt;::SwapLefts(TwoWayList &amp;List) {
+<span class="lineNum">     141 </span>            :   // swap out everything after the current nodes
+<span class="lineNum">     142 </span>            :   Node *left_1 = list-&gt;current;
+<span class="lineNum">     143 </span>            :   Node *right_1 = list-&gt;current-&gt;next;
+<span class="lineNum">     144 </span>            :   Node *left_2 = List.list-&gt;current;
+<span class="lineNum">     145 </span>            :   Node *right_2 = List.list-&gt;current-&gt;next;
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            :   left_1-&gt;next = right_2;
+<span class="lineNum">     148 </span>            :   right_2-&gt;previous = left_1;
+<span class="lineNum">     149 </span>            :   left_2-&gt;next = right_1;
+<span class="lineNum">     150 </span>            :   right_1-&gt;previous = left_2;
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span>            :   // set the new frontpoints
+<span class="lineNum">     153 </span>            :   Node *temp = list-&gt;first;
+<span class="lineNum">     154 </span>            :   list-&gt;first = List.list-&gt;first;
+<span class="lineNum">     155 </span>            :   List.list-&gt;first = temp;
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            :   // set the new current nodes
+<span class="lineNum">     158 </span>            :   temp = list-&gt;current;
+<span class="lineNum">     159 </span>            :   list-&gt;current = List.list-&gt;current;
+<span class="lineNum">     160 </span>            :   List.list-&gt;current = temp;
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            :   int tempint = List.list-&gt;leftSize;
+<span class="lineNum">     163 </span>            :   List.list-&gt;leftSize = list-&gt;leftSize;
+<span class="lineNum">     164 </span>            :   list-&gt;leftSize = tempint;
+<span class="lineNum">     165 </span>            : }
+<span class="lineNum">     166 </span>            : 
+<a name="167"><span class="lineNum">     167 </span>            : // move forwards through the list</a>
+<span class="lineNum">     168 </span>            : template &lt;class Type&gt;
+<span class="lineNum">     169 </span>            : void TwoWayList&lt;Type&gt;::Advance() {
+<span class="lineNum">     170 </span><span class="lineCov">    3593604 :   (list-&gt;rightSize)--;</span>
+<span class="lineNum">     171 </span><span class="lineCov">    3593604 :   (list-&gt;leftSize)++;</span>
+<span class="lineNum">     172 </span><span class="lineCov">    3593604 :   list-&gt;current = list-&gt;current-&gt;next;</span>
+<span class="lineNum">     173 </span><span class="lineCov">    3593604 : }</span>
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span>            : // move backwards through the list
+<span class="lineNum">     176 </span>            : template &lt;class Type&gt;
+<span class="lineNum">     177 </span>            : void TwoWayList&lt;Type&gt;::Retreat() {
+<span class="lineNum">     178 </span>            :   (list-&gt;rightSize)++;
+<span class="lineNum">     179 </span>            :   (list-&gt;leftSize)--;
+<span class="lineNum">     180 </span>            :   list-&gt;current = list-&gt;current-&gt;previous;
+<span class="lineNum">     181 </span>            : }
+<span class="lineNum">     182 </span>            : 
+<a name="183"><span class="lineNum">     183 </span>            : // insert an item at the current poition</a>
+<span class="lineNum">     184 </span>            : template &lt;class Type&gt;
+<span class="lineNum">     185 </span>            : void TwoWayList&lt;Type&gt;::Insert(Type *Item) {
+<span class="lineNum">     186 </span><span class="lineCov">   17753874 :   Node *temp = new (std::nothrow) Node;</span>
+<span class="lineNum">     187 </span><span class="lineCov">    4438469 :   if (temp == NULL) {</span>
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :     cout &lt;&lt; &quot;ERROR : Not enough memory. EXIT !!!\n&quot;;</span>
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :     exit(1);</span>
+<span class="lineNum">     190 </span>            :   }
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span><span class="lineCov">    4438470 :   Node *left = list-&gt;current;</span>
+<span class="lineNum">     193 </span><span class="lineCov">    4438470 :   Node *right = list-&gt;current-&gt;next;</span>
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span><span class="lineCov">    4438470 :   left-&gt;next = temp;</span>
+<span class="lineNum">     196 </span><span class="lineCov">    4438470 :   temp-&gt;previous = left;</span>
+<span class="lineNum">     197 </span><span class="lineCov">    4438470 :   temp-&gt;next = right;</span>
+<span class="lineNum">     198 </span><span class="lineCov">   17753865 :   temp-&gt;data = new (std::nothrow) Type;</span>
+<span class="lineNum">     199 </span><span class="lineCov">    4438466 :   if (temp-&gt;data == NULL) {</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :     cout &lt;&lt; &quot;ERROR : Not enough memory. EXIT !!!\n&quot;;</span>
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :     exit(1);</span>
+<span class="lineNum">     202 </span>            :   }
 <span class="lineNum">     203 </span>            : 
-<span class="lineNum">     204 </span><span class="lineCov">    1820163 :   temp-&gt;data-&gt;Consume(Item);</span>
+<span class="lineNum">     204 </span><span class="lineCov">    4438466 :   right-&gt;previous = temp;</span>
 <span class="lineNum">     205 </span>            : 
-<span class="lineNum">     206 </span><span class="lineCov">    1820163 :   list-&gt;rightSize += 1;</span>
-<span class="lineNum">     207 </span><span class="lineCov">    1820163 : }</span>
-<a name="208"><span class="lineNum">     208 </span>            : </a>
-<span class="lineNum">     209 </span>            : // get a reference to the currentitemin the list
-<span class="lineNum">     210 </span>            : template &lt;class Type&gt; Type *TwoWayList&lt;Type&gt;::Current(int offset) {
-<span class="lineNum">     211 </span><span class="lineCov">    2540850 :   Node *temp = list-&gt;current-&gt;next;</span>
-<span class="lineNum">     212 </span><span class="lineCov">  113642268 :   for (int i = 0; i &lt; offset; i++) {</span>
-<span class="lineNum">     213 </span><span class="lineCov">   55550709 :     temp = temp-&gt;next;</span>
-<span class="lineNum">     214 </span>            :   }
-<span class="lineNum">     215 </span><span class="lineCov">    1270425 :   return temp-&gt;data;</span>
-<span class="lineNum">     216 </span>            : }
-<a name="217"><span class="lineNum">     217 </span>            : </a>
-<span class="lineNum">     218 </span>            : // remove an item from the current poition
-<span class="lineNum">     219 </span>            : template &lt;class Type&gt; void TwoWayList&lt;Type&gt;::Remove(Type *Item) {
-<span class="lineNum">     220 </span>            : 
-<span class="lineNum">     221 </span><span class="lineCov">    2531910 :   Node *temp = list-&gt;current-&gt;next;</span>
-<span class="lineNum">     222 </span><span class="lineCov">    1265955 :   list-&gt;current-&gt;next = temp-&gt;next;</span>
-<span class="lineNum">     223 </span><span class="lineCov">    1265955 :   temp-&gt;next-&gt;previous = list-&gt;current;</span>
-<span class="lineNum">     224 </span>            : 
-<span class="lineNum">     225 </span><span class="lineCov">    1265955 :   Item-&gt;Consume(temp-&gt;data);</span>
-<span class="lineNum">     226 </span>            : 
-<span class="lineNum">     227 </span><span class="lineCov">    3797865 :   delete temp;</span>
+<span class="lineNum">     206 </span>            :   /* This method needs to be defined on Template Type */
+<span class="lineNum">     207 </span><span class="lineCov">    4438466 :   temp-&gt;data-&gt;Consume(Item);</span>
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span><span class="lineCov">    4438466 :   list-&gt;rightSize += 1;</span>
+<span class="lineNum">     210 </span><span class="lineCov">    4438466 : }</span>
+<span class="lineNum">     211 </span>            : 
+<a name="212"><span class="lineNum">     212 </span>            : // get a reference to the currentitemin the list</a>
+<span class="lineNum">     213 </span>            : template &lt;class Type&gt;
+<span class="lineNum">     214 </span>            : Type *TwoWayList&lt;Type&gt;::Current(int offset) {
+<span class="lineNum">     215 </span><span class="lineCov">    2473979 :   Node *temp = list-&gt;current-&gt;next;</span>
+<span class="lineNum">     216 </span><span class="lineCov">  374330333 :   for (int i = 0; i &lt; offset; i++) {</span>
+<span class="lineNum">     217 </span><span class="lineCov">  183454198 :     temp = temp-&gt;next;</span>
+<span class="lineNum">     218 </span><span class="lineCov">  183454198 :   }</span>
+<span class="lineNum">     219 </span><span class="lineCov">    4947958 :   return temp-&gt;data;</span>
+<span class="lineNum">     220 </span><span class="lineCov">    2473979 : }</span>
+<span class="lineNum">     221 </span>            : 
+<a name="222"><span class="lineNum">     222 </span>            : // remove an item from the current poition</a>
+<span class="lineNum">     223 </span>            : template &lt;class Type&gt;
+<span class="lineNum">     224 </span>            : void TwoWayList&lt;Type&gt;::Remove(Type *Item) {
+<span class="lineNum">     225 </span><span class="lineCov">    3248362 :   Node *temp = list-&gt;current-&gt;next;</span>
+<span class="lineNum">     226 </span><span class="lineCov">    3248362 :   list-&gt;current-&gt;next = temp-&gt;next;</span>
+<span class="lineNum">     227 </span><span class="lineCov">    3248362 :   temp-&gt;next-&gt;previous = list-&gt;current;</span>
 <span class="lineNum">     228 </span>            : 
-<span class="lineNum">     229 </span><span class="lineCov">    1265955 :   (list-&gt;rightSize)--;</span>
-<span class="lineNum">     230 </span><span class="lineCov">    1265955 : }</span>
-<span class="lineNum">     231 </span>            : 
-<span class="lineNum">     232 </span>            : #endif
+<span class="lineNum">     229 </span><span class="lineCov">    3248362 :   Item-&gt;Consume(temp-&gt;data);</span>
+<span class="lineNum">     230 </span>            : 
+<span class="lineNum">     231 </span><span class="lineCov">    6496724 :   delete temp;</span>
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span><span class="lineCov">    3248362 :   (list-&gt;rightSize)--;</span>
+<span class="lineNum">     234 </span><span class="lineCov">    3248362 : }</span>
+<span class="lineNum">     235 </span>            : 
+<a name="236"><span class="lineNum">     236 </span>            : template &lt;class Type&gt;</a>
+<span class="lineNum">     237 </span>            : template &lt;typename F&gt;
+<span class="lineNum">     238 </span>            : void TwoWayList&lt;Type&gt;::Sort(F &amp;compare) {
+<span class="lineNum">     239 </span><span class="lineCov">        700 :   MoveToStart();</span>
+<span class="lineNum">     240 </span><span class="lineCov">        700 :   int length = RightLength();</span>
+<span class="lineNum">     241 </span><span class="lineCov">        700 :   if (length &gt; 0) {</span>
+<span class="lineNum">     242 </span><span class="lineCov">        699 :     Header *sortedList = new Header;</span>
+<span class="lineNum">     243 </span><span class="lineCov">        699 :     InitializeHeader(sortedList);</span>
+<span class="lineNum">     244 </span><span class="lineCov">        699 :     MergeSort(sortedList, list-&gt;first-&gt;next, length, compare);</span>
+<span class="lineNum">     245 </span><span class="lineCov">       1398 :     delete list;</span>
+<span class="lineNum">     246 </span><span class="lineCov">        699 :     list = sortedList;</span>
+<span class="lineNum">     247 </span><span class="lineCov">        699 :   }</span>
+<span class="lineNum">     248 </span><span class="lineCov">        700 : }</span>
+<span class="lineNum">     249 </span>            : 
+<a name="250"><span class="lineNum">     250 </span>            : template &lt;class Type&gt;</a>
+<span class="lineNum">     251 </span>            : template &lt;typename F&gt;
+<span class="lineNum">     252 </span>            : void TwoWayList&lt;Type&gt;::MergeSort(Header *sortedList, Node *toSort, int length,
+<span class="lineNum">     253 </span>            :                                  F &amp;compare) {
+<span class="lineNum">     254 </span><span class="lineCov">     843071 :   if (length == 1) {</span>
+<span class="lineNum">     255 </span><span class="lineCov">     421885 :     MergeSortHelper(sortedList, toSort);</span>
+<span class="lineNum">     256 </span><span class="lineCov">     421885 :     return;</span>
+<span class="lineNum">     257 </span>            :   }
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span>            :   // Get the two lists two merge
+<span class="lineNum">     260 </span><span class="lineCov">     421186 :   Node *list1 = toSort;</span>
+<span class="lineNum">     261 </span><span class="lineCov">     421186 :   Node *list2 = toSort;</span>
+<span class="lineNum">     262 </span><span class="lineCov">     421186 :   int count = 0;</span>
+<span class="lineNum">     263 </span><span class="lineCov">    9182276 :   while (list2 != NULL &amp;&amp; count &lt; length / 2) {</span>
+<span class="lineNum">     264 </span><span class="lineCov">    1874383 :     count++;</span>
+<span class="lineNum">     265 </span><span class="lineCov">    1874383 :     list2 = list2-&gt;next;</span>
+<span class="lineNum">     266 </span>            :   }
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span><span class="lineCov">     421186 :   Header *sortedList1 = new Header;</span>
+<span class="lineNum">     269 </span><span class="lineCov">     421186 :   InitializeHeader(sortedList1);</span>
+<span class="lineNum">     270 </span><span class="lineCov">     421186 :   MergeSort(sortedList1, list1, count, compare);</span>
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span><span class="lineCov">     421186 :   Header *sortedList2 = new Header;</span>
+<span class="lineNum">     273 </span><span class="lineCov">     421186 :   InitializeHeader(sortedList2);</span>
+<span class="lineNum">     274 </span><span class="lineCov">     421186 :   MergeSort(sortedList2, list2, length - count, compare);</span>
+<span class="lineNum">     275 </span>            : 
+<span class="lineNum">     276 </span><span class="lineCov">     842372 :   Merge(sortedList, sortedList1-&gt;first-&gt;next, count, sortedList2-&gt;first-&gt;next,</span>
+<span class="lineNum">     277 </span><span class="lineCov">     421186 :         length - count, compare);</span>
+<span class="lineNum">     278 </span>            : 
+<span class="lineNum">     279 </span><span class="lineCov">     842372 :   delete sortedList1;</span>
+<span class="lineNum">     280 </span><span class="lineCov">     842372 :   delete sortedList2;</span>
+<span class="lineNum">     281 </span><span class="lineCov">    1264257 : }</span>
+<span class="lineNum">     282 </span>            : 
+<a name="283"><span class="lineNum">     283 </span>            : template &lt;class Type&gt;</a>
+<span class="lineNum">     284 </span>            : template &lt;typename F&gt;
+<span class="lineNum">     285 </span>            : void TwoWayList&lt;Type&gt;::Merge(Header *mergedList, Node *list1, int length1,
+<span class="lineNum">     286 </span>            :                              Node *list2, int length2, F &amp;compare) {
+<span class="lineNum">     287 </span><span class="lineCov">     421186 :   Node *iter1 = list1;</span>
+<span class="lineNum">     288 </span><span class="lineCov">     421186 :   int count1 = 0;</span>
+<span class="lineNum">     289 </span><span class="lineCov">     421186 :   Node *iter2 = list2;</span>
+<span class="lineNum">     290 </span><span class="lineCov">     421186 :   int count2 = 0;</span>
+<span class="lineNum">     291 </span>            : 
+<span class="lineNum">     292 </span><span class="lineCov">     421186 :   Schema mySchema(&quot;catalog&quot;, &quot;lineitem&quot;);</span>
+<span class="lineNum">     293 </span><span class="lineCov">   13163736 :   while (iter1 != NULL &amp;&amp; count1 &lt; length1 &amp;&amp; iter2 != NULL &amp;&amp;</span>
+<span class="lineNum">     294 </span><span class="lineCov">    2381148 :          count2 &lt; length2) {</span>
+<span class="lineNum">     295 </span><span class="lineCov">    4548922 :     if (compare(iter1-&gt;data, iter2-&gt;data)) {</span>
+<span class="lineNum">     296 </span><span class="lineCov">    1759472 :       MergeSortHelper(mergedList, iter1);</span>
+<span class="lineNum">     297 </span><span class="lineCov">    1759472 :       iter1 = iter1-&gt;next;</span>
+<span class="lineNum">     298 </span><span class="lineCov">    1759472 :       count1++;</span>
+<span class="lineNum">     299 </span><span class="lineCov">    1759472 :     } else {</span>
+<span class="lineNum">     300 </span><span class="lineCov">     514989 :       MergeSortHelper(mergedList, iter2);</span>
+<span class="lineNum">     301 </span><span class="lineCov">     514989 :       iter2 = iter2-&gt;next;</span>
+<span class="lineNum">     302 </span><span class="lineCov">     514989 :       count2++;</span>
+<span class="lineNum">     303 </span>            :     }
+<span class="lineNum">     304 </span>            :   }
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span><span class="lineCov">    2144388 :   while (iter1 != NULL &amp;&amp; count1 &lt; length1) {</span>
+<span class="lineNum">     307 </span><span class="lineCov">     114911 :     MergeSortHelper(mergedList, iter1);</span>
+<span class="lineNum">     308 </span><span class="lineCov">     114911 :     iter1 = iter1-&gt;next;</span>
+<span class="lineNum">     309 </span><span class="lineCov">     114911 :     count1++;</span>
+<span class="lineNum">     310 </span>            :   }
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span><span class="lineCov">    7848128 :   while (iter2 != NULL &amp;&amp; count2 &lt; length2) {</span>
+<span class="lineNum">     313 </span><span class="lineCov">    1540846 :     MergeSortHelper(mergedList, iter2);</span>
+<span class="lineNum">     314 </span><span class="lineCov">    1540846 :     iter2 = iter2-&gt;next;</span>
+<span class="lineNum">     315 </span><span class="lineCov">    1540846 :     count2++;</span>
+<span class="lineNum">     316 </span>            :   }
+<span class="lineNum">     317 </span><span class="lineCov">     421186 : }</span>
+<a name="318"><span class="lineNum">     318 </span>            : </a>
+<span class="lineNum">     319 </span>            : template &lt;class Type&gt;
+<span class="lineNum">     320 </span>            : void TwoWayList&lt;Type&gt;::MergeSortHelper(Header *mergedList, Node *iter) {
+<span class="lineNum">     321 </span>            :   // Start mergedList initialization
+<span class="lineNum">     322 </span><span class="lineCov">    8704206 :   Node *toBeMergedNode = new Node;</span>
+<span class="lineNum">     323 </span><span class="lineCov">    4352103 :   toBeMergedNode-&gt;data = iter-&gt;data;</span>
+<span class="lineNum">     324 </span>            : 
+<span class="lineNum">     325 </span><span class="lineCov">    4352103 :   Node *right = mergedList-&gt;last;</span>
+<span class="lineNum">     326 </span><span class="lineCov">    4352103 :   Node *left = mergedList-&gt;last-&gt;previous;</span>
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span><span class="lineCov">    4352103 :   left-&gt;next = toBeMergedNode;</span>
+<span class="lineNum">     329 </span><span class="lineCov">    4352103 :   toBeMergedNode-&gt;previous = left;</span>
+<span class="lineNum">     330 </span><span class="lineCov">    4352103 :   toBeMergedNode-&gt;next = right;</span>
+<span class="lineNum">     331 </span><span class="lineCov">    4352103 :   right-&gt;previous = toBeMergedNode;</span>
+<span class="lineNum">     332 </span>            : 
+<span class="lineNum">     333 </span><span class="lineCov">    4352103 :   mergedList-&gt;rightSize += 1;</span>
+<span class="lineNum">     334 </span><span class="lineCov">    4352103 : }</span>
+<a name="335"><span class="lineNum">     335 </span>            : </a>
+<span class="lineNum">     336 </span>            : template &lt;class Type&gt;
+<span class="lineNum">     337 </span>            : void TwoWayList&lt;Type&gt;::InitializeHeader(Header *mergedList) {
+<span class="lineNum">     338 </span><span class="lineCov">     843071 :   if (mergedList == NULL) {</span>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :     cout &lt;&lt; &quot;ERROR : Not enough memory. EXIT !!!\n&quot;;</span>
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :     exit(1);</span>
+<span class="lineNum">     341 </span>            :   }
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span>            :   // set up the initial values for an empty list
+<span class="lineNum">     344 </span><span class="lineCov">    3372284 :   mergedList-&gt;first = new (std::nothrow) Node;</span>
+<span class="lineNum">     345 </span><span class="lineCov">     843071 :   if (mergedList-&gt;first == NULL) {</span>
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :     cout &lt;&lt; &quot;ERROR : Not enough memory. EXIT !!!\n&quot;;</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :     exit(1);</span>
+<span class="lineNum">     348 </span>            :   }
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span><span class="lineCov">    3372284 :   mergedList-&gt;last = new (std::nothrow) Node;</span>
+<span class="lineNum">     351 </span><span class="lineCov">     843071 :   if (mergedList-&gt;last == NULL) {</span>
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :     cout &lt;&lt; &quot;ERROR : Not enough memory. EXIT !!!\n&quot;;</span>
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :     exit(1);</span>
+<span class="lineNum">     354 </span>            :   }
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span><span class="lineCov">     843071 :   mergedList-&gt;current = mergedList-&gt;first;</span>
+<span class="lineNum">     357 </span><span class="lineCov">     843071 :   mergedList-&gt;leftSize = 0;</span>
+<span class="lineNum">     358 </span><span class="lineCov">     843071 :   mergedList-&gt;rightSize = 0;</span>
+<span class="lineNum">     359 </span><span class="lineCov">     843071 :   mergedList-&gt;first-&gt;next = mergedList-&gt;last;</span>
+<span class="lineNum">     360 </span><span class="lineCov">     843071 :   mergedList-&gt;last-&gt;previous = mergedList-&gt;first;</span>
+<span class="lineNum">     361 </span>            :   // End mergedList initialization
+<span class="lineNum">     362 </span><span class="lineCov">     843071 : }</span>
+<span class="lineNum">     363 </span>            : 
+<span class="lineNum">     364 </span>            : #endif
 </pre>
       </td>
     </tr>

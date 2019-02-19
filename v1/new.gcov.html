@@ -31,18 +31,18 @@
             <td class="headerValue">P1.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntry">3</td>
-            <td class="headerCovTableEntryLo">33.3 %</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 18:28:20</td>
+            <td class="headerValue">2019-02-18 20:57:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntry">2</td>
-            <td class="headerCovTableEntryLo">50.0 %</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -287,7 +287,7 @@
 <span class="lineNum">     225 </span>            : #ifdef _LIBCPP_HAS_NO_BUILTIN_OPERATOR_NEW_DELETE
 <span class="lineNum">     226 </span>            :   return ::operator new(__size);
 <span class="lineNum">     227 </span>            : #else
-<span class="lineNum">     228 </span><span class="lineCov">          8 :   return __builtin_operator_new(__size);</span>
+<span class="lineNum">     228 </span><span class="lineCov">        546 :   return __builtin_operator_new(__size);</span>
 <span class="lineNum">     229 </span>            : #endif
 <a name="230"><span class="lineNum">     230 </span>            : }</a>
 <span class="lineNum">     231 </span>            : 
@@ -295,9 +295,9 @@
 <span class="lineNum">     233 </span>            : #ifdef _LIBCPP_HAS_NO_BUILTIN_OPERATOR_NEW_DELETE
 <span class="lineNum">     234 </span>            :   ::operator delete(__ptr);
 <span class="lineNum">     235 </span>            : #else
-<span class="lineNum">     236 </span><span class="lineNoCov">          0 :   __builtin_operator_delete(__ptr);</span>
+<span class="lineNum">     236 </span><span class="lineCov">        530 :   __builtin_operator_delete(__ptr);</span>
 <span class="lineNum">     237 </span>            : #endif
-<span class="lineNum">     238 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     238 </span><span class="lineCov">        530 : }</span>
 <span class="lineNum">     239 </span>            : 
 <span class="lineNum">     240 </span>            : #ifdef _LIBCPP_BAD_ARRAY_LENGTH_DEFINED
 <span class="lineNum">     241 </span>            : _LIBCPP_NORETURN inline _LIBCPP_ALWAYS_INLINE

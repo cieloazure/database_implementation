@@ -1,0 +1,402 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - P1.info - /Users/akashshingte/Projects/Cpp/DBI - Assignment 1/P1/BigQ.cc</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../index.html">top level</a> - <a href="index.html">Users/akashshingte/Projects/Cpp/DBI - Assignment 1/P1</a> - BigQ.cc<span style="font-size: 80%;"> (source / <a href="BigQ.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">P1.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">167</td>
+            <td class="headerCovTableEntry">172</td>
+            <td class="headerCovTableEntryHi">97.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-02-18 20:57:58</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #include &quot;BigQ.h&quot;</a>
+<span class="lineNum">       2 </span>            : #include &lt;math.h&gt;
+<span class="lineNum">       3 </span>            : #include &lt;pthread.h&gt;
+<span class="lineNum">       4 </span>            : #include &lt;unistd.h&gt;
+<span class="lineNum">       5 </span>            : #include &lt;queue&gt;
+<span class="lineNum">       6 </span>            : #include &lt;utility&gt;
+<span class="lineNum">       7 </span>            : #include &lt;vector&gt;
+<span class="lineNum">       8 </span>            : 
+<a name="9"><span class="lineNum">       9 </span>            : typedef std::pair&lt;Record *, int&gt; pq_elem_t;</a>
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span><span class="lineCov">          2 : struct WorkerThreadParams {</span>
+<span class="lineNum">      12 </span>            :   Pipe *in;
+<span class="lineNum">      13 </span>            :   Pipe *out;
+<span class="lineNum">      14 </span>            :   OrderMaker sortOrder;
+<span class="lineNum">      15 </span>            :   int runlen;
+<a name="16"><span class="lineNum">      16 </span>            : };</a>
+<span class="lineNum">      17 </span>            : 
+<a name="18"><span class="lineNum">      18 </span><span class="lineCov">          2 : struct WorkerThreadParams thread_data;</span></a>
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : void CopyBufferToPage(Page *from, Page *to) {
+<span class="lineNum">      21 </span><span class="lineCov">        703 :   Record to_be_copied;</span>
+<span class="lineNum">      22 </span><span class="lineCov">    1265814 :   while (from-&gt;GetFirst(&amp;to_be_copied) != 0) {</span>
+<span class="lineNum">      23 </span><span class="lineCov">     421235 :     to-&gt;Append(&amp;to_be_copied);</span>
+<span class="lineNum">      24 </span>            :   }
+<span class="lineNum">      25 </span><span class="lineCov">        703 : }</span>
+<span class="lineNum">      26 </span>            : 
+<a name="27"><span class="lineNum">      27 </span>            : // Phase 1</a>
+<span class="lineNum">      28 </span>            : template &lt;typename F&gt;
+<span class="lineNum">      29 </span>            : void MergeKSortedPages(std::vector&lt;Page *&gt; &amp;input, int k, File *runFile,
+<span class="lineNum">      30 </span>            :                        F &amp;comparator, int nextPageIndex, Page *buffer) {
+<span class="lineNum">      31 </span>            :   // initialize a page for the merge
+<span class="lineNum">      32 </span><span class="lineCov">        408 :   Page *mergedPageBuffer = new Page();</span>
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            :   // Declaration and initialization of priority queue
+<span class="lineNum">      35 </span><span class="lineCov">        204 :   std::priority_queue&lt;pq_elem_t, vector&lt;pq_elem_t&gt;, decltype(comparator)&gt;</span>
+<span class="lineNum">      36 </span><span class="lineCov">        204 :       pqueue(comparator);</span>
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            :   // initialize a priority queue with a pair consisting of the record in the
+<span class="lineNum">      39 </span>            :   // page and the index of the page in the vector
+<span class="lineNum">      40 </span><span class="lineCov">       1998 :   for (int i = 0; i &lt; input.size(); i++) {</span>
+<span class="lineNum">      41 </span><span class="lineCov">       2079 :     Record *tempRec = new Record();</span>
+<span class="lineNum">      42 </span><span class="lineCov">       1386 :     Page *tempPage = input.at(i);</span>
+<span class="lineNum">      43 </span><span class="lineCov">       1386 :     if (tempPage-&gt;GetFirst(tempRec) != 0) {</span>
+<span class="lineNum">      44 </span><span class="lineCov">        693 :       pqueue.emplace(tempRec, i);</span>
+<span class="lineNum">      45 </span><span class="lineCov">        693 :     }</span>
+<span class="lineNum">      46 </span><span class="lineCov">        693 :   }</span>
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            :   // while the priority queue is not empty
+<span class="lineNum">      49 </span><span class="lineCov">        204 :   off_t pageIndexOffset = 0;</span>
+<span class="lineNum">      50 </span><span class="lineCov">    1264317 :   while (!pqueue.empty()) {</span>
+<span class="lineNum">      51 </span>            :     // remove the one with highest priority given by the comparator
+<span class="lineNum">      52 </span><span class="lineCov">     842470 :     pq_elem_t dequeuedElem = pqueue.top();</span>
+<span class="lineNum">      53 </span><span class="lineCov">     421235 :     pqueue.pop();</span>
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            :     // put the record on the page we are merging
+<span class="lineNum">      56 </span><span class="lineCov">     842470 :     if (mergedPageBuffer-&gt;Append(dequeuedElem.first) == 0) {</span>
+<span class="lineNum">      57 </span>            :       // if the page is full, add the page to the file,
+<span class="lineNum">      58 </span><span class="lineCov">       1497 :       Page *toBeAdded = new Page();</span>
+<span class="lineNum">      59 </span><span class="lineCov">        499 :       CopyBufferToPage(</span>
+<span class="lineNum">      60 </span><span class="lineCov">        499 :           mergedPageBuffer,</span>
+<span class="lineNum">      61 </span><span class="lineCov">        499 :           toBeAdded); /* Copy is required to avoid double free error */</span>
+<span class="lineNum">      62 </span>            :       // create a new page
+<span class="lineNum">      63 </span><span class="lineCov">        499 :       runFile-&gt;AddPage(toBeAdded, nextPageIndex + pageIndexOffset);</span>
+<span class="lineNum">      64 </span><span class="lineCov">        499 :       pageIndexOffset++;</span>
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span>            :       // add the record which failed adding on the page back on the new page
+<span class="lineNum">      67 </span><span class="lineCov">        499 :       mergedPageBuffer-&gt;Append(dequeuedElem.first);</span>
+<span class="lineNum">      68 </span><span class="lineCov">        499 :     }</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            :     // get the next record from the page from that index in the vector,
+<span class="lineNum">      71 </span>            :     // add the pair with the record and index to the queue
+<span class="lineNum">      72 </span><span class="lineCov">     842470 :     Page *dequeuedElemPage = input.at(dequeuedElem.second);</span>
+<span class="lineNum">      73 </span><span class="lineCov">    1263705 :     Record *tempRec = new Record();</span>
+<span class="lineNum">      74 </span><span class="lineCov">     842470 :     if (dequeuedElemPage-&gt;GetFirst(tempRec) != 0) {</span>
+<span class="lineNum">      75 </span><span class="lineCov">     420542 :       pqueue.emplace(tempRec, dequeuedElem.second);</span>
+<span class="lineNum">      76 </span><span class="lineCov">     420542 :     }</span>
+<span class="lineNum">      77 </span><span class="lineCov">     421235 :   }  // end of while(!pqueue.empty())</span>
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            :   // Check if mergedPageBuffer still has some records to be added to the runFile
+<span class="lineNum">      80 </span><span class="lineCov">        408 :   if (mergedPageBuffer-&gt;GetNumRecords() &gt; 0) {</span>
+<span class="lineNum">      81 </span><span class="lineCov">        204 :     if (pageIndexOffset == input.size()) {</span>
+<span class="lineNum">      82 </span>            :       // Runlength number of pages have already been written
+<span class="lineNum">      83 </span>            :       // The records in mergedPageBuffer are stray records to be handled in the
+<span class="lineNum">      84 </span>            :       // next iteration of createRun hence adding them back to the buffer
+<span class="lineNum">      85 </span><span class="lineCov">         10 :       CopyBufferToPage(mergedPageBuffer, buffer);</span>
+<span class="lineNum">      86 </span><span class="lineCov">         10 :     } else {</span>
+<span class="lineNum">      87 </span><span class="lineCov">        582 :       Page *toBeAdded = new Page();</span>
+<span class="lineNum">      88 </span><span class="lineCov">        194 :       CopyBufferToPage(mergedPageBuffer, toBeAdded);</span>
+<span class="lineNum">      89 </span><span class="lineCov">        194 :       runFile-&gt;AddPage(toBeAdded, nextPageIndex + pageIndexOffset);</span>
+<span class="lineNum">      90 </span><span class="lineCov">        194 :     }</span>
+<span class="lineNum">      91 </span><span class="lineCov">        204 :   }</span>
+<a name="92"><span class="lineNum">      92 </span><span class="lineCov">        204 : }</span></a>
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            : void CreateRun(std::vector&lt;Page *&gt; &amp;input, int k, File *runFile,
+<span class="lineNum">      95 </span>            :                OrderMaker sortOrder, int runIndex, Page *buffer) {
+<span class="lineNum">      96 </span><span class="lineCov">        204 :   ComparisonEngine comp;</span>
+<span class="lineNum">      97 </span>            : 
+<a name="98"><span class="lineNum">      98 </span>            :   // Comparator for pair type in the priority queue</a>
+<span class="lineNum">      99 </span>            :   // Priority queue comparator has reverse order than the sort order required
+<span class="lineNum">     100 </span><span class="lineCov">        204 :   auto comparator = [&amp;sortOrder, &amp;comp](pq_elem_t i1, pq_elem_t i2) -&gt; bool {</span>
+<span class="lineNum">     101 </span><span class="lineCov">    2241378 :     return comp.Compare(i1.first, i2.first, &amp;sortOrder) &gt;= 0;</span>
+<span class="lineNum">     102 </span>            :   };
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span><span class="lineCov">        204 :   MergeKSortedPages(input, k, runFile, comparator, runIndex, buffer);</span>
+<span class="lineNum">     105 </span><span class="lineCov">        204 : }</span>
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span>            : // End of phase 1
+<a name="108"><span class="lineNum">     108 </span>            : </a>
+<span class="lineNum">     109 </span>            : // Phase 2
+<span class="lineNum">     110 </span>            : void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
+<span class="lineNum">     111 </span>            :                        OrderMaker sortOrder, Pipe *out) {
+<span class="lineNum">     112 </span><span class="lineCov">          8 :   std::cout &lt;&lt; &quot;Streaming K=&quot; &lt;&lt; runsCreated &lt;&lt; &quot; sorted runs&quot; &lt;&lt; std::endl;</span>
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            :   // priority queue initialization
+<span class="lineNum">     115 </span>            :   // Priority queue comparator has reverse order than the sort order required
+<a name="116"><span class="lineNum">     116 </span><span class="lineCov">          8 :   ComparisonEngine comp;</span></a>
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span><span class="lineCov">          8 :   auto comparator = [&amp;sortOrder, &amp;comp](pq_elem_t i1, pq_elem_t i2) -&gt; bool {</span>
+<span class="lineNum">     119 </span><span class="lineCov">    2006789 :     return comp.Compare(i1.first, i2.first, &amp;sortOrder) &gt;= 0;</span>
+<span class="lineNum">     120 </span>            :   };
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span><span class="lineCov">          8 :   std::priority_queue&lt;pq_elem_t, vector&lt;pq_elem_t&gt;, decltype(comparator)&gt;</span>
+<span class="lineNum">     123 </span><span class="lineCov">          8 :       pqueue(comparator);</span>
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span><span class="lineCov">          8 :   int pageIndexes[runsCreated];</span>
+<span class="lineNum">     126 </span><span class="lineCov">          8 :   vector&lt;Page *&gt; listOfHeads;</span>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span><span class="lineCov">         16 :   int totalPages =</span>
+<span class="lineNum">     129 </span><span class="lineCov">         16 :       runFile-&gt;GetLength() - 1;  // function returns total pages + 1.</span>
+<span class="lineNum">     130 </span><span class="lineCov">          8 :   int run = 0;</span>
+<span class="lineNum">     131 </span><span class="lineCov">          8 :   int runCounter = 0;</span>
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            :   // populate first page of every run
+<span class="lineNum">     134 </span><span class="lineCov">          8 :   if (totalPages &gt; 0) {</span>
+<span class="lineNum">     135 </span><span class="lineCov">        422 :     while (run &lt; runsCreated) {</span>
+<span class="lineNum">     136 </span><span class="lineCov">        612 :       Page *temp = new Page();</span>
+<span class="lineNum">     137 </span><span class="lineCov">        204 :       runFile-&gt;GetPage(temp, (run * runLength));</span>
+<span class="lineNum">     138 </span><span class="lineCov">        204 :       listOfHeads.push_back(temp);</span>
+<span class="lineNum">     139 </span><span class="lineCov">        204 :       pageIndexes[run] = 0;</span>
+<span class="lineNum">     140 </span><span class="lineCov">        204 :       run++;</span>
+<span class="lineNum">     141 </span><span class="lineCov">        204 :     }</span>
+<span class="lineNum">     142 </span><span class="lineCov">          7 :   } else {</span>
+<span class="lineNum">     143 </span><span class="lineCov">          2 :     cout &lt;&lt; &quot;Runs are empty&quot; &lt;&lt; endl;</span>
+<span class="lineNum">     144 </span><span class="lineCov">          1 :     return;</span>
+<span class="lineNum">     145 </span>            :   }
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span><span class="lineCov">         14 :   cout &lt;&lt; &quot;Pages populated successfully&quot; &lt;&lt; endl;</span>
+<span class="lineNum">     148 </span>            :   // populate first rec in every page of listOfHeads into the priority queue.
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span><span class="lineCov">          7 :   int record_count = 0;</span>
+<span class="lineNum">     151 </span><span class="lineCov">        837 :   for (auto i : listOfHeads) {</span>
+<span class="lineNum">     152 </span><span class="lineCov">        612 :     Record *tempRec = new Record();</span>
+<span class="lineNum">     153 </span><span class="lineCov">        408 :     if (i-&gt;GetFirst(tempRec) == 1) {</span>
+<span class="lineNum">     154 </span><span class="lineCov">        204 :       pqueue.emplace(tempRec, runCounter);</span>
+<span class="lineNum">     155 </span><span class="lineCov">        204 :     } else {</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :       cout &lt;&lt; &quot;BAD run encountered.&quot; &lt;&lt; endl;</span>
+<span class="lineNum">     157 </span>            :     }
+<span class="lineNum">     158 </span><span class="lineCov">        204 :     runCounter++;</span>
+<span class="lineNum">     159 </span><span class="lineCov">        204 :   }</span>
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span><span class="lineCov">    1083471 :   while (!pqueue.empty()) {</span>
+<span class="lineNum">     162 </span><span class="lineCov">     722304 :     pq_elem_t dequeuedElem = pqueue.top();</span>
+<span class="lineNum">     163 </span><span class="lineCov">     361152 :     pqueue.pop();</span>
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span>            :     // get current run from dequeuedElem.second
+<span class="lineNum">     166 </span><span class="lineCov">     361151 :     int currentRun = dequeuedElem.second;</span>
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span><span class="lineCov">     361151 :     out-&gt;Insert(dequeuedElem.first);</span>
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span><span class="lineCov">    1083453 :     Record *tempRec = new Record();</span>
+<span class="lineNum">     171 </span><span class="lineCov">    1083453 :     if (listOfHeads[currentRun]-&gt;GetFirst(tempRec) == 1) {</span>
+<span class="lineNum">     172 </span><span class="lineCov">     360557 :       pqueue.emplace(tempRec, currentRun);</span>
+<span class="lineNum">     173 </span><span class="lineCov">     360557 :       record_count++;</span>
+<span class="lineNum">     174 </span><span class="lineCov">     360557 :     } else {</span>
+<span class="lineNum">     175 </span><span class="lineCov">        594 :       pageIndexes[currentRun]++;</span>
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span><span class="lineCov">        594 :       if (pageIndexes[currentRun] &lt; runLength) {</span>
+<span class="lineNum">     178 </span>            :         // treat the last run differently, because it might not contain
+<span class="lineNum">     179 </span>            :         // runLength number of pages
+<span class="lineNum">     180 </span><span class="lineCov">        426 :         if (totalPages % runLength !=</span>
+<span class="lineNum">     181 </span>            :             0) {  // less than runLength pages in the last run
+<span class="lineNum">     182 </span><span class="lineCov">        516 :           if ((currentRun == runsCreated - 1) &amp;&amp;</span>
+<span class="lineNum">     183 </span><span class="lineCov">        222 :               (pageIndexes[currentRun] &gt;= totalPages % runLength)) {</span>
+<span class="lineNum">     184 </span><span class="lineCov">          3 :             continue;</span>
+<span class="lineNum">     185 </span>            :           }
+<span class="lineNum">     186 </span><span class="lineCov">        291 :         }</span>
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span><span class="lineCov">       1269 :         Page *temp = new Page();</span>
+<span class="lineNum">     189 </span><span class="lineCov">        846 :         runFile-&gt;GetPage(temp,</span>
+<span class="lineNum">     190 </span><span class="lineCov">        423 :                          (currentRun * runLength) + pageIndexes[currentRun]);</span>
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span><span class="lineCov">        846 :         if (temp-&gt;GetFirst(tempRec) == 1) {</span>
+<span class="lineNum">     193 </span><span class="lineCov">        423 :           pqueue.emplace(tempRec, currentRun);</span>
+<span class="lineNum">     194 </span><span class="lineCov">        846 :           listOfHeads[currentRun] = temp;</span>
+<span class="lineNum">     195 </span><span class="lineCov">        423 :         }</span>
+<span class="lineNum">     196 </span><span class="lineCov">        423 :       } else {</span>
+<span class="lineNum">     197 </span>            :         // else the run is exausted and there is nothing to be done.
+<span class="lineNum">     198 </span>            :         // cout &lt;&lt; &quot;Run: &quot; &lt;&lt; currentRun &lt;&lt; &quot; is exausted.&quot; &lt;&lt; endl;
+<span class="lineNum">     199 </span>            :       }
+<span class="lineNum">     200 </span>            :     }
+<span class="lineNum">     201 </span><span class="lineCov">    1083447 :   }</span>
+<span class="lineNum">     202 </span><span class="lineCov">         20 : }</span>
+<a name="203"><span class="lineNum">     203 </span>            : // End of phase 2</a>
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span>            : void *WorkerThreadRoutine(void *threadparams) {
+<span class="lineNum">     206 </span><span class="lineCov">          9 :   struct WorkerThreadParams *params;</span>
+<span class="lineNum">     207 </span><span class="lineCov">          9 :   params = (struct WorkerThreadParams *)threadparams;</span>
+<span class="lineNum">     208 </span><span class="lineCov">          9 :   Pipe *in = params-&gt;in;</span>
+<span class="lineNum">     209 </span><span class="lineCov">          9 :   Pipe *out = params-&gt;out;</span>
+<span class="lineNum">     210 </span><span class="lineCov">          9 :   OrderMaker sortOrder = params-&gt;sortOrder;</span>
+<span class="lineNum">     211 </span><span class="lineCov">          9 :   int runlen = params-&gt;runlen;</span>
+<span class="lineNum">     212 </span>            : 
+<span class="lineNum">     213 </span><span class="lineCov">         26 :   if (runlen &lt;= 0 || in == NULL || out == NULL) {</span>
+<span class="lineNum">     214 </span><span class="lineCov">          1 :     std::cout &lt;&lt; &quot;Argument Error in BigQ!&quot; &lt;&lt; std::endl;</span>
+<span class="lineNum">     215 </span><span class="lineCov">          1 :     out-&gt;ShutDown();</span>
+<span class="lineNum">     216 </span><span class="lineCov">          1 :     pthread_exit(NULL);</span>
+<span class="lineNum">     217 </span>            :   }
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span><span class="lineCov">         16 :   Record *temp = new Record();</span>
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span><span class="lineCov">         16 :   Page *buffer = new Page();</span>
+<span class="lineNum">     222 </span><span class="lineCov">          8 :   std::vector&lt;Page *&gt; inputPagesForRun;</span>
+<span class="lineNum">     223 </span><span class="lineCov">         24 :   File *runFile = new File();</span>
+<span class="lineNum">     224 </span><span class="lineCov">          8 :   runFile-&gt;Open(0, (char *)&quot;runFile.bin&quot;);</span>
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span><span class="lineCov">          8 :   int runs = 0;</span>
+<span class="lineNum">     227 </span><span class="lineCov">          8 :   int total_record_count = 0;</span>
+<span class="lineNum">     228 </span><span class="lineCov">    1263699 :   while (in-&gt;Remove(temp) != 0) {</span>
+<span class="lineNum">     229 </span><span class="lineCov">     842450 :     if (buffer-&gt;Append(temp) == 0) {</span>
+<span class="lineNum">     230 </span>            :       // Page is full now
+<span class="lineNum">     231 </span>            :       // Sort the page and put it into an list which we have to merge for
+<span class="lineNum">     232 </span>            :       // Phase 1
+<span class="lineNum">     233 </span><span class="lineCov">        686 :       buffer-&gt;Sort(sortOrder);</span>
+<span class="lineNum">     234 </span><span class="lineCov">        686 :       inputPagesForRun.push_back(buffer);</span>
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span>            :       // allocate a new Page for buffer
+<span class="lineNum">     237 </span><span class="lineCov">       2058 :       buffer = new Page();</span>
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span><span class="lineCov">        686 :       if (inputPagesForRun.size() == runlen) {</span>
+<span class="lineNum">     240 </span>            :         // Run Phase 1 to TPPMS and put the run into a file
+<span class="lineNum">     241 </span><span class="lineCov">        394 :         CreateRun(inputPagesForRun, runlen, runFile, sortOrder, runs * runlen,</span>
+<span class="lineNum">     242 </span><span class="lineCov">        197 :                   buffer);</span>
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span><span class="lineCov">        197 :         runs++;</span>
+<span class="lineNum">     245 </span>            :         // Empty inputPagesForRun
+<span class="lineNum">     246 </span><span class="lineCov">        197 :         inputPagesForRun.clear();</span>
+<span class="lineNum">     247 </span>            :         // Continue to accept records till the pipe is open
+<span class="lineNum">     248 </span><span class="lineCov">        197 :       }</span>
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span>            :       // Append temp to the new Page so as not to lose temp
+<span class="lineNum">     251 </span><span class="lineCov">        686 :       buffer-&gt;Append(temp);</span>
+<span class="lineNum">     252 </span><span class="lineCov">        686 :     }</span>
+<span class="lineNum">     253 </span>            :   }
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span>            :   // Last Run
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span>            :   // Are there any records in buffer?
+<span class="lineNum">     258 </span>            :   // Sort the page and put it in the vector
+<span class="lineNum">     259 </span><span class="lineCov">         16 :   if (buffer-&gt;GetNumRecords() &gt; 0) {</span>
+<span class="lineNum">     260 </span><span class="lineCov">          7 :     buffer-&gt;Sort(sortOrder);</span>
+<span class="lineNum">     261 </span><span class="lineCov">          7 :     inputPagesForRun.push_back(buffer);</span>
+<span class="lineNum">     262 </span><span class="lineCov">          7 :   }</span>
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span>            :   // Are there any pages in inputPagesForRun?
+<span class="lineNum">     265 </span>            :   // Run phase 1 for the last run
+<span class="lineNum">     266 </span><span class="lineCov">          8 :   if (inputPagesForRun.size() &gt; 0) {</span>
+<span class="lineNum">     267 </span><span class="lineCov">         14 :     CreateRun(inputPagesForRun, inputPagesForRun.size(), runFile, sortOrder,</span>
+<span class="lineNum">     268 </span><span class="lineCov">          7 :               runs * runlen, buffer);</span>
+<span class="lineNum">     269 </span><span class="lineCov">          7 :     runs++;</span>
+<span class="lineNum">     270 </span><span class="lineCov">          7 :     inputPagesForRun.clear();</span>
+<span class="lineNum">     271 </span><span class="lineCov">          7 :   }</span>
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span><span class="lineCov">         32 :   std::cout &lt;&lt; &quot;Merging and Streaming &quot; &lt;&lt; runs &lt;&lt; &quot; runs&quot; &lt;&lt; std::endl;</span>
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span>            :   // Ready for phase 2
+<span class="lineNum">     276 </span>            :   // Run Phase 2
+<span class="lineNum">     277 </span><span class="lineCov">          7 :   StreamKSortedRuns(runFile, runs, runlen, sortOrder, out);</span>
+<span class="lineNum">     278 </span>            :   // Done with phase 2
+<span class="lineNum">     279 </span>            : 
+<span class="lineNum">     280 </span>            :   // CleanUp
+<span class="lineNum">     281 </span><span class="lineCov">          7 :   remove(&quot;runFile.bin&quot;);</span>
+<span class="lineNum">     282 </span><span class="lineCov">          7 :   out-&gt;ShutDown();</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :   pthread_exit(NULL);</span>
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span>            : // read data from in pipe sort them into runlen pages
+<span class="lineNum">     287 </span>            : // construct priority queue over sorted runs and dump sorted data
+<a name="288"><span class="lineNum">     288 </span>            : // into the out pipe</a>
+<span class="lineNum">     289 </span>            : // finally shut down the out pipe
+<span class="lineNum">     290 </span><span class="lineCov">          9 : BigQ ::BigQ(Pipe &amp;in, Pipe &amp;out, OrderMaker &amp;sortorder, int runlen) {</span>
+<span class="lineNum">     291 </span><span class="lineCov">          9 :   pthread_t threadid;</span>
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span>            :   // The worker thread is detached from the main thread
+<span class="lineNum">     294 </span>            :   // We do not expect the worker thread to join
+<span class="lineNum">     295 </span>            :   // The caller should be expected the sorted records to appear on out and
+<span class="lineNum">     296 </span>            :   // not terminate
+<span class="lineNum">     297 </span><span class="lineCov">          9 :   pthread_attr_t attr;</span>
+<span class="lineNum">     298 </span><span class="lineCov">          9 :   if (pthread_attr_init(&amp;attr) == 0) {</span>
+<span class="lineNum">     299 </span><span class="lineCov">          9 :     if (pthread_attr_setdetachstate(&amp;attr, PTHREAD_CREATE_DETACHED) == 0) {</span>
+<span class="lineNum">     300 </span><span class="lineCov">          9 :     } else {</span>
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :       throw runtime_error(&quot;Error spawning BigQ worker&quot;);</span>
+<span class="lineNum">     302 </span>            :     }
+<span class="lineNum">     303 </span><span class="lineCov">          9 :   } else {</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :     throw runtime_error(&quot;Error spawning BigQ worker&quot;);</span>
+<span class="lineNum">     305 </span>            :   }
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span><span class="lineCov">          9 :   thread_data.in = &amp;in;</span>
+<span class="lineNum">     308 </span><span class="lineCov">          9 :   thread_data.out = &amp;out;</span>
+<span class="lineNum">     309 </span><span class="lineCov">          9 :   thread_data.runlen = runlen;</span>
+<span class="lineNum">     310 </span><span class="lineCov">          9 :   thread_data.sortOrder = sortorder;</span>
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span><span class="lineCov">          9 :   pthread_create(&amp;threadid, &amp;attr, WorkerThreadRoutine, (void *)&amp;thread_data);</span>
+<a name="313"><span class="lineNum">     313 </span><span class="lineCov">         18 : }</span></a>
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span><span class="lineCov">         18 : BigQ::~BigQ() {}</span>
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span>            : /* Set custom stack size for a thread */
+<span class="lineNum">     318 </span>            : // #define NTHREADS 4
+<span class="lineNum">     319 </span>            : // #define N 1000
+<span class="lineNum">     320 </span>            : // #define MEGEXTRA 1000000
+<span class="lineNum">     321 </span>            : // size_t stacksize;
+<span class="lineNum">     322 </span>            : // pthread_attr_getstacksize(&amp;attr, &amp;stacksize);
+<span class="lineNum">     323 </span>            : // printf(&quot;Default stack size = %li\n&quot;, stacksize);
+<span class="lineNum">     324 </span>            : // stacksize = sizeof(double) * N * N + MEGEXTRA;
+<span class="lineNum">     325 </span>            : // printf(&quot;Amount of stack needed per thread = %li\n&quot;, stacksize);
+<span class="lineNum">     326 </span>            : // pthread_attr_setstacksize(&amp;attr, stacksize);
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

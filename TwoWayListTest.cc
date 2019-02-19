@@ -7,6 +7,21 @@ namespace dbi {
 
 // The fixture for testing class TwoWayList.
 class TwoWayListTest : public ::testing::Test {
+ public:
+  static void SetUpTestSuite() {
+    DBFile *heapFile = new DBFile();
+    fType t = heap;
+    heapFile->Create("gtest.bin", t, NULL);
+    Schema mySchema("catalog", "lineitem");
+    heapFile->Load(mySchema, "data_files/lineitem.tbl");
+    heapFile->Close();
+  }
+
+  static void TearDownTestSuite() {
+    remove("gtest.bin");
+    remove("gtest.header");
+  }
+
  protected:
   // You can remove any or all of the following functions if its body
   // is empty.
@@ -190,7 +205,7 @@ TEST_F(TwoWayListTest, SORT_RECORD_USING_A_LAMBDA_DSC) {
   TwoWayList<Record> *myRecs = new (std::nothrow) TwoWayList<Record>;
   // FILE *tableFile = fopen("data_files/lineitem.tbl", "r");
   DBFile dbFile;
-  dbFile.Open("lineitem.bin");
+  dbFile.Open("gtest.bin");
 
   // Record *temp = new Record();
   Record temp;

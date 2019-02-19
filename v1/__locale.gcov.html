@@ -31,18 +31,18 @@
             <td class="headerValue">P1.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">2</td>
-            <td class="headerCovTableEntry">2</td>
-            <td class="headerCovTableEntryHi">100.0 %</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryLo">55.6 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 18:28:20</td>
+            <td class="headerValue">2019-02-18 20:57:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">2</td>
-            <td class="headerCovTableEntry">2</td>
-            <td class="headerCovTableEntryHi">100.0 %</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryLo">60.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -285,11 +285,11 @@
 <span class="lineNum">     223 </span>            : }
 <span class="lineNum">     224 </span>            : 
 <span class="lineNum">     225 </span>            : template &lt;class _Facet&gt;
-<span class="lineNum">     226 </span>            : inline _LIBCPP_INLINE_VISIBILITY
+<a name="226"><span class="lineNum">     226 </span>            : inline _LIBCPP_INLINE_VISIBILITY</a>
 <span class="lineNum">     227 </span>            : bool
 <span class="lineNum">     228 </span>            : has_facet(const locale&amp; __l)  _NOEXCEPT
 <span class="lineNum">     229 </span>            : {
-<span class="lineNum">     230 </span>            :     return __l.has_facet(_Facet::id);
+<span class="lineNum">     230 </span><span class="lineCov">          4 :     return __l.has_facet(_Facet::id);</span>
 <span class="lineNum">     231 </span>            : }
 <span class="lineNum">     232 </span>            : 
 <span class="lineNum">     233 </span>            : template &lt;class _Facet&gt;
@@ -297,7 +297,7 @@
 <span class="lineNum">     235 </span>            : const _Facet&amp;
 <span class="lineNum">     236 </span>            : use_facet(const locale&amp; __l)
 <span class="lineNum">     237 </span>            : {
-<span class="lineNum">     238 </span><span class="lineCov">        114 :     return static_cast&lt;const _Facet&amp;&gt;(*__l.use_facet(_Facet::id));</span>
+<span class="lineNum">     238 </span><span class="lineCov">      60284 :     return static_cast&lt;const _Facet&amp;&gt;(*__l.use_facet(_Facet::id));</span>
 <span class="lineNum">     239 </span>            : }
 <span class="lineNum">     240 </span>            : 
 <span class="lineNum">     241 </span>            : // template &lt;class _CharT&gt; class collate;
@@ -712,7 +712,7 @@
 <span class="lineNum">     650 </span>            :     _LIBCPP_ALWAYS_INLINE
 <span class="lineNum">     651 </span>            :     char_type widen(char __c) const
 <span class="lineNum">     652 </span>            :     {
-<span class="lineNum">     653 </span><span class="lineCov">        114 :         return do_widen(__c);</span>
+<span class="lineNum">     653 </span><span class="lineCov">      60282 :         return do_widen(__c);</span>
 <span class="lineNum">     654 </span>            :     }
 <span class="lineNum">     655 </span>            : 
 <span class="lineNum">     656 </span>            :     _LIBCPP_ALWAYS_INLINE
@@ -943,46 +943,46 @@
 <span class="lineNum">     881 </span>            :     _LIBCPP_ALWAYS_INLINE
 <span class="lineNum">     882 </span>            :     explicit codecvt(size_t __refs = 0)
 <span class="lineNum">     883 </span>            :         : locale::facet(__refs) {}
-<span class="lineNum">     884 </span>            : 
+<a name="884"><span class="lineNum">     884 </span>            : </a>
 <span class="lineNum">     885 </span>            :     _LIBCPP_ALWAYS_INLINE
 <span class="lineNum">     886 </span>            :     result out(state_type&amp; __st,
 <span class="lineNum">     887 </span>            :                const intern_type* __frm, const intern_type* __frm_end, const intern_type*&amp; __frm_nxt,
 <span class="lineNum">     888 </span>            :                extern_type* __to, extern_type* __to_end, extern_type*&amp; __to_nxt) const
 <span class="lineNum">     889 </span>            :     {
-<span class="lineNum">     890 </span>            :         return do_out(__st, __frm, __frm_end, __frm_nxt, __to, __to_end, __to_nxt);
+<span class="lineNum">     890 </span><span class="lineNoCov">          0 :         return do_out(__st, __frm, __frm_end, __frm_nxt, __to, __to_end, __to_nxt);</span>
 <span class="lineNum">     891 </span>            :     }
-<span class="lineNum">     892 </span>            : 
+<a name="892"><span class="lineNum">     892 </span>            : </a>
 <span class="lineNum">     893 </span>            :     _LIBCPP_ALWAYS_INLINE
 <span class="lineNum">     894 </span>            :     result unshift(state_type&amp; __st,
 <span class="lineNum">     895 </span>            :                    extern_type* __to, extern_type* __to_end, extern_type*&amp; __to_nxt) const
 <span class="lineNum">     896 </span>            :     {
-<span class="lineNum">     897 </span>            :         return do_unshift(__st, __to, __to_end, __to_nxt);
+<span class="lineNum">     897 </span><span class="lineCov">          1 :         return do_unshift(__st, __to, __to_end, __to_nxt);</span>
 <span class="lineNum">     898 </span>            :     }
-<span class="lineNum">     899 </span>            : 
+<a name="899"><span class="lineNum">     899 </span>            : </a>
 <span class="lineNum">     900 </span>            :     _LIBCPP_ALWAYS_INLINE
 <span class="lineNum">     901 </span>            :     result in(state_type&amp; __st,
 <span class="lineNum">     902 </span>            :               const extern_type* __frm, const extern_type* __frm_end, const extern_type*&amp; __frm_nxt,
 <span class="lineNum">     903 </span>            :               intern_type* __to, intern_type* __to_end, intern_type*&amp; __to_nxt) const
 <span class="lineNum">     904 </span>            :     {
-<span class="lineNum">     905 </span>            :         return do_in(__st, __frm, __frm_end, __frm_nxt, __to, __to_end, __to_nxt);
+<span class="lineNum">     905 </span><span class="lineNoCov">          0 :         return do_in(__st, __frm, __frm_end, __frm_nxt, __to, __to_end, __to_nxt);</span>
 <span class="lineNum">     906 </span>            :     }
-<span class="lineNum">     907 </span>            : 
+<a name="907"><span class="lineNum">     907 </span>            : </a>
 <span class="lineNum">     908 </span>            :     _LIBCPP_ALWAYS_INLINE
 <span class="lineNum">     909 </span>            :     int encoding() const  _NOEXCEPT
 <span class="lineNum">     910 </span>            :     {
-<span class="lineNum">     911 </span>            :         return do_encoding();
+<span class="lineNum">     911 </span><span class="lineNoCov">          0 :         return do_encoding();</span>
 <span class="lineNum">     912 </span>            :     }
-<span class="lineNum">     913 </span>            : 
+<a name="913"><span class="lineNum">     913 </span>            : </a>
 <span class="lineNum">     914 </span>            :     _LIBCPP_ALWAYS_INLINE
 <span class="lineNum">     915 </span>            :     bool always_noconv() const  _NOEXCEPT
 <span class="lineNum">     916 </span>            :     {
-<span class="lineNum">     917 </span>            :         return do_always_noconv();
+<span class="lineNum">     917 </span><span class="lineCov">          2 :         return do_always_noconv();</span>
 <span class="lineNum">     918 </span>            :     }
-<span class="lineNum">     919 </span>            : 
+<a name="919"><span class="lineNum">     919 </span>            : </a>
 <span class="lineNum">     920 </span>            :     _LIBCPP_ALWAYS_INLINE
 <span class="lineNum">     921 </span>            :     int length(state_type&amp; __st, const extern_type* __frm, const extern_type* __end, size_t __mx) const
 <span class="lineNum">     922 </span>            :     {
-<span class="lineNum">     923 </span>            :         return do_length(__st, __frm, __end, __mx);
+<span class="lineNum">     923 </span><span class="lineNoCov">          0 :         return do_length(__st, __frm, __end, __mx);</span>
 <span class="lineNum">     924 </span>            :     }
 <span class="lineNum">     925 </span>            : 
 <span class="lineNum">     926 </span>            :     _LIBCPP_ALWAYS_INLINE

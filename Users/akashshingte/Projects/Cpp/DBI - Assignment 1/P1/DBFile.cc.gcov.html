@@ -31,13 +31,13 @@
             <td class="headerValue">P1.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">188</td>
-            <td class="headerCovTableEntry">201</td>
-            <td class="headerCovTableEntryHi">93.5 %</td>
+            <td class="headerCovTableEntry">202</td>
+            <td class="headerCovTableEntry">220</td>
+            <td class="headerCovTableEntryHi">91.8 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 18:28:20</td>
+            <td class="headerValue">2019-02-18 20:57:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">24</td>
@@ -75,36 +75,36 @@
 <span class="lineNum">      13 </span>            : 
 <a name="14"><span class="lineNum">      14 </span>            : extern struct AndList *final;</a>
 <span class="lineNum">      15 </span>            : 
-<a name="16"><span class="lineNum">      16 </span><span class="lineCov">        124 : DBFile::DBFile() { Instantiate(); }</span></a>
+<a name="16"><span class="lineNum">      16 </span><span class="lineCov">         84 : DBFile::DBFile() { Instantiate(); }</span></a>
 <span class="lineNum">      17 </span>            : 
-<a name="18"><span class="lineNum">      18 </span><span class="lineCov">         63 : DBFile::~DBFile() { delete persistent_file; }</span></a>
+<a name="18"><span class="lineNum">      18 </span><span class="lineCov">         40 : DBFile::~DBFile() { delete persistent_file; }</span></a>
 <span class="lineNum">      19 </span>            : 
 <span class="lineNum">      20 </span>            : int DBFile::Create(const char *f_path, fType f_type, void *startup) {
 <span class="lineNum">      21 </span>            :   try {
 <span class="lineNum">      22 </span>            :     // Set the type of file
-<span class="lineNum">      23 </span><span class="lineCov">         54 :     type = f_type;</span>
-<span class="lineNum">      24 </span><span class="lineCov">         27 :     CheckIfCorrectFileType(type);</span>
+<span class="lineNum">      23 </span><span class="lineCov">         30 :     type = f_type;</span>
+<span class="lineNum">      24 </span><span class="lineCov">         30 :     CheckIfCorrectFileType(type);</span>
 <span class="lineNum">      25 </span>            : 
 <span class="lineNum">      26 </span>            :     // Set file_path for persistent file
-<span class="lineNum">      27 </span><span class="lineCov">         26 :     file_path = f_path;</span>
-<span class="lineNum">      28 </span><span class="lineCov">         26 :     CheckIfFileNameIsValid(f_path);</span>
+<span class="lineNum">      27 </span><span class="lineCov">         29 :     file_path = f_path;</span>
+<span class="lineNum">      28 </span><span class="lineCov">         29 :     CheckIfFileNameIsValid(f_path);</span>
 <span class="lineNum">      29 </span>            : 
 <span class="lineNum">      30 </span>            :     // Open persistent file
-<span class="lineNum">      31 </span><span class="lineCov">         25 :     persistent_file-&gt;Open(0, (char *)file_path);</span>
+<span class="lineNum">      31 </span><span class="lineCov">         28 :     persistent_file-&gt;Open(0, (char *)file_path);</span>
 <span class="lineNum">      32 </span>            : 
 <span class="lineNum">      33 </span>            :     // Set current page index to -1 as no pages exist yet
 <span class="lineNum">      34 </span>            :     // -1 represents an invalid value
-<span class="lineNum">      35 </span><span class="lineCov">         24 :     current_write_page_index = -1;</span>
-<span class="lineNum">      36 </span><span class="lineCov">         24 :     current_read_page_index = -1;</span>
-<span class="lineNum">      37 </span><span class="lineCov">         24 :     current_read_page_offset = -1;</span>
+<span class="lineNum">      35 </span><span class="lineCov">         27 :     current_write_page_index = -1;</span>
+<span class="lineNum">      36 </span><span class="lineCov">         27 :     current_read_page_index = -1;</span>
+<span class="lineNum">      37 </span><span class="lineCov">         27 :     current_read_page_offset = -1;</span>
 <span class="lineNum">      38 </span>            : 
 <span class="lineNum">      39 </span>            :     // Open metadata file
-<span class="lineNum">      40 </span>            :     int file_mode = O_TRUNC | O_RDWR | O_CREAT;
-<span class="lineNum">      41 </span><span class="lineCov">         24 :     metadata_file_descriptor =</span>
-<span class="lineNum">      42 </span><span class="lineCov">         48 :         open(GetMetaDataFileName(file_path), file_mode, S_IRUSR | S_IWUSR);</span>
+<span class="lineNum">      40 </span><span class="lineCov">         27 :     int file_mode = O_TRUNC | O_RDWR | O_CREAT;</span>
+<span class="lineNum">      41 </span><span class="lineCov">         27 :     metadata_file_descriptor =</span>
+<span class="lineNum">      42 </span><span class="lineCov">         54 :         open(GetMetaDataFileName(file_path), file_mode, S_IRUSR | S_IWUSR);</span>
 <span class="lineNum">      43 </span>            : 
 <span class="lineNum">      44 </span>            :     // Check if the metadata file has opened
-<span class="lineNum">      45 </span><span class="lineCov">         24 :     if (metadata_file_descriptor &lt; 0) {</span>
+<span class="lineNum">      45 </span><span class="lineCov">         27 :     if (metadata_file_descriptor &lt; 0) {</span>
 <span class="lineNum">      46 </span><span class="lineNoCov">          0 :       string err(&quot;Error creating metadata file for &quot;);</span>
 <span class="lineNum">      47 </span><span class="lineNoCov">          0 :       err += file_path;</span>
 <span class="lineNum">      48 </span><span class="lineNoCov">          0 :       err += &quot;\n&quot;;</span>
@@ -113,38 +113,38 @@
 <span class="lineNum">      51 </span>            : 
 <span class="lineNum">      52 </span>            :     // Write metadata variables
 <span class="lineNum">      53 </span>            :     // Write current_page_index to meta data file
-<span class="lineNum">      54 </span><span class="lineCov">         24 :     lseek(metadata_file_descriptor, 0, SEEK_SET);</span>
-<span class="lineNum">      55 </span><span class="lineCov">         24 :     write(metadata_file_descriptor, &amp;type, sizeof(fType));</span>
-<span class="lineNum">      56 </span><span class="lineCov">         24 :     write(metadata_file_descriptor, &amp;current_write_page_index, sizeof(off_t));</span>
+<span class="lineNum">      54 </span><span class="lineCov">         27 :     lseek(metadata_file_descriptor, 0, SEEK_SET);</span>
+<span class="lineNum">      55 </span><span class="lineCov">         27 :     write(metadata_file_descriptor, &amp;type, sizeof(fType));</span>
+<span class="lineNum">      56 </span><span class="lineCov">         27 :     write(metadata_file_descriptor, &amp;current_write_page_index, sizeof(off_t));</span>
 <span class="lineNum">      57 </span>            : 
 <span class="lineNum">      58 </span>            :     // No exception occured
-<span class="lineNum">      59 </span><span class="lineCov">         24 :     is_open = true;</span>
-<span class="lineNum">      60 </span><span class="lineCov">         24 :     mode = idle;</span>
-<span class="lineNum">      61 </span>            :     return 1;
-<span class="lineNum">      62 </span><span class="lineCov">          3 :   } catch (runtime_error &amp;e) {</span>
+<span class="lineNum">      59 </span><span class="lineCov">         27 :     is_open = true;</span>
+<span class="lineNum">      60 </span><span class="lineCov">         27 :     mode = idle;</span>
+<span class="lineNum">      61 </span><span class="lineCov">         27 :     return 1;</span>
+<span class="lineNum">      62 </span><span class="lineCov">         30 :   } catch (runtime_error &amp;e) {</span>
 <span class="lineNum">      63 </span><span class="lineCov">          6 :     cerr &lt;&lt; e.what() &lt;&lt; endl;</span>
-<span class="lineNum">      64 </span>            :     return 0;
+<span class="lineNum">      64 </span><span class="lineCov">          3 :     return 0;</span>
 <span class="lineNum">      65 </span><span class="lineCov">          3 :   } catch (...) {</span>
-<span class="lineNum">      66 </span>            :     return 0;
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :     return 0;</span>
 <span class="lineNum">      67 </span><span class="lineCov">          3 :   }</span>
 <a name="68"><span class="lineNum">      68 </span><span class="lineCov">         33 : }</span></a>
 <span class="lineNum">      69 </span>            : 
 <span class="lineNum">      70 </span>            : int DBFile::Open(const char *f_path) {
 <span class="lineNum">      71 </span>            :   try {
 <span class="lineNum">      72 </span>            :     // Set the file_path for persistent file
-<span class="lineNum">      73 </span><span class="lineCov">         10 :     file_path = f_path;</span>
-<span class="lineNum">      74 </span><span class="lineCov">          5 :     CheckIfFileNameIsValid(f_path);</span>
+<span class="lineNum">      73 </span><span class="lineCov">         13 :     file_path = f_path;</span>
+<span class="lineNum">      74 </span><span class="lineCov">         13 :     CheckIfFileNameIsValid(f_path);</span>
 <span class="lineNum">      75 </span>            : 
 <span class="lineNum">      76 </span>            :     // Open persistent file
-<span class="lineNum">      77 </span><span class="lineCov">          4 :     persistent_file-&gt;Open(1, (char *)file_path);</span>
+<span class="lineNum">      77 </span><span class="lineCov">         12 :     persistent_file-&gt;Open(1, (char *)file_path);</span>
 <span class="lineNum">      78 </span>            : 
 <span class="lineNum">      79 </span>            :     // Open metadata file
-<span class="lineNum">      80 </span>            :     int file_mode = O_RDWR;
-<span class="lineNum">      81 </span><span class="lineCov">          3 :     metadata_file_descriptor =</span>
-<span class="lineNum">      82 </span><span class="lineCov">          6 :         open(GetMetaDataFileName(file_path), file_mode, S_IRUSR | S_IWUSR);</span>
+<span class="lineNum">      80 </span><span class="lineCov">         11 :     int file_mode = O_RDWR;</span>
+<span class="lineNum">      81 </span><span class="lineCov">         11 :     metadata_file_descriptor =</span>
+<span class="lineNum">      82 </span><span class="lineCov">         22 :         open(GetMetaDataFileName(file_path), file_mode, S_IRUSR | S_IWUSR);</span>
 <span class="lineNum">      83 </span>            : 
 <span class="lineNum">      84 </span>            :     // Check if the metadata file exists
-<span class="lineNum">      85 </span><span class="lineCov">          3 :     if (metadata_file_descriptor &lt; 0) {</span>
+<span class="lineNum">      85 </span><span class="lineCov">         11 :     if (metadata_file_descriptor &lt; 0) {</span>
 <span class="lineNum">      86 </span><span class="lineCov">          1 :       string err(&quot;Metadata file for &quot;);</span>
 <span class="lineNum">      87 </span><span class="lineCov">          1 :       err += file_path;</span>
 <span class="lineNum">      88 </span><span class="lineCov">          1 :       err += &quot; does not exist\n&quot;;</span>
@@ -152,56 +152,56 @@
 <span class="lineNum">      90 </span><span class="lineCov">          2 :     }</span>
 <span class="lineNum">      91 </span>            : 
 <span class="lineNum">      92 </span>            :     // Read the current_page_index from metadata file
-<span class="lineNum">      93 </span><span class="lineCov">          2 :     lseek(metadata_file_descriptor, 0, SEEK_SET);</span>
+<span class="lineNum">      93 </span><span class="lineCov">         10 :     lseek(metadata_file_descriptor, 0, SEEK_SET);</span>
 <span class="lineNum">      94 </span>            : 
 <span class="lineNum">      95 </span>            :     // Initialize variables from meta data file
 <span class="lineNum">      96 </span>            :     // Current Meta Data variables  -&gt;
-<span class="lineNum">      97 </span><span class="lineCov">          2 :     read(metadata_file_descriptor, &amp;type, sizeof(fType));</span>
-<span class="lineNum">      98 </span><span class="lineCov">          2 :     CheckIfCorrectFileType(type);</span>
-<span class="lineNum">      99 </span><span class="lineCov">          1 :     is_open = true;</span>
+<span class="lineNum">      97 </span><span class="lineCov">         10 :     read(metadata_file_descriptor, &amp;type, sizeof(fType));</span>
+<span class="lineNum">      98 </span><span class="lineCov">         10 :     CheckIfCorrectFileType(type);</span>
+<span class="lineNum">      99 </span><span class="lineCov">          9 :     is_open = true;</span>
 <span class="lineNum">     100 </span>            :     // It is a heap file
-<span class="lineNum">     101 </span><span class="lineCov">          1 :     switch (type) {</span>
+<span class="lineNum">     101 </span><span class="lineCov">          9 :     switch (type) {</span>
 <span class="lineNum">     102 </span>            :       case heap:
 <span class="lineNum">     103 </span>            :         // Read the current_write_page_index from metadata file and set the
 <span class="lineNum">     104 </span>            :         // instance variable
-<span class="lineNum">     105 </span><span class="lineCov">          1 :         read(metadata_file_descriptor, &amp;current_write_page_index,</span>
+<span class="lineNum">     105 </span><span class="lineCov">          9 :         read(metadata_file_descriptor, &amp;current_write_page_index,</span>
 <span class="lineNum">     106 </span>            :              sizeof(off_t));
-<span class="lineNum">     107 </span><span class="lineCov">          1 :         MoveFirst();</span>
-<span class="lineNum">     108 </span>            :         break;
+<span class="lineNum">     107 </span><span class="lineCov">          9 :         MoveFirst();</span>
+<span class="lineNum">     108 </span><span class="lineCov">          9 :         break;</span>
 <span class="lineNum">     109 </span>            : 
 <span class="lineNum">     110 </span>            :       case sorted:
-<span class="lineNum">     111 </span>            :         break;
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :         break;</span>
 <span class="lineNum">     112 </span>            : 
 <span class="lineNum">     113 </span>            :       case tree:
-<span class="lineNum">     114 </span>            :         break;
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :         break;</span>
 <span class="lineNum">     115 </span>            :     }
 <span class="lineNum">     116 </span>            :     // No exception occured
-<span class="lineNum">     117 </span>            :     return 1;
-<span class="lineNum">     118 </span><span class="lineCov">          6 :   } catch (runtime_error &amp;e) {</span>
+<span class="lineNum">     117 </span><span class="lineCov">          9 :     return 1;</span>
+<span class="lineNum">     118 </span><span class="lineCov">         15 :   } catch (runtime_error &amp;e) {</span>
 <span class="lineNum">     119 </span><span class="lineCov">          8 :     cerr &lt;&lt; e.what() &lt;&lt; endl;</span>
-<span class="lineNum">     120 </span>            :     return 0;
+<span class="lineNum">     120 </span><span class="lineCov">          4 :     return 0;</span>
 <span class="lineNum">     121 </span><span class="lineCov">          4 :   } catch (...) {</span>
-<span class="lineNum">     122 </span>            :     return 0;
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :     return 0;</span>
 <span class="lineNum">     123 </span><span class="lineCov">          4 :   }</span>
 <a name="124"><span class="lineNum">     124 </span><span class="lineCov">         17 : }</span></a>
 <span class="lineNum">     125 </span>            : 
 <span class="lineNum">     126 </span>            : void DBFile::MoveFirst() {
-<span class="lineNum">     127 </span><span class="lineCov">         11 :   CheckIfFilePresent();</span>
-<span class="lineNum">     128 </span><span class="lineCov">          5 :   if (current_write_page_index &gt;= 0) {</span>
+<span class="lineNum">     127 </span><span class="lineCov">         20 :   CheckIfFilePresent();</span>
+<span class="lineNum">     128 </span><span class="lineCov">         20 :   if (current_write_page_index &gt;= 0) {</span>
 <span class="lineNum">     129 </span>            :     // Set current_read_page_index
-<span class="lineNum">     130 </span><span class="lineCov">          3 :     current_read_page_index = -1;</span>
-<span class="lineNum">     131 </span>            :     int num_records = 0;
-<span class="lineNum">     132 </span><span class="lineCov">         15 :     while (num_records &lt;= 0 &amp;&amp;</span>
-<span class="lineNum">     133 </span><span class="lineCov">          3 :            current_read_page_index &lt;= current_write_page_index) {</span>
-<span class="lineNum">     134 </span><span class="lineCov">          3 :       current_read_page_index++;</span>
-<span class="lineNum">     135 </span><span class="lineCov">          3 :       Page *check_page = new Page();</span>
-<span class="lineNum">     136 </span><span class="lineCov">          3 :       persistent_file-&gt;GetPage(check_page, current_read_page_index);</span>
-<span class="lineNum">     137 </span><span class="lineCov">          3 :       num_records = check_page-&gt;GetNumRecords();</span>
-<span class="lineNum">     138 </span>            :     }
+<span class="lineNum">     130 </span><span class="lineCov">         18 :     current_read_page_index = -1;</span>
+<span class="lineNum">     131 </span><span class="lineCov">         18 :     int num_records = 0;</span>
+<span class="lineNum">     132 </span><span class="lineCov">        108 :     while (num_records &lt;= 0 &amp;&amp;</span>
+<span class="lineNum">     133 </span><span class="lineCov">         18 :            current_read_page_index &lt;= current_write_page_index) {</span>
+<span class="lineNum">     134 </span><span class="lineCov">         18 :       current_read_page_index++;</span>
+<span class="lineNum">     135 </span><span class="lineCov">         36 :       Page *check_page = new Page();</span>
+<span class="lineNum">     136 </span><span class="lineCov">         18 :       persistent_file-&gt;GetPage(check_page, current_read_page_index);</span>
+<span class="lineNum">     137 </span><span class="lineCov">         18 :       num_records = check_page-&gt;GetNumRecords();</span>
+<span class="lineNum">     138 </span><span class="lineCov">         18 :     }</span>
 <span class="lineNum">     139 </span>            : 
 <span class="lineNum">     140 </span>            :     // Set other instance variables
-<span class="lineNum">     141 </span><span class="lineCov">          6 :     if (num_records &lt;= 0 ||</span>
-<span class="lineNum">     142 </span><span class="lineCov">          3 :         current_read_page_index &gt; current_write_page_index) {</span>
+<span class="lineNum">     141 </span><span class="lineCov">         36 :     if (num_records &lt;= 0 ||</span>
+<span class="lineNum">     142 </span><span class="lineCov">         18 :         current_read_page_index &gt; current_write_page_index) {</span>
 <span class="lineNum">     143 </span>            :       // None of the pages have records hence resetting the
 <span class="lineNum">     144 </span>            :       // current_write_page_index as well
 <span class="lineNum">     145 </span><span class="lineNoCov">          0 :       current_write_page_index = -1;</span>
@@ -210,220 +210,220 @@
 <span class="lineNum">     148 </span><span class="lineNoCov">          0 :       lseek(metadata_file_descriptor, sizeof(fType), SEEK_SET);</span>
 <span class="lineNum">     149 </span><span class="lineNoCov">          0 :       write(metadata_file_descriptor, &amp;current_write_page_index, sizeof(off_t));</span>
 <span class="lineNum">     150 </span><span class="lineNoCov">          0 :     } else {</span>
-<span class="lineNum">     151 </span><span class="lineCov">          3 :       current_read_page_offset = -1;</span>
+<span class="lineNum">     151 </span><span class="lineCov">         18 :       current_read_page_offset = -1;</span>
 <span class="lineNum">     152 </span>            :     }
-<span class="lineNum">     153 </span><span class="lineCov">          3 :   }</span>
-<a name="154"><span class="lineNum">     154 </span><span class="lineCov">          5 : }</span></a>
+<span class="lineNum">     153 </span><span class="lineCov">         18 :   }</span>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">         20 : }</span></a>
 <span class="lineNum">     155 </span>            : 
 <span class="lineNum">     156 </span>            : int DBFile::Close() {
 <span class="lineNum">     157 </span>            :   try {
-<span class="lineNum">     158 </span><span class="lineCov">         48 :     CheckIfFilePresent();</span>
-<span class="lineNum">     159 </span><span class="lineCov">         23 :     if (dirty) {</span>
-<span class="lineNum">     160 </span><span class="lineCov">          2 :       FlushBuffer();</span>
-<span class="lineNum">     161 </span><span class="lineCov">          2 :       dirty = false;</span>
-<span class="lineNum">     162 </span><span class="lineCov">          2 :     }</span>
+<span class="lineNum">     158 </span><span class="lineCov">         34 :     CheckIfFilePresent();</span>
+<span class="lineNum">     159 </span><span class="lineCov">         33 :     if (dirty) {</span>
+<span class="lineNum">     160 </span><span class="lineCov">          5 :       FlushBuffer();</span>
+<span class="lineNum">     161 </span><span class="lineCov">          5 :       dirty = false;</span>
+<span class="lineNum">     162 </span><span class="lineCov">          5 :     }</span>
 <span class="lineNum">     163 </span>            :     // Close the persistent file
-<span class="lineNum">     164 </span><span class="lineCov">         23 :     persistent_file-&gt;Close();</span>
+<span class="lineNum">     164 </span><span class="lineCov">         33 :     persistent_file-&gt;Close();</span>
 <span class="lineNum">     165 </span>            : 
 <span class="lineNum">     166 </span>            :     // Close the metadata file
-<span class="lineNum">     167 </span><span class="lineCov">         23 :     close(metadata_file_descriptor);</span>
+<span class="lineNum">     167 </span><span class="lineCov">         33 :     close(metadata_file_descriptor);</span>
 <span class="lineNum">     168 </span>            : 
 <span class="lineNum">     169 </span>            :     // Set current_write_page_index to an invalid value
-<span class="lineNum">     170 </span><span class="lineCov">         23 :     current_write_page_index = -1;</span>
+<span class="lineNum">     170 </span><span class="lineCov">         33 :     current_write_page_index = -1;</span>
 <span class="lineNum">     171 </span>            : 
 <span class="lineNum">     172 </span>            :     // Set current_read_page_index to an invalid value
-<span class="lineNum">     173 </span><span class="lineCov">         23 :     current_read_page_index = -1;</span>
+<span class="lineNum">     173 </span><span class="lineCov">         33 :     current_read_page_index = -1;</span>
 <span class="lineNum">     174 </span>            : 
 <span class="lineNum">     175 </span>            :     // Set current_read_page_offset to an invalid value
-<span class="lineNum">     176 </span><span class="lineCov">         23 :     current_read_page_offset = -1;</span>
+<span class="lineNum">     176 </span><span class="lineCov">         33 :     current_read_page_offset = -1;</span>
 <span class="lineNum">     177 </span>            : 
 <span class="lineNum">     178 </span>            :     // Set file path to NULL to indicate the file operations has fininshed
-<span class="lineNum">     179 </span><span class="lineCov">         23 :     file_path = NULL;</span>
+<span class="lineNum">     179 </span><span class="lineCov">         33 :     file_path = NULL;</span>
 <span class="lineNum">     180 </span>            : 
-<span class="lineNum">     181 </span><span class="lineCov">         23 :     return 1;</span>
+<span class="lineNum">     181 </span><span class="lineCov">         33 :     return 1;</span>
 <span class="lineNum">     182 </span><span class="lineCov">          2 :   } catch (runtime_error r) {</span>
 <span class="lineNum">     183 </span><span class="lineCov">          2 :     cerr &lt;&lt; &quot;Trying to close a file which is not opened&quot; &lt;&lt; endl;</span>
-<span class="lineNum">     184 </span>            :     return 0;
+<span class="lineNum">     184 </span><span class="lineCov">          1 :     return 0;</span>
 <span class="lineNum">     185 </span><span class="lineCov">          1 :   } catch (...) {</span>
-<span class="lineNum">     186 </span>            :     return 0;
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :     return 0;</span>
 <span class="lineNum">     187 </span><span class="lineCov">          2 :   }</span>
-<a name="188"><span class="lineNum">     188 </span><span class="lineCov">         25 : }</span></a>
+<a name="188"><span class="lineNum">     188 </span><span class="lineCov">         35 : }</span></a>
 <span class="lineNum">     189 </span>            : 
 <span class="lineNum">     190 </span>            : void DBFile::Load(Schema &amp;f_schema, const char *loadpath) {
-<span class="lineNum">     191 </span><span class="lineCov">         21 :   CheckIfFilePresent();</span>
-<span class="lineNum">     192 </span><span class="lineCov">         10 :   Record *temp = new Record();</span>
-<span class="lineNum">     193 </span><span class="lineCov">         10 :   FILE *table_file = fopen(loadpath, &quot;r&quot;);</span>
+<span class="lineNum">     191 </span><span class="lineCov">         13 :   CheckIfFilePresent();</span>
+<span class="lineNum">     192 </span><span class="lineCov">         26 :   Record *temp = new Record();</span>
+<span class="lineNum">     193 </span><span class="lineCov">         13 :   FILE *table_file = fopen(loadpath, &quot;r&quot;);</span>
 <span class="lineNum">     194 </span>            : 
-<span class="lineNum">     195 </span><span class="lineCov">         10 :   if (table_file == NULL) {</span>
+<span class="lineNum">     195 </span><span class="lineCov">         13 :   if (table_file == NULL) {</span>
 <span class="lineNum">     196 </span><span class="lineCov">          1 :     string err = &quot;Error opening table file for load&quot;;</span>
 <span class="lineNum">     197 </span><span class="lineCov">          1 :     err += loadpath;</span>
 <span class="lineNum">     198 </span><span class="lineCov">          2 :     throw runtime_error(err);</span>
-<span class="lineNum">     199 </span><span class="lineCov">          2 :   }</span>
+<span class="lineNum">     199 </span><span class="lineCov">          1 :   }</span>
 <span class="lineNum">     200 </span>            : 
-<span class="lineNum">     201 </span><span class="lineCov">          9 :   count = 0;</span>
-<span class="lineNum">     202 </span><span class="lineCov">    1083168 :   while (temp-&gt;SuckNextRecord(&amp;f_schema, table_file) == 1) {</span>
-<span class="lineNum">     203 </span><span class="lineCov">     541575 :     if (temp != NULL) {</span>
-<span class="lineNum">     204 </span><span class="lineCov">     541575 :       count++;</span>
-<span class="lineNum">     205 </span><span class="lineCov">     541575 :       Add(*temp);</span>
-<span class="lineNum">     206 </span><span class="lineCov">     541575 :     }</span>
+<span class="lineNum">     201 </span><span class="lineCov">         12 :   count = 0;</span>
+<span class="lineNum">     202 </span><span class="lineCov">    1444224 :   while (temp-&gt;SuckNextRecord(&amp;f_schema, table_file) == 1) {</span>
+<span class="lineNum">     203 </span><span class="lineCov">     722100 :     if (temp != NULL) {</span>
+<span class="lineNum">     204 </span><span class="lineCov">     722100 :       count++;</span>
+<span class="lineNum">     205 </span><span class="lineCov">     722100 :       Add(*temp);</span>
+<span class="lineNum">     206 </span><span class="lineCov">     722100 :     }</span>
 <span class="lineNum">     207 </span>            :   }
-<span class="lineNum">     208 </span><span class="lineCov">          9 :   FlushBuffer();</span>
-<span class="lineNum">     209 </span><span class="lineCov">          9 :   cout &lt;&lt; &quot;Bulk Loaded &quot; &lt;&lt; count &lt;&lt; &quot; records&quot; &lt;&lt; endl;</span>
-<a name="210"><span class="lineNum">     210 </span><span class="lineCov">         13 : }</span></a>
+<span class="lineNum">     208 </span><span class="lineCov">         12 :   FlushBuffer();</span>
+<span class="lineNum">     209 </span><span class="lineCov">         12 :   cout &lt;&lt; &quot;Bulk Loaded &quot; &lt;&lt; count &lt;&lt; &quot; records&quot; &lt;&lt; endl;</span>
+<a name="210"><span class="lineNum">     210 </span><span class="lineCov">         16 : }</span></a>
 <span class="lineNum">     211 </span>            : 
 <span class="lineNum">     212 </span>            : void DBFile::Add(Record &amp;rec) {
-<span class="lineNum">     213 </span><span class="lineCov">    1088034 :   CheckIfFilePresent();</span>
+<span class="lineNum">     213 </span><span class="lineCov">     724542 :   CheckIfFilePresent();</span>
 <span class="lineNum">     214 </span>            :   // If it is not dirty empty out all the records read
-<span class="lineNum">     215 </span><span class="lineCov">     544017 :   if (!dirty) {</span>
-<span class="lineNum">     216 </span><span class="lineCov">         16 :     buffer-&gt;EmptyItOut();</span>
-<span class="lineNum">     217 </span><span class="lineCov">         16 :     mode = writing;</span>
-<span class="lineNum">     218 </span><span class="lineCov">         16 :     dirty = true;</span>
-<span class="lineNum">     219 </span><span class="lineCov">         16 :   }</span>
+<span class="lineNum">     215 </span><span class="lineCov">     724542 :   if (!dirty) {</span>
+<span class="lineNum">     216 </span><span class="lineCov">         19 :     buffer-&gt;EmptyItOut();</span>
+<span class="lineNum">     217 </span><span class="lineCov">         19 :     mode = writing;</span>
+<span class="lineNum">     218 </span><span class="lineCov">         19 :     dirty = true;</span>
+<span class="lineNum">     219 </span><span class="lineCov">         19 :   }</span>
 <span class="lineNum">     220 </span>            : 
 <span class="lineNum">     221 </span>            :   // If The buffer is full: Flush the buffer to persistent storage
 <span class="lineNum">     222 </span>            :   // Else: just append to the buffer and set dirty variable
 <span class="lineNum">     223 </span>            :   // cout &lt;&lt; buffer-&gt;GetNumRecords() &lt;&lt; endl;
-<span class="lineNum">     224 </span><span class="lineCov">     544017 :   if (buffer-&gt;Append(&amp;rec) == 0) {</span>
-<span class="lineNum">     225 </span><span class="lineCov">        885 :     FlushBuffer();</span>
-<span class="lineNum">     226 </span><span class="lineCov">        885 :     buffer-&gt;Append(&amp;rec); /* Need to append again as the previous append was</span>
+<span class="lineNum">     224 </span><span class="lineCov">     724542 :   if (buffer-&gt;Append(&amp;rec) == 0) {</span>
+<span class="lineNum">     225 </span><span class="lineCov">       1179 :     FlushBuffer();</span>
+<span class="lineNum">     226 </span><span class="lineCov">       1179 :     buffer-&gt;Append(&amp;rec); /* Need to append again as the previous append was</span>
 <span class="lineNum">     227 </span>            :                              unsuccessful */
-<span class="lineNum">     228 </span><span class="lineCov">        885 :   }</span>
-<a name="229"><span class="lineNum">     229 </span><span class="lineCov">     544017 : }</span></a>
+<span class="lineNum">     228 </span><span class="lineCov">       1179 :   }</span>
+<a name="229"><span class="lineNum">     229 </span><span class="lineCov">     724542 : }</span></a>
 <span class="lineNum">     230 </span>            : 
 <span class="lineNum">     231 </span>            : void DBFile::FlushBuffer() {
-<span class="lineNum">     232 </span><span class="lineCov">       1820 :   int prev_write_page_index = current_write_page_index;</span>
+<span class="lineNum">     232 </span><span class="lineCov">       1210 :   int prev_write_page_index = current_write_page_index;</span>
 <span class="lineNum">     233 </span>            : 
-<span class="lineNum">     234 </span><span class="lineCov">        910 :   Page *flush_to_page = new Page();</span>
+<span class="lineNum">     234 </span><span class="lineCov">       2420 :   Page *flush_to_page = new Page();</span>
 <span class="lineNum">     235 </span>            :   // Check if any pages have been alloted before
-<span class="lineNum">     236 </span><span class="lineCov">        910 :   if (current_write_page_index &lt; 0) {</span>
+<span class="lineNum">     236 </span><span class="lineCov">       1210 :   if (current_write_page_index &lt; 0) {</span>
 <span class="lineNum">     237 </span>            :     // No pages have been alloted before
 <span class="lineNum">     238 </span>            :     // This is the first page
-<span class="lineNum">     239 </span><span class="lineCov">         15 :     current_write_page_index++;</span>
+<span class="lineNum">     239 </span><span class="lineCov">         18 :     current_write_page_index++;</span>
 <span class="lineNum">     240 </span>            : 
 <span class="lineNum">     241 </span>            :     // Set read page and read index
-<span class="lineNum">     242 </span><span class="lineCov">         15 :     current_read_page_index = current_write_page_index;</span>
-<span class="lineNum">     243 </span><span class="lineCov">         15 :     current_read_page_offset = -1;</span>
-<span class="lineNum">     244 </span><span class="lineCov">         15 :   } else {</span>
+<span class="lineNum">     242 </span><span class="lineCov">         18 :     current_read_page_index = current_write_page_index;</span>
+<span class="lineNum">     243 </span><span class="lineCov">         18 :     current_read_page_offset = -1;</span>
+<span class="lineNum">     244 </span><span class="lineCov">         18 :   } else {</span>
 <span class="lineNum">     245 </span>            :     // Pages have been alloted; Check if last page has space
-<span class="lineNum">     246 </span><span class="lineCov">        895 :     persistent_file-&gt;GetPage(flush_to_page, current_write_page_index);</span>
+<span class="lineNum">     246 </span><span class="lineCov">       1192 :     persistent_file-&gt;GetPage(flush_to_page, current_write_page_index);</span>
 <span class="lineNum">     247 </span>            :   }
 <span class="lineNum">     248 </span>            : 
 <span class="lineNum">     249 </span>            :   // Flush buffer to pages till the buffer is empty
 <span class="lineNum">     250 </span>            :   // The file page size may be smaller than the buffer page size hence
 <span class="lineNum">     251 </span>            :   // The entire buffer may not fit on the page
-<span class="lineNum">     252 </span>            :   bool empty_flush_to_page_flag = false;
-<span class="lineNum">     253 </span><span class="lineCov">       3590 :   while (CopyBufferToPage(buffer, flush_to_page, empty_flush_to_page_flag) ==</span>
+<span class="lineNum">     252 </span><span class="lineCov">       1210 :   bool empty_flush_to_page_flag = false;</span>
+<span class="lineNum">     253 </span><span class="lineCov">       4778 :   while (CopyBufferToPage(buffer, flush_to_page, empty_flush_to_page_flag) ==</span>
 <span class="lineNum">     254 </span>            :          0) {
-<span class="lineNum">     255 </span>            :     persistent_file-&gt;AddPage(flush_to_page, current_write_page_index);
-<span class="lineNum">     256 </span><span class="lineCov">        885 :     current_write_page_index++;</span>
-<span class="lineNum">     257 </span>            :     empty_flush_to_page_flag = true;
+<span class="lineNum">     255 </span><span class="lineCov">       1179 :     persistent_file-&gt;AddPage(flush_to_page, current_write_page_index);</span>
+<span class="lineNum">     256 </span><span class="lineCov">       1179 :     current_write_page_index++;</span>
+<span class="lineNum">     257 </span><span class="lineCov">       1179 :     empty_flush_to_page_flag = true;</span>
 <span class="lineNum">     258 </span>            :   }
 <span class="lineNum">     259 </span>            : 
-<span class="lineNum">     260 </span>            :   persistent_file-&gt;AddPage(flush_to_page, current_write_page_index);
+<span class="lineNum">     260 </span><span class="lineCov">       1210 :   persistent_file-&gt;AddPage(flush_to_page, current_write_page_index);</span>
 <span class="lineNum">     261 </span>            :   // If new page(s) was required
-<span class="lineNum">     262 </span><span class="lineCov">        910 :   if (prev_write_page_index != current_write_page_index) {</span>
+<span class="lineNum">     262 </span><span class="lineCov">       1210 :   if (prev_write_page_index != current_write_page_index) {</span>
 <span class="lineNum">     263 </span>            :     // Update the metadata for the file
-<span class="lineNum">     264 </span><span class="lineCov">        900 :     lseek(metadata_file_descriptor, sizeof(fType), SEEK_SET);</span>
-<span class="lineNum">     265 </span><span class="lineCov">        900 :     write(metadata_file_descriptor, &amp;current_write_page_index, sizeof(off_t));</span>
-<span class="lineNum">     266 </span><span class="lineCov">        900 :   }</span>
-<a name="267"><span class="lineNum">     267 </span><span class="lineCov">        910 : }</span></a>
+<span class="lineNum">     264 </span><span class="lineCov">       1197 :     lseek(metadata_file_descriptor, sizeof(fType), SEEK_SET);</span>
+<span class="lineNum">     265 </span><span class="lineCov">       1197 :     write(metadata_file_descriptor, &amp;current_write_page_index, sizeof(off_t));</span>
+<span class="lineNum">     266 </span><span class="lineCov">       1197 :   }</span>
+<a name="267"><span class="lineNum">     267 </span><span class="lineCov">       1210 : }</span></a>
 <span class="lineNum">     268 </span>            : 
 <span class="lineNum">     269 </span>            : int DBFile::CopyBufferToPage(Page *buffer, Page *flush_to_page,
 <span class="lineNum">     270 </span>            :                              bool empty_flush_to_page_flag) {
 <span class="lineNum">     271 </span>            :   // Is it a new page and hence previous flush has already been written to file
-<span class="lineNum">     272 </span><span class="lineCov">       1795 :   if (empty_flush_to_page_flag) {</span>
-<span class="lineNum">     273 </span><span class="lineCov">        885 :     flush_to_page-&gt;EmptyItOut();</span>
-<span class="lineNum">     274 </span><span class="lineCov">        885 :   }</span>
+<span class="lineNum">     272 </span><span class="lineCov">       2389 :   if (empty_flush_to_page_flag) {</span>
+<span class="lineNum">     273 </span><span class="lineCov">       1179 :     flush_to_page-&gt;EmptyItOut();</span>
+<span class="lineNum">     274 </span><span class="lineCov">       1179 :   }</span>
 <span class="lineNum">     275 </span>            : 
-<span class="lineNum">     276 </span><span class="lineCov">       1795 :   Record to_be_copied;</span>
-<span class="lineNum">     277 </span><span class="lineCov">    1637436 :   while (buffer-&gt;GetFirst(&amp;to_be_copied) != 0) {</span>
-<span class="lineNum">     278 </span><span class="lineCov">    1089804 :     if (flush_to_page-&gt;Append(&amp;to_be_copied) == 0) {</span>
-<span class="lineNum">     279 </span><span class="lineCov">        885 :       buffer-&gt;Append(</span>
+<span class="lineNum">     276 </span><span class="lineCov">       2389 :   Record to_be_copied;</span>
+<span class="lineNum">     277 </span><span class="lineCov">    2180793 :   while (buffer-&gt;GetFirst(&amp;to_be_copied) != 0) {</span>
+<span class="lineNum">     278 </span><span class="lineCov">    1451442 :     if (flush_to_page-&gt;Append(&amp;to_be_copied) == 0) {</span>
+<span class="lineNum">     279 </span><span class="lineCov">       1179 :       buffer-&gt;Append(</span>
 <span class="lineNum">     280 </span>            :           &amp;to_be_copied); /* Need to append again to the buffer as the
 <span class="lineNum">     281 </span>            :                              GetFirst() will remove the record from buffer */
-<span class="lineNum">     282 </span><span class="lineCov">        885 :       return 0;</span>
+<span class="lineNum">     282 </span><span class="lineCov">       1179 :       return 0;</span>
 <span class="lineNum">     283 </span>            :     }
 <span class="lineNum">     284 </span>            :   }
-<span class="lineNum">     285 </span><span class="lineCov">        910 :   return 1;</span>
-<a name="286"><span class="lineNum">     286 </span><span class="lineCov">       1795 : }</span></a>
+<span class="lineNum">     285 </span><span class="lineCov">       1210 :   return 1;</span>
+<a name="286"><span class="lineNum">     286 </span><span class="lineCov">       2389 : }</span></a>
 <span class="lineNum">     287 </span>            : 
 <span class="lineNum">     288 </span>            : int DBFile::GetNext(Record &amp;fetchme) {
-<span class="lineNum">     289 </span><span class="lineCov">     366022 :   CheckIfFilePresent();</span>
+<span class="lineNum">     289 </span><span class="lineCov">     604253 :   CheckIfFilePresent();</span>
 <span class="lineNum">     290 </span>            :   // If the buffer is dirty the records are to be written out to file before
 <span class="lineNum">     291 </span>            :   // being read
-<span class="lineNum">     292 </span><span class="lineCov">     183011 :   if (dirty) {</span>
+<span class="lineNum">     292 </span><span class="lineCov">     604253 :   if (dirty) {</span>
 <span class="lineNum">     293 </span><span class="lineCov">         14 :     FlushBuffer();</span>
 <span class="lineNum">     294 </span><span class="lineCov">         14 :     dirty = false;</span>
 <span class="lineNum">     295 </span><span class="lineCov">         14 :   }</span>
 <span class="lineNum">     296 </span>            : 
 <span class="lineNum">     297 </span>            :   // If records in all pages have been read
-<span class="lineNum">     298 </span><span class="lineCov">     366020 :   if (current_read_page_index &lt; 0 ||</span>
-<span class="lineNum">     299 </span><span class="lineCov">     183009 :       current_read_page_index &gt; current_write_page_index) {</span>
+<span class="lineNum">     298 </span><span class="lineCov">    1208504 :   if (current_read_page_index &lt; 0 ||</span>
+<span class="lineNum">     299 </span><span class="lineCov">     604251 :       current_read_page_index &gt; current_write_page_index) {</span>
 <span class="lineNum">     300 </span><span class="lineCov">          2 :     return 0;</span>
 <span class="lineNum">     301 </span>            :   }
 <span class="lineNum">     302 </span>            : 
 <span class="lineNum">     303 </span>            :   // Get the Page current_read_page_index from the file
-<span class="lineNum">     304 </span><span class="lineCov">     366004 :   if (mode == writing || mode == idle) {</span>
-<span class="lineNum">     305 </span><span class="lineCov">         14 :     persistent_file-&gt;GetPage(buffer, current_read_page_index);</span>
-<span class="lineNum">     306 </span><span class="lineCov">         14 :     mode = reading;</span>
-<span class="lineNum">     307 </span><span class="lineCov">         14 :   }</span>
+<span class="lineNum">     304 </span><span class="lineCov">    1208488 :   if (mode == writing || mode == idle) {</span>
+<span class="lineNum">     305 </span><span class="lineCov">         22 :     persistent_file-&gt;GetPage(buffer, current_read_page_index);</span>
+<span class="lineNum">     306 </span><span class="lineCov">         22 :     mode = reading;</span>
+<span class="lineNum">     307 </span><span class="lineCov">         22 :   }</span>
 <span class="lineNum">     308 </span>            : 
 <span class="lineNum">     309 </span>            :   // Increment to get the next record on the page no `current_read_page_index`
-<span class="lineNum">     310 </span><span class="lineCov">     183009 :   current_read_page_offset++;</span>
+<span class="lineNum">     310 </span><span class="lineCov">     604251 :   current_read_page_offset++;</span>
 <span class="lineNum">     311 </span>            :   // If there are no more records on the page `current_read_page_index` get next
 <span class="lineNum">     312 </span>            :   // page
-<span class="lineNum">     313 </span><span class="lineCov">     366919 :   while (current_read_page_offset &gt;= buffer-&gt;GetNumRecords() &amp;&amp;</span>
-<span class="lineNum">     314 </span><span class="lineCov">        305 :          current_read_page_index &lt;= current_write_page_index) {</span>
-<span class="lineNum">     315 </span><span class="lineCov">        305 :     current_read_page_index++;</span>
+<span class="lineNum">     313 </span><span class="lineCov">    1815705 :   while (current_read_page_offset &gt;= buffer-&gt;GetNumRecords() &amp;&amp;</span>
+<span class="lineNum">     314 </span><span class="lineCov">        998 :          current_read_page_index &lt;= current_write_page_index) {</span>
+<span class="lineNum">     315 </span><span class="lineCov">        998 :     current_read_page_index++;</span>
 <span class="lineNum">     316 </span>            :     // If there are no more pages remaining in the file
 <span class="lineNum">     317 </span>            :     // All records have been read
-<span class="lineNum">     318 </span><span class="lineCov">        305 :     if (current_read_page_index &gt; current_write_page_index) {</span>
-<span class="lineNum">     319 </span><span class="lineCov">          7 :       return 0;</span>
+<span class="lineNum">     318 </span><span class="lineCov">        998 :     if (current_read_page_index &gt; current_write_page_index) {</span>
+<span class="lineNum">     319 </span><span class="lineCov">         14 :       return 0;</span>
 <span class="lineNum">     320 </span>            :     }
-<span class="lineNum">     321 </span><span class="lineCov">        298 :     current_read_page_offset = 0;</span>
-<span class="lineNum">     322 </span><span class="lineCov">        298 :     persistent_file-&gt;GetPage(buffer, current_read_page_index);</span>
+<span class="lineNum">     321 </span><span class="lineCov">        984 :     current_read_page_offset = 0;</span>
+<span class="lineNum">     322 </span><span class="lineCov">        984 :     persistent_file-&gt;GetPage(buffer, current_read_page_index);</span>
 <span class="lineNum">     323 </span>            :   }
 <span class="lineNum">     324 </span>            : 
 <span class="lineNum">     325 </span>            :   // Read the next record now from appropriate page
-<span class="lineNum">     326 </span><span class="lineCov">     183002 :   buffer-&gt;ReadNext(fetchme, current_read_page_offset);</span>
-<span class="lineNum">     327 </span><span class="lineCov">     183002 :   return 1;</span>
-<a name="328"><span class="lineNum">     328 </span><span class="lineCov">     183011 : }</span></a>
+<span class="lineNum">     326 </span><span class="lineCov">     604237 :   buffer-&gt;ReadNext(fetchme, current_read_page_offset);</span>
+<span class="lineNum">     327 </span><span class="lineCov">     604237 :   return 1;</span>
+<a name="328"><span class="lineNum">     328 </span><span class="lineCov">     604253 : }</span></a>
 <span class="lineNum">     329 </span>            : 
 <span class="lineNum">     330 </span>            : int DBFile::GetNext(Record &amp;fetchme, CNF &amp;cnf, Record &amp;literal) {
-<span class="lineNum">     331 </span><span class="lineCov">      60269 :   while (GetNext(fetchme) != 0) {</span>
+<span class="lineNum">     331 </span><span class="lineCov">      60236 :   while (GetNext(fetchme) != 0) {</span>
 <span class="lineNum">     332 </span><span class="lineCov">      60202 :     ComparisonEngine comp;</span>
 <span class="lineNum">     333 </span><span class="lineCov">      60202 :     if (comp.Compare(&amp;fetchme, &amp;literal, &amp;cnf)) {</span>
 <span class="lineNum">     334 </span><span class="lineCov">         32 :       return 1;</span>
 <span class="lineNum">     335 </span>            :     } else {
 <span class="lineNum">     336 </span><span class="lineCov">      60170 :       continue;</span>
 <span class="lineNum">     337 </span>            :     }
-<span class="lineNum">     338 </span><span class="lineCov">      60202 :   }</span>
+<span class="lineNum">     338 </span><span class="lineCov">      60235 :   }</span>
 <span class="lineNum">     339 </span><span class="lineCov">          1 :   return 0;</span>
 <a name="340"><span class="lineNum">     340 </span><span class="lineCov">         33 : }</span></a>
 <span class="lineNum">     341 </span>            : 
 <span class="lineNum">     342 </span>            : char *DBFile::GetMetaDataFileName(const char *file_path) {
-<span class="lineNum">     343 </span><span class="lineCov">         54 :   string f_path_str(file_path);</span>
-<span class="lineNum">     344 </span><span class="lineCov">         27 :   string metadata_file_extension(&quot;.header&quot;);</span>
-<span class="lineNum">     345 </span><span class="lineCov">         27 :   size_t dot_pos = f_path_str.rfind('.');</span>
-<span class="lineNum">     346 </span><span class="lineCov">         27 :   string metadata_file_name =</span>
-<span class="lineNum">     347 </span><span class="lineCov">        108 :       f_path_str.substr(0, dot_pos) + metadata_file_extension;</span>
-<span class="lineNum">     348 </span><span class="lineCov">         27 :   return (char *)metadata_file_name.c_str();</span>
-<a name="349"><span class="lineNum">     349 </span><span class="lineCov">         81 : }</span></a>
+<span class="lineNum">     343 </span><span class="lineCov">         38 :   string f_path_str(file_path);</span>
+<span class="lineNum">     344 </span><span class="lineCov">         38 :   string metadata_file_extension(&quot;.header&quot;);</span>
+<span class="lineNum">     345 </span><span class="lineCov">         38 :   size_t dot_pos = f_path_str.rfind('.');</span>
+<span class="lineNum">     346 </span><span class="lineCov">         38 :   string metadata_file_name =</span>
+<span class="lineNum">     347 </span><span class="lineCov">        114 :       f_path_str.substr(0, dot_pos) + metadata_file_extension;</span>
+<span class="lineNum">     348 </span><span class="lineCov">         38 :   return (char *)metadata_file_name.c_str();</span>
+<a name="349"><span class="lineNum">     349 </span><span class="lineCov">         38 : }</span></a>
 <span class="lineNum">     350 </span>            : 
 <span class="lineNum">     351 </span>            : void DBFile::CheckIfFilePresent() {
-<span class="lineNum">     352 </span><span class="lineCov">    1454138 :   if (!is_open) {</span>
+<span class="lineNum">     352 </span><span class="lineCov">    1328864 :   if (!is_open) {</span>
 <span class="lineNum">     353 </span><span class="lineCov">          6 :     throw runtime_error(</span>
 <span class="lineNum">     354 </span>            :         &quot;File destination is not open or created, Please create a file or open &quot;
 <span class="lineNum">     355 </span>            :         &quot;an existing one&quot;);
 <span class="lineNum">     356 </span>            :   }
-<a name="357"><span class="lineNum">     357 </span><span class="lineCov">     727066 : }</span></a>
+<a name="357"><span class="lineNum">     357 </span><span class="lineCov">    1328861 : }</span></a>
 <span class="lineNum">     358 </span>            : 
 <span class="lineNum">     359 </span>            : bool DBFile::CheckIfCorrectFileType(fType type) {
-<span class="lineNum">     360 </span><span class="lineCov">         58 :   switch (type) {</span>
+<span class="lineNum">     360 </span><span class="lineCov">         40 :   switch (type) {</span>
 <span class="lineNum">     361 </span>            :     case heap:
 <span class="lineNum">     362 </span>            :     case sorted:
 <span class="lineNum">     363 </span>            :     case tree:
-<span class="lineNum">     364 </span><span class="lineCov">         27 :       return true;</span>
+<span class="lineNum">     364 </span><span class="lineCov">         38 :       return true;</span>
 <span class="lineNum">     365 </span>            :       break;
 <span class="lineNum">     366 </span>            : 
 <span class="lineNum">     367 </span>            :     default:
@@ -434,33 +434,33 @@
 <span class="lineNum">     372 </span>            : 
 <span class="lineNum">     373 </span>            : bool DBFile::CheckIfFileNameIsValid(const char *file_name) {
 <span class="lineNum">     374 </span>            :   // TODO: check for file extension?
-<span class="lineNum">     375 </span><span class="lineCov">         93 :   if (file_name == NULL || *file_name == '\0') {</span>
+<span class="lineNum">     375 </span><span class="lineCov">         84 :   if (file_name == NULL || *file_name == '\0') {</span>
 <span class="lineNum">     376 </span><span class="lineCov">          4 :     throw runtime_error(&quot;File name is invalid&quot;);</span>
 <span class="lineNum">     377 </span>            :   } else {
-<span class="lineNum">     378 </span><span class="lineCov">         29 :     return true;</span>
+<span class="lineNum">     378 </span><span class="lineCov">         40 :     return true;</span>
 <span class="lineNum">     379 </span>            :   }
 <span class="lineNum">     380 </span>            :   return false;
 <a name="381"><span class="lineNum">     381 </span><span class="lineNoCov">          0 : }</span></a>
 <span class="lineNum">     382 </span>            : 
 <span class="lineNum">     383 </span>            : void DBFile::Instantiate() {
-<span class="lineNum">     384 </span><span class="lineCov">         93 :   persistent_file = new File();</span>
-<span class="lineNum">     385 </span><span class="lineCov">         62 :   buffer = new Page();</span>
-<span class="lineNum">     386 </span><span class="lineCov">         31 :   dirty = false;</span>
-<span class="lineNum">     387 </span><span class="lineCov">         31 :   is_open = false;</span>
-<span class="lineNum">     388 </span><span class="lineCov">         31 :   mode = idle;</span>
-<a name="389"><span class="lineNum">     389 </span><span class="lineCov">         31 : }</span></a>
+<span class="lineNum">     384 </span><span class="lineCov">         84 :   persistent_file = new File();</span>
+<span class="lineNum">     385 </span><span class="lineCov">         84 :   buffer = new Page();</span>
+<span class="lineNum">     386 </span><span class="lineCov">         42 :   dirty = false;</span>
+<span class="lineNum">     387 </span><span class="lineCov">         42 :   is_open = false;</span>
+<span class="lineNum">     388 </span><span class="lineCov">         42 :   mode = idle;</span>
+<a name="389"><span class="lineNum">     389 </span><span class="lineCov">         42 : }</span></a>
 <span class="lineNum">     390 </span>            : 
-<a name="391"><span class="lineNum">     391 </span><span class="lineCov">         12 : int DBFile::GetNumRecsInBuffer() { return buffer-&gt;GetNumRecords(); }</span></a>
+<a name="391"><span class="lineNum">     391 </span><span class="lineCov">          6 : int DBFile::GetNumRecsInBuffer() { return buffer-&gt;GetNumRecords(); }</span></a>
 <span class="lineNum">     392 </span>            : 
 <span class="lineNum">     393 </span>            : bool DBFile::WillBufferBeFull(Record &amp;to_be_added) {
-<span class="lineNum">     394 </span><span class="lineCov">       4858 :   return buffer-&gt;IsPageFull(&amp;to_be_added);</span>
+<span class="lineNum">     394 </span><span class="lineCov">       2429 :   return buffer-&gt;IsPageFull(&amp;to_be_added);</span>
 <a name="395"><span class="lineNum">     395 </span>            : }</a>
 <span class="lineNum">     396 </span>            : 
-<a name="397"><span class="lineNum">     397 </span><span class="lineCov">          6 : off_t DBFile::GetNumPagesInFile() { return persistent_file-&gt;GetLength(); }</span></a>
+<a name="397"><span class="lineNum">     397 </span><span class="lineCov">          3 : off_t DBFile::GetNumPagesInFile() { return persistent_file-&gt;GetLength(); }</span></a>
 <span class="lineNum">     398 </span>            : 
-<a name="399"><span class="lineNum">     399 </span><span class="lineCov">          2 : off_t DBFile::GetCurrentReadPageIndex() { return current_read_page_index; }</span></a>
+<a name="399"><span class="lineNum">     399 </span><span class="lineCov">          1 : off_t DBFile::GetCurrentReadPageIndex() { return current_read_page_index; }</span></a>
 <span class="lineNum">     400 </span>            : 
-<span class="lineNum">     401 </span><span class="lineCov">          2 : off_t DBFile::GetCurrentWritePageIndex() { return current_write_page_index; }</span>
+<span class="lineNum">     401 </span><span class="lineCov">          1 : off_t DBFile::GetCurrentWritePageIndex() { return current_write_page_index; }</span>
 </pre>
       </td>
     </tr>

@@ -31,18 +31,18 @@
             <td class="headerValue">P1.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">5</td>
-            <td class="headerCovTableEntry">10</td>
-            <td class="headerCovTableEntryLo">50.0 %</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-02-02 18:28:20</td>
+            <td class="headerValue">2019-02-18 20:57:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">5</td>
-            <td class="headerCovTableEntry">10</td>
-            <td class="headerCovTableEntryLo">50.0 %</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -267,38 +267,38 @@
 <span class="lineNum">     205 </span>            :     typedef mbstate_t state_type;
 <a name="206"><span class="lineNum">     206 </span>            : </a>
 <a name="207"><span class="lineNum">     207 </span>            :     static inline _LIBCPP_CONSTEXPR_AFTER_CXX14</a>
-<span class="lineNum">     208 </span><span class="lineCov">        876 :     void assign(char_type&amp; __c1, const char_type&amp; __c2) _NOEXCEPT {__c1 = __c2;}</span>
+<span class="lineNum">     208 </span><span class="lineCov">      61139 :     void assign(char_type&amp; __c1, const char_type&amp; __c2) _NOEXCEPT {__c1 = __c2;}</span>
 <span class="lineNum">     209 </span>            :     static inline _LIBCPP_CONSTEXPR bool eq(char_type __c1, char_type __c2) _NOEXCEPT
-<span class="lineNum">     210 </span><span class="lineNoCov">          0 :             {return __c1 == __c2;}</span>
+<span class="lineNum">     210 </span><span class="lineCov">    7264250 :             {return __c1 == __c2;}</span>
 <span class="lineNum">     211 </span>            :     static inline _LIBCPP_CONSTEXPR bool lt(char_type __c1, char_type __c2) _NOEXCEPT
 <span class="lineNum">     212 </span>            :         {return (unsigned char)__c1 &lt; (unsigned char)__c2;}
 <span class="lineNum">     213 </span>            : 
 <span class="lineNum">     214 </span>            :     static _LIBCPP_CONSTEXPR_AFTER_CXX14
 <a name="215"><span class="lineNum">     215 </span>            :     int compare(const char_type* __s1, const char_type* __s2, size_t __n) _NOEXCEPT;</a>
 <span class="lineNum">     216 </span>            :     static inline size_t _LIBCPP_CONSTEXPR_AFTER_CXX14
-<span class="lineNum">     217 </span><span class="lineCov">       1666 :     length(const char_type* __s)  _NOEXCEPT {return __builtin_strlen(__s);}</span>
+<span class="lineNum">     217 </span><span class="lineCov">      61369 :     length(const char_type* __s)  _NOEXCEPT {return __builtin_strlen(__s);}</span>
 <span class="lineNum">     218 </span>            :     static _LIBCPP_CONSTEXPR_AFTER_CXX14
 <span class="lineNum">     219 </span>            :     const char_type* find(const char_type* __s, size_t __n, const char_type&amp; __a) _NOEXCEPT;
-<a name="220"><span class="lineNum">     220 </span>            :     static inline char_type* move(char_type* __s1, const char_type* __s2, size_t __n) _NOEXCEPT</a>
+<span class="lineNum">     220 </span>            :     static inline char_type* move(char_type* __s1, const char_type* __s2, size_t __n) _NOEXCEPT
 <span class="lineNum">     221 </span>            :         {return __n == 0 ? __s1 : (char_type*) memmove(__s1, __s2, __n);}
 <span class="lineNum">     222 </span>            :     static inline char_type* copy(char_type* __s1, const char_type* __s2, size_t __n) _NOEXCEPT
 <span class="lineNum">     223 </span>            :         {
 <span class="lineNum">     224 </span>            :             _LIBCPP_ASSERT(__s2 &lt; __s1 || __s2 &gt;= __s1+__n, &quot;char_traits::copy overlapped range&quot;);
-<a name="225"><span class="lineNum">     225 </span><span class="lineNoCov">          0 :             return __n == 0 ? __s1 : (char_type*)memcpy(__s1, __s2, __n);</span></a>
+<span class="lineNum">     225 </span>            :             return __n == 0 ? __s1 : (char_type*)memcpy(__s1, __s2, __n);
 <span class="lineNum">     226 </span>            :         }
 <span class="lineNum">     227 </span>            :     static inline char_type* assign(char_type* __s, size_t __n, char_type __a) _NOEXCEPT
-<a name="228"><span class="lineNum">     228 </span><span class="lineNoCov">          0 :         {return __n == 0 ? __s : (char_type*)memset(__s, to_int_type(__a), __n);}</span></a>
+<a name="228"><span class="lineNum">     228 </span>            :         {return __n == 0 ? __s : (char_type*)memset(__s, to_int_type(__a), __n);}</a>
 <span class="lineNum">     229 </span>            : 
 <a name="230"><span class="lineNum">     230 </span>            :     static inline _LIBCPP_CONSTEXPR int_type  not_eof(int_type __c) _NOEXCEPT</a>
-<span class="lineNum">     231 </span><span class="lineNoCov">          0 :         {return eq_int_type(__c, eof()) ? ~eof() : __c;}</span>
+<span class="lineNum">     231 </span><span class="lineCov">       5325 :         {return eq_int_type(__c, eof()) ? ~eof() : __c;}</span>
 <a name="232"><span class="lineNum">     232 </span>            :     static inline _LIBCPP_CONSTEXPR char_type to_char_type(int_type __c) _NOEXCEPT</a>
-<span class="lineNum">     233 </span><span class="lineNoCov">          0 :         {return char_type(__c);}</span>
+<span class="lineNum">     233 </span><span class="lineCov">    7266024 :         {return char_type(__c);}</span>
 <a name="234"><span class="lineNum">     234 </span>            :     static inline _LIBCPP_CONSTEXPR int_type to_int_type(char_type __c) _NOEXCEPT</a>
-<span class="lineNum">     235 </span><span class="lineCov">         89 :         {return int_type((unsigned char)__c);}</span>
+<span class="lineNum">     235 </span><span class="lineCov">    7264364 :         {return int_type((unsigned char)__c);}</span>
 <a name="236"><span class="lineNum">     236 </span>            :     static inline _LIBCPP_CONSTEXPR bool eq_int_type(int_type __c1, int_type __c2) _NOEXCEPT</a>
-<span class="lineNum">     237 </span><span class="lineCov">       1035 :         {return __c1 == __c2;}</span>
+<span class="lineNum">     237 </span><span class="lineCov">    7389389 :         {return __c1 == __c2;}</span>
 <span class="lineNum">     238 </span>            :     static inline _LIBCPP_CONSTEXPR int_type  eof() _NOEXCEPT
-<span class="lineNum">     239 </span><span class="lineCov">       2232 :         {return int_type(EOF);}</span>
+<span class="lineNum">     239 </span><span class="lineCov">   14782554 :         {return int_type(EOF);}</span>
 <span class="lineNum">     240 </span>            : };
 <span class="lineNum">     241 </span>            : 
 <span class="lineNum">     242 </span>            : inline _LIBCPP_CONSTEXPR_AFTER_CXX14
