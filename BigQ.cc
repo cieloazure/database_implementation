@@ -210,11 +210,12 @@ void *WorkerThreadRoutine(void *threadparams) {
   OrderMaker sortOrder = params->sortOrder;
   int runlen = params->runlen;
 
-  if (runlen <= 0) {
-    std::cout << "Run length is required to be greater than 0" << std::endl;
+  if (runlen <= 0 || in == NULL || out == NULL) {
+    std::cout << "Argument Error in BigQ!" << std::endl;
     out->ShutDown();
     pthread_exit(NULL);
   }
+
   Record *temp = new Record();
 
   Page *buffer = new Page();
@@ -276,6 +277,8 @@ void *WorkerThreadRoutine(void *threadparams) {
   StreamKSortedRuns(runFile, runs, runlen, sortOrder, out);
   // Done with phase 2
 
+  // CleanUp
+  remove("runFile.bin");
   out->ShutDown();
   pthread_exit(NULL);
 }

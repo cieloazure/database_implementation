@@ -47,6 +47,22 @@ void *producer(void *arg) {
   t->result = counter;
   pthread_exit(NULL);
 }
+
+void *producerNoRecords(void *arg) {
+  ThreadData *t = (ThreadData *)arg;
+
+  Pipe *inputPipe = t->inputPipe;
+
+  int counter = 0;
+
+  inputPipe->ShutDown();
+
+  cout << " producer: inserted " << counter << " recs into the pipe\n";
+
+  t->result = counter;
+  pthread_exit(NULL);
+}
+
 namespace dbi {
 
 // The fixture for testing class BigQ.
@@ -93,6 +109,48 @@ class BigQTest : public ::testing::Test {
 
   // Objects declared here can be used by all tests in the test case for Foo.
 
+  void testRunLength(int runlen, void *(*prod)(void *)) {
+    Pipe *input = new Pipe(100);
+    Pipe *output = new Pipe(100);
+
+    threadArg.inputPipe = input;
+    threadArg.path = (char *)"gtest.bin";
+
+    pthread_t thread1;
+    pthread_create(&thread1, NULL, prod, (void *)&threadArg);
+
+    Schema mySchema("catalog", "lineitem");
+    OrderMaker sortOrder(&mySchema);
+    // Expected number of pages is 100
+    BigQ bq(*input, *output, sortOrder, runlen);
+
+    ComparisonEngine ceng;
+
+    int err = 0;
+    int i = 0;
+
+    Record rec[2];
+    Record *last = NULL, *prev = NULL;
+
+    while (output->Remove(&rec[i % 2])) {
+      prev = last;
+      last = &rec[i % 2];
+
+      if (prev && last) {
+        if (ceng.Compare(prev, last, &sortOrder) == 1) {
+          err++;
+        }
+      }
+      i++;
+    }
+
+    cout << " consumer: removed " << i << " recs from the pipe\n";
+
+    EXPECT_FALSE(err);
+    pthread_join(thread1, NULL);
+    EXPECT_EQ(i, threadArg.result);
+  }
+
   int shuffle_file() {
     // initialize random number generator
     std::random_device rd;
@@ -136,7 +194,38 @@ class BigQTest : public ::testing::Test {
   }
 };
 
-TEST_F(BigQTest, OUTPUT_PIPE_HAS_SORTED_RECORDS) {
+TEST_F(BigQTest, OUTPUT_PIPE_HAS_SORTED_RECORDS) { testRunLength(3, producer); }
+
+TEST_F(BigQTest, WHEN_THE_INPUT_PIPE_HAS_NO_RECORDS) {
+  testRunLength(3, producerNoRecords);
+}
+
+TEST_F(BigQTest,
+       WHEN_THE_RUNLENGTH_IS_GREATER_THAN_NUMBER_OF_PAGES_IN_THE_FILE) {
+  testRunLength(200, producer);
+}
+
+TEST_F(BigQTest, WHEN_THE_RUNLENGTH_IS_EQUAL_TO_NUMBER_OF_PAGES_IN_THE_FILE) {
+  testRunLength(100, producer);
+}
+
+TEST_F(BigQTest,
+       WHEN_THE_RUNLENGTH_IS_LESS_THAN_TO_NUMBER_OF_PAGES_IN_THE_FILE) {
+  testRunLength(25, producer);
+}
+
+TEST_F(BigQTest, WHEN_THE_RUNLENGTH_IS_1) { testRunLength(1, producer); }
+
+TEST_F(BigQTest, WHEN_ARGUMENTS_TO_BIGQ_ARE_INVALID) {
+  Pipe *input = NULL;
+  Pipe *output = new Pipe(100);
+  int runlen = 1;
+  Schema mySchema("catalog", "lineitem");
+  OrderMaker sortOrder(&mySchema);
+  BigQ bigq(*input, *output, sortOrder, runlen);
+}
+
+TEST_F(BigQTest, WHEN_OUTPUT_PIPE_IS_SHUTDOWN_BEFORE_SORTING_IN_OTHER_THREAD) {
   Pipe *input = new Pipe(100);
   Pipe *output = new Pipe(100);
 
@@ -149,6 +238,7 @@ TEST_F(BigQTest, OUTPUT_PIPE_HAS_SORTED_RECORDS) {
   Schema mySchema("catalog", "lineitem");
   OrderMaker sortOrder(&mySchema);
   int runlen = 3;
+  // Expected number of pages is 100
   BigQ bq(*input, *output, sortOrder, runlen);
 
   ComparisonEngine ceng;
@@ -168,29 +258,18 @@ TEST_F(BigQTest, OUTPUT_PIPE_HAS_SORTED_RECORDS) {
         err++;
       }
     }
+
+    if (i % 10000 == 0) {
+      output->ShutDown();
+    }
     i++;
   }
 
   cout << " consumer: removed " << i << " recs from the pipe\n";
 
   EXPECT_FALSE(err);
-  void *count;
   pthread_join(thread1, NULL);
-  EXPECT_EQ(i, threadArg.result);
+  EXPECT_NE(i, threadArg.result);
 }
-
-TEST_F(BigQTest, WHEN_THE_INPUT_PIPE_HAS_NO_RECORDS) {}
-TEST_F(BigQTest, WHEN_THE_RUNLENGTH_IS_VALID) {}
-TEST_F(BigQTest, WHEN_THE_RUNLENGTH_IS_TOO_BIG) {}
-TEST_F(BigQTest, WHEN_THE_RUNLENGTH_IS_TOO_SMALL) {}
-TEST_F(BigQTest, WHEN_THE_RUNS_CREATED_IS_LESS_THAN_NUMBER_OF_PAGES_IN_MEMORY) {
-}
-TEST_F(BigQTest, WHEN_THE_RUNS_CREATED_IS_MORE_THAN_NUMBER_OF_PAGES_IN_MEMORY) {
-}
-TEST_F(BigQTest, WHEN_INPUT_PIPE_IS_NULL) {}
-TEST_F(BigQTest, WHEN_OUTPUT_PIPE_IS_NULL) {}
-TEST_F(BigQTest, WHEN_THE_RUNLENGTH_IS_INVALID) {}
-TEST_F(BigQTest, WHEN_OUTPUT_PIPE_IS_SHUTDOWN_BEFORE_SORTING_IN_OTHER_THREAD) {}
-TEST_F(BigQTest, SIMULTANEOUS_PRODUCER_CONSUMER) {}
 
 }  // namespace dbi
