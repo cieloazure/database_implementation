@@ -48,6 +48,13 @@ Record.o: Record.cc
 
 Schema.o: Schema.cc
 	$(CC) -g -c Schema.cc
+
+Pipe.o: Pipe.cc
+	$(CC) -g -c Pipe.cc
+
+BigQ.o: BigQ.cc
+	$(CC) -g -c BigQ.cc
+
 	
 y.tab.o: Parser.y
 	yacc -d Parser.y
@@ -72,12 +79,6 @@ FileTest.o: FileTest.cc
 
 BigQTest.o: BigQTest.cc
 	$(TEST) -g -c BigQTest.cc
-
-Pipe.o: Pipe.cc
-	$(CC) -g -c Pipe.cc
-
-BigQ.o: BigQ.cc
-	$(CC) -g -c BigQ.cc
 
 clean: 
 	rm -f *.o

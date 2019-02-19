@@ -200,6 +200,8 @@ class BigQTest : public ::testing::Test {
     EXPECT_FALSE(err);
     pthread_join(thread1, NULL);
     EXPECT_EQ(i, threadArg.result);
+    delete input;
+    delete output;
   }
 };
 

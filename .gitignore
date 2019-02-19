@@ -1,4 +1,11 @@
 
+v1/
+usr/
+Users/
+Defs.h.gch
+index-sort-f.html
+index-sort-l.html
+
 *.o
 *.out
 y.tab.c
@@ -11,3 +18,4 @@ y.tab.h
 *.gcno
 *.bin
 main
+
