@@ -15,7 +15,10 @@ extern struct AndList *final;
 
 DBFile::DBFile() { Instantiate(); }
 
-DBFile::~DBFile() { delete persistent_file; }
+DBFile::~DBFile() {
+  delete persistent_file;
+  //delete buffer;
+}
 
 int DBFile::Create(const char *f_path, fType f_type, void *startup) {
   try {
@@ -199,9 +202,11 @@ void DBFile::Load(Schema &f_schema, const char *loadpath) {
   }
 
   count = 0;
+  std::cout << "Loaded:" << endl;
   while (temp->SuckNextRecord(&f_schema, table_file) == 1) {
     if (temp != NULL) {
       count++;
+      std::cout << "\r" << count;
       Add(*temp);
     }
   }
