@@ -1,4 +1,4 @@
-#include "DBFile.h"
+#include "HeapDBFile.h"
 #include "Record.h"
 #include "TwoWayList.cc"
 #include "gtest/gtest.h"
@@ -9,7 +9,7 @@ namespace dbi {
 class TwoWayListTest : public ::testing::Test {
  public:
   static void SetUpTestSuite() {
-    DBFile *heapFile = new DBFile();
+    HeapDBFile *heapFile = new HeapDBFile();
     fType t = heap;
     heapFile->Create("gtest.bin", t, NULL);
     Schema mySchema("catalog", "lineitem");
@@ -204,7 +204,7 @@ TEST_F(TwoWayListTest, SORT_RECORD_USING_A_LAMBDA_ASC) {
 TEST_F(TwoWayListTest, SORT_RECORD_USING_A_LAMBDA_DSC) {
   TwoWayList<Record> *myRecs = new (std::nothrow) TwoWayList<Record>;
   // FILE *tableFile = fopen("data_files/lineitem.tbl", "r");
-  DBFile dbFile;
+  HeapDBFile dbFile;
   dbFile.Open("gtest.bin");
 
   // Record *temp = new Record();

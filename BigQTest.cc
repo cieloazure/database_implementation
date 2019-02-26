@@ -4,7 +4,7 @@
 #include <random>
 #include <vector>
 #include "BigQ.cc"
-#include "DBFile.h"
+#include "HeapDBFile.h"
 #include "Pipe.h"
 #include "gtest/gtest.h"
 
@@ -25,9 +25,9 @@ void *producer(void *arg) {
   Record temp;
   int counter = 0;
 
-  DBFile dbfile;
+  HeapDBFile dbfile;
   dbfile.Open(path);
-  cout << " producer: opened DBFile " << path << endl;
+  cout << " producer: opened HeapDBFile " << path << endl;
   dbfile.MoveFirst();
 
   while (dbfile.GetNext(temp) == 1) {
@@ -111,7 +111,7 @@ class BigQTest : public ::testing::Test {
   }
   static void SetUpTestSuite() {
     cout << "In setup" << endl;
-    DBFile *heapFile = new DBFile();
+    HeapDBFile *heapFile = new HeapDBFile();
     fType t = heap;
     heapFile->Create("gtest.bin", t, NULL);
     Schema mySchema("catalog", "lineitem");
@@ -119,7 +119,7 @@ class BigQTest : public ::testing::Test {
     heapFile->Close();
 
     shuffle_file();
-    DBFile *heapFileShuffled = new DBFile();
+    HeapDBFile *heapFileShuffled = new HeapDBFile();
     heapFileShuffled->Create("gtest_shuffled.bin", t, NULL);
     heapFileShuffled->Load(mySchema, "shuffled.tbl");
     heapFileShuffled->Close();
@@ -199,7 +199,7 @@ class BigQTest : public ::testing::Test {
 
     EXPECT_FALSE(err);
     pthread_join(thread1, NULL);
-    EXPECT_EQ(i, threadArg.result);
+    EXPECT_EQ(i,threadArg.result);
     delete input;
     delete output;
   }

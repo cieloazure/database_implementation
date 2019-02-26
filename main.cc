@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "BigQ.h"
+#include "Comparision.h"
 #include "DBFile.h"
 #include "Defs.h"
 #include "Pipe.h"
@@ -40,4 +41,16 @@ bool compare(void *i1, void *i2) {
   return *(i->num) < *(j->num);
 }
 
-int main() { return 0; }
+int main() {
+  Schema mySchema("catalog", "lineitem");
+  OrderMaker o(&mySchema);
+
+  int file_mode = O_TRUNC | O_RDWR | O_CREAT;
+  int fd = open("test.bin", file_mode, S_IRUSR | S_IWUSR);
+  o.Serialize(fd);
+
+  OrderMaker p;
+  lseek(fd, 0, SEEK_SET);
+  p.UnSerialize(fd);
+  return 0;
+}

@@ -8,8 +8,10 @@
             "name": "(lldb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/test2_1.out",
-            "args": [],
+            "program": "${workspaceFolder}/gtest_main.out",
+            "args": [
+                "--gtest_filter=SortedDBFileTest.*"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
