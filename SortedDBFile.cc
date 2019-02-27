@@ -106,6 +106,7 @@ int SortedDBFile::Open(const char *f_path) {
     read(metadata_file_descriptor, &runLength, sizeof(int));
     sortOrder->UnSerialize(metadata_file_descriptor);
 
+    // Debug sort order
     sortOrder->Print();
 
     MoveFirst();

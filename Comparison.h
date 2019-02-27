@@ -93,6 +93,9 @@ class CNF {
   // a relational selection over a single relation so only one schema is used
   void GrowFromParseTree(struct AndList *parseTree, Schema *mySchema,
                          Record &literal);
+
+  void GetSortOrderAttributes(OrderMaker &fileSortOrder,
+                              OrderMaker &querySortOrder);
 };
 
 #endif

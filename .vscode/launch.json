@@ -10,7 +10,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/gtest_main.out",
             "args": [
-                "--gtest_filter=SortedDBFileTest.*"
+                "--gtest_filter=ComparisonTest.*"
+                //                "--gtest_filter=SortedDBFileTest.*"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

@@ -598,6 +598,34 @@ TEST_F(HeapDBFileTest, GET_NEXT_WITH_PARAMETERS_OR_CONDITION) {
   }
 }
 
+TEST_F(HeapDBFileTest, GET_NEXT_WITH_PARAMETERS_EQUAL_CONDITION) {
+  HeapDBFile *heapFile = new HeapDBFile();
+  if (heapFile->Create("gtest.bin", heap, NULL)) {
+    const char *loadpath = "data_files/lineitem.tbl";
+
+    Schema mySchema("catalog", "lineitem");
+    heapFile->Load(mySchema, loadpath);
+
+    const char cnf_string[] = "(l_orderkey = 1) AND (l_partkey = 241)";
+    YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
+    yyparse();
+    yy_delete_buffer(buffer);
+
+    // grow the CNF expression from the parse tree
+    CNF cnf;
+    Record literal;
+    cnf.GrowFromParseTree(final, &mySchema, literal);
+
+    // print out the comparison to the screen
+    cnf.Print();
+
+    // temp3->Print(&mySchema);
+    Record temp;
+    EXPECT_TRUE(heapFile->GetNext(temp, cnf, literal));
+    heapFile->Close();
+  }
+}
+
 TEST_F(HeapDBFileTest,
        GET_NEXT_WITH_PARAMETERS_GIVEN_CONDITION_GET_ALL_RECORDS) {
   HeapDBFile *heapFile = new HeapDBFile();

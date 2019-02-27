@@ -10,8 +10,8 @@ ifdef linux
 tag = -n
 endif
 
-gtest_main.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o HeapDBFile.o SortedDBFile.o DBFile.o Pipe.o HeapDBFileTest.o SortedDBFileTest.o TwoWayListTest.o FileTest.o BigQTest.o y.tab.o lex.yy.o gtest_main.o 
-	$(TEST) -o gtest_main.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o HeapDBFile.o SortedDBFile.o DBFile.o Pipe.o HeapDBFileTest.o SortedDBFileTest.o TwoWayListTest.o FileTest.o BigQTest.o y.tab.o lex.yy.o gtest_main.o -ll -lgtest -lpthread  
+gtest_main.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o HeapDBFile.o SortedDBFile.o DBFile.o Pipe.o HeapDBFileTest.o SortedDBFileTest.o TwoWayListTest.o FileTest.o BigQTest.o ComparisonTest.o y.tab.o lex.yy.o gtest_main.o 
+	$(TEST) -o gtest_main.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o HeapDBFile.o SortedDBFile.o DBFile.o Pipe.o HeapDBFileTest.o SortedDBFileTest.o TwoWayListTest.o FileTest.o BigQTest.o ComparisonTest.o y.tab.o lex.yy.o gtest_main.o -ll -lgtest -lpthread  
 
 test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o HeapDBFile.o y.tab.o lex.yy.o test.o
 	$(CC) -o test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o HeapDBFile.o y.tab.o lex.yy.o test.o -ll
@@ -89,6 +89,8 @@ FileTest.o: FileTest.cc
 BigQTest.o: BigQTest.cc
 	$(TEST) -g -c BigQTest.cc
 
+ComparisonTest.o: ComparisonTest.cc
+	$(TEST) -g -c ComparisonTest.cc
 clean: 
 	rm -f *.o
 	rm -f *.out
