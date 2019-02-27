@@ -18,10 +18,11 @@ void *producer(void *arg) {
     if (counter % 100000 == 0) {
       cerr << " producer: " << counter << endl;
     }
-    // Record *copy = new Record();
-    // copy->Copy(&temp);
+    Record *copy = new Record();
+    copy->Copy(&temp);
     myPipe->Insert(&temp);
   }
+
 
   dbfile.Close();
   myPipe->ShutDown();
