@@ -85,9 +85,9 @@ void *consumer(void *arg) {
 
 void test1(int option, int runlen) {
   // sort order for records
-  // OrderMaker sortorder(rel->schema());
-  OrderMaker sortorder;  // (rel->schema());
-  rel->get_sort_order(sortorder);
+  OrderMaker sortorder(rel->schema());
+  // OrderMaker sortorder;  // (rel->schema());
+  // rel->get_sort_order(sortorder);
 
   int buffsz = 100;  // pipe cache size
   Pipe input(buffsz);

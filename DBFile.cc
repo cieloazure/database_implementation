@@ -1,4 +1,5 @@
 #include "DBFile.h"
+#include <unistd.h>
 #include "HeapDBFile.h"
 #include "SortedDBFile.h"
 
@@ -32,6 +33,20 @@ int DBFile::Open(const char *fpath) {
 }
 
 int DBFile::Close() { return dbFile->Close(); }
+
+void DBFile::Load(Schema &myschema, const char *loadpath) {
+  dbFile->Load(myschema, loadpath);
+}
+
+void DBFile::MoveFirst() { dbFile->MoveFirst(); }
+
+void DBFile::Add(Record &addme) { dbFile->Add(addme); }
+
+int DBFile::GetNext(Record &fetchme) { dbFile->GetNext(fetchme); }
+
+int DBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal){
+  dbFile->GetNext(fetchme, cnf, literal);
+}
 
 bool DBFile::CheckIfCorrectFileType(fType type) {
   switch (type) {
