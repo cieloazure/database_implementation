@@ -69,7 +69,9 @@
 			"unordered_set": "cpp",
 			"utility": "cpp",
 			"vector": "cpp",
-			"queue": "cpp"
+			"queue": "cpp",
+			"numeric": "cpp",
+			"random": "cpp"
 		},
 		"editor.formatOnSave": true
 	}

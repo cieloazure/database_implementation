@@ -17,6 +17,7 @@ y.tab.h
 *.gcov
 *.gcno
 *.bin
+*.bin.bigq
 main
 
 *.html

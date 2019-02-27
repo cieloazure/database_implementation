@@ -91,6 +91,11 @@ clean:
 	rm -f *.gcda
 	rm -f *.gcov
 	rm -f *.gcno
+	rm -f *.bin
+	rm -f *.png
+	rm -f *.html
+	rm -f *.info
+	rm -f *.bigq
 
 test_clean:
 	rm -f *.gcda

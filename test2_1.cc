@@ -18,10 +18,11 @@ void *producer(void *arg) {
     if (counter % 100000 == 0) {
       cerr << " producer: " << counter << endl;
     }
-    // Record *copy = new Record();
-    // copy->Copy(&temp);
+    Record *copy = new Record();
+    copy->Copy(&temp);
     myPipe->Insert(&temp);
   }
+
 
   dbfile.Close();
   myPipe->ShutDown();
@@ -85,9 +86,9 @@ void *consumer(void *arg) {
 
 void test1(int option, int runlen) {
   // sort order for records
-  // OrderMaker sortorder(rel->schema());
-  OrderMaker sortorder;  // (rel->schema());
-  rel->get_sort_order(sortorder);
+  OrderMaker sortorder(rel->schema());
+  // OrderMaker sortorder;  // (rel->schema());
+  // rel->get_sort_order(sortorder);
 
   int buffsz = 100;  // pipe cache size
   Pipe input(buffsz);
