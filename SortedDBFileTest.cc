@@ -190,6 +190,7 @@ TEST_F(SortedDBFileTest, BINARY_SEARCH_PAGE) {
   fType t = heap;
   heapFile->Create("gtest.bin", t, NULL);
   Schema mySchema("catalog", "lineitem");
+  OrderMaker so(&mySchema);
   const char *loadpath = "data_files/lineitem.tbl";
   heapFile->Load(mySchema, loadpath);
   heapFile->Close();
@@ -197,7 +198,7 @@ TEST_F(SortedDBFileTest, BINARY_SEARCH_PAGE) {
   File *f = new File();
   f->Open(1, (char *)"gtest.bin");
   Page *buffer = new Page();
-  f->GetPage(buffer, 49);
+  f->GetPage(buffer, 0);
   cout << buffer->GetNumRecords() << endl;
 
   SortedDBFile *sortedDBFile = new SortedDBFile();

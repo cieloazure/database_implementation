@@ -221,7 +221,7 @@ int SortedDBFile::Close() {
     CheckIfFilePresent();
     if (dirty) {
       // TODO: Implement this method for SortedDBFile
-      //   FlushBuffer();
+      FlushBuffer();
       dirty = false;
     }
     // Close the persistent file
@@ -639,8 +639,6 @@ off_t SortedDBFile::GetCurrentWritePageIndex() {
   return current_write_page_index;
 }
 
-
-
 Record *SortedDBFile::BinarySearchFile(File *persistent_file,
                                        OrderMaker *queryOrderMaker,
                                        Record *literal, off_t offset) {
@@ -652,6 +650,15 @@ Record *SortedDBFile::BinarySearchFile(File *persistent_file,
     Page *buffer = new Page();
     persistent_file->GetPage(buffer, mid);
     int numRecsOnPage = buffer->GetNumRecords();
+
+    // TODO: sorting the buffer first
+    // TODO: Ideally page should be sorted in the file itself
+    // TODO: will be removed
+    // ************ DANGER ************************
+    // ***************** QUICKFIX, to be removed **********
+    // ####### DONT FORGET TO REMOVE THIS LINE
+    buffer->Sort(*sortOrder);
+
     // check if the record is on this page
     Record *firstRecOnPage = new Record();
     buffer->ReadNext(*firstRecOnPage, 0);
@@ -701,7 +708,6 @@ Record *SortedDBFile::BinarySearchPage(Page *buffer,
   int lower = 0;
   int higher = buffer->GetNumRecords();
   ComparisonEngine compEngine;
-
   while (lower <= higher) {
     int mid = lower + (higher - lower) / 2;
     Record *midRec = new Record();
