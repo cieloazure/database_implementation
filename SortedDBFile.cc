@@ -21,13 +21,16 @@ struct sortInfo {
 SortedDBFile::SortedDBFile() {
   persistent_file = new File();
   buffer = new Page();
+  new_file_buffer = new Page();
   dirty = false;
   is_open = false;
   mode = idle;
   sortOrder = new OrderMaker();
+  input = new Pipe(100);
+  output = new Pipe(100);
 }
 
-SortedDBFile::~SortedDBFile() { delete persistent_file; }
+SortedDBFile::~SortedDBFile() { delete persistent_file; delete input; delete output; }
 
 int SortedDBFile::Create(const char *f_path, fType f_type, void *startup) {
   try {
@@ -75,6 +78,65 @@ int SortedDBFile::Create(const char *f_path, fType f_type, void *startup) {
 
     write(metadata_file_descriptor, &runLength, sizeof(int));
     sortOrder->Serialize(metadata_file_descriptor);
+
+    // No exception occured
+    is_open = true;
+    mode = idle;
+    return 1;
+  } catch (runtime_error &e) {
+    cerr << e.what() << endl;
+    return 0;
+  } catch (...) {
+    return 0;
+  }
+}
+
+int SortedDBFile::CreateNew(File *new_file, const char *f_path, fType f_type, void *startup) {
+  try {
+    // Set the type of file
+    type = f_type;
+    CheckIfCorrectFileType(type);
+
+    // Set file_path for persistent file
+    file_path = f_path;
+    CheckIfFileNameIsValid(f_path);
+
+    // Open persistent file
+    new_file->Open(0, (char *)file_path);
+
+    // Set current page index to -1 as no pages exist yet
+    // -1 represents an invalid value
+    newf_write_page_index = -1;
+    newf_read_page_index = -1;
+    newf_read_page_offset = -1;
+
+    // Open metadata file
+    int file_mode = O_TRUNC | O_RDWR | O_CREAT;
+    new_metadata_file_descriptor =
+        open(GetMetaDataFileName(file_path), file_mode, S_IRUSR | S_IWUSR);
+
+    // Check if the metadata file has opened
+    if (new_metadata_file_descriptor < 0) {
+      string err("Error creating metadata file for ");
+      err += file_path;
+      err += "\n";
+      throw runtime_error(err);
+    }
+
+    // Write metadata variables
+    lseek(new_metadata_file_descriptor, 0, SEEK_SET);
+    write(new_metadata_file_descriptor, &type, sizeof(fType));
+
+    // Write current_page_index to meta data file
+    write(new_metadata_file_descriptor, &newf_write_page_index, sizeof(off_t));
+
+    // Write sortInfo to meta data file
+    sortInfo *s = (sortInfo *)startup;
+    runLength = s->runLength;
+    sortOrder = s->sortOrder;
+
+    write(new_metadata_file_descriptor, &runLength, sizeof(int));
+    sortOrder->Serialize(new_metadata_file_descriptor);
 
     // No exception occured
     is_open = true;
@@ -215,9 +277,273 @@ bool SortedDBFile::CheckIfCorrectFileType(fType type) {
   return false;
 }
 
-void SortedDBFile::Load(Schema &myschema, const char *loadpath) {}
+void SortedDBFile::Load(Schema &myschema, const char *loadpath) {
+  CheckIfFilePresent();
+  Record *temp = new Record();
+  FILE *table_file = fopen(loadpath, "r");
 
-void SortedDBFile::Add(Record &addme) {}
+  if (table_file == NULL) {
+    string err = "Error opening table file for load";
+    err += loadpath;
+    throw runtime_error(err);
+  }
+
+  count = 0;
+  std::cout << "Loaded:" << endl;
+  while (temp->SuckNextRecord(&myschema, table_file) == 1) {
+    if (temp != NULL) {
+      count++;
+      std::cout << "\r" << count;
+      Add(*temp);
+    }
+  }
+  FlushBuffer();
+  cout << "Bulk Loaded " << count << " records" << endl;
+}
+
+void SortedDBFile::Add(Record &addme) {
+  CheckIfFilePresent();
+
+  // If it is not dirty empty out all the records read
+  if (!dirty) {
+    buffer->EmptyItOut();
+    mode = writing;
+    dirty = true;
+  }
+
+  if (mode == writing) {
+    //insert into the bigq input pipe.
+    input->Insert(&addme);
+    //TODO: handle a case when this input pipe gets full.
+
+  }
+  else {
+    //init BigQ member object and then insert into the bigq pipe.
+    bigq_file = new BigQ(*input, *output, *sortOrder, runLength);
+    input->Insert(&addme);
+    mode = writing;
+  }
+
+  // If The buffer is full: Flush the buffer to persistent storage
+  // Else: just append to the buffer and set dirty variable
+  // cout << buffer->GetNumRecords() << endl;
+  // if (buffer->Append(&addme) == 0) {
+  //   FlushBuffer();
+  //   buffer->Append(&addme); /* Need to append again as the previous append was
+  //                            unsuccessful */
+  // }
+}
+
+void SortedDBFile::AddForMerge(Record &addme, File *new_persistent_file) {
+  CheckIfFilePresent();
+  // If it is not dirty empty out all the records read
+  if (!dirty) {
+    new_file_buffer->EmptyItOut();
+    new_file_mode = writing; //not sure if this is required.
+    dirty = true;
+  }
+
+  // If The buffer is full: Flush the buffer to persistent storage
+  // Else: just append to the buffer and set dirty variable
+  // cout << buffer->GetNumRecords() << endl;
+  if (buffer->Append(&addme) == 0) {
+    FlushBufferForMerge(new_persistent_file);
+    new_file_buffer->Append(&addme); /* Need to append again as the previous append was
+                             unsuccessful */
+  }
+}
+
+void SortedDBFile::FlushBufferForMerge(File *new_persistent_file) {
+  int prev_write_page_index = newf_write_page_index;
+
+  Page *flush_to_page = new Page();
+  // Check if any pages have been alloted before
+  if (newf_write_page_index < 0) {
+    // No pages have been alloted before
+    // This is the first page
+    newf_write_page_index++;
+
+    // Set read page and read index
+    newf_read_page_index = newf_write_page_index;
+    newf_read_page_offset = -1;
+  } else {
+    // Pages have been alloted; Check if last page has space
+    new_persistent_file->GetPage(flush_to_page, newf_write_page_index);
+  }
+
+  // Flush buffer to pages till the buffer is empty
+  // The file page size may be smaller than the buffer page size hence
+  // The entire buffer may not fit on the page
+  bool empty_flush_to_page_flag = false;
+  while (CopyBufferToPage(new_file_buffer, flush_to_page, empty_flush_to_page_flag) ==
+         0) {
+    new_persistent_file->AddPage(flush_to_page, newf_write_page_index);
+    newf_write_page_index++;
+    empty_flush_to_page_flag = true;
+  }
+
+  new_persistent_file->AddPage(flush_to_page, newf_write_page_index);
+  // If new page(s) was required
+  if (prev_write_page_index != newf_write_page_index) {
+    // Update the metadata for the file
+    lseek(new_metadata_file_descriptor, sizeof(fType), SEEK_SET);
+    write(new_metadata_file_descriptor, &newf_write_page_index, sizeof(off_t));
+  }
+}
+
+int SortedDBFile::MergeBigqRecords()
+{
+  input->ShutDown();
+
+  bool old_file = false;
+  bool bigq = false;
+
+  Record *old_file_rec;
+  Record *bigq_rec;
+
+  ComparisonEngine ceng;
+  int comparator = -2;
+
+  new_persistent_file = new File();
+
+  if(CreateNew(new_persistent_file, "gtest_new.bin", sorted, NULL))
+  {
+
+    if(GetNextForMerge(*old_file_rec)) {old_file = true;}
+    if(output->Remove(bigq_rec)) {bigq = true;}
+
+    while(!bigq || !old_file)
+    {
+      if(bigq && old_file) 
+      {
+        comparator = ceng.Compare(bigq_rec, old_file_rec, sortOrder);
+
+        switch(comparator) {
+          case -1:
+            //bigq is smaller
+            AddForMerge(*bigq_rec, new_persistent_file);
+            bigq = false;
+            break;
+          case 0:
+            //both are equal
+            AddForMerge(*bigq_rec, new_persistent_file);
+            AddForMerge(*old_file_rec, new_persistent_file);
+            bigq = false;
+            old_file_rec = false;
+            break;
+          case 1:
+            //old_file_rec is smaller
+            AddForMerge(*old_file_rec, new_persistent_file);
+            old_file_rec = false;
+            break;   
+        }
+      }
+      else if (!bigq) {
+        AddForMerge(*old_file_rec, new_persistent_file);
+        old_file_rec = false;
+      }
+      else if(!old_file) {
+        AddForMerge(*bigq_rec, new_persistent_file);
+        bigq = false;
+      }
+
+      if(!bigq){
+        if(output->Remove(bigq_rec)) {bigq = true;}
+      }
+
+      if(!old_file_rec){
+        if(GetNextForMerge(*old_file_rec)) {old_file = true;}
+      }
+    }
+
+    //after merging, rename newfile to oldfile.
+    new_persistent_file->Close();
+    persistent_file->Close();
+    
+    if( remove(file_path) != 0 ) {
+      cout<<"Error deleting old file"<<endl;
+    }
+
+    if(rename("gtest_new.bin", file_path ) != 0){
+      cout<<"Error renaming new file"<<endl;
+    }
+
+  }
+  else
+  {
+    cout<<"ERROR: Could not create new output file."<<endl;
+    return 0;
+  }
+  
+  
+
+  // Page tempPage;
+  // bool persistentFileEmpty = false;
+  // current_read_page_index = 0;
+  // current_read_page_offset = 0;
+
+  
+
+  // if (current_write_page_index == -1){
+  //   //persistent file is empty
+  //   persistentFileEmpty = true;
+  // }
+  // else
+  // {
+  //   //get first page from persistent_file
+  //   persistent_file->GetPage(&tempPage, current_read_page_index);
+  // }
+  
+  
+  // while(output->Remove(&rec) != 0) {
+  //   if(persistentFileEmpty){
+  //     //write all the records from BigQ to file.
+  //   }
+  //   else
+  //   {
+  //     /* code */
+  //   }
+    
+  // }
+}
+
+int SortedDBFile::GetNextForMerge(Record &fetchme) {
+  CheckIfFilePresent();
+  // If the buffer is dirty the records are to be written out to file before
+  // being read
+
+  // If records in all pages have been read
+  if (current_read_page_index < 0 ||
+      current_read_page_index > current_write_page_index) {
+    return 0;
+  }
+
+  // Get the Page current_read_page_index from the file
+  if (mode == writing || mode == idle) {
+    persistent_file->GetPage(buffer, current_read_page_index);
+    mode = reading;
+  }
+
+  // Increment to get the next record on the page no `current_read_page_index`
+  current_read_page_offset++;
+  // If there are no more records on the page `current_read_page_index` get next
+  // page
+  while (current_read_page_offset >= buffer->GetNumRecords() &&
+         current_read_page_index <= current_write_page_index) {
+    current_read_page_index++;
+    // If there are no more pages remaining in the file
+    // All records have been read
+    if (current_read_page_index > current_write_page_index) {
+      return 0;
+    }
+    current_read_page_offset = 0;
+    persistent_file->GetPage(buffer, current_read_page_index);
+  }
+
+  // Read the next record now from appropriate page
+  buffer->ReadNext(fetchme, current_read_page_offset);
+  return 1;
+}
 
 int SortedDBFile::GetNext(Record &fetchme) { return -1; }
 

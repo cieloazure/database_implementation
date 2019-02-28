@@ -1,4 +1,5 @@
 #include <pthread.h>
+#include <algorithm>
 #include <unistd.h>
 #include <fstream>
 #include <random>
