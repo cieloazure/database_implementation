@@ -7,12 +7,12 @@
 #include "BigQ.h"
 #include "Comparison.h"
 #include "ComparisonEngine.h"
+#include "DBFile.h"
 #include "File.h"
 #include "GenericDBFile.h"
 #include "Record.h"
 #include "Schema.h"
 #include "TwoWayList.h"
-#include "DBFile.h"
 
 // typedef enum { heap, sorted, tree } fType;
 // typedef enum { reading, writing, idle } modeType;
@@ -22,12 +22,13 @@ class SortedDBFile : public GenericDBFile {
   const char *file_path; /* The destination of the file */
   fType type;            /* Type of file (enum) */
   File *persistent_file; /* File instance in which pages are to be stored to */
-  File *new_persistent_file; /* File instance in which pages are to be stored for merging logic */
+  File *new_persistent_file; /* File instance in which pages are to be stored
+                                for merging logic */
   BigQ *bigq_file;
   int metadata_file_descriptor; /* Metadata file which has information about the
                                    file */
-  int new_metadata_file_descriptor; /* Metadata file which has information about the
-                                   file */
+  int new_metadata_file_descriptor; /* Metadata file which has information about
+                                   the file */
 
   off_t current_write_page_index; /* The page to which next record is to be
                                    added to */
@@ -66,7 +67,8 @@ class SortedDBFile : public GenericDBFile {
   SortedDBFile();
   ~SortedDBFile();
   int Create(const char *fpath, fType file_type, void *startup);
-  int CreateNew(File *new_file, const char *fpath, fType file_type, void *startup); //file for merging bigq records
+  int CreateNew(File *new_file, const char *fpath, fType file_type,
+                void *startup);  // file for merging bigq records
   int Open(const char *fpath);
   int Close();
   void Load(Schema &myschema, const char *loadpath);
@@ -88,6 +90,10 @@ class SortedDBFile : public GenericDBFile {
   off_t GetCurrentReadPageIndex();
   off_t GetCurrentWritePageIndex();
 
+  Record *BinarySearchFile(File *persistent_file, OrderMaker *queryOrderMaker,
+                       Record *literal, off_t offset);
+  Record *BinarySearchPage(Page *buffer, OrderMaker *queryOrderMaker,
+                       Record *literal);
  private:
   char *GetMetaDataFileName(
       const char *file_path); /* Create a name of the metadata file based on the
@@ -101,5 +107,6 @@ class SortedDBFile : public GenericDBFile {
   void CheckIfFilePresent(); /* Check if a file is opened */
   bool CheckIfCorrectFileType(fType type);
   bool CheckIfFileNameIsValid(const char *file_name);
+
 };
 #endif

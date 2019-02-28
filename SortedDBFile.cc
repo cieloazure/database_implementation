@@ -30,7 +30,11 @@ SortedDBFile::SortedDBFile() {
   output = new Pipe(100);
 }
 
-SortedDBFile::~SortedDBFile() { delete persistent_file; delete input; delete output; }
+SortedDBFile::~SortedDBFile() {
+  delete persistent_file;
+  delete input;
+  delete output;
+}
 
 int SortedDBFile::Create(const char *f_path, fType f_type, void *startup) {
   try {
@@ -91,7 +95,8 @@ int SortedDBFile::Create(const char *f_path, fType f_type, void *startup) {
   }
 }
 
-int SortedDBFile::CreateNew(File *new_file, const char *f_path, fType f_type, void *startup) {
+int SortedDBFile::CreateNew(File *new_file, const char *f_path, fType f_type,
+                            void *startup) {
   try {
     // Set the type of file
     type = f_type;
@@ -312,13 +317,12 @@ void SortedDBFile::Add(Record &addme) {
   }
 
   if (mode == writing) {
-    //insert into the bigq input pipe.
+    // insert into the bigq input pipe.
     input->Insert(&addme);
-    //TODO: handle a case when this input pipe gets full.
+    // TODO: handle a case when this input pipe gets full.
 
-  }
-  else {
-    //init BigQ member object and then insert into the bigq pipe.
+  } else {
+    // init BigQ member object and then insert into the bigq pipe.
     bigq_file = new BigQ(*input, *output, *sortOrder, runLength);
     input->Insert(&addme);
     mode = writing;
@@ -329,7 +333,8 @@ void SortedDBFile::Add(Record &addme) {
   // cout << buffer->GetNumRecords() << endl;
   // if (buffer->Append(&addme) == 0) {
   //   FlushBuffer();
-  //   buffer->Append(&addme); /* Need to append again as the previous append was
+  //   buffer->Append(&addme); /* Need to append again as the previous append
+  //   was
   //                            unsuccessful */
   // }
 }
@@ -339,7 +344,7 @@ void SortedDBFile::AddForMerge(Record &addme, File *new_persistent_file) {
   // If it is not dirty empty out all the records read
   if (!dirty) {
     new_file_buffer->EmptyItOut();
-    new_file_mode = writing; //not sure if this is required.
+    new_file_mode = writing;  // not sure if this is required.
     dirty = true;
   }
 
@@ -348,8 +353,8 @@ void SortedDBFile::AddForMerge(Record &addme, File *new_persistent_file) {
   // cout << buffer->GetNumRecords() << endl;
   if (buffer->Append(&addme) == 0) {
     FlushBufferForMerge(new_persistent_file);
-    new_file_buffer->Append(&addme); /* Need to append again as the previous append was
-                             unsuccessful */
+    new_file_buffer->Append(&addme); /* Need to append again as the previous
+                             append was unsuccessful */
   }
 }
 
@@ -375,8 +380,8 @@ void SortedDBFile::FlushBufferForMerge(File *new_persistent_file) {
   // The file page size may be smaller than the buffer page size hence
   // The entire buffer may not fit on the page
   bool empty_flush_to_page_flag = false;
-  while (CopyBufferToPage(new_file_buffer, flush_to_page, empty_flush_to_page_flag) ==
-         0) {
+  while (CopyBufferToPage(new_file_buffer, flush_to_page,
+                          empty_flush_to_page_flag) == 0) {
     new_persistent_file->AddPage(flush_to_page, newf_write_page_index);
     newf_write_page_index++;
     empty_flush_to_page_flag = true;
@@ -391,8 +396,7 @@ void SortedDBFile::FlushBufferForMerge(File *new_persistent_file) {
   }
 }
 
-int SortedDBFile::MergeBigqRecords()
-{
+int SortedDBFile::MergeBigqRecords() {
   input->ShutDown();
 
   bool old_file = false;
@@ -406,83 +410,79 @@ int SortedDBFile::MergeBigqRecords()
 
   new_persistent_file = new File();
 
-  if(CreateNew(new_persistent_file, "gtest_new.bin", sorted, NULL))
-  {
+  if (CreateNew(new_persistent_file, "gtest_new.bin", sorted, NULL)) {
+    if (GetNextForMerge(*old_file_rec)) {
+      old_file = true;
+    }
+    if (output->Remove(bigq_rec)) {
+      bigq = true;
+    }
 
-    if(GetNextForMerge(*old_file_rec)) {old_file = true;}
-    if(output->Remove(bigq_rec)) {bigq = true;}
-
-    while(!bigq || !old_file)
-    {
-      if(bigq && old_file) 
-      {
+    while (!bigq || !old_file) {
+      if (bigq && old_file) {
         comparator = ceng.Compare(bigq_rec, old_file_rec, sortOrder);
 
-        switch(comparator) {
+        switch (comparator) {
           case -1:
-            //bigq is smaller
+            // bigq is smaller
             AddForMerge(*bigq_rec, new_persistent_file);
             bigq = false;
             break;
           case 0:
-            //both are equal
+            // both are equal
             AddForMerge(*bigq_rec, new_persistent_file);
             AddForMerge(*old_file_rec, new_persistent_file);
             bigq = false;
-            old_file_rec = false;
+            old_file_rec = NULL;
             break;
           case 1:
-            //old_file_rec is smaller
+            // old_file_rec is smaller
             AddForMerge(*old_file_rec, new_persistent_file);
-            old_file_rec = false;
-            break;   
+            old_file_rec = NULL;
+            break;
         }
-      }
-      else if (!bigq) {
+      } else if (!bigq) {
         AddForMerge(*old_file_rec, new_persistent_file);
-        old_file_rec = false;
-      }
-      else if(!old_file) {
+        old_file_rec = NULL;
+      } else if (!old_file) {
         AddForMerge(*bigq_rec, new_persistent_file);
         bigq = false;
       }
 
-      if(!bigq){
-        if(output->Remove(bigq_rec)) {bigq = true;}
+      if (!bigq) {
+        if (output->Remove(bigq_rec)) {
+          bigq = true;
+        }
       }
 
-      if(!old_file_rec){
-        if(GetNextForMerge(*old_file_rec)) {old_file = true;}
+      if (!old_file_rec) {
+        if (GetNextForMerge(*old_file_rec)) {
+          old_file = true;
+        }
       }
     }
 
-    //after merging, rename newfile to oldfile.
+    // after merging, rename newfile to oldfile.
     new_persistent_file->Close();
     persistent_file->Close();
-    
-    if( remove(file_path) != 0 ) {
-      cout<<"Error deleting old file"<<endl;
+
+    if (remove(file_path) != 0) {
+      cout << "Error deleting old file" << endl;
     }
 
-    if(rename("gtest_new.bin", file_path ) != 0){
-      cout<<"Error renaming new file"<<endl;
+    if (rename("gtest_new.bin", file_path) != 0) {
+      cout << "Error renaming new file" << endl;
     }
 
-  }
-  else
-  {
-    cout<<"ERROR: Could not create new output file."<<endl;
+  } else {
+    cout << "ERROR: Could not create new output file." << endl;
     return 0;
   }
-  
-  
 
   // Page tempPage;
   // bool persistentFileEmpty = false;
   // current_read_page_index = 0;
   // current_read_page_offset = 0;
-
-  
 
   // if (current_write_page_index == -1){
   //   //persistent file is empty
@@ -493,8 +493,7 @@ int SortedDBFile::MergeBigqRecords()
   //   //get first page from persistent_file
   //   persistent_file->GetPage(&tempPage, current_read_page_index);
   // }
-  
-  
+
   // while(output->Remove(&rec) != 0) {
   //   if(persistentFileEmpty){
   //     //write all the records from BigQ to file.
@@ -503,8 +502,10 @@ int SortedDBFile::MergeBigqRecords()
   //   {
   //     /* code */
   //   }
-    
+
   // }
+
+  return -1;
 }
 
 int SortedDBFile::GetNextForMerge(Record &fetchme) {
@@ -546,7 +547,7 @@ int SortedDBFile::GetNextForMerge(Record &fetchme) {
 }
 
 int SortedDBFile::CopyBufferToPage(Page *buffer, Page *flush_to_page,
-                                 bool empty_flush_to_page_flag) {
+                                   bool empty_flush_to_page_flag) {
   // Is it a new page and hence previous flush has already been written to file
   if (empty_flush_to_page_flag) {
     flush_to_page->EmptyItOut();
@@ -605,7 +606,11 @@ void SortedDBFile::FlushBuffer() {
 int SortedDBFile::GetNext(Record &fetchme) { return -1; }
 
 int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
-  return -1;
+  return 0;
+  // OrderMaker queryOrderMaker;
+  // cnf.BuildQueryOrderMaker(*sortOrder, queryOrderMaker);
+  // Record *found = BinarySearchFile(persistent_file, &queryOrderMaker,
+  // &literal);
 }
 
 bool SortedDBFile::CheckIfFileNameIsValid(const char *file_name) {
@@ -632,4 +637,84 @@ off_t SortedDBFile::GetCurrentReadPageIndex() {
 
 off_t SortedDBFile::GetCurrentWritePageIndex() {
   return current_write_page_index;
+}
+
+
+
+Record *SortedDBFile::BinarySearchFile(File *persistent_file,
+                                       OrderMaker *queryOrderMaker,
+                                       Record *literal, off_t offset) {
+  ComparisonEngine compEngine;
+  off_t lower = offset;
+  off_t higher = persistent_file->GetLength() - 1;
+  while (lower <= higher) {
+    off_t mid = lower + (higher - lower) / 2;
+    Page *buffer = new Page();
+    persistent_file->GetPage(buffer, mid);
+    int numRecsOnPage = buffer->GetNumRecords();
+    // check if the record is on this page
+    Record *firstRecOnPage = new Record();
+    buffer->ReadNext(*firstRecOnPage, 0);
+
+    Schema mySchema("catalog", "lineitem");
+    firstRecOnPage->Print(&mySchema);
+
+    Record *lastRecOnPage = new Record();
+    buffer->ReadNext(*lastRecOnPage, numRecsOnPage - 1);
+    lastRecOnPage->Print(&mySchema);
+
+    // check conditions
+
+    // mid check
+    // check if the first or the last record from this page is equal to literal
+    int firstRecStatus =
+        compEngine.Compare(literal, firstRecOnPage, queryOrderMaker);
+    int lastRecStatus =
+        compEngine.Compare(literal, lastRecOnPage, queryOrderMaker);
+
+    if (firstRecStatus == 0) {
+      return firstRecOnPage;
+    } else if (lastRecStatus == 0) {
+      return lastRecOnPage;
+    } else {
+      if (firstRecStatus > 0 && lastRecStatus < 0) {
+        // record is on this page or does not exist
+        return BinarySearchPage(buffer, queryOrderMaker, literal);
+      } else if (lastRecStatus > 0) {
+        // record is in second half
+        // change lower to mid + 1
+        lower = mid + 1;
+      } else if (firstRecStatus < 0) {
+        // record is in first half
+        // change higher to mid - 1
+        higher = mid - 1;
+      }
+    }
+  }
+
+  return NULL;
+}
+
+Record *SortedDBFile::BinarySearchPage(Page *buffer,
+                                       OrderMaker *queryOrderMaker,
+                                       Record *literal) {
+  int lower = 0;
+  int higher = buffer->GetNumRecords();
+  ComparisonEngine compEngine;
+
+  while (lower <= higher) {
+    int mid = lower + (higher - lower) / 2;
+    Record *midRec = new Record();
+    buffer->ReadNext(*midRec, mid);
+    int midRecStatus = compEngine.Compare(literal, midRec, queryOrderMaker);
+    if (midRecStatus == 0) {
+      return midRec;
+    } else if (midRecStatus > 0) {
+      lower = mid + 1;
+    } else if (midRecStatus < 0) {
+      higher = mid - 1;
+    }
+  }
+
+  return NULL;
 }

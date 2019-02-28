@@ -293,4 +293,6 @@ int File ::Close() {
 
   // and return the size
   return curLength;
+
 }
+

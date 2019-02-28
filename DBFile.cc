@@ -42,10 +42,10 @@ void DBFile::MoveFirst() { dbFile->MoveFirst(); }
 
 void DBFile::Add(Record &addme) { dbFile->Add(addme); }
 
-int DBFile::GetNext(Record &fetchme) { dbFile->GetNext(fetchme); }
+int DBFile::GetNext(Record &fetchme) { return dbFile->GetNext(fetchme); }
 
-int DBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal){
-  dbFile->GetNext(fetchme, cnf, literal);
+int DBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
+  return dbFile->GetNext(fetchme, cnf, literal);
 }
 
 bool DBFile::CheckIfCorrectFileType(fType type) {
@@ -76,9 +76,8 @@ GenericDBFile *DBFile::GetDBFileInstance(fType type) {
     case heap:
       return new HeapDBFile();
     case sorted:
-      return new SortedDBFile();
     case tree:
-      break;
+      return new SortedDBFile();
   }
 }
 
