@@ -182,6 +182,7 @@ void HeapDBFile::Load(Schema &f_schema, const char *loadpath) {
       Add(*temp);
     }
   }
+  std::cout << endl;
   FlushBuffer();
   cout << "Bulk Loaded " << count << " records" << endl;
 }

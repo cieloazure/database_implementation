@@ -60,7 +60,7 @@ class ComparisonTest : public ::testing::Test {
 
     OrderMaker querySortOrder;
 
-    cnf.GetSortOrderAttributes(fileSortOrder, querySortOrder);
+    cnf.BuildQueryOrderMaker(fileSortOrder, querySortOrder);
 
     querySortOrder.Print();
   }

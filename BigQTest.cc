@@ -196,6 +196,8 @@ class BigQTest : public ::testing::Test {
     }
 
     cout << " consumer: removed " << i << " recs from the pipe\n";
+  cout << " consumer: " << (i - err) << " recs out of " << i
+       << " recs in sorted order \n";
 
     EXPECT_FALSE(err);
     pthread_join(thread1, NULL);
@@ -283,7 +285,7 @@ TEST_F(BigQTest, WHEN_OUTPUT_PIPE_IS_SHUTDOWN_BEFORE_SORTING_IN_OTHER_THREAD) {
   }
 
   cout << " consumer: removed " << i << " recs from the pipe\n";
-  cerr << " consumer: " << (i - err) << " recs out of " << i
+  cout << " consumer: " << (i - err) << " recs out of " << i
        << " recs in sorted order \n";
 
   EXPECT_FALSE(err);

@@ -95,8 +95,8 @@ class CNF {
   void GrowFromParseTree(struct AndList *parseTree, Schema *mySchema,
                          Record &literal);
 
-  void GetSortOrderAttributes(OrderMaker &fileSortOrder,
-                              OrderMaker &querySortOrder);
+  void BuildQueryOrderMaker(OrderMaker &fileSortOrder,
+                            OrderMaker &querySortOrder);
 };
 
 #endif

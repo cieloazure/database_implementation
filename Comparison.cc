@@ -596,8 +596,8 @@ void CNF ::GrowFromParseTree(struct AndList *parseTree, Schema *mySchema,
   remove("hkljdfgkSDFSDF");
 }
 
-void CNF::GetSortOrderAttributes(OrderMaker &fileSortOrder,
-                                 OrderMaker &querySortOrder) {
+void CNF::BuildQueryOrderMaker(OrderMaker &fileSortOrder,
+                               OrderMaker &querySortOrder) {
   int l = 0;
   for (int k = 0; k < fileSortOrder.numAtts; k++) {
     // get file sort attribute
