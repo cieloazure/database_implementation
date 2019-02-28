@@ -40,48 +40,75 @@ class ComparisonTest : public ::testing::Test {
   }
 
   // Objects declared here can be used by all tests in the test case for Foo.
+  void buildQueryOrderMaker(const char cnf_string[]) {
+    Schema mySchema("catalog", "lineitem");
+
+    YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
+    yyparse();
+    yy_delete_buffer(buffer);
+
+    // grow the CNF expression from the parse tree
+    CNF cnf;
+    Record literal;
+    cnf.GrowFromParseTree(final, &mySchema, literal);
+
+    // print out the comparison to the screen
+    cnf.Print();
+
+    OrderMaker fileSortOrder(&mySchema);
+    fileSortOrder.Print();
+
+    OrderMaker querySortOrder;
+
+    cnf.GetSortOrderAttributes(fileSortOrder, querySortOrder);
+
+    querySortOrder.Print();
+  }
 };
 
-TEST_F(ComparisonTest, GET_SORT_ORDER_ATTRIBUTES_TEST) {
-  Schema mySchema("catalog", "lineitem");
+TEST_F(ComparisonTest, GET_SORT_ORDER_ATTRIBUTES_TEST_1_ATTRIBUTE) {
+  const char cnf_string[] = "(l_orderkey = 20)";
+  buildQueryOrderMaker(cnf_string);
+}
 
-  const char cnf_string[] = "(l_orderkey = 30) AND (l_partkey = 10)";
-  YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
-  yyparse();
-  yy_delete_buffer(buffer);
+TEST_F(ComparisonTest, GET_SORT_ORDER_ATTRIBUTES_TEST_MULTIPLE_ATTRIBUTES) {
+  const char cnf_string[] =
+      "(l_orderkey = 20) AND (l_suppkey = 30) AND (l_partkey = 40)";
+  buildQueryOrderMaker(cnf_string);
+}
 
-  // grow the CNF expression from the parse tree
-  CNF cnf;
-  Record literal;
-  cnf.GrowFromParseTree(final, &mySchema, literal);
+TEST_F(ComparisonTest,
+       GET_SORT_ORDER_ATTRIBUTES_TEST_MULTIPLE_ATTRIBUTES_NOT_IN_ORDER) {
+  const char cnf_string[] =
+      "(l_suppkey = 30) AND (l_partkey = 40) AND (l_orderkey = 10)";
+  buildQueryOrderMaker(cnf_string);
+}
 
-  // print out the comparison to the screen
-  cnf.Print();
+TEST_F(ComparisonTest,
+       GET_SORT_ORDER_ATTRIBUTES_TEST_FIRST_ATTRIBUTE_NOT_PRESENT) {
+  const char cnf_string[] = "(l_suppkey = 30) AND (l_partkey = 40)";
+  buildQueryOrderMaker(cnf_string);
+}
 
-  OrderMaker fileSortOrder(&mySchema);
-  fileSortOrder.Print();
+TEST_F(ComparisonTest,
+       GET_SORT_ORDER_ATTRIBUTES_TEST_SOME_MIDDLE_ATTRIBUTE_NOT_PRESENT) {
+  const char cnf_string[] =
+      "(l_partkey = 30) AND (l_linenumber = 4) AND (l_orderkey = 10)";
+  buildQueryOrderMaker(cnf_string);
+}
 
-  OrderMaker querySortOrder;
+TEST_F(ComparisonTest,
+       GET_SORT_ORDER_ATTRIBUTES_TEST_OTHER_COMPARISON_OPERATIONS) {
+  const char cnf_string[] =
+      "(l_partkey < 30) AND (l_suppkey = 4) AND (l_orderkey = 10)";
+  buildQueryOrderMaker(cnf_string);
+}
 
-  cnf.GetSortOrderAttributes(fileSortOrder, querySortOrder);
-
-  querySortOrder.Print();
-
-  //   const char cnf_string_2[] = "(l_orderkey) AND (l_partkey)";
-  //   YY_BUFFER_STATE buffer_2 = yy_scan_string(cnf_string);
-  //   yyparse();
-  //   yy_delete_buffer(buffer_2);
-
-  //   Record literal2;
-  //   CNF sort_pred;
-  //   sort_pred.GrowFromParseTree(final, &mySchema,
-  //                               literal2);  // constructs CNF predicate
-  //   OrderMaker dummy;
-  //   OrderMaker *sortorder = new OrderMaker();
-  //   sort_pred.GetSortOrders(*sortorder, dummy);
-
-  //   sortorder->Print();
-  //   dummy.Print();
+TEST_F(ComparisonTest,
+       GET_SORT_ORDER_ATTRIBUTES_TEST_OTHER_COMPARISON_OPERATIONS_2) {
+  const char cnf_string[] =
+      "(l_partkey = 30) AND (l_suppkey > 4) AND (l_orderkey = 10)";
+  buildQueryOrderMaker(cnf_string);
 }
 
 }  // namespace dbi

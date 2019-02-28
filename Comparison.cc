@@ -599,48 +599,48 @@ void CNF ::GrowFromParseTree(struct AndList *parseTree, Schema *mySchema,
 void CNF::GetSortOrderAttributes(OrderMaker &fileSortOrder,
                                  OrderMaker &querySortOrder) {
   int l = 0;
-  int m = 0;
-  int n = 0;
   for (int k = 0; k < fileSortOrder.numAtts; k++) {
     // get file sort attribute
     int sortAttribute = fileSortOrder.whichAtts[k];
-    // check in cnf
-    for (int i = m; i < numAnds; i++) {
-      for (int j = n; j < orLens[i]; j++) {
+
+    bool found = false;
+    // check in CNF
+    for (int i = 0; i < numAnds; i++) {
+      for (int j = 0; j < orLens[i]; j++) {
         // check if one of the them is a literal
         // and operator is of type equals
         Comparison compElem = orList[i][j];
         if (!((compElem.operand1 == Literal && compElem.operand2 == Literal) ||
               (compElem.operand1 != Literal && compElem.operand2 != Literal)) &&
             compElem.op == Equals) {
+          // If the first or second attribute
           if (compElem.operand1 != Literal &&
               compElem.whichAtt1 == sortAttribute) {
             querySortOrder.whichAtts[l] = compElem.whichAtt1;
             querySortOrder.whichTypes[l] = compElem.attType;
             querySortOrder.numAtts++;
             l++;
-            n = j + 1;
-            if (n == orLens[i]) {
-              m = m + 1;
-              n = 0;
-            }
+            found = true;
+            break;
           } else if (compElem.operand2 != Literal &&
                      compElem.whichAtt2 == sortAttribute) {
             querySortOrder.whichAtts[l] = compElem.whichAtt2;
             querySortOrder.whichTypes[l] = compElem.attType;
             querySortOrder.numAtts++;
             l++;
-            n = j + 1;
-            if (n == orLens[i]) {
-              m = m + 1;
-              n = 0;
-            }
+            found = true;
             break;
           } else {
             continue;
           }
         }
       }
+    }
+
+    // Attribute is not found; stop building the query order maker
+    // This implies the sort order does not match
+    if (!found) {
+      break;
     }
   }
 }

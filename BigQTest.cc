@@ -199,7 +199,7 @@ class BigQTest : public ::testing::Test {
 
     EXPECT_FALSE(err);
     pthread_join(thread1, NULL);
-    EXPECT_EQ(i,threadArg.result);
+    EXPECT_EQ(i, threadArg.result);
     delete input;
     delete output;
   }
@@ -283,6 +283,8 @@ TEST_F(BigQTest, WHEN_OUTPUT_PIPE_IS_SHUTDOWN_BEFORE_SORTING_IN_OTHER_THREAD) {
   }
 
   cout << " consumer: removed " << i << " recs from the pipe\n";
+  cerr << " consumer: " << (i - err) << " recs out of " << i
+       << " recs in sorted order \n";
 
   EXPECT_FALSE(err);
   pthread_join(thread1, NULL);

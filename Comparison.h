@@ -55,6 +55,7 @@ class OrderMaker {
   // print to the screen
   void Print();
 
+  // Serialization methods
   void UnSerialize(int metadata_file_descriptor);
   void Serialize(int metadata_file_descriptor);
 };
