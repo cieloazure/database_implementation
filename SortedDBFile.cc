@@ -544,6 +544,63 @@ int SortedDBFile::GetNextForMerge(Record &fetchme) {
   return 1;
 }
 
+int SortedDBFile::CopyBufferToPage(Page *buffer, Page *flush_to_page,
+                                 bool empty_flush_to_page_flag) {
+  // Is it a new page and hence previous flush has already been written to file
+  if (empty_flush_to_page_flag) {
+    flush_to_page->EmptyItOut();
+  }
+
+  Record to_be_copied;
+  while (buffer->GetFirst(&to_be_copied) != 0) {
+    if (flush_to_page->Append(&to_be_copied) == 0) {
+      buffer->Append(
+          &to_be_copied); /* Need to append again to the buffer as the
+                             GetFirst() will remove the record from buffer */
+      return 0;
+    }
+  }
+  return 1;
+}
+
+void SortedDBFile::FlushBuffer() {
+  int prev_write_page_index = current_write_page_index;
+
+  Page *flush_to_page = new Page();
+  // Check if any pages have been alloted before
+  if (current_write_page_index < 0) {
+    // No pages have been alloted before
+    // This is the first page
+    current_write_page_index++;
+
+    // Set read page and read index
+    current_read_page_index = current_write_page_index;
+    current_read_page_offset = -1;
+  } else {
+    // Pages have been alloted; Check if last page has space
+    persistent_file->GetPage(flush_to_page, current_write_page_index);
+  }
+
+  // Flush buffer to pages till the buffer is empty
+  // The file page size may be smaller than the buffer page size hence
+  // The entire buffer may not fit on the page
+  bool empty_flush_to_page_flag = false;
+  while (CopyBufferToPage(buffer, flush_to_page, empty_flush_to_page_flag) ==
+         0) {
+    persistent_file->AddPage(flush_to_page, current_write_page_index);
+    current_write_page_index++;
+    empty_flush_to_page_flag = true;
+  }
+
+  persistent_file->AddPage(flush_to_page, current_write_page_index);
+  // If new page(s) was required
+  if (prev_write_page_index != current_write_page_index) {
+    // Update the metadata for the file
+    lseek(metadata_file_descriptor, sizeof(fType), SEEK_SET);
+    write(metadata_file_descriptor, &current_write_page_index, sizeof(off_t));
+  }
+}
+
 int SortedDBFile::GetNext(Record &fetchme) { return -1; }
 
 int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
