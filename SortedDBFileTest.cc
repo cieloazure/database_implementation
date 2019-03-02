@@ -235,7 +235,8 @@ TEST_F(SortedDBFileTest, DISABLED_BINARY_SEARCH_FILE) {
   delete sortedDBFile;
 }
 
-TEST_F(SortedDBFileTest, GET_NEXT_WITH_PARAMETERS) {
+// Disabling it until add and load are implemented
+TEST_F(SortedDBFileTest, DISABLED_GET_NEXT_WITH_PARAMETERS) {
   SortedDBFile *sortedFile = new SortedDBFile();
   if (sortedFile->Create("gtest.bin", sorted, (void *)si)) {
     const char *loadpath = "data_files/lineitem.tbl";
