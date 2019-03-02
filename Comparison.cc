@@ -116,6 +116,14 @@ void OrderMaker::UnSerialize(int metadata_file_descriptor) {
   }
 }
 
+bool OrderMaker::IsEmpty() {
+  if (numAtts <= 0) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 int CNF ::GetSortOrders(OrderMaker &left, OrderMaker &right) {
   // initialize the size of the OrderMakers
   left.numAtts = 0;

@@ -58,6 +58,8 @@ class OrderMaker {
   // Serialization methods
   void UnSerialize(int metadata_file_descriptor);
   void Serialize(int metadata_file_descriptor);
+
+  bool IsEmpty();
 };
 
 class Record;

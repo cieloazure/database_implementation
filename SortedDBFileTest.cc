@@ -1,4 +1,5 @@
 #include "DBFile.h"
+#include "File.h"
 #include "SortedDBFile.h"
 #include "gtest/gtest.h"
 
@@ -16,6 +17,17 @@ struct SortInfo {
   SortInfo(OrderMaker *so, int rl) {
     sortOrder = so;
     runLength = rl;
+  }
+};
+
+struct TempTupleForSearch {
+  OrderMaker queryOrderMaker;
+  Record *literal;
+
+  TempTupleForSearch(OrderMaker qom, Record *lit) {
+    queryOrderMaker = qom;
+    literal = new Record;
+    literal->Copy(lit);
   }
 };
 
@@ -57,13 +69,41 @@ class SortedDBFileTest : public ::testing::Test {
   // Objects declared here can be used by all tests in the test case for Foo.
   OrderMaker *o = new OrderMaker(&mySchema);
   SortInfo *si = new SortInfo(o, 3);
+
+  TempTupleForSearch *buildQueryOrderMaker(const char cnf_string[]) {
+    Schema mySchema("catalog", "lineitem");
+
+    YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
+    yyparse();
+    yy_delete_buffer(buffer);
+
+    // grow the CNF expression from the parse tree
+    CNF cnf;
+    Record *literal = new Record();
+    cnf.GrowFromParseTree(final, &mySchema, *literal);
+
+    // print out the comparison to the screen
+    cnf.Print();
+
+    OrderMaker fileSortOrder(&mySchema);
+    fileSortOrder.Print();
+
+    OrderMaker querySortOrder;
+
+    cnf.BuildQueryOrderMaker(fileSortOrder, querySortOrder);
+
+    querySortOrder.Print();
+
+    TempTupleForSearch *t = new TempTupleForSearch(querySortOrder, literal);
+    return t;
+  }
 };
 
 TEST_F(SortedDBFileTest, CREATE_SUCCESS) {
-  DBFile *heapFile = new DBFile();
+  DBFile *sortFile = new DBFile();
   fType t = sorted;
-  EXPECT_TRUE(heapFile->Create("gtest.bin", t, (void *)si));
-  delete heapFile;
+  EXPECT_TRUE(sortFile->Create("gtest.bin", t, (void *)si));
+  delete sortFile;
 }
 
 TEST_F(SortedDBFileTest, CREATE_FAILURE_WHEN_FILE_NAME_IS_TOO_LARGE) {
@@ -75,77 +115,152 @@ TEST_F(SortedDBFileTest, CREATE_FAILURE_WHEN_FILE_NAME_IS_TOO_LARGE) {
   }
   s += ".bin";
 
-  DBFile *heapFile = new DBFile();
+  DBFile *sortFile = new DBFile();
   fType t = sorted;
-  EXPECT_FALSE(heapFile->Create(s.c_str(), t, (void *)si));
-  delete heapFile;
+  EXPECT_FALSE(sortFile->Create(s.c_str(), t, (void *)si));
+  delete sortFile;
 }
 
-TEST_F(SortedDBFileTest,
-       CREATE_FAILURE_WHEN_FILENAME_IS_AN_EMPTY_STRING) {
-  DBFile *heapFile = new DBFile();
+TEST_F(SortedDBFileTest, CREATE_FAILURE_WHEN_FILENAME_IS_AN_EMPTY_STRING) {
+  DBFile *sortFile = new DBFile();
   fType t = sorted;
-  EXPECT_FALSE(heapFile->Create("", t, (void *)si));
-  delete heapFile;
+  EXPECT_FALSE(sortFile->Create("", t, (void *)si));
+  delete sortFile;
 }
 
 TEST_F(SortedDBFileTest, CREATE_FAILURE_WHEN_FILE_TYPE_IS_INVALID) {
-  DBFile *heapFile = new DBFile();
-  EXPECT_FALSE(heapFile->Create("gtest.bin", (fType)4, (void *)si));
-  delete heapFile;
+  DBFile *sortFile = new DBFile();
+  EXPECT_FALSE(sortFile->Create("gtest.bin", (fType)4, (void *)si));
+  delete sortFile;
 }
 
 TEST_F(SortedDBFileTest, OPEN_SUCCESS) {
-  DBFile *heapFile = new DBFile();
+  DBFile *sortFile = new DBFile();
   fType t = sorted;
-  if (heapFile->Create("gtest.bin", t, (void *)si)) {
-    heapFile->Close();
-    EXPECT_TRUE(heapFile->Open("gtest.bin"));
+  if (sortFile->Create("gtest.bin", t, (void *)si)) {
+    sortFile->Close();
+    EXPECT_TRUE(sortFile->Open("gtest.bin"));
   }
-  delete heapFile;
+  delete sortFile;
 }
 
-
 TEST_F(SortedDBFileTest, OPEN_FAILURE_MISSING_METADATA_FILE) {
-  DBFile *heapFile = new DBFile();
+  DBFile *sortFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.bin", t, (void *)si)) {
-    heapFile->Close();
+  if (sortFile->Create("gtest.bin", t, (void *)si)) {
+    sortFile->Close();
     remove("gtest.header");
-    EXPECT_FALSE(heapFile->Open("gtest.bin"));
+    EXPECT_FALSE(sortFile->Open("gtest.bin"));
   }
-  delete heapFile;
+  delete sortFile;
 }
 
 TEST_F(SortedDBFileTest, OPEN_FAILURE_ON_INVALID_FILE_TYPE_IN_METADATA_FILE) {
-  DBFile *heapFile = new DBFile();
+  DBFile *sortFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.bin", t, (void *)si)) {
-    heapFile->Close();
+  if (sortFile->Create("gtest.bin", t, (void *)si)) {
+    sortFile->Close();
     int fd = open("gtest.header", O_RDWR, S_IRUSR | S_IWUSR);
     lseek(fd, 0, SEEK_SET);
     int invalid_value = 4;
     write(fd, &invalid_value, sizeof(fType));
-    EXPECT_FALSE(heapFile->Open("gtest.bin"));
+    EXPECT_FALSE(sortFile->Open("gtest.bin"));
   }
-  delete heapFile;
+  delete sortFile;
 }
 
 TEST_F(SortedDBFileTest, OPEN_FAILURE_WHEN_A_FILE_DOES_NOT_EXISTS) {
-  DBFile *heapFile = new DBFile();
-  EXPECT_FALSE(heapFile->Open("gtest2.bin"));
-  delete heapFile;
+  DBFile *sortFile = new DBFile();
+  EXPECT_FALSE(sortFile->Open("gtest2.bin"));
+  delete sortFile;
 }
 
 TEST_F(SortedDBFileTest, OPEN_FAILURE_WHEN_A_FILE_NAME_IS_INVALID) {
-  DBFile *heapFile = new DBFile();
+  DBFile *sortFile = new DBFile();
   fType t = heap;
-  if (heapFile->Create("gtest.bin", t, (void *)si)) {
-    heapFile->Close();
-    EXPECT_FALSE(heapFile->Open(""));
+  if (sortFile->Create("gtest.bin", t, (void *)si)) {
+    sortFile->Close();
+    EXPECT_FALSE(sortFile->Open(""));
   }
-  delete heapFile;
+  delete sortFile;
 }
 
+TEST_F(SortedDBFileTest, DISABLED_BINARY_SEARCH_PAGE) {
+  DBFile *heapFile = new DBFile();
+  fType t = heap;
+  heapFile->Create("gtest.bin", t, NULL);
+  Schema mySchema("catalog", "lineitem");
+  OrderMaker so(&mySchema);
+  const char *loadpath = "data_files/lineitem.tbl";
+  heapFile->Load(mySchema, loadpath);
+  heapFile->Close();
+
+  File *f = new File();
+  f->Open(1, (char *)"gtest.bin");
+  Page *buffer = new Page();
+  f->GetPage(buffer, 0);
+  cout << buffer->GetNumRecords() << endl;
+
+  SortedDBFile *sortedDBFile = new SortedDBFile();
+  fType t1 = sorted;
+  sortedDBFile->Create("gtest_sorted.bin", t1, (void *)si);
+
+  const char cnf_string[] = "(l_orderkey = 69)";
+  TempTupleForSearch *ttfs = buildQueryOrderMaker(cnf_string);
+  // sortedDBFile->BinarySearchPage(buffer, &ttfs->queryOrderMaker,
+  // ttfs->literal);
+  delete sortedDBFile;
+}
+
+TEST_F(SortedDBFileTest, DISABLED_BINARY_SEARCH_FILE) {
+  DBFile *heapFile = new DBFile();
+  fType t = heap;
+  heapFile->Create("gtest.bin", t, NULL);
+  Schema mySchema("catalog", "lineitem");
+  const char *loadpath = "data_files/lineitem.tbl";
+  heapFile->Load(mySchema, loadpath);
+  heapFile->Close();
+
+  File *file = new File();
+  file->Open(1, (char *)"gtest.bin");
+
+  SortedDBFile *sortedDBFile = new SortedDBFile();
+  fType t1 = sorted;
+  sortedDBFile->Create("gtest_sorted.bin", t1, (void *)si);
+
+  const char cnf_string[] = "(l_orderkey = 14630)";
+  TempTupleForSearch *ttfs = buildQueryOrderMaker(cnf_string);
+  // sortedDBFile->BinarySearchFile(file, &ttfs->queryOrderMaker, ttfs->literal,
+  //                                0);
+  delete sortedDBFile;
+}
+
+TEST_F(SortedDBFileTest, GET_NEXT_WITH_PARAMETERS) {
+  SortedDBFile *sortedFile = new SortedDBFile();
+  if (sortedFile->Create("gtest.bin", sorted, (void *)si)) {
+    const char *loadpath = "data_files/lineitem.tbl";
+
+    Schema mySchema("catalog", "lineitem");
+    sortedFile->Load(mySchema, loadpath);
+
+    const char cnf_string[] = "(l_orderkey = 69)";
+    YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
+    yyparse();
+    yy_delete_buffer(buffer);
+
+    // grow the CNF expression from the parse tree
+    CNF cnf;
+    Record literal;
+    cnf.GrowFromParseTree(final, &mySchema, literal);
+
+    // print out the comparison to the screen
+    cnf.Print();
+
+    // temp3->Print(&mySchema);
+    Record temp;
+    EXPECT_TRUE(sortedFile->GetNext(temp, cnf, literal));
+    sortedFile->Close();
+  }
+}
 
 }  // namespace dbi
