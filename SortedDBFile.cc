@@ -28,6 +28,7 @@ SortedDBFile::SortedDBFile() {
   sortOrder = new OrderMaker();
   input = new Pipe(100);
   output = new Pipe(100);
+  cachedGetNext = false;
 }
 
 SortedDBFile::~SortedDBFile() {
@@ -648,8 +649,8 @@ int SortedDBFile::GetNext(Record &fetchme) {
 int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
   OrderMaker queryOrderMaker;
   ComparisonEngine comp;
-  cnf.BuildQueryOrderMaker(*sortOrder, queryOrderMaker);
-  if (!queryOrderMaker.IsEmpty()) {
+  if (!cachedGetNext) cnf.BuildQueryOrderMaker(*sortOrder, queryOrderMaker);
+  if (!queryOrderMaker.IsEmpty() && !cachedGetNext) {
     // queryOrderMaker is not empty
     // cnf matches our file sortorder
     // we can use our file sortorder to make this query faster
@@ -661,14 +662,16 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
                          current_read_page_offset)) {
       // Binary search is successful with queryOrderMaker
       current_read_page_index = foundPage;
-      current_read_page_offset = foundOffset;
       // To reuse GetNext(&fetchme) to get the next record on this page we
       // decrement the offset so that it will be incremented again in GetNext()
-      current_read_page_offset--;
-      bool found = true;
+      current_read_page_offset = foundOffset - 1;
+
       while (GetNext(fetchme) != 0) {
         if (comp.Compare(&fetchme, &literal, &queryOrderMaker) == 0) {
           if (comp.Compare(&fetchme, &literal, &cnf) == 0) {
+            // TODO: Think about when to cache get next
+            // Should it be right after building the query
+            cachedGetNext = true;
             return 1;
           }
         } else {
@@ -680,9 +683,9 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
       // Binary search was unsuccessful with queryOrderMaker
       return 0;
     }
-    return 0;
   } else {
     // queryOrderMaker is empty
+    // speedup in search is not possible
     while (GetNext(fetchme) != 0) {
       if (comp.Compare(&fetchme, &literal, &cnf) == 0) {
         return 1;

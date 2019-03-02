@@ -63,6 +63,8 @@ class SortedDBFile : public GenericDBFile {
   Pipe *input;
   Pipe *output;
 
+  bool cachedGetNext;
+
  public:
   SortedDBFile();
   ~SortedDBFile();
