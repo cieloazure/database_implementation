@@ -63,7 +63,8 @@ class SortedDBFile : public GenericDBFile {
   Pipe *input;
   Pipe *output;
 
-  bool cachedGetNext;
+  bool cachedGetNextFlag;
+  OrderMaker queryOrderMaker;
 
  public:
   SortedDBFile();

@@ -28,7 +28,8 @@ SortedDBFile::SortedDBFile() {
   sortOrder = new OrderMaker();
   input = new Pipe(100);
   output = new Pipe(100);
-  cachedGetNext = false;
+  cachedGetNextFlag = false;
+  // queryOrderMaker = NULL;
 }
 
 SortedDBFile::~SortedDBFile() {
@@ -667,54 +668,66 @@ int SortedDBFile::GetNext(Record &fetchme) {
   return 1;
 }
 
-Schema mySchema2("catalog", "lineitem");
 int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
-  OrderMaker queryOrderMaker;
   ComparisonEngine comp;
-  if (!cachedGetNext) cnf.BuildQueryOrderMaker(*sortOrder, queryOrderMaker);
-  if (!queryOrderMaker.IsEmpty() && !cachedGetNext) {
-    // queryOrderMaker is not empty
-    // cnf matches our file sortorder
-    // we can use our file sortorder to make this query faster
-    Record *putItHere;
-    off_t foundPage;
-    int foundOffset;
-    if (BinarySearchFile(putItHere, &foundPage, &foundOffset, persistent_file,
-                         &queryOrderMaker, &literal, current_read_page_index,
-                         current_read_page_offset)) {
-      // Binary search is successful with queryOrderMaker
-      current_read_page_index = foundPage;
-      // To reuse GetNext(&fetchme) to get the next record on this page we
-      // decrement the offset so that it will be incremented again in GetNext()
-      current_read_page_offset = foundOffset - 1;
+  if (!cachedGetNextFlag) {
+    cnf.BuildQueryOrderMaker(*sortOrder, queryOrderMaker);
+    if (!queryOrderMaker.IsEmpty()) {
+      // queryOrderMaker is not empty
+      // cnf matches our file sortorder
+      // we can use our file sortorder to make this query faster
+      Record *putItHere;
+      off_t foundPage;
+      int foundOffset;
+      if (BinarySearchFile(putItHere, &foundPage, &foundOffset, persistent_file,
+                           &queryOrderMaker, &literal, current_read_page_index,
+                           current_read_page_offset)) {
+        // Binary search is successful with queryOrderMaker
+        current_read_page_index = foundPage;
+        // To reuse GetNext(&fetchme) to get the next record on this page we
+        // decrement the offset so that it will be incremented again in
+        // GetNext()
+        current_read_page_offset = foundOffset - 1;
 
-      while (GetNext(fetchme) != 0) {
-        fetchme.Print(&mySchema2);
-        if (comp.Compare(&fetchme, &literal, &queryOrderMaker) == 0) {
-          if (comp.Compare(&fetchme, &literal, &cnf)) {
-            // TODO: Think about when to cache get next
-            // Should it be right after building the query
-            cachedGetNext = true;
-            return 1;
+        // If a binary search is successful with the queryOrderMaker it makes
+        // sense to cache the queryOrderMaker as it is likely that the next call
+        // to getnext with same parameters will have a match as well
+        cachedGetNextFlag = true;
+
+        while (GetNext(fetchme) != 0) {
+          if (comp.Compare(&fetchme, &literal, &queryOrderMaker) == 0) {
+            if (comp.Compare(&fetchme, &literal, &cnf)) {
+              return 1;
+            }
+          } else {
+            return 0;
           }
-        } else {
-          return 0;
+        }
+        return 0;
+      } else {
+        // Binary search was unsuccessful with queryOrderMaker
+        return 0;
+      }
+    } else {
+      // queryOrderMaker is empty
+      // speedup in search is not possible
+      while (GetNext(fetchme) != 0) {
+        if (comp.Compare(&fetchme, &literal, &cnf) == 0) {
+          return 1;
         }
       }
       return 0;
-    } else {
-      // Binary search was unsuccessful with queryOrderMaker
-      return 0;
     }
   } else {
-    // queryOrderMaker is empty
-    // speedup in search is not possible
     while (GetNext(fetchme) != 0) {
-      if (comp.Compare(&fetchme, &literal, &cnf) == 0) {
-        return 1;
+      if (comp.Compare(&fetchme, &literal, &queryOrderMaker) == 0) {
+        if (comp.Compare(&fetchme, &literal, &cnf)) {
+          return 1;
+        }
+      } else {
+        return 0;
       }
     }
-    return 0;
   }
 }
 
@@ -759,7 +772,7 @@ int SortedDBFile::BinarySearchFile(Record *putItHere, off_t *foundPage,
 
     // TODO: sorting the buffer first
     // TODO: Ideally page should be sorted in the file itself
-    // TODO: will be removed
+    // TODO: will be removed after add and load functions are implemented/tested
     // ************ DANGER ************************
     // ***************** QUICKFIX, to be removed **********
     // ####### DONT FORGET TO REMOVE THIS LINE
