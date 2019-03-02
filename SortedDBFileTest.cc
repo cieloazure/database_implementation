@@ -185,7 +185,7 @@ TEST_F(SortedDBFileTest, OPEN_FAILURE_WHEN_A_FILE_NAME_IS_INVALID) {
   delete sortFile;
 }
 
-TEST_F(SortedDBFileTest, BINARY_SEARCH_PAGE) {
+TEST_F(SortedDBFileTest, DISABLED_BINARY_SEARCH_PAGE) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
   heapFile->Create("gtest.bin", t, NULL);
@@ -207,11 +207,12 @@ TEST_F(SortedDBFileTest, BINARY_SEARCH_PAGE) {
 
   const char cnf_string[] = "(l_orderkey = 69)";
   TempTupleForSearch *ttfs = buildQueryOrderMaker(cnf_string);
-  sortedDBFile->BinarySearchPage(buffer, &ttfs->queryOrderMaker, ttfs->literal);
+  // sortedDBFile->BinarySearchPage(buffer, &ttfs->queryOrderMaker,
+  // ttfs->literal);
   delete sortedDBFile;
 }
 
-TEST_F(SortedDBFileTest, BINARY_SEARCH_FILE) {
+TEST_F(SortedDBFileTest, DISABLED_BINARY_SEARCH_FILE) {
   DBFile *heapFile = new DBFile();
   fType t = heap;
   heapFile->Create("gtest.bin", t, NULL);
@@ -229,9 +230,37 @@ TEST_F(SortedDBFileTest, BINARY_SEARCH_FILE) {
 
   const char cnf_string[] = "(l_orderkey = 14630)";
   TempTupleForSearch *ttfs = buildQueryOrderMaker(cnf_string);
-  sortedDBFile->BinarySearchFile(file, &ttfs->queryOrderMaker, ttfs->literal,
-                                 0);
+  // sortedDBFile->BinarySearchFile(file, &ttfs->queryOrderMaker, ttfs->literal,
+  //                                0);
   delete sortedDBFile;
+}
+
+TEST_F(SortedDBFileTest, GET_NEXT_WITH_PARAMETERS) {
+  SortedDBFile *sortedFile = new SortedDBFile();
+  if (sortedFile->Create("gtest.bin", sorted, (void *)si)) {
+    const char *loadpath = "data_files/lineitem.tbl";
+
+    Schema mySchema("catalog", "lineitem");
+    sortedFile->Load(mySchema, loadpath);
+
+    const char cnf_string[] = "(l_orderkey = 69)";
+    YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
+    yyparse();
+    yy_delete_buffer(buffer);
+
+    // grow the CNF expression from the parse tree
+    CNF cnf;
+    Record literal;
+    cnf.GrowFromParseTree(final, &mySchema, literal);
+
+    // print out the comparison to the screen
+    cnf.Print();
+
+    // temp3->Print(&mySchema);
+    Record temp;
+    EXPECT_TRUE(sortedFile->GetNext(temp, cnf, literal));
+    sortedFile->Close();
+  }
 }
 
 }  // namespace dbi

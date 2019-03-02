@@ -307,9 +307,10 @@ void SortedDBFile::Load(Schema &myschema, const char *loadpath) {
   cout << "Bulk Loaded " << count << " records" << endl;
 }
 
-void SortedDBFile::Add(Record &addme) {
+// ***************** DANGER **************************
+// Using heapfile's function for testing getnext
+void SortedDBFile::Add(Record &rec) {
   CheckIfFilePresent();
-
   // If it is not dirty empty out all the records read
   if (!dirty) {
     buffer->EmptyItOut();
@@ -317,28 +318,48 @@ void SortedDBFile::Add(Record &addme) {
     dirty = true;
   }
 
-  if (mode == writing) {
-    // insert into the bigq input pipe.
-    input->Insert(&addme);
-    // TODO: handle a case when this input pipe gets full.
-
-  } else {
-    // init BigQ member object and then insert into the bigq pipe.
-    bigq_file = new BigQ(*input, *output, *sortOrder, runLength);
-    input->Insert(&addme);
-    mode = writing;
-  }
-
   // If The buffer is full: Flush the buffer to persistent storage
   // Else: just append to the buffer and set dirty variable
   // cout << buffer->GetNumRecords() << endl;
-  // if (buffer->Append(&addme) == 0) {
-  //   FlushBuffer();
-  //   buffer->Append(&addme); /* Need to append again as the previous append
-  //   was
-  //                            unsuccessful */
-  // }
+  if (buffer->Append(&rec) == 0) {
+    FlushBuffer();
+    buffer->Append(&rec); /* Need to append again as the previous append was
+                             unsuccessful */
+  }
 }
+
+// void SortedDBFile::Add(Record &addme) {
+//   CheckIfFilePresent();
+
+//   // If it is not dirty empty out all the records read
+//   if (!dirty) {
+//     buffer->EmptyItOut();
+//     mode = writing;
+//     dirty = true;
+//   }
+
+//   if (mode == writing) {
+//     // insert into the bigq input pipe.
+//     input->Insert(&addme);
+//     // TODO: handle a case when this input pipe gets full.
+
+//   } else {
+//     // init BigQ member object and then insert into the bigq pipe.
+//     bigq_file = new BigQ(*input, *output, *sortOrder, runLength);
+//     input->Insert(&addme);
+//     mode = writing;
+//   }
+
+//   // If The buffer is full: Flush the buffer to persistent storage
+//   // Else: just append to the buffer and set dirty variable
+//   // cout << buffer->GetNumRecords() << endl;
+//   // if (buffer->Append(&addme) == 0) {
+//   //   FlushBuffer();
+//   //   buffer->Append(&addme); /* Need to append again as the previous append
+//   //   was
+//   //                            unsuccessful */
+//   // }
+// }
 
 void SortedDBFile::AddForMerge(Record &addme, File *new_persistent_file) {
   CheckIfFilePresent();
@@ -646,6 +667,7 @@ int SortedDBFile::GetNext(Record &fetchme) {
   return 1;
 }
 
+Schema mySchema2("catalog", "lineitem");
 int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
   OrderMaker queryOrderMaker;
   ComparisonEngine comp;
@@ -667,8 +689,9 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
       current_read_page_offset = foundOffset - 1;
 
       while (GetNext(fetchme) != 0) {
+        fetchme.Print(&mySchema2);
         if (comp.Compare(&fetchme, &literal, &queryOrderMaker) == 0) {
-          if (comp.Compare(&fetchme, &literal, &cnf) == 0) {
+          if (comp.Compare(&fetchme, &literal, &cnf)) {
             // TODO: Think about when to cache get next
             // Should it be right after building the query
             cachedGetNext = true;
