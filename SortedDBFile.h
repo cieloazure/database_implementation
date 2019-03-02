@@ -90,10 +90,12 @@ class SortedDBFile : public GenericDBFile {
   off_t GetCurrentReadPageIndex();
   off_t GetCurrentWritePageIndex();
 
-  Record *BinarySearchFile(File *persistent_file, OrderMaker *queryOrderMaker,
-                       Record *literal, off_t offset);
-  Record *BinarySearchPage(Page *buffer, OrderMaker *queryOrderMaker,
-                       Record *literal);
+  int BinarySearchFile(Record *putItHere, off_t *foundPage, int *foundOffset,
+                       File *persistent_file, OrderMaker *queryOrderMaker,
+                       Record *literal, off_t page_offset, int record_offset);
+  int BinarySearchPage(Record *putItHere, Page *buffer,
+                       OrderMaker *queryOrderMaker, Record *literal);
+
  private:
   char *GetMetaDataFileName(
       const char *file_path); /* Create a name of the metadata file based on the
@@ -107,6 +109,5 @@ class SortedDBFile : public GenericDBFile {
   void CheckIfFilePresent(); /* Check if a file is opened */
   bool CheckIfCorrectFileType(fType type);
   bool CheckIfFileNameIsValid(const char *file_name);
-
 };
 #endif

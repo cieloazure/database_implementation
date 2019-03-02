@@ -603,14 +603,93 @@ void SortedDBFile::FlushBuffer() {
   }
 }
 
-int SortedDBFile::GetNext(Record &fetchme) { return -1; }
+int SortedDBFile::GetNext(Record &fetchme) {
+  CheckIfFilePresent();
+  // If the buffer is dirty the records are to be written out to file before
+  // being read
+  if (dirty) {
+    FlushBuffer();
+    dirty = false;
+  }
+
+  // If records in all pages have been read
+  if (current_read_page_index < 0 ||
+      current_read_page_index > current_write_page_index) {
+    return 0;
+  }
+
+  // Get the Page current_read_page_index from the file
+  if (mode == writing || mode == idle) {
+    persistent_file->GetPage(buffer, current_read_page_index);
+    mode = reading;
+  }
+
+  // Increment to get the next record on the page no `current_read_page_index`
+  current_read_page_offset++;
+  // If there are no more records on the page `current_read_page_index` get next
+  // page
+  while (current_read_page_offset >= buffer->GetNumRecords() &&
+         current_read_page_index <= current_write_page_index) {
+    current_read_page_index++;
+    // If there are no more pages remaining in the file
+    // All records have been read
+    if (current_read_page_index > current_write_page_index) {
+      return 0;
+    }
+    current_read_page_offset = 0;
+    persistent_file->GetPage(buffer, current_read_page_index);
+  }
+
+  // Read the next record now from appropriate page
+  buffer->ReadNext(fetchme, current_read_page_offset);
+  return 1;
+}
 
 int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
-  return 0;
-  // OrderMaker queryOrderMaker;
-  // cnf.BuildQueryOrderMaker(*sortOrder, queryOrderMaker);
-  // Record *found = BinarySearchFile(persistent_file, &queryOrderMaker,
-  // &literal);
+  OrderMaker queryOrderMaker;
+  ComparisonEngine comp;
+  cnf.BuildQueryOrderMaker(*sortOrder, queryOrderMaker);
+  if (!queryOrderMaker.IsEmpty()) {
+    // queryOrderMaker is not empty
+    // cnf matches our file sortorder
+    // we can use our file sortorder to make this query faster
+    Record *putItHere;
+    off_t foundPage;
+    int foundOffset;
+    if (BinarySearchFile(putItHere, &foundPage, &foundOffset, persistent_file,
+                         &queryOrderMaker, &literal, current_read_page_index,
+                         current_read_page_offset)) {
+      // Binary search is successful with queryOrderMaker
+      current_read_page_index = foundPage;
+      current_read_page_offset = foundOffset;
+      // To reuse GetNext(&fetchme) to get the next record on this page we
+      // decrement the offset so that it will be incremented again in GetNext()
+      current_read_page_offset--;
+      bool found = true;
+      while (GetNext(fetchme) != 0) {
+        if (comp.Compare(&fetchme, &literal, &queryOrderMaker) == 0) {
+          if (comp.Compare(&fetchme, &literal, &cnf) == 0) {
+            return 1;
+          }
+        } else {
+          return 0;
+        }
+      }
+      return 0;
+    } else {
+      // Binary search was unsuccessful with queryOrderMaker
+      return 0;
+    }
+    return 0;
+  } else {
+    // queryOrderMaker is empty
+    while (GetNext(fetchme) != 0) {
+      if (comp.Compare(&fetchme, &literal, &cnf) == 0) {
+        return 1;
+      }
+    }
+    return 0;
+  }
 }
 
 bool SortedDBFile::CheckIfFileNameIsValid(const char *file_name) {
@@ -639,11 +718,12 @@ off_t SortedDBFile::GetCurrentWritePageIndex() {
   return current_write_page_index;
 }
 
-Record *SortedDBFile::BinarySearchFile(File *persistent_file,
-                                       OrderMaker *queryOrderMaker,
-                                       Record *literal, off_t offset) {
+int SortedDBFile::BinarySearchFile(Record *putItHere, off_t *foundPage,
+                                   int *foundOffset, File *persistent_file,
+                                   OrderMaker *queryOrderMaker, Record *literal,
+                                   off_t page_offset, int record_offset) {
   ComparisonEngine compEngine;
-  off_t lower = offset;
+  off_t lower = page_offset;
   off_t higher = persistent_file->GetLength() - 1;
   while (lower <= higher) {
     off_t mid = lower + (higher - lower) / 2;
@@ -661,7 +741,7 @@ Record *SortedDBFile::BinarySearchFile(File *persistent_file,
 
     // check if the record is on this page
     Record *firstRecOnPage = new Record();
-    buffer->ReadNext(*firstRecOnPage, 0);
+    buffer->ReadNext(*firstRecOnPage, record_offset);
 
     Schema mySchema("catalog", "lineitem");
     firstRecOnPage->Print(&mySchema);
@@ -673,20 +753,33 @@ Record *SortedDBFile::BinarySearchFile(File *persistent_file,
     // check conditions
 
     // mid check
-    // check if the first or the last record from this page is equal to literal
+    // check if the first or the last record from this page is equal to
+    // literal
     int firstRecStatus =
         compEngine.Compare(literal, firstRecOnPage, queryOrderMaker);
     int lastRecStatus =
         compEngine.Compare(literal, lastRecOnPage, queryOrderMaker);
 
     if (firstRecStatus == 0) {
-      return firstRecOnPage;
+      putItHere = firstRecOnPage;
+      *foundOffset = 0;
+      *foundPage = mid;
+      return 1;
     } else if (lastRecStatus == 0) {
-      return lastRecOnPage;
+      putItHere = lastRecOnPage;
+      *foundOffset = numRecsOnPage - 1;
+      *foundPage = mid;
+      return 1;
     } else {
       if (firstRecStatus > 0 && lastRecStatus < 0) {
         // record is on this page or does not exist
-        return BinarySearchPage(buffer, queryOrderMaker, literal);
+        if ((*foundOffset = BinarySearchPage(putItHere, buffer, queryOrderMaker,
+                                             literal))) {
+          *foundPage = mid;
+          return 1;
+        } else {
+          return -1;
+        }
       } else if (lastRecStatus > 0) {
         // record is in second half
         // change lower to mid + 1
@@ -699,12 +792,12 @@ Record *SortedDBFile::BinarySearchFile(File *persistent_file,
     }
   }
 
-  return NULL;
+  return -1;
 }
 
-Record *SortedDBFile::BinarySearchPage(Page *buffer,
-                                       OrderMaker *queryOrderMaker,
-                                       Record *literal) {
+int SortedDBFile::BinarySearchPage(Record *putItHere, Page *buffer,
+                                   OrderMaker *queryOrderMaker,
+                                   Record *literal) {
   int lower = 0;
   int higher = buffer->GetNumRecords();
   ComparisonEngine compEngine;
@@ -714,7 +807,11 @@ Record *SortedDBFile::BinarySearchPage(Page *buffer,
     buffer->ReadNext(*midRec, mid);
     int midRecStatus = compEngine.Compare(literal, midRec, queryOrderMaker);
     if (midRecStatus == 0) {
-      return midRec;
+      // TODO
+      // Check if the previous record is also equal to query order maker
+      // In that case move up to find the first record which matches
+      putItHere = midRec;
+      return mid;
     } else if (midRecStatus > 0) {
       lower = mid + 1;
     } else if (midRecStatus < 0) {
@@ -722,5 +819,5 @@ Record *SortedDBFile::BinarySearchPage(Page *buffer,
     }
   }
 
-  return NULL;
+  return -1;
 }
