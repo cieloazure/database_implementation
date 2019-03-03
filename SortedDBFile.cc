@@ -621,6 +621,7 @@ int SortedDBFile::GetNext(Record &fetchme) {
 }
 
 int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
+  MergeBigqRecords();
   ComparisonEngine comp;
   if (!cachedGetNextFlag) {
     cnf.BuildQueryOrderMaker(*sortOrder, queryOrderMaker);
@@ -733,10 +734,9 @@ int SortedDBFile::BinarySearchFile(Record *putItHere, off_t *foundPage,
     // buffer->Sort(*sortOrder);
 
     // check if the record is on this page
+    Schema mySchema("catalog", "lineitem");
     Record *firstRecOnPage = new Record();
     buffer->ReadNext(*firstRecOnPage, record_offset);
-
-    Schema mySchema("catalog", "lineitem");
     firstRecOnPage->Print(&mySchema);
 
     Record *lastRecOnPage = new Record();
