@@ -98,7 +98,8 @@ class CNF {
                          Record &literal);
 
   void BuildQueryOrderMaker(OrderMaker &fileSortOrder,
-                            OrderMaker &querySortOrder);
+                            OrderMaker &querySortOrder,
+                            OrderMaker &literalSortOrder);
 };
 
 #endif

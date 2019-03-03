@@ -89,10 +89,12 @@ class SortedDBFileTest : public ::testing::Test {
     fileSortOrder.Print();
 
     OrderMaker querySortOrder;
+    OrderMaker literalSortOrder;
 
-    cnf.BuildQueryOrderMaker(fileSortOrder, querySortOrder);
+    cnf.BuildQueryOrderMaker(fileSortOrder, querySortOrder, literalSortOrder);
 
     querySortOrder.Print();
+    literalSortOrder.Print();
 
     TempTupleForSearch *t = new TempTupleForSearch(querySortOrder, literal);
     return t;

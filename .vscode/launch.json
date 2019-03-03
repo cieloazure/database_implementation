@@ -10,9 +10,11 @@
             "request": "launch",
             "program": "${workspaceFolder}/gtest_main.out",
             "args": [
-                "--gtest_filter=SortedDBFileTest.*"
+                "--gtest_filter=SortedDBFileTest.GET_NEXT_WITH_PARAMETERS_WITH_CNF_HAVING_ATTRIBUTES_OUT_OF_ORDER_WITH_FILE_SORT_ORDER"
                 // "--gtest_filter=SortedDBFileTest.GET_NEXT_WITH_PARAMTERS"
                 //                "--gtest_filter=SortedDBFileTest.*"
+                // "--gtest_filter=ComparisonTest.GET_SORT_ORDER_ATTRIBUTES_TEST_MULTIPLE_ATTRIBUTES_NOT_IN_ORDER"
+                // "--gtest_filter=ComparisonTest.*"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

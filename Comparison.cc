@@ -605,16 +605,22 @@ void CNF ::GrowFromParseTree(struct AndList *parseTree, Schema *mySchema,
 }
 
 void CNF::BuildQueryOrderMaker(OrderMaker &fileSortOrder,
-                               OrderMaker &querySortOrder) {
+                               OrderMaker &querySortOrder,
+                               OrderMaker &literalSortOrder) {
   int l = 0;
   for (int k = 0; k < fileSortOrder.numAtts; k++) {
     // get file sort attribute
     int sortAttribute = fileSortOrder.whichAtts[k];
 
     bool found = false;
+
     // check in CNF
     for (int i = 0; i < numAnds; i++) {
       for (int j = 0; j < orLens[i]; j++) {
+        // Disjunction of length not 1 will not be acceptable in sort order
+        if (orLens[i] != 1) {
+          continue;
+        }
         // check if one of the them is a literal
         // and operator is of type equals
         Comparison compElem = orList[i][j];
@@ -627,6 +633,11 @@ void CNF::BuildQueryOrderMaker(OrderMaker &fileSortOrder,
             querySortOrder.whichAtts[l] = compElem.whichAtt1;
             querySortOrder.whichTypes[l] = compElem.attType;
             querySortOrder.numAtts++;
+
+            literalSortOrder.whichAtts[l] = i;
+            literalSortOrder.whichTypes[l] = compElem.attType;
+            literalSortOrder.numAtts++;
+
             l++;
             found = true;
             break;
@@ -635,6 +646,11 @@ void CNF::BuildQueryOrderMaker(OrderMaker &fileSortOrder,
             querySortOrder.whichAtts[l] = compElem.whichAtt2;
             querySortOrder.whichTypes[l] = compElem.attType;
             querySortOrder.numAtts++;
+
+            literalSortOrder.whichAtts[l] = i;
+            literalSortOrder.whichTypes[l] = compElem.attType;
+            literalSortOrder.numAtts++;
+
             l++;
             found = true;
             break;

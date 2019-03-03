@@ -66,6 +66,7 @@ class SortedDBFile : public GenericDBFile {
 
   bool cachedGetNextFlag;
   OrderMaker queryOrderMaker;
+  OrderMaker literalOrderMaker;
 
  public:
   SortedDBFile();
@@ -94,11 +95,12 @@ class SortedDBFile : public GenericDBFile {
   off_t GetCurrentReadPageIndex();
   off_t GetCurrentWritePageIndex();
 
-  int BinarySearchFile(Record *putItHere, off_t *foundPage, int *foundOffset,
+  int BinarySearchFile(off_t *foundPage, int *foundOffset,
                        File *persistent_file, OrderMaker *queryOrderMaker,
-                       Record *literal, off_t page_offset, int record_offset);
-  int BinarySearchPage(Record *putItHere, Page *buffer,
-                       OrderMaker *queryOrderMaker, Record *literal);
+                       OrderMaker *literalOrderMaker, Record *literal,
+                       off_t page_offset, int record_offset);
+  int BinarySearchPage(Page *buffer, OrderMaker *queryOrderMaker,
+                       OrderMaker *literalOrderMaker, Record *literal);
 
  private:
   char *GetMetaDataFileName(

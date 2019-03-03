@@ -59,10 +59,12 @@ class ComparisonTest : public ::testing::Test {
     fileSortOrder.Print();
 
     OrderMaker querySortOrder;
+    OrderMaker literalSortOrder;
 
-    cnf.BuildQueryOrderMaker(fileSortOrder, querySortOrder);
+    cnf.BuildQueryOrderMaker(fileSortOrder, querySortOrder, literalSortOrder);
 
     querySortOrder.Print();
+    literalSortOrder.Print();
   }
 };
 
@@ -73,7 +75,7 @@ TEST_F(ComparisonTest, GET_SORT_ORDER_ATTRIBUTES_TEST_1_ATTRIBUTE) {
 
 TEST_F(ComparisonTest, GET_SORT_ORDER_ATTRIBUTES_TEST_MULTIPLE_ATTRIBUTES) {
   const char cnf_string[] =
-      "(l_orderkey = 20) AND (l_suppkey = 30) AND (l_partkey = 40)";
+      "(l_orderkey = 20) AND (l_partkey = 40) AND (l_suppkey = 30) ";
   buildQueryOrderMaker(cnf_string);
 }
 
@@ -94,6 +96,14 @@ TEST_F(ComparisonTest,
        GET_SORT_ORDER_ATTRIBUTES_TEST_SOME_MIDDLE_ATTRIBUTE_NOT_PRESENT) {
   const char cnf_string[] =
       "(l_partkey = 30) AND (l_linenumber = 4) AND (l_orderkey = 10)";
+  buildQueryOrderMaker(cnf_string);
+}
+
+TEST_F(ComparisonTest,
+       GET_SORT_ORDER_ATTRIBUTES_TEST_WITH_MIDDLE_ATTRIBUTE_PRESENT) {
+  const char cnf_string[] =
+      "(l_partkey = 30) AND (l_linenumber = 4) AND (l_orderkey = 10) AND "
+      "(l_suppkey = 20)";
   buildQueryOrderMaker(cnf_string);
 }
 

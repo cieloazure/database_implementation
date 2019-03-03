@@ -624,7 +624,7 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
   MergeBigqRecords();
   ComparisonEngine comp;
   if (!cachedGetNextFlag) {
-    cnf.BuildQueryOrderMaker(*sortOrder, queryOrderMaker);
+    cnf.BuildQueryOrderMaker(*sortOrder, queryOrderMaker, literalOrderMaker);
     if (!queryOrderMaker.IsEmpty()) {
       // queryOrderMaker is not empty
       // cnf matches our file sortorder
@@ -632,9 +632,9 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
       Record *putItHere;
       off_t foundPage;
       int foundOffset;
-      if (BinarySearchFile(putItHere, &foundPage, &foundOffset, persistent_file,
-                           &queryOrderMaker, &literal, current_read_page_index,
-                           current_read_page_offset)) {
+      if (BinarySearchFile(&foundPage, &foundOffset, persistent_file,
+                           &queryOrderMaker, &literalOrderMaker, &literal,
+                           current_read_page_index, current_read_page_offset)) {
         // Binary search is successful with queryOrderMaker
         current_read_page_index = foundPage;
         // To reuse GetNext(&fetchme) to get the next record on this page we
@@ -648,7 +648,8 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
         cachedGetNextFlag = true;
 
         while (GetNext(fetchme) != 0) {
-          if (comp.Compare(&fetchme, &literal, &queryOrderMaker) == 0) {
+          if (comp.Compare(&fetchme, &queryOrderMaker, &literal,
+                           &literalOrderMaker) == 0) {
             if (comp.Compare(&fetchme, &literal, &cnf)) {
               return 1;
             }
@@ -673,7 +674,8 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
     }
   } else {
     while (GetNext(fetchme) != 0) {
-      if (comp.Compare(&fetchme, &literal, &queryOrderMaker) == 0) {
+      if (comp.Compare(&fetchme, &queryOrderMaker, &literal,
+                       &literalOrderMaker) == 0) {
         if (comp.Compare(&fetchme, &literal, &cnf)) {
           return 1;
         }
@@ -712,10 +714,12 @@ off_t SortedDBFile::GetCurrentWritePageIndex() {
   return current_write_page_index;
 }
 
-int SortedDBFile::BinarySearchFile(Record *putItHere, off_t *foundPage,
-                                   int *foundOffset, File *persistent_file,
-                                   OrderMaker *queryOrderMaker, Record *literal,
-                                   off_t page_offset, int record_offset) {
+int SortedDBFile::BinarySearchFile(off_t *foundPage, int *foundOffset,
+                                   File *persistent_file,
+                                   OrderMaker *queryOrderMaker,
+                                   OrderMaker *literalOrderMaker,
+                                   Record *literal, off_t page_offset,
+                                   int record_offset) {
   ComparisonEngine compEngine;
   off_t lower = page_offset;
   off_t higher = persistent_file->GetLength() - 1;
@@ -724,14 +728,6 @@ int SortedDBFile::BinarySearchFile(Record *putItHere, off_t *foundPage,
     Page *buffer = new Page();
     persistent_file->GetPage(buffer, mid);
     int numRecsOnPage = buffer->GetNumRecords();
-
-    // TODO: sorting the buffer first
-    // TODO: Ideally page should be sorted in the file itself
-    // TODO: will be removed after add and load functions are implemented/tested
-    // ************ DANGER ************************
-    // ***************** QUICKFIX, to be removed **********
-    // ####### DONT FORGET TO REMOVE THIS LINE
-    // buffer->Sort(*sortOrder);
 
     // check if the record is on this page
     Schema mySchema("catalog", "lineitem");
@@ -748,30 +744,28 @@ int SortedDBFile::BinarySearchFile(Record *putItHere, off_t *foundPage,
     // mid check
     // check if the first or the last record from this page is equal to
     // literal
-    int firstRecStatus =
-        compEngine.Compare(literal, firstRecOnPage, queryOrderMaker);
-    int lastRecStatus =
-        compEngine.Compare(literal, lastRecOnPage, queryOrderMaker);
+    int firstRecStatus = compEngine.Compare(literal, literalOrderMaker,
+                                            firstRecOnPage, queryOrderMaker);
+    int lastRecStatus = compEngine.Compare(literal, literalOrderMaker,
+                                           lastRecOnPage, queryOrderMaker);
 
     if (firstRecStatus == 0) {
-      putItHere = firstRecOnPage;
       *foundOffset = 0;
       *foundPage = mid;
       return 1;
     } else if (lastRecStatus == 0) {
-      putItHere = lastRecOnPage;
       *foundOffset = numRecsOnPage - 1;
       *foundPage = mid;
       return 1;
     } else {
       if (firstRecStatus > 0 && lastRecStatus < 0) {
         // record is on this page or does not exist
-        if ((*foundOffset = BinarySearchPage(putItHere, buffer, queryOrderMaker,
-                                             literal))) {
+        if ((*foundOffset = BinarySearchPage(
+                 buffer, queryOrderMaker, literalOrderMaker, literal)) != -1) {
           *foundPage = mid;
           return 1;
         } else {
-          return -1;
+          return 0;
         }
       } else if (lastRecStatus > 0) {
         // record is in second half
@@ -785,11 +779,11 @@ int SortedDBFile::BinarySearchFile(Record *putItHere, off_t *foundPage,
     }
   }
 
-  return -1;
+  return 0;
 }
 
-int SortedDBFile::BinarySearchPage(Record *putItHere, Page *buffer,
-                                   OrderMaker *queryOrderMaker,
+int SortedDBFile::BinarySearchPage(Page *buffer, OrderMaker *queryOrderMaker,
+                                   OrderMaker *literalOrderMaker,
                                    Record *literal) {
   int lower = 0;
   int higher = buffer->GetNumRecords();
@@ -798,12 +792,12 @@ int SortedDBFile::BinarySearchPage(Record *putItHere, Page *buffer,
     int mid = lower + (higher - lower) / 2;
     Record *midRec = new Record();
     buffer->ReadNext(*midRec, mid);
-    int midRecStatus = compEngine.Compare(literal, midRec, queryOrderMaker);
+    int midRecStatus =
+        compEngine.Compare(literal, literalOrderMaker, midRec, queryOrderMaker);
     if (midRecStatus == 0) {
       // TODO
       // Check if the previous record is also equal to query order maker
       // In that case move up to find the first record which matches
-      putItHere = midRec;
       return mid;
     } else if (midRecStatus > 0) {
       lower = mid + 1;
