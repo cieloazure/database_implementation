@@ -20,6 +20,7 @@
 class SortedDBFile : public GenericDBFile {
  private:
   const char *file_path; /* The destination of the file */
+  const char *old_file_path;
   fType type;            /* Type of file (enum) */
   File *persistent_file; /* File instance in which pages are to be stored to */
   File *new_persistent_file; /* File instance in which pages are to be stored

@@ -34,7 +34,7 @@ SortedDBFile::SortedDBFile() {
 
 SortedDBFile::~SortedDBFile() {
   delete persistent_file;
-  delete input;
+  delete input;  
   delete output;
 }
 
@@ -105,6 +105,7 @@ int SortedDBFile::CreateNew(File *new_file, const char *f_path, fType f_type,
     CheckIfCorrectFileType(type);
 
     // Set file_path for persistent file
+    old_file_path = file_path;
     file_path = f_path;
     CheckIfFileNameIsValid(f_path);
 
@@ -137,10 +138,6 @@ int SortedDBFile::CreateNew(File *new_file, const char *f_path, fType f_type,
     // Write current_page_index to meta data file
     write(new_metadata_file_descriptor, &newf_write_page_index, sizeof(off_t));
 
-    // Write sortInfo to meta data file
-    sortInfo *s = (sortInfo *)startup;
-    runLength = s->runLength;
-    sortOrder = s->sortOrder;
 
     write(new_metadata_file_descriptor, &runLength, sizeof(int));
     sortOrder->Serialize(new_metadata_file_descriptor);
@@ -243,6 +240,7 @@ int SortedDBFile::Close() {
 
     // Set file path to NULL to indicate the file operations has fininshed
     file_path = NULL;
+    old_file_path = NULL;
 
     return 1;
   } catch (runtime_error r) {
@@ -333,16 +331,18 @@ void SortedDBFile::Add(Record &addme) {
   CheckIfFilePresent();
 
   // If it is not dirty empty out all the records read
-  if (!dirty) {
-    buffer->EmptyItOut();
-    mode = writing;
-    dirty = true;
-  }
+  // if (!dirty) {
+  //   buffer->EmptyItOut();
+  //   //mode = writing;
+  //   dirty = true;
+  // }
 
   if (mode == writing) {
     // insert into the bigq input pipe.
-    input->Insert(&addme);
-    // TODO: handle a case when this input pipe gets full.
+    Record copy;
+    copy.Copy(&addme);
+    input->Insert(&copy);
+    
 
   } else {
     // init BigQ member object and then insert into the bigq pipe.
@@ -420,7 +420,7 @@ void SortedDBFile::FlushBufferForMerge(File *new_persistent_file) {
 }
 
 int SortedDBFile::MergeBigqRecords() {
-  input->ShutDown();
+ input->ShutDown();
 
   bool old_file = false;
   bool bigq = false;
@@ -431,104 +431,96 @@ int SortedDBFile::MergeBigqRecords() {
   ComparisonEngine ceng;
   int comparator = -2;
 
-  new_persistent_file = new File();
+  if(GetNextForMerge(*old_file_rec)) {old_file = true;}
+  if(output->Remove(bigq_rec)) {bigq = true;}
 
-  if (CreateNew(new_persistent_file, "gtest_new.bin", sorted, NULL)) {
-    if (GetNextForMerge(*old_file_rec)) {
-      old_file = true;
-    }
-    if (output->Remove(bigq_rec)) {
-      bigq = true;
-    }
+  int count = 0;
 
-    while (!bigq || !old_file) {
-      if (bigq && old_file) {
-        comparator = ceng.Compare(bigq_rec, old_file_rec, sortOrder);
+  //perform merging only if there's data in bigq
+  if(bigq) {
+    new_persistent_file = new File();
+    if(CreateNew(new_persistent_file, "gtest_new.bin", sorted, NULL))
+    {
+      while(bigq || old_file)
+      {
+        if(bigq && old_file) 
+        {
+          comparator = ceng.Compare(bigq_rec, old_file_rec, sortOrder);
 
-        switch (comparator) {
-          case -1:
-            // bigq is smaller
-            AddForMerge(*bigq_rec, new_persistent_file);
-            bigq = false;
-            break;
-          case 0:
-            // both are equal
-            AddForMerge(*bigq_rec, new_persistent_file);
-            AddForMerge(*old_file_rec, new_persistent_file);
-            bigq = false;
-            old_file_rec = NULL;
-            break;
-          case 1:
-            // old_file_rec is smaller
-            AddForMerge(*old_file_rec, new_persistent_file);
-            old_file_rec = NULL;
-            break;
+          switch(comparator) {
+            case -1:
+              //bigq is smaller
+              AddForMerge(*bigq_rec, new_persistent_file);
+              count++;
+              bigq = false;
+              break;
+            case 0:
+              //both are equal
+              AddForMerge(*bigq_rec, new_persistent_file);
+              AddForMerge(*old_file_rec, new_persistent_file);
+              count+=2;
+              bigq = false;
+              old_file_rec = false;
+              break;
+            case 1:
+              //old_file_rec is smaller
+              AddForMerge(*old_file_rec, new_persistent_file);
+              count++;
+              old_file_rec = false;
+              break;   
+          }
         }
-      } else if (!bigq) {
-        AddForMerge(*old_file_rec, new_persistent_file);
-        old_file_rec = NULL;
-      } else if (!old_file) {
-        AddForMerge(*bigq_rec, new_persistent_file);
-        bigq = false;
+        else if (!bigq) {
+          AddForMerge(*old_file_rec, new_persistent_file);
+          count++;
+          old_file_rec = false;
+        }
+        else if(!old_file) {
+          AddForMerge(*bigq_rec, new_persistent_file);
+          count++;
+          bigq = false;
+        }
+
+        //refill variables with next records
+        if(!bigq){
+          if(output->Remove(bigq_rec)) {bigq = true;}
+        }
+
+        if(!old_file_rec){
+          if(GetNextForMerge(*old_file_rec)) {old_file = true;}
+        }
+
+        cout<<"Added "<< count<< " records."<<endl;
       }
 
-      if (!bigq) {
-        if (output->Remove(bigq_rec)) {
-          bigq = true;
-        }
+      //after merging, rename newfile to oldfile.
+      //new_persistent_file->Close();
+      persistent_file->Close();
+      
+      if( remove(old_file_path) != 0 ) {
+        cout<<"Error deleting old file"<<endl;
       }
 
-      if (!old_file_rec) {
-        if (GetNextForMerge(*old_file_rec)) {
-          old_file = true;
-        }
+      if(rename("gtest_new.bin", old_file_path ) != 0){
+        cout<<"Error renaming new file"<<endl;
       }
+      
+      //what happens to metadata now?
+      //put newf_write_page into metadata file, rest variables will be 0.
+      lseek(metadata_file_descriptor, sizeof(fType), SEEK_SET);
+      write(metadata_file_descriptor, &newf_write_page_index, sizeof(off_t));
+      //and just open persistent_file again with file path.
+      //persistent_file = new_persistent_file;
+
+      persistent_file->Open(1, (char *)file_path);
+    }
+    else
+    {
+      cout<<"ERROR: Could not create new output file."<<endl;
+      return 0;
     }
 
-    // after merging, rename newfile to oldfile.
-    new_persistent_file->Close();
-    persistent_file->Close();
-
-    if (remove(file_path) != 0) {
-      cout << "Error deleting old file" << endl;
-    }
-
-    if (rename("gtest_new.bin", file_path) != 0) {
-      cout << "Error renaming new file" << endl;
-    }
-
-  } else {
-    cout << "ERROR: Could not create new output file." << endl;
-    return 0;
   }
-
-  // Page tempPage;
-  // bool persistentFileEmpty = false;
-  // current_read_page_index = 0;
-  // current_read_page_offset = 0;
-
-  // if (current_write_page_index == -1){
-  //   //persistent file is empty
-  //   persistentFileEmpty = true;
-  // }
-  // else
-  // {
-  //   //get first page from persistent_file
-  //   persistent_file->GetPage(&tempPage, current_read_page_index);
-  // }
-
-  // while(output->Remove(&rec) != 0) {
-  //   if(persistentFileEmpty){
-  //     //write all the records from BigQ to file.
-  //   }
-  //   else
-  //   {
-  //     /* code */
-  //   }
-
-  // }
-
-  return -1;
 }
 
 int SortedDBFile::GetNextForMerge(Record &fetchme) {
@@ -630,10 +622,13 @@ int SortedDBFile::GetNext(Record &fetchme) {
   CheckIfFilePresent();
   // If the buffer is dirty the records are to be written out to file before
   // being read
-  if (dirty) {
-    FlushBuffer();
-    dirty = false;
-  }
+  //TODO: 
+  // if (dirty) {
+  //   FlushBuffer();
+  //   dirty = false;
+  // }
+
+  MergeBigqRecords(); 
 
   // If records in all pages have been read
   if (current_read_page_index < 0 ||

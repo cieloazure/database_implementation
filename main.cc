@@ -8,12 +8,13 @@
 #include <string>
 #include <vector>
 #include "BigQ.h"
-#include "Comparision.h"
+#include "Comparison.h"
 #include "DBFile.h"
 #include "Defs.h"
 #include "Pipe.h"
 #include "Record.h"
 #include "TwoWayList.cc"
+#include "SortedDBFile.h"
 using namespace std;
 
 extern "C" {
@@ -21,6 +22,16 @@ int yyparse(void);  // defined in y.tab.c
 }
 
 extern struct AndList *final;
+
+struct SortInfo {
+  OrderMaker *sortOrder;
+  int runLength;
+
+  SortInfo(OrderMaker *so, int rl) {
+    sortOrder = so;
+    runLength = rl;
+  }
+};
 
 class Test {
  public:
@@ -52,5 +63,44 @@ int main() {
   OrderMaker p;
   lseek(fd, 0, SEEK_SET);
   p.UnSerialize(fd);
+
+  // DBFile *heapFile = new DBFile();
+  // fType t = heap;
+  // heapFile->Create("gtest.bin", t, NULL);
+  // Schema mySchema("catalog", "lineitem");
+  // const char *loadpath = "data_files/lineitem.tbl";
+  // heapFile->Load(mySchema, loadpath);
+  // heapFile->Close();
+
+  SortInfo *si = new SortInfo(&o, 3);
+
+  SortedDBFile *sortedDBFile = new SortedDBFile();
+  fType t1 = sorted;
+  sortedDBFile->Create("gtest_sorted.bin", t1, (void *)si);
+  const char *loadpath = "data_files/lineitem.tbl";
+  //sortedDBFile->Load(mySchema, loadpath);
+
+  Record *temp = new Record();
+  FILE *table_file = fopen(loadpath, "r");
+
+  int count = 0;
+  std::cout << "Loaded:" << endl;
+  while (temp->SuckNextRecord(&mySchema, table_file) == 1) {
+    if (temp != NULL) {
+      count++;
+      std::cout << "\r" << count;
+      sortedDBFile->Add(*temp);
+      if(count == 10) {
+        break;
+      }
+    }
+  }
+  Record *first = new Record();
+  sortedDBFile->GetNext(*first);
+
+  if(temp->SuckNextRecord(&mySchema, table_file) == 1) {
+    sortedDBFile->Add(*temp);
+  }
+
   return 0;
 }
