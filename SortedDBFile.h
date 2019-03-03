@@ -78,12 +78,12 @@ class SortedDBFile : public GenericDBFile {
   void Load(Schema &myschema, const char *loadpath);
   void MoveFirst();
   void Add(Record &addme);
-  void AddForMerge(Record &addme, File *outFile);
+  void AddForMerge(Record &addme);
   int GetNext(Record &fetchme);
   int GetNext(Record &fetchme, CNF &cnf, Record &literal);
   int GetNextForMerge(Record &fetchme);
   int MergeBigqRecords();
-  void FlushBufferForMerge(File *outFile);
+  void FlushBufferForMerge();
 
   /* TODO */
   /* Test Utility methods */

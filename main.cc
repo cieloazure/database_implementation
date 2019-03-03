@@ -96,7 +96,13 @@ int main() {
     }
   }
   Record *first = new Record();
-  sortedDBFile->GetNext(*first);
+  while(sortedDBFile->GetNext(*first)) {
+    first->Print(&mySchema);
+    cout<<endl;
+    cout<<endl;
+  };
+
+  sleep(50000000);
 
   if(temp->SuckNextRecord(&mySchema, table_file) == 1) {
     sortedDBFile->Add(*temp);
