@@ -29,7 +29,6 @@ SortedDBFile::SortedDBFile() {
   input = new Pipe(100);
   output = new Pipe(100);
   cachedGetNextFlag = false;
-  // queryOrderMaker = NULL;
 }
 
 SortedDBFile::~SortedDBFile() {
@@ -583,14 +582,8 @@ void SortedDBFile::FlushBuffer() {
 
 int SortedDBFile::GetNext(Record &fetchme) {
   CheckIfFilePresent();
-  // If the buffer is dirty the records are to be written out to file before
-  // being read
-  // TODO:
-  // if (dirty) {
-  //   FlushBuffer();
-  //   dirty = false;
-  // }
 
+  // Merge the files before changing mode
   MergeBigqRecords();
 
   // If records in all pages have been read
@@ -607,6 +600,7 @@ int SortedDBFile::GetNext(Record &fetchme) {
 
   // Increment to get the next record on the page no `current_read_page_index`
   current_read_page_offset++;
+
   // If there are no more records on the page `current_read_page_index` get next
   // page
   while (current_read_page_offset >= buffer->GetNumRecords() &&
@@ -643,8 +637,8 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
         // Binary search is successful with queryOrderMaker
         current_read_page_index = foundPage;
         // To reuse GetNext(&fetchme) to get the next record on this page we
-        // decrement the offset so that it will be incremented again in
-        // GetNext()
+        // decrement the offset from where we found so that it will be
+        // incremented again in GetNext()
         current_read_page_offset = foundOffset - 1;
 
         // If a binary search is successful with the queryOrderMaker it makes
@@ -687,6 +681,8 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
       }
     }
   }
+
+  return -1;
 }
 
 bool SortedDBFile::CheckIfFileNameIsValid(const char *file_name) {
@@ -734,7 +730,7 @@ int SortedDBFile::BinarySearchFile(Record *putItHere, off_t *foundPage,
     // ************ DANGER ************************
     // ***************** QUICKFIX, to be removed **********
     // ####### DONT FORGET TO REMOVE THIS LINE
-    buffer->Sort(*sortOrder);
+    // buffer->Sort(*sortOrder);
 
     // check if the record is on this page
     Record *firstRecOnPage = new Record();
