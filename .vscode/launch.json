@@ -8,9 +8,9 @@
             "name": "(lldb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/gtest_main.out",
+            "program": "${workspaceFolder}/main",
             "args": [
-                "--gtest_filter=SortedDBFileTest.OPEN_SUCCESS"
+                // "--gtest_filter=SortedDBFileTest.OPEN_SUCCESS"
                 //                "--gtest_filter=SortedDBFileTest.*"
             ],
             "stopAtEntry": false,
