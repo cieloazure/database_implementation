@@ -152,6 +152,7 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
     Record *tempRec = new Record();
     if (i->GetFirst(tempRec) == 1) {
       pqueue.emplace(tempRec, runCounter);
+      record_count++;
     } else {
       cout << "BAD run encountered." << endl;
     }
@@ -191,6 +192,7 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
 
         if (temp->GetFirst(tempRec) == 1) {
           pqueue.emplace(tempRec, currentRun);
+          record_count++;
           listOfHeads[currentRun] = temp;
         }
       } else {

@@ -215,6 +215,8 @@ void SortedDBFile::Load(Schema &myschema, const char *loadpath) {
     delete bigq;
     delete input;
     delete output;
+    dirty = false;
+    cachedGetNextFlag = false;
   }
   cout << "Bulk Loaded " << count << " records" << endl;
 }

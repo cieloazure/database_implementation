@@ -122,7 +122,7 @@ TEST_F(SortedDBFileTest, OPEN_SUCCESS) {
 
 TEST_F(SortedDBFileTest, OPEN_FAILURE_MISSING_METADATA_FILE) {
   DBFile *sortFile = new DBFile();
-  fType t = heap;
+  fType t = sorted;
   if (sortFile->Create("gtest.bin", t, (void *)si)) {
     sortFile->Close();
     remove("gtest.header");
@@ -133,7 +133,7 @@ TEST_F(SortedDBFileTest, OPEN_FAILURE_MISSING_METADATA_FILE) {
 
 TEST_F(SortedDBFileTest, OPEN_FAILURE_ON_INVALID_FILE_TYPE_IN_METADATA_FILE) {
   DBFile *sortFile = new DBFile();
-  fType t = heap;
+  fType t = sorted;
   if (sortFile->Create("gtest.bin", t, (void *)si)) {
     sortFile->Close();
     int fd = open("gtest.header", O_RDWR, S_IRUSR | S_IWUSR);
@@ -153,13 +153,112 @@ TEST_F(SortedDBFileTest, OPEN_FAILURE_WHEN_A_FILE_DOES_NOT_EXISTS) {
 
 TEST_F(SortedDBFileTest, OPEN_FAILURE_WHEN_A_FILE_NAME_IS_INVALID) {
   DBFile *sortFile = new DBFile();
-  fType t = heap;
+  fType t = sorted;
   if (sortFile->Create("gtest.bin", t, (void *)si)) {
     sortFile->Close();
     EXPECT_FALSE(sortFile->Open(""));
   }
   delete sortFile;
 }
+
+TEST_F(SortedDBFileTest, MOVE_FIRST_WHEN_GET_NEXT_HAVE_BEEN_CALLED_BEFORE) {
+  SortedDBFile *sortedFile = new SortedDBFile();
+  fType t = sorted;
+  if (sortedFile->Create("gtest.bin", t, (void *)si)) {
+    const char *loadpath = "data_files/lineitem.tbl";
+
+    Schema mySchema("catalog", "lineitem");
+    sortedFile->Load(mySchema, loadpath);
+
+    FILE *load_file = fopen(loadpath, "r");
+    Record *temp_source_file_record = new Record();
+    Record *temp_sorted_file_record = new Record();
+    Record *first = new Record();
+    for (int i = 0; i < 10; i++) {
+      temp_source_file_record->SuckNextRecord(&mySchema, load_file);
+      if (i == 3) {
+        first->Copy(temp_source_file_record);
+      }
+      sortedFile->GetNext(*temp_sorted_file_record);
+    }
+
+    sortedFile->MoveFirst();
+    sortedFile->GetNext(*temp_sorted_file_record);
+
+    ComparisonEngine comp;
+    OrderMaker order(&mySchema);
+
+    temp_sorted_file_record->Print(&mySchema);
+    first->Print(&mySchema);
+    EXPECT_TRUE(comp.Compare(temp_sorted_file_record, first, &order) == 0);
+
+    delete temp_source_file_record;
+    delete temp_sorted_file_record;
+    delete first;
+    fclose(load_file);
+    sortedFile->Close();
+  }
+}
+
+TEST_F(SortedDBFileTest, MOVE_FIRST_ON_FIRST_RECORD) {
+  SortedDBFile *sortedFile = new SortedDBFile();
+  fType t = sorted;
+  if (sortedFile->Create("gtest.bin", t, (void *)si)) {
+    const char *loadpath = "data_files/lineitem.tbl";
+
+    Schema mySchema("catalog", "lineitem");
+    sortedFile->Load(mySchema, loadpath);
+
+    FILE *load_file = fopen(loadpath, "r");
+    Record *temp_source_file_record = new Record();
+    Record *temp_sorted_file_record = new Record();
+    Record *first = new Record();
+    for (int i = 0; i < 1; i++) {
+      temp_source_file_record->SuckNextRecord(&mySchema, load_file);
+      if (i == 0) {
+        first->Copy(temp_source_file_record);
+      }
+      // No Get Next is being called
+    }
+
+    // Just opened a file and moving first
+    sortedFile->MoveFirst();
+    sortedFile->GetNext(*temp_sorted_file_record);
+
+    ComparisonEngine comp;
+    OrderMaker order(&mySchema);
+
+    temp_sorted_file_record->Print(&mySchema);
+    first->Print(&mySchema);
+    EXPECT_TRUE(comp.Compare(temp_sorted_file_record, first, &order) == 0);
+
+    delete temp_source_file_record;
+    delete temp_sorted_file_record;
+    delete first;
+    fclose(load_file);
+    sortedFile->Close();
+  }
+}
+
+TEST_F(SortedDBFileTest, MOVE_FIRST_WITH_NO_RECORDS) {
+  SortedDBFile *sortedFile = new SortedDBFile();
+  fType t = sorted;
+  if (sortedFile->Create("gtest.bin", t, (void *)si)) {
+    // Just opened a file and moving first
+    Record *temp_sorted_file_record = new Record();
+    sortedFile->MoveFirst();
+    EXPECT_EQ(0, sortedFile->GetNext(*temp_sorted_file_record));
+    delete temp_sorted_file_record;
+    sortedFile->Close();
+  }
+}
+
+TEST_F(SortedDBFileTest, MOVE_FIRST_WITHOUT_CREATION) {
+  SortedDBFile *sortedFile = new SortedDBFile();
+  EXPECT_THROW(sortedFile->MoveFirst(), runtime_error);
+}
+
+TEST_F(SortedDBFileTest, LOAD_TEST) {}
 
 TEST_F(SortedDBFileTest, GET_NEXT_WITH_PARAMETERS) {
   DBFile *sortedFile = new DBFile();
