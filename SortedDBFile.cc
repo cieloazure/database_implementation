@@ -223,11 +223,11 @@ void SortedDBFile::Add(Record &addme) {
   CheckIfFilePresent();
 
   if (!dirty) {
+    input = new Pipe(100);
+    output = new Pipe(100);
     bigq = new BigQ(*input, *output, *sortOrder, runLength);
     mode = writing;
     dirty = true;
-    input = new Pipe(100);
-    output = new Pipe(100);
   }
 
   // insert into the bigq input pipe.
@@ -254,13 +254,13 @@ int SortedDBFile::MergeBigqRecords() {
     while (qHasElement && fileHasElement) {
       int status = compEngine.Compare(bigqRec, fileRec, sortOrder);
       if (status >= 0) {
-        mergeHeapFile->Add(*bigqRec);
-        bigqRec = new Record();
-        qHasElement = output->Remove(bigqRec);
-      } else if (status < 0) {
         mergeHeapFile->Add(*fileRec);
         fileRec = new Record();
         fileHasElement = GetNext(*fileRec);
+      } else if (status < 0) {
+        mergeHeapFile->Add(*bigqRec);
+        bigqRec = new Record();
+        qHasElement = output->Remove(bigqRec);
       }
     }
 
@@ -295,8 +295,8 @@ int SortedDBFile::MergeBigqRecords() {
     read(metadata_file_descriptor, &current_write_page_index, sizeof(off_t));
 
     // Set the current_read_page_index as well
-    // MoveFirst();
-    current_read_page_index = 0;
+    MoveFirst();
+    // current_read_page_index = 0;
 
     // Clean up work
     mergeHeapFile->Close();

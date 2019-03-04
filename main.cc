@@ -116,11 +116,14 @@ int main() {
   }
 
   Record *first = new Record();
+  count = 0;
   while (sortedDBFile->GetNext(*first)) {
     first->Print(&mySchema);
+    count++;
     cout << endl;
     cout << endl;
   };
+  cout << count << endl;
 
   // if (temp->SuckNextRecord(&mySchema, table_file) == 1) {
   //   sortedDBFile->Add(*temp);
