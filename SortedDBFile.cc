@@ -274,8 +274,7 @@ int SortedDBFile::MergeBigqRecords() {
       }
     }
 
-    int length = persistent_file->Close();
-    cout << length << endl;
+    persistent_file->Close();
     delete persistent_file;
 
     mergeFile->ConvertToSortedFile(file_path);
@@ -285,13 +284,6 @@ int SortedDBFile::MergeBigqRecords() {
 
     lseek(metadata_file_descriptor, sizeof(fType), SEEK_SET);
     read(metadata_file_descriptor, &current_write_page_index, sizeof(off_t));
-
-    int l = persistent_file->GetLength();
-    for (int i = 0; i < l - 1; i++) {
-      Page *temp = new Page();
-      persistent_file->GetPage(temp, i);
-      cout << temp->GetNumRecords() << endl;
-    }
 
     MoveFirst();
 
@@ -533,9 +525,7 @@ void SortedDBFile::CheckIfFilePresent() {
 
 bool SortedDBFile::CheckIfCorrectFileType(fType type) {
   switch (type) {
-    case heap:
     case sorted:
-    case tree:
       return true;
       break;
 

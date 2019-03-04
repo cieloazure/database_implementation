@@ -23,6 +23,8 @@ class DBFile {
   char *GetMetaDataFileName(
       const char *file_path); /* Create a name of the metadata file based on the
                                  file opened */
+
+  bool CheckIfCorrectFileType(fType type);
   GenericDBFile *GetDBFileInstance(fType type);
   fType GetFileType(const char *fpath);
 };
