@@ -237,8 +237,8 @@ int SortedDBFile::MergeBigqRecords() {
   if (dirty) {
     input->ShutDown();
     MoveFirst();
-    HeapDBFile *mergeFile = new HeapDBFile();
-    mergeFile->Create("mergeFile.bin", heap, NULL);
+    HeapDBFile *mergeHeapFile = new HeapDBFile();
+    mergeHeapFile->Create("mergeFile.bin", heap, NULL);
     ComparisonEngine compEngine;
 
     Record *fileRec = new Record();
@@ -251,26 +251,26 @@ int SortedDBFile::MergeBigqRecords() {
            (fileHasElement = GetNext(*fileRec))) {
       int status = compEngine.Compare(bigqRec, fileRec, sortOrder);
       if (status >= 0) {
-        mergeFile->Add(*bigqRec);
+        mergeHeapFile->Add(*bigqRec);
       } else if (status < 0) {
-        mergeFile->Add(*fileRec);
+        mergeHeapFile->Add(*fileRec);
       }
       fileRec = new Record();
       bigqRec = new Record();
     }
 
     if (!fileHasElement) {
-      mergeFile->Add(*bigqRec);
+      mergeHeapFile->Add(*bigqRec);
       while (output->Remove(bigqRec)) {
-        mergeFile->Add(*bigqRec);
+        mergeHeapFile->Add(*bigqRec);
         bigqRec = new Record();
       }
     }
 
     if (!qHasElement) {
-      mergeFile->Add(*fileRec);
+      mergeHeapFile->Add(*fileRec);
       while (GetNext(*fileRec)) {
-        mergeFile->Add(*fileRec);
+        mergeHeapFile->Add(*fileRec);
         fileRec = new Record();
       }
     }
@@ -278,7 +278,7 @@ int SortedDBFile::MergeBigqRecords() {
     persistent_file->Close();
     delete persistent_file;
 
-    mergeFile->ConvertToSortedFile(file_path);
+    mergeHeapFile->ConvertToSortedFile(file_path);
 
     persistent_file = new File();
     persistent_file->Open(1, (char *)file_path);
@@ -288,8 +288,8 @@ int SortedDBFile::MergeBigqRecords() {
 
     MoveFirst();
 
-    mergeFile->Close();
-    delete mergeFile;
+    mergeHeapFile->Close();
+    delete mergeHeapFile;
   }
 }
 
