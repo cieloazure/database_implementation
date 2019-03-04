@@ -5,9 +5,9 @@
 #include <unistd.h>
 #include "Comparison.h"
 #include "ComparisonEngine.h"
-#include "HeapDBFile.h"
 #include "Defs.h"
 #include "File.h"
+#include "HeapDBFile.h"
 #include "Record.h"
 #include "Schema.h"
 #include "TwoWayList.h"
@@ -290,6 +290,7 @@ int SortedDBFile::MergeBigqRecords() {
 
     mergeHeapFile->Close();
     delete mergeHeapFile;
+    remove("mergeFile.bin");
   }
 }
 
