@@ -199,7 +199,7 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
       }
     }
   }
-  cout<<"Added "<<record_count<<" to output queue."<<endl;
+  cout << "Added " << record_count << " to output queue." << endl;
 }
 // End of phase 2
 
@@ -279,7 +279,7 @@ void *WorkerThreadRoutine(void *threadparams) {
   // Done with phase 2
 
   // CleanUp
-  
+
   remove("runFile.bin");
   out->ShutDown();
   pthread_exit(NULL);

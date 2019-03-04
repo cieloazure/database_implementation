@@ -94,15 +94,5 @@ fType DBFile::GetFileType(const char *fpath) {
   fType type;
   read(metadata_file_descriptor, &type, sizeof(fType));
   CheckIfCorrectFileType(type);
-
-  switch (type) {
-    case heap:
-      return heap;
-
-    case sorted:
-      return sorted;
-
-    case tree:
-      return tree;
-  }
+  return type;
 }

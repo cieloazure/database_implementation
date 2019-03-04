@@ -216,11 +216,7 @@ void SortedDBFile::MoveFirst() {
 int SortedDBFile::Close() {
   try {
     CheckIfFilePresent();
-    if (dirty) {
-      // TODO: Implement this method for SortedDBFile
-      FlushBuffer();
-      dirty = false;
-    }
+    MergeBigqRecords();
     // Close the persistent file
     persistent_file->Close();
 
@@ -798,7 +794,21 @@ int SortedDBFile::BinarySearchPage(Page *buffer, OrderMaker *queryOrderMaker,
       // TODO
       // Check if the previous record is also equal to query order maker
       // In that case move up to find the first record which matches
-      return mid;
+      int current = mid;
+      Record *currRec = midRec;
+      int previous = current - 1;
+      Record *prevRec = new Record();
+      buffer->ReadNext(*prevRec, previous);
+      ComparisonEngine comp;
+      while (comp.Compare(prevRec, currRec, queryOrderMaker) == 0) {
+        currRec = prevRec;
+        current = previous;
+        previous = previous - 1;
+        delete prevRec;
+        Record *prevRec = new Record();
+        buffer->ReadNext(*prevRec, previous);
+      }
+      return current;
     } else if (midRecStatus > 0) {
       lower = mid + 1;
     } else if (midRecStatus < 0) {

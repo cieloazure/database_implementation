@@ -30,13 +30,11 @@ class SortedDBFile : public GenericDBFile {
                                    file */
   int new_metadata_file_descriptor; /* Metadata file which has information about
                                    the file */
-
-  off_t current_write_page_index; /* The page to which next record is to be
-                                   added to */
-  off_t current_read_page_index;  /* The page from which next record is to be
-                                   read*/
-  int current_read_page_offset;   /* The record # in the page to be read */
-
+  off_t current_write_page_index;   /* The page to which next record is to be
+                                     added to */
+  off_t current_read_page_index;    /* The page from which next record is to be
+                                     read*/
+  int current_read_page_offset;     /* The record # in the page to be read */
   //---------------- new file indices-------------------------
   off_t newf_write_page_index; /* The page to which next record is to be
                                    added to */
@@ -45,25 +43,17 @@ class SortedDBFile : public GenericDBFile {
   int newf_read_page_offset;   /* The record # in the page to be read */
   //-----------------------------------------------------------
   Page *buffer; /* A buffer to manage read/write operations */
-
   Page *new_file_buffer;
-
   bool dirty; /* A flag describing whether the buffer is to be written to disk
                  or no */
-
   modeType mode; /* The mode of the file right now i.e. reading or writing */
   modeType new_file_mode;
-
   bool is_open; /* A Flag variable to indicate whether a file is open or not */
-
   int runLength;
   OrderMaker *sortOrder;
-
   int count;
-
   Pipe *input;
   Pipe *output;
-
   bool cachedGetNextFlag;
   OrderMaker queryOrderMaker;
   OrderMaker literalOrderMaker;
@@ -82,6 +72,7 @@ class SortedDBFile : public GenericDBFile {
   void AddForMerge(Record &addme);
   int GetNext(Record &fetchme);
   int GetNext(Record &fetchme, CNF &cnf, Record &literal);
+
   int GetNextForMerge(Record &fetchme);
   int MergeBigqRecords();
   void FlushBufferForMerge();
