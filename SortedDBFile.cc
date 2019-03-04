@@ -327,7 +327,7 @@ int SortedDBFile::GetNext(Record &fetchme) {
   }
 
   // Get the Page current_read_page_index from the file
-  if (mode == writing || mode == idle) {
+  if ((mode == writing || mode == idle) && !merging) {
     persistent_file->GetPage(read_buffer, current_read_page_index);
     mode = reading;
   }
