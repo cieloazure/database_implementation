@@ -10,7 +10,6 @@
 #include "DBFile.h"
 #include "File.h"
 #include "GenericDBFile.h"
-#include "HeapDBFile.h"
 #include "Record.h"
 #include "Schema.h"
 #include "TwoWayList.h"

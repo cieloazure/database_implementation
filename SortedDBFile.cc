@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "Comparison.h"
 #include "ComparisonEngine.h"
+#include "HeapDBFile.h"
 #include "Defs.h"
 #include "File.h"
 #include "Record.h"
