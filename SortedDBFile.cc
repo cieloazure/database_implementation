@@ -26,16 +26,10 @@ SortedDBFile::SortedDBFile() {
   is_open = false;
   mode = idle;
   sortOrder = new OrderMaker();
-  input = new Pipe(100);
-  output = new Pipe(100);
   cachedGetNextFlag = false;
 }
 
-SortedDBFile::~SortedDBFile() {
-  delete persistent_file;
-  delete input;
-  delete output;
-}
+SortedDBFile::~SortedDBFile() { delete persistent_file; }
 
 int SortedDBFile::Create(const char *f_path, fType f_type, void *startup) {
   try {
@@ -162,6 +156,9 @@ int SortedDBFile::Close() {
     CheckIfFilePresent();
     if (dirty && !merging) {
       MergeBigqRecords();
+      delete bigq;
+      delete input;
+      delete output;
       dirty = false;
       cachedGetNextFlag = false;
     }
@@ -213,7 +210,12 @@ void SortedDBFile::Load(Schema &myschema, const char *loadpath) {
     }
   }
   std::cout << endl;
-  if (!merging) MergeBigqRecords();
+  if (!merging) {
+    MergeBigqRecords();
+    delete bigq;
+    delete input;
+    delete output;
+  }
   cout << "Bulk Loaded " << count << " records" << endl;
 }
 
@@ -224,6 +226,8 @@ void SortedDBFile::Add(Record &addme) {
     bigq = new BigQ(*input, *output, *sortOrder, runLength);
     mode = writing;
     dirty = true;
+    input = new Pipe(100);
+    output = new Pipe(100);
   }
 
   // insert into the bigq input pipe.
@@ -234,8 +238,8 @@ void SortedDBFile::Add(Record &addme) {
 
 int SortedDBFile::MergeBigqRecords() {
   merging = true;
+  input->ShutDown();
   if (dirty) {
-    input->ShutDown();
     MoveFirst();
     HeapDBFile *mergeHeapFile = new HeapDBFile();
     mergeHeapFile->Create("mergeFile.bin", heap, NULL);
@@ -245,18 +249,19 @@ int SortedDBFile::MergeBigqRecords() {
     Record *bigqRec = new Record();
 
     // while bigq is not empty or sorted file is not empty
-    bool qHasElement;
-    bool fileHasElement;
-    while ((qHasElement = output->Remove(bigqRec)) &&
-           (fileHasElement = GetNext(*fileRec))) {
+    bool qHasElement = output->Remove(bigqRec);
+    bool fileHasElement = GetNext(*fileRec);
+    while (qHasElement && fileHasElement) {
       int status = compEngine.Compare(bigqRec, fileRec, sortOrder);
       if (status >= 0) {
         mergeHeapFile->Add(*bigqRec);
+        bigqRec = new Record();
+        qHasElement = output->Remove(bigqRec);
       } else if (status < 0) {
         mergeHeapFile->Add(*fileRec);
+        fileRec = new Record();
+        fileHasElement = GetNext(*fileRec);
       }
-      fileRec = new Record();
-      bigqRec = new Record();
     }
 
     if (!fileHasElement) {
@@ -278,19 +283,26 @@ int SortedDBFile::MergeBigqRecords() {
     persistent_file->Close();
     delete persistent_file;
 
+    // Convert heapdbFile instace to sortedfile
     mergeHeapFile->ConvertToSortedFile(file_path);
 
+    // Open the mergedfile instance
     persistent_file = new File();
     persistent_file->Open(1, (char *)file_path);
 
+    // Set current_write_page_index based on the new mergefile
     lseek(metadata_file_descriptor, sizeof(fType), SEEK_SET);
     read(metadata_file_descriptor, &current_write_page_index, sizeof(off_t));
 
-    MoveFirst();
+    // Set the current_read_page_index as well
+    // MoveFirst();
+    current_read_page_index = 0;
 
+    // Clean up work
     mergeHeapFile->Close();
     delete mergeHeapFile;
     remove("mergeFile.bin");
+    merging = false;
   }
 }
 
@@ -300,8 +312,12 @@ int SortedDBFile::GetNext(Record &fetchme) {
   // Merge the files before changing mode
   if (dirty && !merging) {
     MergeBigqRecords();
+    delete bigq;
+    delete input;
+    delete output;
     dirty = false;
     cachedGetNextFlag = false;
+    MoveFirst();
   }
 
   // If records in all pages have been read
@@ -342,6 +358,9 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
   // if dirty
   if (dirty && !merging) {
     MergeBigqRecords();
+    delete bigq;
+    delete input;
+    delete output;
     dirty = false;
     cachedGetNextFlag = false;
   }

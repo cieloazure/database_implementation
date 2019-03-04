@@ -95,6 +95,26 @@ int main() {
       }
     }
   }
+  Record *second = new Record();
+  while (sortedDBFile->GetNext(*second)) {
+    second->Print(&mySchema);
+    cout << endl;
+    cout << endl;
+  };
+
+  // sleep(50000000);
+  count = 0;
+  while (temp->SuckNextRecord(&mySchema, table_file) == 1) {
+    if (temp != NULL) {
+      count++;
+      std::cout << "\r" << count;
+      sortedDBFile->Add(*temp);
+      if (count == 10) {
+        break;
+      }
+    }
+  }
+
   Record *first = new Record();
   while (sortedDBFile->GetNext(*first)) {
     first->Print(&mySchema);
@@ -102,11 +122,9 @@ int main() {
     cout << endl;
   };
 
-  // sleep(50000000);
-
-  if (temp->SuckNextRecord(&mySchema, table_file) == 1) {
-    sortedDBFile->Add(*temp);
-  }
+  // if (temp->SuckNextRecord(&mySchema, table_file) == 1) {
+  //   sortedDBFile->Add(*temp);
+  // }
 
   return 0;
 }

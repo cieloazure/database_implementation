@@ -8,15 +8,15 @@
             "name": "(lldb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/gtest_main.out",
-            // "program": "${workspaceFolder}/main",
+            // "program": "${workspaceFolder}/gtest_main.out",
+            "program": "${workspaceFolder}/main",
             "args": [
                 // "--gtest_filter=SortedDBFileTest.GET_NEXT_WITH_PARAMETERS_WITH_CNF_HAVING_ATTRIBUTES_OUT_OF_ORDER_WITH_FILE_SORT_ORDER"
                 // "--gtest_filter=SortedDBFileTest.GET_NEXT_WITH_PARAMTERS"
                 // "--gtest_filter=SortedDBFileTest.*"
                 // "--gtest_filter=ComparisonTest.GET_SORT_ORDER_ATTRIBUTES_TEST_MULTIPLE_ATTRIBUTES_NOT_IN_ORDER"
                 // "--gtest_filter=ComparisonTest.*"
-                "--gtest_filter=ComparisonTest.SHARMILEE_QUERY_TEST"
+                // "--gtest_filter=ComparisonTest.SHARMILEE_QUERY_TEST"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
