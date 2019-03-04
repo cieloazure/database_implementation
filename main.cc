@@ -13,8 +13,8 @@
 #include "Defs.h"
 #include "Pipe.h"
 #include "Record.h"
-#include "TwoWayList.cc"
 #include "SortedDBFile.h"
+#include "TwoWayList.cc"
 using namespace std;
 
 extern "C" {
@@ -78,7 +78,7 @@ int main() {
   fType t1 = sorted;
   sortedDBFile->Create("gtest_sorted.bin", t1, (void *)si);
   const char *loadpath = "data_files/lineitem.tbl";
-  //sortedDBFile->Load(mySchema, loadpath);
+  // sortedDBFile->Load(mySchema, loadpath);
 
   Record *temp = new Record();
   FILE *table_file = fopen(loadpath, "r");
@@ -90,21 +90,21 @@ int main() {
       count++;
       std::cout << "\r" << count;
       sortedDBFile->Add(*temp);
-      if(count == 10) {
+      if (count == 10) {
         break;
       }
     }
   }
   Record *first = new Record();
-  while(sortedDBFile->GetNext(*first)) {
+  while (sortedDBFile->GetNext(*first)) {
     first->Print(&mySchema);
-    cout<<endl;
-    cout<<endl;
+    cout << endl;
+    cout << endl;
   };
 
-  sleep(50000000);
+  // sleep(50000000);
 
-  if(temp->SuckNextRecord(&mySchema, table_file) == 1) {
+  if (temp->SuckNextRecord(&mySchema, table_file) == 1) {
     sortedDBFile->Add(*temp);
   }
 

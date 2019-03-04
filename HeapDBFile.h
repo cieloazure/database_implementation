@@ -52,6 +52,7 @@ class HeapDBFile : public GenericDBFile {
   int GetNext(Record &fetchme);
   int GetNext(Record &fetchme, CNF &cnf, Record &literal);
 
+  void ConvertToSortedFile(const char *sorted_file_name);
   /* TODO */
   /* Test Utility methods */
   /* Need appropriate visiblity */
@@ -60,6 +61,7 @@ class HeapDBFile : public GenericDBFile {
   off_t GetNumPagesInFile();
   off_t GetCurrentReadPageIndex();
   off_t GetCurrentWritePageIndex();
+  File *GetPersistentFileInstance();
 
  private:
   char *GetMetaDataFileName(

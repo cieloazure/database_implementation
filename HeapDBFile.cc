@@ -317,6 +317,29 @@ int HeapDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
   return 0;
 }
 
+void HeapDBFile::ConvertToSortedFile(const char *sorted_file_name) {
+  FlushBuffer();
+
+  int length = persistent_file->Close();
+  is_open = false;
+  cout << length << endl;
+
+  if (rename(file_path, sorted_file_name) != 0) {
+    cout << "Error renaming new file" << endl;
+  } else {
+    cout << "Renamed " << (char *)file_path << " to "
+         << (char *)sorted_file_name << endl;
+  }
+
+  int file_mode = O_RDWR;
+  int fd =
+      open(GetMetaDataFileName(sorted_file_name), file_mode, S_IRUSR | S_IWUSR);
+
+  lseek(fd, sizeof(fType), SEEK_SET);
+  write(fd, &current_write_page_index, sizeof(off_t));
+  // Close();
+}
+
 char *HeapDBFile::GetMetaDataFileName(const char *file_path) {
   string f_path_str(file_path);
   string metadata_file_extension(".header");
@@ -371,3 +394,5 @@ off_t HeapDBFile::GetCurrentReadPageIndex() { return current_read_page_index; }
 off_t HeapDBFile::GetCurrentWritePageIndex() {
   return current_write_page_index;
 }
+
+File *HeapDBFile::GetPersistentFileInstance() { return persistent_file; }

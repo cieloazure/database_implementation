@@ -2,9 +2,6 @@
 #define DBFILE_H
 #include "GenericDBFile.h"
 
-// typedef enum { heap, sorted, tree } fType;
-// typedef enum { reading, writing, idle } modeType;
-
 class DBFile {
  private:
   GenericDBFile *dbFile;
@@ -23,15 +20,10 @@ class DBFile {
   int GetNext(Record &fetchme, CNF &cnf, Record &literal);
 
  private:
-  void CheckIfFilePresent(); /* Check if a file is opened */
-  bool CheckIfCorrectFileType(fType type);
-  bool CheckIfFileNameIsValid(const char *file_name);
   char *GetMetaDataFileName(
       const char *file_path); /* Create a name of the metadata file based on the
                                  file opened */
-
   GenericDBFile *GetDBFileInstance(fType type);
-
   fType GetFileType(const char *fpath);
 };
 #endif
