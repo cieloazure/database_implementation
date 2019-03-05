@@ -1,5 +1,9 @@
 #include "DBFile.h"
+#include <errno.h>
+#include <stdio.h>
+#include <string.h>
 #include <unistd.h>
+#include <fstream>
 #include "HeapDBFile.h"
 #include "SortedDBFile.h"
 
@@ -82,17 +86,39 @@ GenericDBFile *DBFile::GetDBFileInstance(fType type) {
 }
 
 fType DBFile::GetFileType(const char *fpath) {
-  int file_mode = O_RDWR;
-  int metadata_file_descriptor =
-      open(GetMetaDataFileName(fpath), file_mode, S_IRUSR | S_IWUSR);
-
-  // Read the current_page_index from metadata file
-  lseek(metadata_file_descriptor, 0, SEEK_SET);
-
-  // Initialize variables from meta data file
-  // Current Meta Data variables  ->
+  string s(GetMetaDataFileName(fpath));
+  cout << s << endl;
+  ifstream myFile(s, ios::in | ios::binary);
   fType type;
-  read(metadata_file_descriptor, &type, sizeof(fType));
-  CheckIfCorrectFileType(type);
+  myFile.read(reinterpret_cast<char *>(&type), sizeof(fType));
+  if (!myFile) {
+    cout << "Error occured" << endl;
+    // An error occurred!
+    // myFile.gcount() returns the number of bytes read.
+    // calling myFile.clear() will reset the stream state
+    // so it is usable again.
+  }
   return type;
+  // int file_mode = O_RDWR;
+  // int metadata_file_descriptor =
+  //     open(GetMetaDataFileName(fpath), file_mode, S_IRUSR | S_IWUSR);
+
+  // // Check if the metadata file has opened
+  // if (metadata_file_descriptor < 0) {
+  //   string err("Error opening metadata file for ");
+  //   err += fpath;
+  //   err += "\n";
+  //   printf("Oh dear, something went wrong with open()! %s\n",
+  //   strerror(errno)); throw runtime_error(err);
+  // } else {
+  //   // Read the current_page_index from metadata file
+  //   lseek(metadata_file_descriptor, 0, SEEK_SET);
+
+  //   // Initialize variables from meta data file
+  //   // Current Meta Data variables  ->
+  //   fType type;
+  //   read(metadata_file_descriptor, &type, sizeof(fType));
+  //   CheckIfCorrectFileType(type);
+  //   return type;
+  // }
 }

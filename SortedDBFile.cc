@@ -286,15 +286,13 @@ int SortedDBFile::MergeBigqRecords() {
     delete persistent_file;
 
     // Convert heapdbFile instace to sortedfile
-    mergeHeapFile->ConvertToSortedFile(file_path);
+    current_write_page_index = mergeHeapFile->ConvertToSortedFile(file_path);
+    lseek(metadata_file_descriptor, sizeof(fType), SEEK_SET);
+    write(metadata_file_descriptor, &current_write_page_index, sizeof(off_t));
 
     // Open the mergedfile instance
     persistent_file = new File();
     persistent_file->Open(1, (char *)file_path);
-
-    // Set current_write_page_index based on the new mergefile
-    lseek(metadata_file_descriptor, sizeof(fType), SEEK_SET);
-    read(metadata_file_descriptor, &current_write_page_index, sizeof(off_t));
 
     // Set the current_read_page_index as well
     MoveFirst();
@@ -304,6 +302,7 @@ int SortedDBFile::MergeBigqRecords() {
     mergeHeapFile->Close();
     delete mergeHeapFile;
     remove("mergeFile.bin");
+    remove("mergeFile.header");
     merging = false;
   }
 }

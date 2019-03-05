@@ -81,7 +81,6 @@ int HeapDBFile::Open(const char *f_path) {
     // Set is open to true if no exception occured in persistent_file
     is_open = true;
     // Read current_write_page_index from metadata file descriptor
-
     int file_mode = O_RDWR;
     metadata_file_descriptor =
         open(GetMetaDataFileName(file_path), file_mode, S_IRUSR | S_IWUSR);
@@ -317,7 +316,7 @@ int HeapDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
   return 0;
 }
 
-void HeapDBFile::ConvertToSortedFile(const char *sorted_file_name) {
+int HeapDBFile::ConvertToSortedFile(const char *sorted_file_name) {
   FlushBuffer();
 
   int length = persistent_file->Close();
@@ -331,13 +330,16 @@ void HeapDBFile::ConvertToSortedFile(const char *sorted_file_name) {
          << (char *)sorted_file_name << endl;
   }
 
-  int file_mode = O_RDWR;
-  int fd =
-      open(GetMetaDataFileName(sorted_file_name), file_mode, S_IRUSR | S_IWUSR);
+  // int file_mode = O_RDWR;
+  // int fd =
+  //     open(GetMetaDataFileName(sorted_file_name), file_mode, S_IRUSR |
+  //     S_IWUSR);
 
-  lseek(fd, sizeof(fType), SEEK_SET);
-  write(fd, &current_write_page_index, sizeof(off_t));
+  // lseek(fd, sizeof(fType), SEEK_SET);
+  // write(fd, &current_write_page_index, sizeof(off_t));
+  // close(fd);
   // Close();
+  return current_write_page_index;
 }
 
 char *HeapDBFile::GetMetaDataFileName(const char *file_path) {
