@@ -566,8 +566,7 @@ int SortedDBFile::BinarySearchPage(Page *buffer, OrderMaker *queryOrderMaker,
       Record prevRec;
       buffer->ReadNext(prevRec, previous);
       ComparisonEngine comp;
-      while (current > 0 &&
-             comp.Compare(&prevRec, &currRec, queryOrderMaker) == 0) {
+      while (comp.Compare(&prevRec, &currRec, queryOrderMaker) == 0) {
         current = previous;
         buffer->ReadNext(currRec, current);
         previous = previous - 1;
