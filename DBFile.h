@@ -1,6 +1,7 @@
 #ifndef DBFILE_H
 #define DBFILE_H
 #include "GenericDBFile.h"
+#include <string>
 
 class DBFile {
  private:
@@ -20,7 +21,7 @@ class DBFile {
   int GetNext(Record &fetchme, CNF &cnf, Record &literal);
 
  private:
-  string GetMetaDataFileName(
+  std::string GetMetaDataFileName(
       const char *file_path); /* Create a name of the metadata file based on the
                                  file opened */
 
