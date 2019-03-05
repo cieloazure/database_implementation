@@ -86,13 +86,14 @@ GenericDBFile *DBFile::GetDBFileInstance(fType type) {
 }
 
 fType DBFile::GetFileType(const char *fpath) {
+  // TODO: Quick fix, find reason for open system call failing
   string s(GetMetaDataFileName(fpath));
   cout << s << endl;
   ifstream myFile(s, ios::in | ios::binary);
   fType type;
   myFile.read(reinterpret_cast<char *>(&type), sizeof(fType));
   if (!myFile) {
-    cout << "Error occured" << endl;
+    cout << "Error occured in reading metadata file " << s << endl;
     // An error occurred!
     // myFile.gcount() returns the number of bytes read.
     // calling myFile.clear() will reset the stream state
