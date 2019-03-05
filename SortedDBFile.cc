@@ -426,7 +426,7 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
     while (GetNext(fetchme) != 0) {
       if (comp.Compare(&literal, &literalOrderMaker, &fetchme,
                        &queryOrderMaker) == 0) {
-        if (comp.Compare(&literal, &fetchme, &cnf)) {
+        if (comp.Compare(&literal, &fetchme, &cnf) == 0) {
           return 1;
         }
       } else {
