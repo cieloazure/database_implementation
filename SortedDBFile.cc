@@ -504,18 +504,17 @@ int SortedDBFile::BinarySearchPage(Page *buffer, OrderMaker *queryOrderMaker,
     if (midRecStatus == 0) {
       // Move up to find the first record in case of duplicated records
       int current = mid;
-      Record *currRec = midRec;
+      Record currRec;
+      buffer->ReadNext(currRec, current);
       int previous = current - 1;
-      Record *prevRec = new Record();
-      buffer->ReadNext(*prevRec, previous);
+      Record prevRec;
+      buffer->ReadNext(prevRec, previous);
       ComparisonEngine comp;
-      while (comp.Compare(prevRec, currRec, queryOrderMaker) == 0) {
-        currRec = prevRec;
+      while (comp.Compare(&prevRec, &currRec, queryOrderMaker) == 0) {
         current = previous;
+        buffer->ReadNext(currRec, current);
         previous = previous - 1;
-        delete prevRec;
-        Record *prevRec = new Record();
-        buffer->ReadNext(*prevRec, previous);
+        buffer->ReadNext(prevRec, previous);
       }
       return current;
     } else if (midRecStatus > 0) {

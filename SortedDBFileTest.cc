@@ -59,7 +59,8 @@ class SortedDBFileTest : public ::testing::Test {
     DBFile *sortedFile = new DBFile();
     OrderMaker *o = new OrderMaker(&mySchema);
     SortInfo *si = new SortInfo(o, 3);
-    if (sortedFile->Create("gtest_sorted_and_loaded.bin", sorted, (void *)si)) {
+    fType type = sorted;
+    if (sortedFile->Create("gtest.bin", type, (void *)si)) {
       const char *loadpath = "data_files/lineitem.tbl";
 
       Schema mySchema("catalog", "lineitem");
@@ -262,7 +263,7 @@ TEST_F(SortedDBFileTest, LOAD_TEST) {}
 
 TEST_F(SortedDBFileTest, GET_NEXT_WITH_PARAMETERS) {
   DBFile *sortedFile = new DBFile();
-  if (sortedFile->Open((char *)"gtest_sorted_and_loaded.bin")) {
+  if (sortedFile->Open("gtest.bin")) {
     const char cnf_string[] = "(l_orderkey = 69)";
     YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
     yyparse();
@@ -285,7 +286,7 @@ TEST_F(SortedDBFileTest, GET_NEXT_WITH_PARAMETERS) {
 
 TEST_F(SortedDBFileTest, GET_NEXT_WITH_PARAMETERS_WHEN_A_RECORD_IS_NOT_FOUND) {
   DBFile *sortedFile = new DBFile();
-  if (sortedFile->Open((char *)"gtest_sorted_and_loaded.bin")) {
+  if (sortedFile->Open((const char *)"gtest_sorted_and_loaded.bin")) {
     const char cnf_string[] = "(l_orderkey = 8)";
     YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
     yyparse();

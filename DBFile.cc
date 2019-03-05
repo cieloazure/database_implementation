@@ -66,13 +66,13 @@ bool DBFile::CheckIfCorrectFileType(fType type) {
   return false;
 }
 
-char *DBFile::GetMetaDataFileName(const char *file_path) {
+string DBFile::GetMetaDataFileName(const char *file_path) {
   string f_path_str(file_path);
   string metadata_file_extension(".header");
   size_t dot_pos = f_path_str.rfind('.');
   string metadata_file_name =
       f_path_str.substr(0, dot_pos) + metadata_file_extension;
-  return (char *)metadata_file_name.c_str();
+  return metadata_file_name;
 }
 
 GenericDBFile *DBFile::GetDBFileInstance(fType type) {
@@ -87,8 +87,7 @@ GenericDBFile *DBFile::GetDBFileInstance(fType type) {
 
 fType DBFile::GetFileType(const char *fpath) {
   // TODO: Quick fix, find reason for open system call failing
-  string s(GetMetaDataFileName(fpath));
-  cout << s << endl;
+  string s = GetMetaDataFileName(fpath);
   ifstream myFile(s, ios::in | ios::binary);
   fType type;
   myFile.read(reinterpret_cast<char *>(&type), sizeof(fType));

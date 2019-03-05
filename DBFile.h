@@ -20,7 +20,7 @@ class DBFile {
   int GetNext(Record &fetchme, CNF &cnf, Record &literal);
 
  private:
-  char *GetMetaDataFileName(
+  string GetMetaDataFileName(
       const char *file_path); /* Create a name of the metadata file based on the
                                  file opened */
 
