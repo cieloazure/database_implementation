@@ -240,68 +240,122 @@ void SortedDBFile::Add(Record &addme) {
 
 int SortedDBFile::MergeBigqRecords() {
   merging = true;
+
   input->ShutDown();
   if (dirty) {
     MoveFirst();
-    HeapDBFile *mergeHeapFile = new HeapDBFile();
-    mergeHeapFile->Create("mergeFile.bin", heap, NULL);
+    // HeapDBFile *mergeHeapFile = new HeapDBFile();
+    // mergeHeapFile->Create("mergeFile.bin", heap, NULL);
+    File *mergeFile = new File();
+    mergeFile->Open(0, "mergeFile.bin");
+    Page *mergedPageBuffer = new Page();
+    off_t mergeFilePageIndex = 0;
+
+    auto addPageToMergeFile = [&mergeFile, &mergedPageBuffer,
+                               &mergeFilePageIndex, this]() -> void {
+      Page *toBeAdded = new Page();
+      CopyBufferToPage(
+          mergedPageBuffer,
+          toBeAdded); /* Copy is required to avoid double free error */
+      // create a new page
+      mergeFile->AddPage(toBeAdded, mergeFilePageIndex);
+      mergeFilePageIndex++;
+    };
+
+    auto addRecToMergeFile = [&mergeFile, &mergedPageBuffer,
+                              &addPageToMergeFile,
+                              this](Record *smallest) -> void {
+      if (mergedPageBuffer->Append(smallest) == 0) {
+        addPageToMergeFile();
+
+        // add the record which failed adding on the page back on the new page
+        mergedPageBuffer->Append(smallest);
+      }
+    };
+
     ComparisonEngine compEngine;
 
     Record *fileRec = new Record();
     Record *bigqRec = new Record();
 
     // while bigq is not empty or sorted file is not empty
+    // merge from queue and file
+    int qcount = 0;
+    int fcount = 0;
     bool qHasElement = output->Remove(bigqRec);
     bool fileHasElement = GetNext(*fileRec);
     while (qHasElement && fileHasElement) {
       int status = compEngine.Compare(bigqRec, fileRec, sortOrder);
+      Record *smallest = new Record();
       if (status >= 0) {
-        mergeHeapFile->Add(*fileRec);
+        smallest->Copy(fileRec);
         fileRec = new Record();
         fileHasElement = GetNext(*fileRec);
+        fcount++;
       } else if (status < 0) {
-        mergeHeapFile->Add(*bigqRec);
+        smallest->Copy(bigqRec);
         bigqRec = new Record();
         qHasElement = output->Remove(bigqRec);
+        qcount++;
       }
+
+      addRecToMergeFile(smallest);
     }
 
+    cout << "After phase 1" << endl;
+    cout << qcount << endl;
+    cout << fcount << endl;
+    Record *leftOver = new Record();
+
+    // file is empty
     if (!fileHasElement) {
-      mergeHeapFile->Add(*bigqRec);
+      leftOver->Copy(bigqRec);
+      addRecToMergeFile(leftOver);
+      bigqRec = new Record();
       while (output->Remove(bigqRec)) {
-        mergeHeapFile->Add(*bigqRec);
+        leftOver->Copy(bigqRec);
+        addRecToMergeFile(leftOver);
         bigqRec = new Record();
+        qcount++;
       }
     }
 
+    // queue is empty
     if (!qHasElement) {
-      mergeHeapFile->Add(*fileRec);
+      leftOver->Copy(bigqRec);
+      addRecToMergeFile(leftOver);
+      fileRec = new Record();
       while (GetNext(*fileRec)) {
-        mergeHeapFile->Add(*fileRec);
+        leftOver->Copy(fileRec);
+        addRecToMergeFile(leftOver);
         fileRec = new Record();
+        fcount++;
       }
+      addRecToMergeFile(fileRec);
     }
 
-    persistent_file->Close();
-    delete persistent_file;
+    addPageToMergeFile();
 
-    // Convert heapdbFile instace to sortedfile
-    current_write_page_index = mergeHeapFile->ConvertToSortedFile(file_path);
+    cout << "After phase 2" << endl;
+    cout << qcount << endl;
+    cout << fcount << endl;
+
+    current_write_page_index = mergeFilePageIndex - 1;  // or no -1? check
     lseek(metadata_file_descriptor, sizeof(fType), SEEK_SET);
     write(metadata_file_descriptor, &current_write_page_index, sizeof(off_t));
 
     // Open the mergedfile instance
-    persistent_file = new File();
+    mergeFile->Close();
+    persistent_file->Close();
+    if (rename("mergeFile.bin", file_path) != 0) {
+      cerr << "Error renaming file!" << endl;
+    }
     persistent_file->Open(1, (char *)file_path);
 
     // Set the current_read_page_index as well
     MoveFirst();
 
     // Clean up work
-    mergeHeapFile->Close();
-    delete mergeHeapFile;
-    remove("mergeFile.bin");
-    remove("mergeFile.header");
     merging = false;
   }
 }
@@ -327,9 +381,9 @@ int SortedDBFile::GetNext(Record &fetchme) {
   }
 
   // Get the Page current_read_page_index from the file
-  if ((mode == writing || mode == idle) && !merging) {
+  if (mode == writing || mode == idle) {
     persistent_file->GetPage(read_buffer, current_read_page_index);
-    mode = reading;
+    if (!merging) mode = reading;
   }
 
   // Increment to get the next record on the page no `current_read_page_index`
@@ -567,4 +621,11 @@ bool SortedDBFile::CheckIfFileNameIsValid(const char *file_name) {
     return true;
   }
   return false;
+}
+
+void SortedDBFile::CopyBufferToPage(Page *from, Page *to) {
+  Record to_be_copied;
+  while (from->GetFirst(&to_be_copied) != 0) {
+    to->Append(&to_be_copied);
+  }
 }

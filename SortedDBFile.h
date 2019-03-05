@@ -80,5 +80,7 @@ class SortedDBFile : public GenericDBFile {
                        off_t page_offset, int record_offset);
   int BinarySearchPage(Page *buffer, OrderMaker *queryOrderMaker,
                        OrderMaker *literalOrderMaker, Record *literal);
+
+  void CopyBufferToPage(Page *from, Page *to);
 };
 #endif

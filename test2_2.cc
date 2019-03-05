@@ -13,13 +13,16 @@ int add_data(FILE *src, int numrecs, int &res) {
 
   int proc = 0;
   int xx = 20000;
-  while ((res = temp.SuckNextRecord(rel->schema(), src)) && ++proc < numrecs) {
+  while ((res = temp.SuckNextRecord(rel->schema(), src)) && proc < numrecs) {
     dbfile.Add(temp);
+    proc++;
     if (proc == xx) cerr << "\t ";
     if (proc % xx == 0) cerr << ".";
   }
 
+  cout << "Records added: " << proc << endl;
   dbfile.Close();
+  test2();
   return proc;
 }
 
