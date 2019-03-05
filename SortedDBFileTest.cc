@@ -264,7 +264,7 @@ TEST_F(SortedDBFileTest, LOAD_TEST) {}
 TEST_F(SortedDBFileTest, GET_NEXT_WITH_PARAMETERS) {
   DBFile *sortedFile = new DBFile();
   if (sortedFile->Open("gtest.bin")) {
-    const char cnf_string[] = "(l_orderkey = 59969)";
+    const char cnf_string[] = "(l_orderkey = 11814)";
     YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
     yyparse();
     yy_delete_buffer(buffer);

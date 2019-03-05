@@ -446,14 +446,18 @@ int SortedDBFile::BinarySearchFile(off_t *foundPage, int *foundOffset,
     off_t mid = lower + (higher - lower) / 2;
     Page *buffer = new Page();
     persistent_file->GetPage(buffer, mid);
+    buffer->Sort(*queryOrderMaker);
     int numRecsOnPage = buffer->GetNumRecords();
 
     // check if the record is on this page
+    // Schema mySchema("catalog", "lineitem");
     Record *firstRecOnPage = new Record();
     buffer->ReadNext(*firstRecOnPage, record_offset);
+    // firstRecOnPage->Print(&mySchema);
 
     Record *lastRecOnPage = new Record();
     buffer->ReadNext(*lastRecOnPage, numRecsOnPage - 1);
+    // lastRecOnPage->Print(&mySchema);
 
     // check conditions
 
