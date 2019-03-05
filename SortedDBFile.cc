@@ -426,7 +426,7 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
     while (GetNext(fetchme) != 0) {
       if (comp.Compare(&literal, &literalOrderMaker, &fetchme,
                        &queryOrderMaker) == 0) {
-        if (comp.Compare(&literal, &fetchme, &cnf) == 0) {
+        if (comp.Compare(&literal, &fetchme, &cnf)) {
           return 1;
         }
       } else {
@@ -500,6 +500,7 @@ int SortedDBFile::BinarySearchFile(off_t *foundPage, int *foundOffset,
     off_t mid = lower + (higher - lower) / 2;
     Page *buffer = new Page();
     persistent_file->GetPage(buffer, mid);
+    buffer->Sort(*queryOrderMaker);
     int numRecsOnPage = buffer->GetNumRecords();
 
     // check if the record is on this page
