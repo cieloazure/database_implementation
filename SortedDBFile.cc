@@ -296,7 +296,6 @@ int SortedDBFile::MergeBigqRecords() {
 
     // Set the current_read_page_index as well
     MoveFirst();
-    // current_read_page_index = 0;
 
     // Clean up work
     mergeHeapFile->Close();
@@ -442,7 +441,7 @@ int SortedDBFile::BinarySearchFile(off_t *foundPage, int *foundOffset,
                                    int record_offset) {
   ComparisonEngine compEngine;
   off_t lower = page_offset;
-  off_t higher = persistent_file->GetLength() - 1;
+  off_t higher = persistent_file->GetLength() - 2;
   while (lower <= higher) {
     off_t mid = lower + (higher - lower) / 2;
     Page *buffer = new Page();
