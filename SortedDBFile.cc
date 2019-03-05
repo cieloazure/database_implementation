@@ -426,7 +426,7 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
     while (GetNext(fetchme) != 0) {
       if (comp.Compare(&literal, &literalOrderMaker, &fetchme,
                        &queryOrderMaker) == 0) {
-        if (comp.Compare(&literal, &fetchme, &cnf)) {
+        if (comp.Compare(&fetchme, &literal, &cnf)) {
           return 1;
         }
       } else {
@@ -438,7 +438,7 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
 
   auto normalSearchUtility = [this, &literal, &cnf, &comp, &fetchme]() -> bool {
     while (GetNext(fetchme) != 0) {
-      if (comp.Compare(&literal, &fetchme, &cnf) == 0) {
+      if (comp.Compare(&fetchme, &literal, &cnf)) {
         return 1;
       }
     }
