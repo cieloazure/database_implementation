@@ -60,7 +60,7 @@ class SortedDBFileTest : public ::testing::Test {
     OrderMaker *o = new OrderMaker(&mySchema);
     SortInfo *si = new SortInfo(o, 3);
     fType type = sorted;
-    if (sortedFile->Create("gtest.bin", type, (void *)si)) {
+    if (sortedFile->Create("preloaded_gtest.bin", type, (void *)si)) {
       const char *loadpath = "data_files/lineitem.tbl";
 
       Schema mySchema("catalog", "lineitem");
@@ -74,6 +74,69 @@ class SortedDBFileTest : public ::testing::Test {
   // Objects declared here can be used by all tests in the test case for Foo.
   OrderMaker *o = new OrderMaker(&mySchema);
   SortInfo *si = new SortInfo(o, 3);
+
+  bool checkSortedOrder(char *fpath) {
+    DBFile dbFile;
+    dbFile.Open(fpath);
+    dbFile.MoveFirst();
+    ComparisonEngine ceng;
+
+    int err = 0;
+    int i = 0;
+    Record rec[2];
+    Record *last = new Record();
+    bool lastEmpty = true;
+    Record *prev = new Record();
+    bool prevEmpty = true;
+
+    while (dbFile.GetNext(rec[i % 2])) {
+      if (!lastEmpty) {
+        prev->Copy(last);
+        prevEmpty = false;
+      }
+      if (lastEmpty) {
+        lastEmpty = false;
+      }
+      last->Copy(&rec[i % 2]);
+
+      if (!prevEmpty && !lastEmpty) {
+        if (ceng.Compare(prev, last, o) == 1) {
+          err++;
+        }
+      }
+      i++;
+    }
+    dbFile.Close();
+
+    cout << " consumer: removed " << i << " recs from the pipe\n";
+    cout << " consumer: " << (i - err) << " recs out of " << i
+         << " recs in sorted order \n";
+
+    if (err) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  void GetNextParamsRepeatedQuery(DBFile *sortedFile, string cnf_string) {
+    Schema mySchema("catalog", "lineitem");
+
+    YY_BUFFER_STATE buffer = yy_scan_string(cnf_string.c_str());
+    yyparse();
+    yy_delete_buffer(buffer);
+
+    // grow the CNF expression from the parse tree
+    CNF cnf;
+    Record literal;
+    cnf.GrowFromParseTree(final, &mySchema, literal);
+
+    // print out the comparison to the screen
+    cnf.Print();
+
+    Record *temp = new Record();
+    EXPECT_TRUE(sortedFile->GetNext(*temp, cnf, literal));
+  }
 };
 
 TEST_F(SortedDBFileTest, CREATE_SUCCESS) {
@@ -142,6 +205,8 @@ TEST_F(SortedDBFileTest, OPEN_FAILURE_ON_INVALID_FILE_TYPE_IN_METADATA_FILE) {
     int invalid_value = 4;
     write(fd, &invalid_value, sizeof(fType));
     EXPECT_FALSE(sortFile->Open("gtest.bin"));
+  } else {
+    FAIL();
   }
   delete sortFile;
 }
@@ -158,6 +223,8 @@ TEST_F(SortedDBFileTest, OPEN_FAILURE_WHEN_A_FILE_NAME_IS_INVALID) {
   if (sortFile->Create("gtest.bin", t, (void *)si)) {
     sortFile->Close();
     EXPECT_FALSE(sortFile->Open(""));
+  } else {
+    FAIL();
   }
   delete sortFile;
 }
@@ -165,11 +232,10 @@ TEST_F(SortedDBFileTest, OPEN_FAILURE_WHEN_A_FILE_NAME_IS_INVALID) {
 TEST_F(SortedDBFileTest, MOVE_FIRST_WHEN_GET_NEXT_HAVE_BEEN_CALLED_BEFORE) {
   SortedDBFile *sortedFile = new SortedDBFile();
   fType t = sorted;
-  if (sortedFile->Create("gtest.bin", t, (void *)si)) {
+  if (sortedFile->Open("preloaded_gtest.bin")) {
     const char *loadpath = "data_files/lineitem.tbl";
 
     Schema mySchema("catalog", "lineitem");
-    sortedFile->Load(mySchema, loadpath);
 
     FILE *load_file = fopen(loadpath, "r");
     Record *temp_source_file_record = new Record();
@@ -177,6 +243,8 @@ TEST_F(SortedDBFileTest, MOVE_FIRST_WHEN_GET_NEXT_HAVE_BEEN_CALLED_BEFORE) {
     Record *first = new Record();
     for (int i = 0; i < 10; i++) {
       temp_source_file_record->SuckNextRecord(&mySchema, load_file);
+      // For line item the first record in sorted is the 4 record in the table
+      // file
       if (i == 3) {
         first->Copy(temp_source_file_record);
       }
@@ -198,30 +266,30 @@ TEST_F(SortedDBFileTest, MOVE_FIRST_WHEN_GET_NEXT_HAVE_BEEN_CALLED_BEFORE) {
     delete first;
     fclose(load_file);
     sortedFile->Close();
+  } else {
+    FAIL();
   }
 }
 
 TEST_F(SortedDBFileTest, MOVE_FIRST_ON_FIRST_RECORD) {
   SortedDBFile *sortedFile = new SortedDBFile();
   fType t = sorted;
-  if (sortedFile->Create("gtest.bin", t, (void *)si)) {
+  if (sortedFile->Open("preloaded_gtest.bin")) {
     const char *loadpath = "data_files/lineitem.tbl";
 
     Schema mySchema("catalog", "lineitem");
-    sortedFile->Load(mySchema, loadpath);
 
     FILE *load_file = fopen(loadpath, "r");
     Record *temp_source_file_record = new Record();
     Record *temp_sorted_file_record = new Record();
     Record *first = new Record();
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < 10; i++) {
       temp_source_file_record->SuckNextRecord(&mySchema, load_file);
-      if (i == 0) {
+      if (i == 3) {
         first->Copy(temp_source_file_record);
       }
       // No Get Next is being called
     }
-
     // Just opened a file and moving first
     sortedFile->MoveFirst();
     sortedFile->GetNext(*temp_sorted_file_record);
@@ -238,6 +306,8 @@ TEST_F(SortedDBFileTest, MOVE_FIRST_ON_FIRST_RECORD) {
     delete first;
     fclose(load_file);
     sortedFile->Close();
+  } else {
+    FAIL();
   }
 }
 
@@ -251,6 +321,8 @@ TEST_F(SortedDBFileTest, MOVE_FIRST_WITH_NO_RECORDS) {
     EXPECT_EQ(0, sortedFile->GetNext(*temp_sorted_file_record));
     delete temp_sorted_file_record;
     sortedFile->Close();
+  } else {
+    FAIL();
   }
 }
 
@@ -259,11 +331,99 @@ TEST_F(SortedDBFileTest, MOVE_FIRST_WITHOUT_CREATION) {
   EXPECT_THROW(sortedFile->MoveFirst(), runtime_error);
 }
 
-TEST_F(SortedDBFileTest, LOAD_TEST) {}
+TEST_F(SortedDBFileTest, LOAD_WITH_NO_OPEN_DBFILE) {
+  SortedDBFile *sortedFile = new SortedDBFile();
+  Schema mySchema("catalog", "lineitem");
+  const char *tpch_dir = "data_files/lineitem.tbl";
+  EXPECT_THROW(sortedFile->Load(mySchema, tpch_dir), runtime_error);
+}
+
+TEST_F(SortedDBFileTest, LOAD_WITH_NO_EXISTING_TABLEFILE) {
+  SortedDBFile *sortedFile = new SortedDBFile();
+  fType t = sorted;
+  if (sortedFile->Create("gtest.bin", t, (void *)si) == 1) {
+    Schema mySchema("catalog", "lineitem");
+    const char *tpch_dir = "data_files/does-not-exists.tbl";
+    EXPECT_THROW(sortedFile->Load(mySchema, tpch_dir), runtime_error);
+    sortedFile->Close();
+  } else {
+    FAIL();
+  }
+}
+
+TEST_F(SortedDBFileTest, LOAD_SUCCESS) {
+  SortedDBFile *sortedFile = new SortedDBFile();
+  if (sortedFile->Create("gtest.bin", sorted, (void *)si) == 1) {
+    Schema mySchema("catalog", "lineitem");
+    const char *tpch_dir = "data_files/lineitem.tbl";
+    FILE *f = fopen(tpch_dir, "r");
+    Record temp;
+    int expected_count = 0;
+    while (temp.SuckNextRecord(&mySchema, f)) {
+      expected_count++;
+    }
+
+    sortedFile->Load(mySchema, tpch_dir);
+
+    int actual_count = 0;
+    while (sortedFile->GetNext(temp)) {
+      actual_count++;
+    }
+
+    EXPECT_EQ(expected_count, actual_count);
+    sortedFile->Close();
+
+    EXPECT_TRUE(checkSortedOrder("gtest.bin"));
+  } else {
+    FAIL();
+  }
+}
+
+TEST_F(SortedDBFileTest, GET_NEXT_WHEN_THERE_ARE_NO_RECORDS_IN_THE_FILE) {
+  SortedDBFile *sortedFile = new SortedDBFile();
+  fType t = sorted;
+  if (sortedFile->Create("gtest.bin", t, (void *)si)) {
+    Record temp;
+    EXPECT_FALSE(sortedFile->GetNext(temp));
+    sortedFile->Close();
+  } else {
+    FAIL();
+  }
+}
+
+TEST_F(SortedDBFileTest, GET_NEXT_WHEN_THERE_ARE_RECORDS_IN_THE_FILE) {
+  SortedDBFile *sortedFile = new SortedDBFile();
+  if (sortedFile->Open("preloaded_gtest.bin")) {
+    Record temp;
+    EXPECT_TRUE(sortedFile->GetNext(temp));
+    sortedFile->Close();
+  } else {
+    FAIL();
+  }
+}
+
+TEST_F(SortedDBFileTest, GET_NEXT_WHEN_YOU_REACH_THE_END_OF_THE_FILE) {
+  SortedDBFile *sortedFile = new SortedDBFile();
+  if (sortedFile->Open("preloaded_gtest.bin")) {
+    sortedFile->MoveFirst();
+    int LINE_ITEM_RECORDS = 60175;
+    Record temp;
+    int count = 0;
+    while (count < LINE_ITEM_RECORDS) {
+      sortedFile->GetNext(temp);
+      count++;
+    }
+
+    EXPECT_FALSE(sortedFile->GetNext(temp));
+    sortedFile->Close();
+  } else {
+    FAIL();
+  }
+}
 
 TEST_F(SortedDBFileTest, GET_NEXT_WITH_PARAMETERS) {
   DBFile *sortedFile = new DBFile();
-  if (sortedFile->Open("gtest.bin")) {
+  if (sortedFile->Open("preloaded_gtest.bin")) {
     const char cnf_string[] = "(l_orderkey = 11814)";
     YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
     yyparse();
@@ -281,12 +441,14 @@ TEST_F(SortedDBFileTest, GET_NEXT_WITH_PARAMETERS) {
     Record temp;
     EXPECT_TRUE(sortedFile->GetNext(temp, cnf, literal));
     sortedFile->Close();
+  } else {
+    FAIL();
   }
 }
 
 TEST_F(SortedDBFileTest, GET_NEXT_WITH_PARAMETERS_WHEN_A_RECORD_IS_NOT_FOUND) {
   DBFile *sortedFile = new DBFile();
-  if (sortedFile->Open((const char *)"gtest_sorted_and_loaded.bin")) {
+  if (sortedFile->Open("preloaded_gtest.bin")) {
     const char cnf_string[] = "(l_orderkey = 8)";
     YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
     yyparse();
@@ -310,7 +472,7 @@ TEST_F(SortedDBFileTest, GET_NEXT_WITH_PARAMETERS_WHEN_A_RECORD_IS_NOT_FOUND) {
 TEST_F(SortedDBFileTest,
        GET_NEXT_WITH_PARAMETERS_WHEN_CNF_INCLUDES_OTHER_OPERATORS_AS_WELL) {
   DBFile *sortedFile = new DBFile();
-  if (sortedFile->Open("gtest_sorted_and_loaded.bin")) {
+  if (sortedFile->Open("preloaded_gtest.bin")) {
     const char cnf_string[] = "(l_orderkey = 7) AND (l_partkey < 1000)";
     YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
     yyparse();
@@ -339,7 +501,7 @@ TEST_F(
     SortedDBFileTest,
     GET_NEXT_WITH_PARAMETERS_WITH_CNF_HAVING_ATTRIBUTES_OUT_OF_ORDER_WITH_FILE_SORT_ORDER) {
   DBFile *sortedFile = new DBFile();
-  if (sortedFile->Open("gtest_sorted_and_loaded.bin")) {
+  if (sortedFile->Open("preloaded_gtest.bin")) {
     const char cnf_string[] =
         "(l_partkey = 1285) AND (l_orderkey = 3) AND (l_suppkey = 60)";
     YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
@@ -356,15 +518,15 @@ TEST_F(
 
     Record temp;
     EXPECT_TRUE(sortedFile->GetNext(temp, cnf, literal));
-    temp.Print(&mySchema);
     sortedFile->Close();
   }
 }
 
-TEST_F(SortedDBFileTest,
-       GET_NEXT_WITH_PARAMETERS_WHEN_QUERY_ORDERMAKER_IS_EMPTY) {
+TEST_F(
+    SortedDBFileTest,
+    GET_NEXT_WITH_PARAMETERS_WHEN_QUERY_ORDERMAKER_IS_EMPTY_BUT_RECORD_EXISTS) {
   DBFile *sortedFile = new DBFile();
-  if (sortedFile->Open("gtest_sorted_and_loaded.bin")) {
+  if (sortedFile->Open("preloaded_gtest.bin")) {
     const char cnf_string[] = "(l_partkey = 1285) AND (l_suppkey = 60)";
     YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
     yyparse();
@@ -379,8 +541,31 @@ TEST_F(SortedDBFileTest,
     cnf.Print();
 
     Record temp;
+    EXPECT_TRUE(sortedFile->GetNext(temp, cnf, literal));
+    sortedFile->Close();
+  }
+}
+
+TEST_F(
+    SortedDBFileTest,
+    GET_NEXT_WITH_PARAMETERS_WHEN_QUERY_ORDERMAKER_IS_EMPTY_BUT_RECORD_DOES_NOT_EXISTS) {
+  DBFile *sortedFile = new DBFile();
+  if (sortedFile->Open("preloaded_gtest.bin")) {
+    const char cnf_string[] = "(l_partkey = 1286) AND (l_suppkey = 60)";
+    YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
+    yyparse();
+    yy_delete_buffer(buffer);
+
+    // grow the CNF expression from the parse tree
+    CNF cnf;
+    Record literal;
+    cnf.GrowFromParseTree(final, &mySchema, literal);
+
+    // print out the comparison to the screen
+    cnf.Print();
+
+    Record temp;
     EXPECT_FALSE(sortedFile->GetNext(temp, cnf, literal));
-    temp.Print(&mySchema);
     sortedFile->Close();
   }
 }
@@ -388,7 +573,7 @@ TEST_F(SortedDBFileTest,
 TEST_F(SortedDBFileTest,
        GET_NEXT_WITH_PARAMETERS_WHEN_BINARY_SEARCH_IS_UNSUCCESSFUL) {
   DBFile *sortedFile = new DBFile();
-  if (sortedFile->Open("gtest_sorted_and_loaded.bin")) {
+  if (sortedFile->Open("preloaded_gtest.bin")) {
     const char cnf_string[] =
         "(l_partkey = 1286) AND (l_orderkey = 3) AND (l_suppkey = 60)";
     YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
@@ -405,24 +590,174 @@ TEST_F(SortedDBFileTest,
 
     Record temp;
     EXPECT_FALSE(sortedFile->GetNext(temp, cnf, literal));
-    temp.Print(&mySchema);
     sortedFile->Close();
   }
 }
 
 TEST_F(
     SortedDBFileTest,
+    GET_NEXT_WITH_PARAMETERS_WHEN_REPEATEDLY_CALLED_WITHOUT_CALL_TO_ANY_OTHER_FUNCTION_IN_BETWEEN_WITH_BINARY_SEARCH_RETURNING_A_RECORD_PREVIOUSLY) {
+  DBFile *sortedFile = new DBFile();
+  if (sortedFile->Open("preloaded_gtest.bin")) {
+    const char cnf_string[] = "(l_orderkey = 60000)";
+    YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
+    yyparse();
+    yy_delete_buffer(buffer);
+
+    // grow the CNF expression from the parse tree
+    CNF cnf;
+    Record literal;
+    cnf.GrowFromParseTree(final, &mySchema, literal);
+
+    // print out the comparison to the screen
+    cnf.Print();
+
+    Record temp;
+    int count = 0;
+    while (sortedFile->GetNext(temp, cnf, literal)) {
+      count++;
+    }
+    sortedFile->Close();
+    EXPECT_EQ(6, count);
+  } else {
+    FAIL();
+  }
+}
+
+TEST_F(
+    SortedDBFileTest,
     GET_NEXT_WITH_PARAMETERS_WHEN_REPEATEDLY_CALLED_WITHOUT_CALL_TO_ANY_OTHER_FUNCTION_IN_BETWEEN_WITH_BINARY_SEARCH_RETURNING_FALSE_PREVIOUSLY) {
+  DBFile *sortedFile = new DBFile();
+  if (sortedFile->Open("preloaded_gtest.bin")) {
+    const char cnf_string[] = "(l_orderkey = 60001)";
+    YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
+    yyparse();
+    yy_delete_buffer(buffer);
+
+    // grow the CNF expression from the parse tree
+    CNF cnf;
+    Record literal;
+    cnf.GrowFromParseTree(final, &mySchema, literal);
+
+    // print out the comparison to the screen
+    cnf.Print();
+
+    Record temp;
+    int count = 0;
+    int loop_counter = 0;
+    while (loop_counter < 10) {
+      if (sortedFile->GetNext(temp, cnf, literal)) {
+        count++;
+      }
+      loop_counter++;
+    }
+    sortedFile->Close();
+    EXPECT_EQ(0, count);
+  } else {
+    FAIL();
+  }
 }
 
-TEST_F(
-    SortedDBFileTest,
-    GET_NEXT_WITH_PARAMETERS_WHEN_REPEATEDLY_CALLED_WITHOUT_CALL_TO_ANY_OTHER_FUNCTION_IN_BETWEEN_WITH_QUERY_ORDER_MAKER_BEING_EMPTY_PREVIOUSLY) {
+TEST_F(SortedDBFileTest,
+       GET_NEXT_WITH_PARAMETERS_RECORD_EXITS_BUT_IT_IS_BEFORE_CURRENT_RECORD) {
+  DBFile *sortedFile = new DBFile();
+  if (sortedFile->Open("preloaded_gtest.bin")) {
+    const char cnf_string[] = "(l_orderkey = 59969)";
+    YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
+    yyparse();
+    yy_delete_buffer(buffer);
+
+    // grow the CNF expression from the parse tree
+    CNF cnf;
+    Record literal;
+    cnf.GrowFromParseTree(final, &mySchema, literal);
+
+    // print out the comparison to the screen
+    cnf.Print();
+
+    Record temp;
+    EXPECT_TRUE(sortedFile->GetNext(temp, cnf, literal));
+
+    const char cnf_string_2[] = "(l_orderkey = 1)";
+    YY_BUFFER_STATE buffer_2 = yy_scan_string(cnf_string_2);
+    yyparse();
+    yy_delete_buffer(buffer_2);
+
+    // grow the CNF expression from the parse tree
+    cnf.GrowFromParseTree(final, &mySchema, literal);
+
+    // print out the comparison to the screen
+    cnf.Print();
+
+    EXPECT_FALSE(sortedFile->GetNext(temp, cnf, literal));
+    sortedFile->Close();
+
+  } else {
+    FAIL();
+  }
 }
 
-TEST_F(
-    SortedDBFileTest,
-    GET_NEXT_WITH_PARAMETERS_WHEN_REPEATEDLY_CALLED_WITHOUT_CALL_TO_ANY_OTHER_FUNCTION_IN_BETWEEN) {
+TEST_F(SortedDBFileTest,
+       GET_NEXT_WITH_PARAMETERS_QUERYING_VARIOUS_PARTS_OF_THE_FILE) {
+  DBFile *sortedFile = new DBFile();
+  if (sortedFile->Open("preloaded_gtest.bin")) {
+    // Bottom of the file
+    string cnf_string("(l_orderkey = 60000)");
+    GetNextParamsRepeatedQuery(sortedFile, cnf_string);
+
+    sortedFile->MoveFirst();
+
+    // Top of the file
+    cnf_string = "(l_orderkey = 1)";
+    GetNextParamsRepeatedQuery(sortedFile, cnf_string);
+
+    sortedFile->Close();
+  } else {
+    FAIL();
+  }
 }
 
+// TEST_F(SortedDBFileTest,
+//        GET_NEXT_WITH_PARAMETERS_RECORD_EXITS_AND_IT_IS_AFTER_CURRENT_RECORD)
+//        {
+//   DBFile *sortedFile = new DBFile();
+//   if (sortedFile->Open("preloaded_gtest.bin")) {
+//     const char cnf_string[] = "(l_orderkey = 59969)";
+//     YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
+//     yyparse();
+//     yy_delete_buffer(buffer);
+
+//     // grow the CNF expression from the parse tree
+//     CNF cnf;
+//     Record literal;
+//     cnf.GrowFromParseTree(final, &mySchema, literal);
+
+//     // print out the comparison to the screen
+//     cnf.Print();
+
+//     Record temp;
+//     EXPECT_TRUE(sortedFile->GetNext(temp, cnf, literal));
+
+//     const char cnf_string_2[] = "(l_orderkey = 60000)";
+//     YY_BUFFER_STATE buffer_2 = yy_scan_string(cnf_string_2);
+//     yyparse();
+//     yy_delete_buffer(buffer_2);
+
+//     // grow the CNF expression from the parse tree
+//     cnf.GrowFromParseTree(final, &mySchema, literal);
+
+//     // print out the comparison to the screen
+//     cnf.Print();
+
+//     EXPECT_TRUE(sortedFile->GetNext(temp, cnf, literal));
+//     sortedFile->Close();
+
+//   } else {
+//     FAIL();
+//   }
+// }
+
+// TEST_F(SortedDBFileTest,
+//        GET_NEXT_WITH_PARAMETERS_WITH_CHANGING_CNF)
+//        {}
 }  // namespace dbi

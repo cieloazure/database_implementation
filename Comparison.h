@@ -60,6 +60,8 @@ class OrderMaker {
   void Serialize(int metadata_file_descriptor);
 
   bool IsEmpty();
+  bool operator==(OrderMaker right);
+  bool operator!=(OrderMaker right);
 };
 
 class Record;

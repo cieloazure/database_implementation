@@ -64,9 +64,6 @@ class SortedDBFile : public GenericDBFile {
   int GetNext(Record &fetchme);
   int GetNext(Record &fetchme, CNF &cnf, Record &literal);
 
-  /* New Merge file function */
-  int MergeBigqRecords();
-
  private:
   char *GetMetaDataFileName(
       const char *file_path); /* Create a name of the metadata file based on the
@@ -82,5 +79,8 @@ class SortedDBFile : public GenericDBFile {
                        OrderMaker *literalOrderMaker, Record *literal);
 
   void CopyBufferToPage(Page *from, Page *to);
+
+  /* New Merge file function */
+  int MergeBigqRecords();
 };
 #endif

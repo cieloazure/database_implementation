@@ -124,6 +124,22 @@ bool OrderMaker::IsEmpty() {
   }
 }
 
+bool OrderMaker::operator==(OrderMaker right) {
+  if (numAtts != right.numAtts) {
+    return false;
+  }
+
+  for (int i = 0; i < numAtts; i++) {
+    if (whichAtts[i] != right.whichAtts[i] ||
+        whichTypes[i] != right.whichTypes[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool OrderMaker::operator!=(OrderMaker right) { return !(operator==(right)); }
+
 int CNF ::GetSortOrders(OrderMaker &left, OrderMaker &right) {
   // initialize the size of the OrderMakers
   left.numAtts = 0;
@@ -608,61 +624,56 @@ void CNF::BuildQueryOrderMaker(OrderMaker &fileSortOrder,
                                OrderMaker &querySortOrder,
                                OrderMaker &literalSortOrder) {
   int l = 0;
+  querySortOrder.numAtts = 0;
+  literalSortOrder.numAtts = 0;
   for (int k = 0; k < fileSortOrder.numAtts; k++) {
     // get file sort attribute
     int sortAttribute = fileSortOrder.whichAtts[k];
 
     bool found = false;
 
+    auto updateSortOrders = [&querySortOrder, &literalSortOrder, &l, &found](
+                                int att, Type type, int i) -> void {
+      querySortOrder.whichAtts[l] = att;
+      querySortOrder.whichTypes[l] = type;
+      querySortOrder.numAtts++;
+
+      literalSortOrder.whichAtts[l] = i;
+      literalSortOrder.whichTypes[l] = type;
+      literalSortOrder.numAtts++;
+
+      l++;
+      found = true;
+    };
     // check in CNF
     for (int i = 0; i < numAnds; i++) {
-      for (int j = 0; j < orLens[i]; j++) {
-        // Disjunction of length not 1 will not be acceptable in sort order
-        if (orLens[i] != 1) {
+      // Disjunction of length not 1 will not be acceptable in sort order
+      if (orLens[i] != 1) {
+        continue;
+      }
+      // check if one of the them is a literal
+      // and operator is of type equals
+      Comparison compElem = orList[i][0];
+      if (!((compElem.operand1 == Literal && compElem.operand2 == Literal) ||
+            (compElem.operand1 != Literal && compElem.operand2 != Literal)) &&
+          compElem.op == Equals) {
+        // If the first or second attribute
+        if (compElem.operand1 != Literal &&
+            compElem.whichAtt1 == sortAttribute) {
+          updateSortOrders(compElem.whichAtt1, compElem.attType, i);
+          break;
+        } else if (compElem.operand2 != Literal &&
+                   compElem.whichAtt2 == sortAttribute) {
+          updateSortOrders(compElem.whichAtt2, compElem.attType, i);
+          break;
+        } else {
           continue;
-        }
-        // check if one of the them is a literal
-        // and operator is of type equals
-        Comparison compElem = orList[i][j];
-        if (!((compElem.operand1 == Literal && compElem.operand2 == Literal) ||
-              (compElem.operand1 != Literal && compElem.operand2 != Literal)) &&
-            compElem.op == Equals) {
-          // If the first or second attribute
-          if (compElem.operand1 != Literal &&
-              compElem.whichAtt1 == sortAttribute) {
-            querySortOrder.whichAtts[l] = compElem.whichAtt1;
-            querySortOrder.whichTypes[l] = compElem.attType;
-            querySortOrder.numAtts++;
-
-            literalSortOrder.whichAtts[l] = i;
-            literalSortOrder.whichTypes[l] = compElem.attType;
-            literalSortOrder.numAtts++;
-
-            l++;
-            found = true;
-            break;
-          } else if (compElem.operand2 != Literal &&
-                     compElem.whichAtt2 == sortAttribute) {
-            querySortOrder.whichAtts[l] = compElem.whichAtt2;
-            querySortOrder.whichTypes[l] = compElem.attType;
-            querySortOrder.numAtts++;
-
-            literalSortOrder.whichAtts[l] = i;
-            literalSortOrder.whichTypes[l] = compElem.attType;
-            literalSortOrder.numAtts++;
-
-            l++;
-            found = true;
-            break;
-          } else {
-            continue;
-          }
         }
       }
     }
 
     // Attribute is not found; stop building the query order maker
-    // This implies the sort order does not match
+    // This implies the sort order does not match further
     if (!found) {
       break;
     }

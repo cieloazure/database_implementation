@@ -20,9 +20,7 @@ int add_data(FILE *src, int numrecs, int &res) {
     if (proc % xx == 0) cerr << ".";
   }
 
-  cout << "Records added: " << proc << endl;
   dbfile.Close();
-  test2();
   return proc;
 }
 

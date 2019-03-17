@@ -123,6 +123,8 @@ int SortedDBFile::Open(const char *f_path) {
 
 void SortedDBFile::MoveFirst() {
   CheckIfFilePresent();
+  cachedGetNextFlag = false;
+  mode = idle;
   if (current_write_page_index >= 0) {
     // Set current_read_page_index
     current_read_page_index = -1;
@@ -218,7 +220,7 @@ void SortedDBFile::Load(Schema &myschema, const char *loadpath) {
     dirty = false;
     cachedGetNextFlag = false;
   }
-  cout << "Bulk Loaded " << count << " records" << endl;
+  std::cout << "Bulk Loaded " << count << " records" << std::endl;
 }
 
 void SortedDBFile::Add(Record &addme) {
@@ -302,9 +304,6 @@ int SortedDBFile::MergeBigqRecords() {
       addRecToMergeFile(smallest);
     }
 
-    cout << "After phase 1" << endl;
-    cout << qcount << endl;
-    cout << fcount << endl;
     Record *leftOver = new Record();
 
     // file is empty
@@ -335,10 +334,6 @@ int SortedDBFile::MergeBigqRecords() {
     }
 
     addPageToMergeFile();
-
-    cout << "After phase 2" << endl;
-    cout << qcount << endl;
-    cout << fcount << endl;
 
     current_write_page_index = mergeFilePageIndex - 1;  // or no -1? check
     lseek(metadata_file_descriptor, sizeof(fType), SEEK_SET);
@@ -468,7 +463,18 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
         // to getnext with same parameters will have a match as well
         cachedGetNextFlag = true;
 
-        return fastSearchUtility(queryOrderMaker, literalOrderMaker);
+        while (GetNext(fetchme) != 0) {
+          if (comp.Compare(&literal, &literalOrderMaker, &fetchme,
+                           &queryOrderMaker) == 0) {
+            if (comp.Compare(&fetchme, &literal, &cnf)) {
+              return 1;
+            }
+          } else {
+            return 0;
+          }
+        }
+        return 0;
+        // return fastSearchUtility(queryOrderMaker, literalOrderMaker);
       } else {
         // Binary search was unsuccessful with queryOrderMaker
         return 0;
@@ -476,11 +482,30 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
     } else {
       // queryOrderMaker is empty
       // speedup in search is not possible
-      return normalSearchUtility();
+
+      while (GetNext(fetchme) != 0) {
+        if (comp.Compare(&fetchme, &literal, &cnf)) {
+          return 1;
+        }
+      }
+      return 0;
+      // return normalSearchUtility();
     }
   } else {
     // query parameters are cached
-    return fastSearchUtility(queryOrderMaker, literalOrderMaker);
+
+    while (GetNext(fetchme) != 0) {
+      if (comp.Compare(&literal, &literalOrderMaker, &fetchme,
+                       &queryOrderMaker) == 0) {
+        if (comp.Compare(&fetchme, &literal, &cnf)) {
+          return 1;
+        }
+      } else {
+        return 0;
+      }
+    }
+    return 0;
+    // return fastSearchUtility(queryOrderMaker, literalOrderMaker);
   }
 
   // Error value, should not be present
@@ -500,7 +525,6 @@ int SortedDBFile::BinarySearchFile(off_t *foundPage, int *foundOffset,
     off_t mid = lower + (higher - lower) / 2;
     Page *buffer = new Page();
     persistent_file->GetPage(buffer, mid);
-    buffer->Sort(*queryOrderMaker);
     int numRecsOnPage = buffer->GetNumRecords();
 
     // check if the record is on this page
@@ -559,20 +583,25 @@ int SortedDBFile::BinarySearchPage(Page *buffer, OrderMaker *queryOrderMaker,
     int midRecStatus =
         compEngine.Compare(literal, literalOrderMaker, midRec, queryOrderMaker);
     if (midRecStatus == 0) {
+      Record *currRec = new Record();
+      Record *prevRec = new Record();
+
       // Move up to find the first record in case of duplicated records
       int current = mid;
-      Record currRec;
-      buffer->ReadNext(currRec, current);
+      buffer->ReadNext(*currRec, current);
+
       int previous = current - 1;
-      Record prevRec;
-      buffer->ReadNext(prevRec, previous);
+      buffer->ReadNext(*prevRec, previous);
+
       ComparisonEngine comp;
-      while (comp.Compare(&prevRec, &currRec, queryOrderMaker) == 0) {
+      while (previous >= 0 &&
+             comp.Compare(prevRec, currRec, queryOrderMaker) == 0) {
         current = previous;
-        buffer->ReadNext(currRec, current);
+        buffer->ReadNext(*currRec, current);
         previous = previous - 1;
-        buffer->ReadNext(prevRec, previous);
+        buffer->ReadNext(*prevRec, previous);
       }
+
       return current;
     } else if (midRecStatus > 0) {
       lower = mid + 1;

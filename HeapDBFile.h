@@ -52,7 +52,6 @@ class HeapDBFile : public GenericDBFile {
   int GetNext(Record &fetchme);
   int GetNext(Record &fetchme, CNF &cnf, Record &literal);
 
-  int ConvertToSortedFile(const char *sorted_file_name);
   /* TODO */
   /* Test Utility methods */
   /* Need appropriate visiblity */
