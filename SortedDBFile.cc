@@ -463,18 +463,7 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
         // to getnext with same parameters will have a match as well
         cachedGetNextFlag = true;
 
-        while (GetNext(fetchme) != 0) {
-          if (comp.Compare(&literal, &literalOrderMaker, &fetchme,
-                           &queryOrderMaker) == 0) {
-            if (comp.Compare(&fetchme, &literal, &cnf)) {
-              return 1;
-            }
-          } else {
-            return 0;
-          }
-        }
-        return 0;
-        // return fastSearchUtility(queryOrderMaker, literalOrderMaker);
+        return fastSearchUtility(queryOrderMaker, literalOrderMaker);
       } else {
         // Binary search was unsuccessful with queryOrderMaker
         return 0;
@@ -483,29 +472,11 @@ int SortedDBFile::GetNext(Record &fetchme, CNF &cnf, Record &literal) {
       // queryOrderMaker is empty
       // speedup in search is not possible
 
-      while (GetNext(fetchme) != 0) {
-        if (comp.Compare(&fetchme, &literal, &cnf)) {
-          return 1;
-        }
-      }
-      return 0;
-      // return normalSearchUtility();
+      return normalSearchUtility();
     }
   } else {
     // query parameters are cached
-
-    while (GetNext(fetchme) != 0) {
-      if (comp.Compare(&literal, &literalOrderMaker, &fetchme,
-                       &queryOrderMaker) == 0) {
-        if (comp.Compare(&fetchme, &literal, &cnf)) {
-          return 1;
-        }
-      } else {
-        return 0;
-      }
-    }
-    return 0;
-    // return fastSearchUtility(queryOrderMaker, literalOrderMaker);
+    return fastSearchUtility(queryOrderMaker, literalOrderMaker);
   }
 
   // Error value, should not be present
