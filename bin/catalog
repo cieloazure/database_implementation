@@ -100,3 +100,12 @@ l_shipmode String
 l_comment String
 END
 
+
+BEGIN
+lineitem_project_test
+lineitem.tbl
+l_orderkey Int
+l_partkey Int
+l_suppkey Int
+l_linenumber Int
+END

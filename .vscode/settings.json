@@ -2,5 +2,6 @@
     "files.associations": {
         "ostream": "cpp",
         "utility": "cpp"
-    }
+    },
+    "C_Cpp.intelliSenseEngineFallback": "Disabled"
 }

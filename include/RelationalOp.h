@@ -1,4 +1,5 @@
 #include <pthread.h>
+#include "Pipe.h"
 
 class RelationalOp {
  protected:
