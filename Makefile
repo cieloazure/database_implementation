@@ -1,120 +1,88 @@
-#CC = clang++ -fsanitize=address -O1 -fno-omit-frame-pointer -g 
-# CC = g++ -O2 -Wno-deprecated -std=c++11 -fprofile-arcs -ftest-coverage 
-CC = g++ -std=c++11 -fprofile-arcs -ftest-coverage -fsanitize=address
-TEST = clang++ -fsanitize=address -fno-omit-frame-pointer -g -std=c++11 -stdlib=libc++ -fprofile-arcs -ftest-coverage
+IDIR=include
+CC=g++
+GCC=gcc
+CCOMPILEFLAGS=-std=c++11 -fprofile-arcs -ftest-coverage -fsanitize=address 
 
+ODIR=obj
+$(shell mkdir -p obj)
+
+SOURCEDIR=src
+
+LIBDIR=lib
+LIBIDIR=lib/include
+LIBFLAGS=-I$(LIBIDIR)
+
+CFLAGS=-I$(IDIR) -I$(LIBIDIR)
 
 tag = -i
-
 ifdef linux
 tag = -n
 endif
 
-gtest_main.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o HeapDBFile.o SortedDBFile.o DBFile.o Pipe.o HeapDBFileTest.o SortedDBFileTest.o TwoWayListTest.o FileTest.o BigQTest.o ComparisonTest.o y.tab.o lex.yy.o gtest_main.o 
-	$(TEST) -o gtest_main.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o HeapDBFile.o SortedDBFile.o DBFile.o Pipe.o HeapDBFileTest.o SortedDBFileTest.o TwoWayListTest.o FileTest.o BigQTest.o ComparisonTest.o y.tab.o lex.yy.o gtest_main.o -ll -lgtest -lpthread  
+$(ODIR)/%.o: $(SOURCEDIR)/%.cc 
+	$(CC) $(CCOMPILEFLAGS) -c -o $@ $< $(CFLAGS)
 
-test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o SortedDBFile.o HeapDBFile.o y.tab.o lex.yy.o test.o
-	$(CC) -o test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o SortedDBFile.o HeapDBFile.o y.tab.o lex.yy.o test.o -ll
-	
-test2_1.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o BigQ.o DBFile.o SortedDBFile.o HeapDBFile.o Pipe.o y.tab.o lex.yy.o test2_1.o
-	$(CC) -o test2_1.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o BigQ.o DBFile.o SortedDBFile.o HeapDBFile.o Pipe.o y.tab.o lex.yy.o test2_1.o -ll -lpthread
+$(ODIR)/y.tab.c: $(LIBDIR)/Parser.y
+	yacc -d -o $@ $< 
+	sed $(tag) -e "s/  __attribute__ ((__unused__))$$/# ifndef __cplusplus\n  __attribute__ ((__unused__));\n# endif/" $@
 
-test2_2.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o BigQ.o DBFile.o SortedDBFile.o HeapDBFile.o Pipe.o y.tab.o lex.yy.o test2_2.o
-	$(CC) -o test2_2.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o BigQ.o DBFile.o SortedDBFile.o HeapDBFile.o Pipe.o y.tab.o lex.yy.o test2_2.o -ll -lpthread
+$(ODIR)/y.tab.o: $(ODIR)/y.tab.c
+	$(CC) -c -o $@ $< -I$(LIBIDIR)
 
-main: Record.o Comparison.o ComparisonEngine.o Schema.o File.o HeapDBFile.o SortedDBFile.o Pipe.o BigQ.o y.tab.o lex.yy.o main.o 
-	$(CC) -o main Record.o Comparison.o ComparisonEngine.o Schema.o File.o HeapDBFile.o SortedDBFile.o Pipe.o BigQ.o y.tab.o lex.yy.o main.o -ll
+OBJECTS = $(ODIR)/y.tab.o
 
-test2_1.o: test2_1.cc
-	$(CC) -g -c test2_1.cc
+$(ODIR)/lex.yy.c: $(LIBDIR)/Lexer.l
+	lex  -o $@ $<
 
-test2_2.o: test2_2.cc
-	$(CC) -g -c test2_2.cc
-	
-test.o: test.cc
-	$(CC) -g -c test.cc
+$(ODIR)/lex.yy.o: $(ODIR)/lex.yy.c
+	$(GCC) -c -o $@ $< -I$(LIBIDIR)
 
-main.o: main.cc
-	$(CC) -g -c main.cc
-	
-Comparison.o: Comparison.cc
-	$(CC) -g -c Comparison.cc
-	
-ComparisonEngine.o: ComparisonEngine.cc
-	$(CC) -g -c ComparisonEngine.cc
-	
-DBFile.o: DBFile.cc
-	$(CC) -g -c DBFile.cc
+OBJECTS += $(ODIR)/lex.yy.o
 
-HeapDBFile.o: HeapDBFile.cc
-	$(CC) -g -c HeapDBFile.cc
+SOURCES=$(wildcard $(SOURCEDIR)/*.cc)
+OBJECTS += $(patsubst $(SOURCEDIR)/%.cc, $(ODIR)/%.o, $(SOURCES))
 
-SortedDBFile.o: SortedDBFile.cc
-	$(CC) -g -c SortedDBFile.cc
+TEST = clang++ 
+TESTCOMPILEFLAGS=-fsanitize=address -fno-omit-frame-pointer -g -std=c++11 -stdlib=libc++ -fprofile-arcs -ftest-coverage
+TESTSOURCESDIR=test/src
+TESTIDIR=test/include
+TESTFLAGS = -I$(IDIR) -I$(TESTIDIR) -I$(SOURCEDIR) -I$(LIBIDIR)
+TESTODIR=obj/test
+$(shell mkdir -p obj/test)
 
-File.o: File.cc
-	$(CC) -g -c File.cc
+$(TESTODIR)/%.o: $(TESTSOURCESDIR)/%.cc
+	$(TEST) $(TESTCOMPILEFLAGS) -c -o $@ $< $(TESTFLAGS)
 
-Record.o: Record.cc
-	$(CC) -g -c Record.cc
+TESTSOURCES=$(wildcard $(TESTSOURCESDIR)/*.cc)
+TESTOBJECTS=$(patsubst $(TESTSOURCESDIR)/%.cc, $(TESTODIR)/%.o, $(TESTSOURCES))
 
-Schema.o: Schema.cc
-	$(CC) -g -c Schema.cc
+all: $(OBJECTS)
+alltest: $(OBJECTS) $(TESTOBJECTS)
 
-Pipe.o: Pipe.cc
-	$(CC) -g -c Pipe.cc
+BIN=bin
+$(shell mkdir -p bin/data_files)
+$(shell cp data_files/* bin/data_files)
+$(shell cp data_files/catalog bin/)
 
-BigQ.o: BigQ.cc
-	$(CC) -g -c BigQ.cc
+TESTLINKFLAGS=-ll -lgtest -lpthread  
 
-	
-y.tab.o: Parser.y
-	yacc -d Parser.y
-	sed $(tag) -e "s/  __attribute__ ((__unused__))$$/# ifndef __cplusplus\n  __attribute__ ((__unused__));\n# endif/" y.tab.c
-	g++ -c y.tab.c
+GIVENTEST=$(wildcard $(TESTSOURCESDIR)/test*)
+GIVENTESTOBJECTS=$(patsubst $(TESTSOURCESDIR)/%.cc, $(TESTODIR)/%.o, $(GIVENTEST))
+FILTEREDTESTOBJECTS=$(filter-out $(GIVENTESTOBJECTS), $(TESTOBJECTS))
 
-lex.yy.o: Lexer.l
-	lex  Lexer.l
-	gcc  -c lex.yy.c
+MAIN=$(ODIR)/main.o
+FILTERED_OBJECTS=$(filter-out $(MAIN), $(OBJECTS))
 
-gtest_main.o: gtest_main.cc
-	$(TEST) -g -c gtest_main.cc
+test: alltest
+	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test.out $(FILTERED_OBJECTS) $(FILTEREDTESTOBJECTS) $(TESTLINKFLAGS) $(TESTFLAGS)
 
-HeapDBFileTest.o: HeapDBFileTest.cc
-	$(TEST) -g -c HeapDBFileTest.cc
-
-SortedDBFileTest.o: SortedDBFileTest.cc
-	$(TEST) -g -c SortedDBFileTest.cc
-
-TwoWayListTest.o: TwoWayListTest.cc
-	$(TEST) -g -c TwoWayListTest.cc
-
-FileTest.o: FileTest.cc
-	$(TEST) -g -c FileTest.cc
-
-BigQTest.o: BigQTest.cc
-	$(TEST) -g -c BigQTest.cc
-
-ComparisonTest.o: ComparisonTest.cc
-	$(TEST) -g -c ComparisonTest.cc
-clean: 
-	rm -f *.o
-	rm -f *.out
-	rm -f y.tab.c
-	rm -f lex.yy.c
-	rm -f y.tab.h
-	rm -f *.header
-	rm -f *.tbl
-	rm -f *.gcda
-	rm -f *.gcov
-	rm -f *.gcno
-	rm -f *.bin
-	rm -f *.png
-	rm -f *.html
-	rm -f *.info
-	rm -f *.bigq
-
-test_clean:
-	rm -f *.gcda
-	rm -f *.gcov
-	rm -f *.gcno
+clean:
+	rm -f $(ODIR)/*.o 
+	rm -f $(ODIR)/*.h 
+	rm -f $(ODIR)/*.c 
+	rm -f $(ODIR)/*.c-e
+	rm -f $(ODIR)/*.gcno
+	rm -rf $(ODIR)/test
+	rm -f *~ core 
+	rm -f $(INCDIR)/*~ 
+	rm -rf bin/
