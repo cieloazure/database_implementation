@@ -6,10 +6,12 @@
 #include "RelationalOp.h"
 
 class SelectFile : public RelationalOp {
-
  public:
-  void Run (DBFile &inFile, Pipe &outPipe, CNF &selOp, Record &literal);
-
+  SelectFile();
+  ~SelectFile();
+  void Run(DBFile &inFile, Pipe &outPipe, CNF &selOp, Record &literal);
+  void WaitUntilDone();
+  void Use_n_Pages(int n);
 };
 
 #endif

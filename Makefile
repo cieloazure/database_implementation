@@ -43,7 +43,7 @@ SOURCES=$(wildcard $(SOURCEDIR)/*.cc)
 OBJECTS += $(patsubst $(SOURCEDIR)/%.cc, $(ODIR)/%.o, $(SOURCES))
 
 TEST = clang++ 
-TESTCOMPILEFLAGS=-fsanitize=address -fno-omit-frame-pointer -g -std=c++11 -stdlib=libc++ -fprofile-arcs -ftest-coverage
+TESTCOMPILEFLAGS= -fsanitize=address -fno-omit-frame-pointer -g -std=c++11 -stdlib=libc++ -fprofile-arcs -ftest-coverage
 TESTSOURCESDIR=test/src
 TESTIDIR=test/include
 TESTFLAGS = -I$(IDIR) -I$(TESTIDIR) -I$(SOURCEDIR) -I$(LIBIDIR)
@@ -91,3 +91,6 @@ test_clean:
 	rm -f $(ODIR)/*.gcda
 	rm -f $(ODIR)/*.gcov
 	rm -f $(ODIR)/*.gno
+	rm -f $(TESTODIR)/*.gcda
+	rm -f $(TESTODIR)/*.gcov
+	rm -f $(TESTODIR)/*.gno

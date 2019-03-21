@@ -246,8 +246,6 @@ int SortedDBFile::MergeBigqRecords() {
   input->ShutDown();
   if (dirty) {
     MoveFirst();
-    // HeapDBFile *mergeHeapFile = new HeapDBFile();
-    // mergeHeapFile->Create("mergeFile.bin", heap, NULL);
     File *mergeFile = new File();
     mergeFile->Open(0, "mergeFile.bin");
     Page *mergedPageBuffer = new Page();

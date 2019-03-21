@@ -1,5 +1,4 @@
 #include "SelectPipe.h"
-#include <iostream>
 
 struct SelectPipeWorkerThreadParams {
   Pipe *in;
@@ -11,8 +10,6 @@ struct SelectPipeWorkerThreadParams {
 struct SelectPipeWorkerThreadParams select_pipe_thread_data;
 
 void *SelectPipeWorkerThreadRoutine(void *threadparams) {
-  // SelectPipe logic here
-  std::cout << "In worker thread!" << std::endl;
   struct SelectPipeWorkerThreadParams *params;
   params = (struct SelectPipeWorkerThreadParams *)threadparams;
   Pipe *in = params->in;
@@ -23,7 +20,6 @@ void *SelectPipeWorkerThreadRoutine(void *threadparams) {
   Record *temp = new Record();
   ComparisonEngine comp;
 
-  Schema mySchema("catalog", "lineitem");
   while (in->Remove(temp) != 0) {
     if (comp.Compare(temp, literal, selOp)) {
       out->Insert(temp);
