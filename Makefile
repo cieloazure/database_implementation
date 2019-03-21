@@ -86,3 +86,8 @@ clean:
 	rm -f *~ core 
 	rm -f $(INCDIR)/*~ 
 	rm -rf bin/
+
+test_clean:
+	rm -f $(ODIR)/*.gcda
+	rm -f $(ODIR)/*.gcov
+	rm -f $(ODIR)/*.gno

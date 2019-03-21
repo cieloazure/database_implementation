@@ -1,10 +1,37 @@
 #include "SelectPipe.h"
 #include <iostream>
 
-void *SelectPipe ::WorkerThreadRoutine(void *threadparams) {
+struct SelectPipeWorkerThreadParams {
+  Pipe *in;
+  Pipe *out;
+  CNF *selOp;
+  Record *literal;
+};
+
+struct SelectPipeWorkerThreadParams select_pipe_thread_data;
+
+void *SelectPipeWorkerThreadRoutine(void *threadparams) {
   // SelectPipe logic here
   std::cout << "In worker thread!" << std::endl;
-  return NULL;
+  struct SelectPipeWorkerThreadParams *params;
+  params = (struct SelectPipeWorkerThreadParams *)threadparams;
+  Pipe *in = params->in;
+  Pipe *out = params->out;
+  CNF *selOp = params->selOp;
+  Record *literal = params->literal;
+
+  Record *temp = new Record();
+  ComparisonEngine comp;
+
+  Schema mySchema("catalog", "lineitem");
+  while (in->Remove(temp) != 0) {
+    if (comp.Compare(temp, literal, selOp)) {
+      out->Insert(temp);
+    }
+  }
+
+  out->ShutDown();
+  pthread_exit(NULL);
 }
 
 void SelectPipe ::Run(Pipe &inPipe, Pipe &outPipe, CNF &selOp,
@@ -20,12 +47,13 @@ void SelectPipe ::Run(Pipe &inPipe, Pipe &outPipe, CNF &selOp,
     throw runtime_error("Error spawning SelectPipe worker");
   }
 
-  thread_data.in = &inPipe;
-  thread_data.out = &outPipe;
-  thread_data.selOp = &selOp;
-  thread_data.literal = &literal;
+  select_pipe_thread_data.in = &inPipe;
+  select_pipe_thread_data.out = &outPipe;
+  select_pipe_thread_data.selOp = &selOp;
+  select_pipe_thread_data.literal = &literal;
 
-  pthread_create(&threadid, &attr, WorkerThreadRoutine, (void *)&thread_data);
+  pthread_create(&threadid, &attr, SelectPipeWorkerThreadRoutine,
+                 (void *)&select_pipe_thread_data);
 }
 
 SelectPipe ::SelectPipe() {}

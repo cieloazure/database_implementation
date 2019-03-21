@@ -129,6 +129,8 @@ class BigQTest : public ::testing::Test {
   static void TearDownTestSuite() {
     remove("gtest.bin");
     remove("gtest.header");
+    remove("gtest_shuffled.bin");
+    remove("gtest_shuffled.header");
   }
 
  protected:

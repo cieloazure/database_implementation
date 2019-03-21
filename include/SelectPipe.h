@@ -13,16 +13,7 @@ class SelectPipe : public RelationalOp {
   void Use_n_Pages(int n);
 
  private:
-  static void *WorkerThreadRoutine(void *threadparams);
 
-  struct WorkerThreadParams {
-    Pipe *in;
-    Pipe *out;
-    CNF *selOp;
-    Record *literal;
-  };
-
-  struct WorkerThreadParams thread_data;
 };
 
 #endif
