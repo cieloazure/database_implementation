@@ -100,12 +100,11 @@ l_shipmode String
 l_comment String
 END
 
-
 BEGIN
-lineitem_project_test
+lineitem
 lineitem.tbl
 l_orderkey Int
-l_partkey Int
 l_suppkey Int
-l_linenumber Int
+l_quantity Double
+l_discount Double
 END

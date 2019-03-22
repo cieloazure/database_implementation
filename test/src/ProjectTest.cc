@@ -111,7 +111,7 @@ TEST_F(ProjectTest, TEST_WHETHER_THREAD_IS_INVOKED) {
   pthread_create(&thread1, NULL, projproducer, (void *)&projthreadArg);
 
   int keepMeSize = 4;
-  int keepMeArr[4] = {1, 2, 3, 4};
+  int keepMeArr[4] = {3, 5, 7, 1};
   int *keepMe = keepMeArr;
   Schema mySchema("catalog", "lineitem");
   op->Run(*in, *out, keepMe, mySchema.GetNumAtts(), keepMeSize);

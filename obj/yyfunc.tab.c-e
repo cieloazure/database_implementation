@@ -58,6 +58,14 @@
 /* Using locations.  */
 #define YYLSP_NEEDED 0
 
+/* Substitute the variable and function names.  */
+#define yyparse yyfuncparse
+#define yylex   yyfunclex
+#define yyerror yyfuncerror
+#define yylval  yyfunclval
+#define yychar  yyfuncchar
+#define yydebug yyfuncdebug
+#define yynerrs yyfuncnerrs
 
 
 /* Tokens.  */
@@ -133,7 +141,7 @@ typedef union YYSTYPE
 	char *actualChars;
 }
 /* Line 193 of yacc.c.  */
-#line 137 "obj/y.tab.c"
+#line 145 "obj/yyfunc.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -146,7 +154,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 150 "obj/y.tab.c"
+#line 158 "obj/yyfunc.tab.c"
 
 #ifdef short
 # undef short
@@ -1478,7 +1486,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1482 "obj/y.tab.c"
+#line 1490 "obj/yyfunc.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

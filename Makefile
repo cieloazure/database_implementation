@@ -26,18 +26,33 @@ $(ODIR)/y.tab.c: $(LIBDIR)/Parser.y
 	yacc -d -o $@ $< 
 	sed $(tag) -e "s/  __attribute__ ((__unused__))$$/# ifndef __cplusplus\n  __attribute__ ((__unused__));\n# endif/" $@
 
+$(ODIR)/yyfunc.tab.c: $(LIBDIR)/Parser.y
+	yacc -p "yyfunc" -b "yyfunc" -d -o $@ $< 
+	sed $(tag) -e "s/  __attribute__ ((__unused__))$$/# ifndef __cplusplus\n  __attribute__ ((__unused__));\n# endif/" $@
+
 $(ODIR)/y.tab.o: $(ODIR)/y.tab.c
 	$(CC) -c -o $@ $< -I$(LIBIDIR)
 
+$(ODIR)/yyfunc.tab.o: $(ODIR)/yyfunc.tab.c
+	$(CC) -c -o $@ $< -I$(LIBIDIR)
+
 OBJECTS = $(ODIR)/y.tab.o
+OBJECTS += $(ODIR)/yyfunc.tab.o
 
 $(ODIR)/lex.yy.c: $(LIBDIR)/Lexer.l
 	lex  -o $@ $<
 
+$(ODIR)/lex.yyfunc.c: $(LIBDIR)/LexerFunc.l
+	lex -Pyyfunc -o $@ $<
+
 $(ODIR)/lex.yy.o: $(ODIR)/lex.yy.c
 	$(GCC) -c -o $@ $< -I$(LIBIDIR)
 
+$(ODIR)/lex.yyfunc.o: $(ODIR)/lex.yyfunc.c
+	$(GCC) -c -o $@ $< -I$(LIBIDIR)
+
 OBJECTS += $(ODIR)/lex.yy.o
+OBJECTS += $(ODIR)/lex.yyfunc.o
 
 SOURCES=$(wildcard $(SOURCEDIR)/*.cc)
 OBJECTS += $(patsubst $(SOURCEDIR)/%.cc, $(ODIR)/%.o, $(SOURCES))

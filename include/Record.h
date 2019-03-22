@@ -28,12 +28,12 @@ friend class ComparisonEngine;
 friend class Page;
 
 private:
-	char *bits;
 	char* GetBits ();
 	void SetBits (char *bits);
 	void CopyBits(char *bits, int b_len);
 
 public:
+	char *bits;
 	Record ();
 	~Record();
 
