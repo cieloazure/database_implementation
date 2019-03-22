@@ -101,7 +101,7 @@ l_comment String
 END
 
 BEGIN
-lineitem
+lineitem_project_test
 lineitem.tbl
 l_orderkey Int
 l_suppkey Int

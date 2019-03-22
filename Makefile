@@ -26,7 +26,7 @@ $(ODIR)/y.tab.c: $(LIBDIR)/Parser.y
 	yacc -d -o $@ $< 
 	sed $(tag) -e "s/  __attribute__ ((__unused__))$$/# ifndef __cplusplus\n  __attribute__ ((__unused__));\n# endif/" $@
 
-$(ODIR)/yyfunc.tab.c: $(LIBDIR)/Parser.y
+$(ODIR)/yyfunc.tab.c: $(LIBDIR)/ParserFunc.y
 	yacc -p "yyfunc" -b "yyfunc" -d -o $@ $< 
 	sed $(tag) -e "s/  __attribute__ ((__unused__))$$/# ifndef __cplusplus\n  __attribute__ ((__unused__));\n# endif/" $@
 

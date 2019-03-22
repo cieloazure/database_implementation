@@ -1,3 +1,5 @@
+#ifndef RELATIONAL_OP_H
+#define RELATIONAL_OP_H
 #include <pthread.h>
 #include "Pipe.h"
 
@@ -13,3 +15,4 @@ class RelationalOp {
   // tells how much internal memory the operation can use virtual void
   virtual void Use_n_Pages(int n) = 0;
 };
+#endif

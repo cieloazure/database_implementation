@@ -45,19 +45,18 @@ class relation {
   }
 };
 
-const char *supplier = "supplier";
-const char *partsupp = "partsupp";
-const char *part = "part";
-const char *nation = "nation";
-const char *customer = "customer";
-const char *orders = "orders";
-const char *region = "region";
-const char *lineitem = "lineitem";
+ char *supplier = "supplier";
+ char *partsupp = "partsupp";
+ char *part = "part";
+ char *nation = "nation";
+ char *customer = "customer";
+ char *orders = "orders";
+ char *region = "region";
+ char *lineitem = "lineitem";
 
 relation *s, *p, *ps, *n, *li, *r, *o, *c;
 
-void setup(const char *catalog_path, const char *dbfile_dir,
-           const char *tpch_dir) {
+void setup(char *catalog_path, const char *dbfile_dir, const char *tpch_dir) {
   cout << " \n** IMPORTANT: MAKE SURE THE INFORMATION BELOW IS CORRECT **\n";
   cout << " catalog location: \t" << catalog_path << endl;
   cout << " tpch files dir: \t" << tpch_dir << endl;
