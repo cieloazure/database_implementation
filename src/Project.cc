@@ -1,4 +1,6 @@
 #include "Project.h"
+#include <iostream>
+#include <numeric>
 
 struct ProjectWorkerThreadParams {
   Pipe *in;
@@ -19,8 +21,6 @@ void *ProjectWorkerThreadRoutine(void *threadparams) {
   int *keepMe = params->keepMe;
   int numAttsInput = params->numAttsInput;
   int numAttsOutput = params->numAttsOutput;
-
-  std::sort(keepMe, keepMe + numAttsOutput);
 
   Record *temp = new Record();
   while (in->Remove(temp) != 0) {

@@ -1,64 +1,33 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "p1 build",
-            "type": "shell",
-            "command": "make",
-            // use options.cwd property if the Makefile is not in the project root ${workspaceRoot} dir
-            "options": {
-                "cwd": "${workspaceRoot}"
-            },
-            // start the build without prompting for task selection, use "group": "build" otherwise
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            },
-            // arg passing example: in this case is executed make QUIET=0
-            "args": [
-                "QUIET=0"
-            ],
-            // Use the standard less compilation problem matcher.
-            "problemMatcher": {
-                "owner": "cpp",
-                "fileLocation": [
-                    "absolute"
-                ],
-                "pattern": {
-                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-                    "file": 1,
-                    "line": 2,
-                    "column": 3,
-                    "severity": 4,
-                    "message": 5
-                }
-            }
-        },
-        {
-            "label": "p1 test",
-            "type": "shell",
-            "command": "./test.out",
-            "options": {
-                "cwd": "${workspaceRoot}"
-            },
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "p1 main",
-            "type": "shell",
-            "options": {
-                "cwd": "${workspaceRoot}"
-            },
-            "command": "./main"
-        }
-    ]
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "g++-8 build active file",
+      "command": "/usr/local/bin/g++-8",
+      "args": [
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}/${fileBasenameNoExtension}"
+      ],
+      "options": {
+        "cwd": "/usr/local/bin"
+      }
+    },
+    {
+      "type": "shell",
+      "label": "clang++ build active file",
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+      "args": [
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}/${fileBasenameNoExtension}"
+      ],
+      "options": {
+        "cwd": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin"
+      }
+    }
+  ],
+  "version": "2.0.0"
 }

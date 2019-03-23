@@ -103,8 +103,8 @@ END
 BEGIN
 lineitem_project_test
 lineitem.tbl
-l_orderkey Int
-l_suppkey Int
-l_quantity Double
-l_discount Double
+l_linenumber Int
+l_extendedprice Double
+l_tax Double
+l_partkey Int
 END
