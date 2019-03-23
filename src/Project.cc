@@ -1,6 +1,4 @@
 #include "Project.h"
-#include <iostream>
-#include <numeric>
 
 struct ProjectWorkerThreadParams {
   Pipe *in;
@@ -22,6 +20,7 @@ void *ProjectWorkerThreadRoutine(void *threadparams) {
   int numAttsInput = params->numAttsInput;
   int numAttsOutput = params->numAttsOutput;
 
+  // Project logic
   Record *temp = new Record();
   while (in->Remove(temp) != 0) {
     temp->Project(keepMe, numAttsOutput, numAttsInput);
@@ -36,6 +35,7 @@ void *ProjectWorkerThreadRoutine(void *threadparams) {
 
 Project::Project() {}
 Project::~Project() {}
+
 void Project ::Run(Pipe &inPipe, Pipe &outPipe, int *keepMe, int numAttsInput,
                    int numAttsOutput) {
   pthread_attr_t attr;

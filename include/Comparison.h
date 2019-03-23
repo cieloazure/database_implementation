@@ -59,6 +59,7 @@ class OrderMaker {
   void UnSerialize(int metadata_file_descriptor);
   void Serialize(int metadata_file_descriptor);
 
+  // Check methods
   bool IsEmpty();
   bool operator==(OrderMaker right);
   bool operator!=(OrderMaker right);
@@ -99,6 +100,9 @@ class CNF {
   void GrowFromParseTree(struct AndList *parseTree, Schema *mySchema,
                          Record &literal);
 
+  // function to build the query order makers to be used by the get next
+  // operation of sorted file to search for records as fast possible using
+  // binary search
   void BuildQueryOrderMaker(OrderMaker &fileSortOrder,
                             OrderMaker &querySortOrder,
                             OrderMaker &literalSortOrder);

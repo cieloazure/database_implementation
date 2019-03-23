@@ -3,6 +3,8 @@
 
 #include "Pipe.h"
 #include "RelationalOp.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 class WriteOut : public RelationalOp {
  public:
