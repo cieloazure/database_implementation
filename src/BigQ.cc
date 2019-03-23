@@ -2,6 +2,7 @@
 #include <math.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <iostream>
 #include <queue>
 #include <utility>
 #include <vector>
@@ -16,6 +17,20 @@ struct WorkerThreadParams {
 };
 
 struct WorkerThreadParams thread_data;
+
+std::string random_string(size_t length) {
+  auto randchar = []() -> char {
+    const char charset[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+    const size_t max_index = (sizeof(charset) - 1);
+    return charset[rand() % max_index];
+  };
+  std::string str(length, 0);
+  std::generate_n(str.begin(), length, randchar);
+  return str;
+}
 
 void CopyBufferToPage(Page *from, Page *to) {
   Record to_be_copied;
@@ -224,7 +239,9 @@ void *WorkerThreadRoutine(void *threadparams) {
   Page *buffer = new Page();
   std::vector<Page *> inputPagesForRun;
   File *runFile = new File();
-  runFile->Open(0, (char *)"runFile.bin");
+  std::string s = random_string(10);
+  char *rand_str = &s[0u];
+  runFile->Open(0, rand_str);
 
   int runs = 0;
   int total_record_count = 0;

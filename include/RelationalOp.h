@@ -6,6 +6,7 @@
 class RelationalOp {
  protected:
   pthread_t threadid;
+  int page_length;
 
  public:
   //   blocks the caller until the particular relational operator has run to

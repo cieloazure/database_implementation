@@ -62,8 +62,8 @@ class SelectPipeTest : public ::testing::Test {
     HeapDBFile *heapFile = new HeapDBFile();
     fType t = heap;
     heapFile->Create("gtest.bin", t, NULL);
-    Schema mySchema("catalog", "lineitem");
-    heapFile->Load(mySchema, "data_files/lineitem.tbl");
+    Schema mySchema("catalog", "partsupp");
+    heapFile->Load(mySchema, "data_files/partsupp.tbl");
     heapFile->Close();
   }
 

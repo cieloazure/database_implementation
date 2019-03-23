@@ -1,4 +1,5 @@
 #include "SelectPipe.h"
+#include <iostream>
 
 struct SelectPipeWorkerThreadParams {
   Pipe *in;
@@ -21,6 +22,7 @@ void *SelectPipeWorkerThreadRoutine(void *threadparams) {
   ComparisonEngine comp;
 
   while (in->Remove(temp) != 0) {
+    std::cout << "removed a record from pipe" << std::endl;
     if (comp.Compare(temp, literal, selOp)) {
       out->Insert(temp);
     }

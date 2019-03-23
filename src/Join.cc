@@ -37,21 +37,25 @@ void *JoinWorkerThreadRoutine(void *threadparams) {
 
     ComparisonEngine compEng;
 
-    // bool leftHasElem = outPipeL.Remove(&leftRec);
-    // bool rightHasElem = outPipeR.Remove(&rightRec);
-    // while (leftHasElem && rightHasElem) {
-    //   int compStatus = compEng.Compare(&leftRec, &leftOrderMaker, &rightRec,
-    //                                    &rightOrderMaker);
-    //   if (compStatus == 0) {
-    //     Record mergedRec;
-    //     // mergedRec.MergeRecords(&leftRec, &rightRec, 
-    //     //                      numAttsLeft, numAttsRight, 
-    //     //                      attsToKeep, numAttsToKeep, startOfRight);
-    //   }
-    // }
+    bool leftHasElem = outPipeL.Remove(&leftRec);
+    bool rightHasElem = outPipeR.Remove(&rightRec);
+    while (leftHasElem && rightHasElem) {
+      int compStatus = compEng.Compare(&leftRec, &leftOrderMaker, &rightRec,
+                                       &rightOrderMaker);
+      if (compStatus == 0) {
+        Record mergedRec;
+        // mergedRec.MergeRecords(&leftRec, &rightRec,
+        //                      numAttsLeft, numAttsRight,
+        //                      attsToKeep, numAttsToKeep, startOfRight);
+      } else if (compStatus < 0) {
+        leftHasElem = outPipeL.Remove(&leftRec);
+      } else {
+        rightHasElem = outPipeR.Remove(&rightRec);
+      }
+    }
 
-    // outPipeL.ShutDown();
-    // outPipeR.ShutDown();
+    outPipeL.ShutDown();
+    outPipeR.ShutDown();
   } else {
     // nested loop join
   }

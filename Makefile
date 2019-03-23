@@ -1,7 +1,8 @@
 IDIR=include
 CC=g++
 GCC=gcc
-CCOMPILEFLAGS=-std=c++11 -fprofile-arcs -ftest-coverage -fsanitize=address 
+# CCOMPILEFLAGS=-std=c++11 -fprofile-arcs -ftest-coverage -fsanitize=address 
+CCOMPILEFLAGS=-std=c++11 -fsanitize=address -g
 
 ODIR=obj
 $(shell mkdir -p obj)
@@ -58,7 +59,8 @@ SOURCES=$(wildcard $(SOURCEDIR)/*.cc)
 OBJECTS += $(patsubst $(SOURCEDIR)/%.cc, $(ODIR)/%.o, $(SOURCES))
 
 TEST = clang++ 
-TESTCOMPILEFLAGS= -fsanitize=address -fno-omit-frame-pointer -g -std=c++11 -stdlib=libc++ -fprofile-arcs -ftest-coverage
+# TESTCOMPILEFLAGS= -fsanitize=address -fno-omit-frame-pointer -g -std=c++11 -stdlib=libc++ -fprofile-arcs -ftest-coverage
+TESTCOMPILEFLAGS= -fsanitize=address -g -std=c++11 -stdlib=libc++
 TESTSOURCESDIR=test/src
 TESTIDIR=test/include
 TESTFLAGS = -I$(IDIR) -I$(TESTIDIR) -I$(SOURCEDIR) -I$(LIBIDIR)
@@ -76,8 +78,10 @@ alltest: $(OBJECTS) $(TESTOBJECTS)
 
 BIN=bin
 $(shell mkdir -p bin/data_files)
+$(shell mkdir -p bin/heap_files)
 $(shell cp data_files/* bin/data_files)
 $(shell cp data_files/catalog bin/)
+$(shell cp data_files/test3.cat bin/)
 
 TESTLINKFLAGS=-ll -lgtest -lpthread  
 
@@ -90,6 +94,12 @@ FILTERED_OBJECTS=$(filter-out $(MAIN), $(OBJECTS))
 
 test: alltest
 	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test.out $(FILTERED_OBJECTS) $(FILTEREDTESTOBJECTS) $(TESTLINKFLAGS) $(TESTFLAGS)
+
+test1: alltest
+	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test1.out $(FILTERED_OBJECTS) obj/test/test1.o $(TESTLINKFLAGS) $(TESTFLAGS)
+
+test3: alltest
+	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test3.out $(FILTERED_OBJECTS) obj/test/test3.o $(TESTLINKFLAGS) $(TESTFLAGS)
 
 clean:
 	rm -f $(ODIR)/*.o 

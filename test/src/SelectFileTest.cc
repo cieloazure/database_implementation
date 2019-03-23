@@ -61,7 +61,7 @@ class SelectFileTest : public ::testing::Test {
 };
 
 TEST_F(SelectFileTest, TEST_WHETHER_THREAD_IS_INVOKED) {
-  SelectFile *op = new SelectFile();
+  SelectFile op;
   Pipe *out = new Pipe(100);
 
   string cnf_string = "(l_orderkey > 25) AND (l_orderkey < 40)";
@@ -82,7 +82,7 @@ TEST_F(SelectFileTest, TEST_WHETHER_THREAD_IS_INVOKED) {
   DBFile *dbFile = new DBFile();
   dbFile->Open("gtest.bin");
 
-  op->Run(*dbFile, *out, cnf, literal);
+  op.Run(*dbFile, *out, cnf, literal);
 
   Record rec;
   ComparisonEngine comp;

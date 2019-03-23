@@ -133,6 +133,7 @@ void get_cnf(char *input, Schema *left, CNF &cnf_pred, Record &literal) {
     exit(1);
   }
   cnf_pred.GrowFromParseTree(final, left, literal);  // constructs CNF predicate
+  cnf_pred.Print();
   close_lexical_parser();
 }
 
