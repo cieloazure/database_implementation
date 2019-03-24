@@ -1,7 +1,7 @@
  
 %{
 
-	#include "ParseFunc.h" 
+	#include "ParseTree.h" 
 	#include <stdio.h>
 	#include <string.h>
 	#include <stdlib.h>
@@ -12,27 +12,35 @@
 	extern "C" void yyerror(char *s);
   
 	// this is the final parse tree that is returned	
-	struct FuncOperator *final;	
+	struct AndList *final;	
 
 %}
 
 // this stores all of the types returned by production rules
 %union {
- 	struct FuncOperand *myOperand;
-	struct FuncOperator *myOperator; 
+ 	struct Operand *myOperand;
+	struct ComparisonOp *myComparison; 
+  	struct OrList *myOrList;
+  	struct AndList *myAndList;
 	char *actualChars;
-	char whichOne;
 }
 
+
+%token OR
+%token AND
+
 %token <actualChars> Name
+%token <actualChars> String
 %token <actualChars> Float
 %token <actualChars> Int
 
-%type <myOperand> SimpleExp
-%type <myOperator> CompoundExp
-%type <whichOne> Op 
+%type <myOrList> OrList
+%type <myAndList> AndList 
+%type <myComparison> Condition 
+%type <myOperand> Literal 
+%type <myComparison> Op 
 
-%start CompoundExp
+%start AndList 
 
 
 //******************************************************************************
@@ -44,106 +52,116 @@
 
 %%
 
-CompoundExp: SimpleExp Op CompoundExp
+AndList: '(' OrList ')' AND AndList
 {
-	$$ = (struct FuncOperator *) malloc (sizeof (struct FuncOperator));	
-	$$->leftOperator = (struct FuncOperator *) malloc (sizeof (struct FuncOperator));
-	$$->leftOperator->leftOperator = NULL;
-	$$->leftOperator->leftOperand = $1;
-	$$->leftOperator->right = NULL;
-	$$->leftOperand = NULL;
-	$$->right = $3;
-	$$->code = $2;	
-
+	// here we need to pre-pend the OrList to the AndList
+	// first we allocate space for this node
+	$$ = (struct AndList *) malloc (sizeof (struct AndList));
 	final = $$;
+
+	// hang the OrList off of the left
+	$$->left = $2;
+
+	// hang the AndList off of the right
+	$$->rightAnd = $5;
+
 }
 
-| '(' CompoundExp ')' Op CompoundExp
+| '(' OrList ')'
 {
-	$$ = (struct FuncOperator *) malloc (sizeof (struct FuncOperator));	
-	$$->leftOperator = $2;
-	$$->leftOperand = NULL;
-	$$->right = $5;
-	$$->code = $4;	
-
+	// just return the OrList!
+	$$ = (struct AndList *) malloc (sizeof (struct AndList));
 	final = $$;
+	$$->left = $2;
+	$$->rightAnd = NULL;
+}
+;
+
+OrList: Condition OR OrList
+{ 
+	// here we have to hang the condition off the left of the OrList
+	$$ = (struct OrList *) malloc (sizeof (struct OrList));	
+	$$->left = $1;
+	$$->rightOr = $3;
 }
 
-| '(' CompoundExp ')'
+| Condition
 {
+	// nothing to hang off of the right
+	$$ = (struct OrList *) malloc (sizeof (struct OrList));
+	$$->left = $1;
+	$$->rightOr = NULL;
+}
+;
+
+Condition: Literal Op Literal 
+{
+	// in this case we have a simple literal/variable comparison
 	$$ = $2;
-
-	final = $$;
+	$$->left = $1;
+	$$->right = $3;
 }
 
-| SimpleExp
+| Literal
 {
-	$$ = (struct FuncOperator *) malloc (sizeof (struct FuncOperator));	
-	$$->leftOperator = NULL;
-	$$->leftOperand = $1;
-	$$->right = NULL;	
+	$$ = (struct ComparisonOp *) malloc (sizeof (struct ComparisonOp));
+	$$->code = EQUALS;
+	$$->left = $1;
+	$$->right = $1;
+};
 
-	final = $$;
-}
-
-| '-' CompoundExp
+Op: '<' 
 {
-	$$ = (struct FuncOperator *) malloc (sizeof (struct FuncOperator));	
-	$$->leftOperator = $2;
-	$$->leftOperand = NULL;
-	$$->right = NULL;	
-	$$->code = '-';
+	// construct and send up the comparison
+	$$ = (struct ComparisonOp *) malloc (sizeof (struct ComparisonOp));
+	$$->code = LESS_THAN;
+}  
 
-	final = $$;
-}
+| '>'
+{
+	// construct and send up the comparison
+	$$ = (struct ComparisonOp *) malloc (sizeof (struct ComparisonOp));
+	$$->code = GREATER_THAN;
+}  
+
+| '='
+{
+	// construct and send up the comparison
+	$$ = (struct ComparisonOp *) malloc (sizeof (struct ComparisonOp));
+	$$->code = EQUALS;
+}  
 ;
 
-Op: '-'
+Literal : String 
 {
-	$$ = '-';
-}
+	// construct and send up the operand containing the string
+	$$ = (struct Operand *) malloc (sizeof (struct Operand));
+	$$->code = STRING;
+	$$->value = $1;
+} 
 
-| '+'
+| Float
 {
-	$$ = '+';
-}
-
-| '*'
-{
-	$$ = '*';
-}
-
-| '/'
-{
-	$$ = '/';
-}
-;
-
-
-SimpleExp: 
-
-Float
-{
-        // construct and send up the operand containing the FP number
-        $$ = (struct FuncOperand *) malloc (sizeof (struct FuncOperand));
-        $$->code = DOUBLE;
-        $$->value = $1;
+	// construct and send up the operand containing the FP number
+	$$ = (struct Operand *) malloc (sizeof (struct Operand));
+	$$->code = DOUBLE;
+	$$->value = $1;
 } 
 
 | Int
 {
-        // construct and send up the operand containing the integer
-        $$ = (struct FuncOperand *) malloc (sizeof (struct FuncOperand));
-        $$->code = INT;
-        $$->value = $1;
+	// construct and send up the operand containing the integer
+	$$ = (struct Operand *) malloc (sizeof (struct Operand));
+	$$->code = INT;
+	$$->value = $1;
 } 
 
 | Name
 {
-        // construct and send up the operand containing the name
-        $$ = (struct FuncOperand *) malloc (sizeof (struct FuncOperand));
-        $$->code = NAME;
-        $$->value = $1;
+	// construct and send up the operand containing the name 
+	$$ = (struct Operand *) malloc (sizeof (struct Operand));
+	$$->code = NAME;
+	$$->value = $1;
 }
 ;
 

@@ -33,6 +33,8 @@ void *SumWorkerThreadRoutine(void *threadparams) {
       case Double:
         doubleAggregator += doubleResult;
         break;
+      case String:
+        break;
     }
   }
 

@@ -159,11 +159,11 @@ void q3() {
   SF_s.Run(dbf_s, _s, cnf_s, lit_s);
   T.Run(_s, _out, func);
 
-  SF_s.WaitUntilDone();
-  T.WaitUntilDone();
-
   Schema out_sch("out_sch", 1, &DA);
   int cnt = clear_pipe(_out, &out_sch, true);
+
+  SF_s.WaitUntilDone();
+  T.WaitUntilDone();
 
   cout << "\n\n query3 returned " << cnt << " records \n";
 

@@ -1,4 +1,5 @@
 #include "GroupBy.h"
+#include <iostream>
 
 struct GroupByWorkerThreadParams {
   Pipe *inPipe;
@@ -19,7 +20,15 @@ void *GroupByWorkerThreadRoutine(void *threadparams) {
   Function *computeMe = params->computeMe;
 
   // GroupBy logic here
+  groupAtts->Print();
+  // Pipe *sortedOutPipe = new Pipe(100);
+  // BigQ sortedGroupByQ(*inPipe, *sortedOutPipe, *groupAtts, 10);
 
+  // Record temp;
+  // while (sortedOutPipe->Remove(&temp)) {
+  // }
+
+  // outPipe->ShutDown();
   pthread_exit(NULL);
 }
 
@@ -47,5 +56,9 @@ void GroupBy ::Run(Pipe &inPipe, Pipe &outPipe, OrderMaker &groupAtts,
 
 GroupBy ::GroupBy() {}
 GroupBy ::~GroupBy() {}
-void GroupBy ::WaitUntilDone() { pthread_join(threadid, NULL); }
+void GroupBy ::WaitUntilDone() {
+  cout << "Group By waiting....." << endl;
+  pthread_join(threadid, NULL);
+  cout << "Group by done...." << endl;
+}
 void GroupBy ::Use_n_Pages(int n) {}
