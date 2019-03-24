@@ -38,11 +38,16 @@ class Schema;
 class OrderMaker {
   friend class ComparisonEngine;
   friend class CNF;
+  // TODO: Write getters and setter for numAtts and mySchema
+  friend class Record;
+  friend class Schema;
 
   int numAtts;
 
   int whichAtts[MAX_ANDS];
   Type whichTypes[MAX_ANDS];
+
+  Schema *mySchema;
 
  public:
   // creates an empty OrdermMaker
@@ -63,6 +68,12 @@ class OrderMaker {
   bool IsEmpty();
   bool operator==(OrderMaker right);
   bool operator!=(OrderMaker right);
+
+  // Getter & Setter for schema
+  void SetSchema(Schema &mySchema);
+  bool GetSchema(Schema *s);
+
+  int GetNumAtts();
 };
 
 class Record;
@@ -77,6 +88,11 @@ class CNF {
 
   int orLens[MAX_ANDS];
   int numAnds;
+
+  // Get num atts of schema
+  Schema *leftSchema;
+  Schema *rightSchema;
+  Schema *mySchema;
 
  public:
   // this returns an instance of the OrderMaker class that
@@ -106,6 +122,11 @@ class CNF {
   void BuildQueryOrderMaker(OrderMaker &fileSortOrder,
                             OrderMaker &querySortOrder,
                             OrderMaker &literalSortOrder);
+
+  // Getters
+  // GetLeftSchema()
+  // GetSchema()
+  // GetRightSchema()
 };
 
 #endif

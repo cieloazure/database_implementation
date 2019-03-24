@@ -10,6 +10,31 @@ struct GroupByWorkerThreadParams {
 
 struct GroupByWorkerThreadParams group_by_thread_data;
 
+void computeAndAggregate(Function *computeMe, Record *temp, int &intAggregator,
+                         double &doubleAggregator) {
+  int intResult = 0;
+  double doubleResult = 0.0;
+  Type t = computeMe->Apply(*temp, intResult, doubleResult);
+  switch (t) {
+    case Int:
+      intAggregator += intResult;
+      break;
+    case Double:
+      doubleAggregator += doubleResult;
+      break;
+    case String:
+      break;
+  }
+}
+
+void resetAggregators(int &intAggregator, double &doubleAggregator) {
+  intAggregator = 0;
+  doubleAggregator = 0.0;
+}
+
+void composeRecord(Record rec, OrderMaker groupAtts, int intAggregator,
+                   double doubleAggregator) {}
+
 void *GroupByWorkerThreadRoutine(void *threadparams) {
   struct GroupByWorkerThreadParams *params;
   params = (struct GroupByWorkerThreadParams *)threadparams;
@@ -21,14 +46,66 @@ void *GroupByWorkerThreadRoutine(void *threadparams) {
 
   // GroupBy logic here
   groupAtts->Print();
-  // Pipe *sortedOutPipe = new Pipe(100);
-  // BigQ sortedGroupByQ(*inPipe, *sortedOutPipe, *groupAtts, 10);
+  Schema *s = computeMe->GetSchema();
+  if (s == NULL) {
+    std::cout
+        << "Abort GroupBy! Schema not present to project and compose grouping"
+        << std::endl;
+    pthread_exit(NULL);
+  }
 
-  // Record temp;
+  Pipe *sortedOutPipe = new Pipe(100);
+  BigQ sortedGroupByQ(*inPipe, *sortedOutPipe, *groupAtts, 10);
+
+  Record temp;
+  Record prev;
+
+  Record aggregate;
+  int intAggregator;
+  double doubleAggregator;
+
+  resetAggregators(intAggregator, doubleAggregator);
+
+  if (!sortedOutPipe->Remove(&prev)) {
+    std::cout << "cannot sort! Internal BigQ pipe to GroupBy is closed"
+              << std::endl;
+    pthread_exit(NULL);
+  }
+
+  computeAndAggregate(computeMe, &prev, intAggregator, doubleAggregator);
+  prev.Project(*groupAtts, s->GetNumAtts());
+  Schema print_schema("pschema", groupAtts, s);
+  prev.Print(&print_schema);
+  string prevText = prev.TextFileVersion(&print_schema);
+
+  prevText =
+      to_string(computeMe->GetReturnsInt() ? intAggregator : doubleAggregator) +
+      '|' + prevText;
+
+  cout << prevText << endl;
+  Attribute sum_attr;
+  sum_attr.name = "sum";
+  sum_attr.myType = computeMe->GetReturnsInt() ? Int : Double;
+
+  print_schema.AddAttribute(sum_attr);
+
+  Record opRec;
+  opRec.ComposeRecord(&print_schema, prevText.c_str());
+  opRec.Print(&print_schema);
+
+  // ComparisonEngine comp;
   // while (sortedOutPipe->Remove(&temp)) {
+  //   // compare with previous record
+  //   // if equal,
+  //   if (comp.Compare(&temp, &prev, groupAtts) == 0) {
+  //     //   - keep aggregating
+  //   } else {
+  //     // else its a new group,
+  //     //   - stop aggregating and start aggregation for the new group
+  //   }
   // }
 
-  // outPipe->ShutDown();
+  outPipe->ShutDown();
   pthread_exit(NULL);
 }
 

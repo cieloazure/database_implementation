@@ -56,5 +56,9 @@ void SelectPipe ::Run(Pipe &inPipe, Pipe &outPipe, CNF &selOp,
 
 SelectPipe ::SelectPipe() {}
 SelectPipe ::~SelectPipe() {}
-void SelectPipe ::WaitUntilDone() { pthread_join(threadid, NULL); }
+void SelectPipe ::WaitUntilDone() {
+  cout << "Select Pipe waiting...." << endl;
+  pthread_join(threadid, NULL);
+  cout << "Select Pipe done!" << endl;
+}
 void SelectPipe ::Use_n_Pages(int n) {}

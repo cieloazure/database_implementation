@@ -1,6 +1,7 @@
 #ifndef GROUPBY_H
 #define GROUPBY_H
 
+#include "BigQ.h"
 #include "Function.h"
 #include "Pipe.h"
 #include "RelationalOp.h"

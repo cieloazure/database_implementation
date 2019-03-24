@@ -2,7 +2,10 @@
 
 #include <stdlib.h>
 #include <iostream>
-Function ::Function() { opList = new Arithmatic[MAX_DEPTH]; }
+Function ::Function() {
+  opList = new Arithmatic[MAX_DEPTH];
+  mySchema = NULL;
+}
 
 Type Function ::RecursivelyBuild(struct FuncOperator *parseTree,
                                  Schema &mySchema) {
@@ -178,6 +181,9 @@ void Function ::GrowFromParseTree(struct FuncOperator *parseTree,
   // zero out the list of operrations
   numOps = 0;
 
+  // Set schema
+  this->mySchema = &mySchema;
+
   // now recursively build the list
   Type resType = RecursivelyBuild(parseTree, mySchema);
 
@@ -332,3 +338,7 @@ Type Function ::Apply(Record &toMe, int &intResult, double &doubleResult) {
 }
 
 int Function::GetReturnsInt() { return returnsInt; }
+
+Schema *Function::GetSchema() {
+  return mySchema;
+}

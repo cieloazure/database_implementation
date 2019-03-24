@@ -305,6 +305,10 @@ void Record ::Project(int *attsToKeep, int numAttsToKeep, int numAttsNow) {
   bits = newBits;
 }
 
+void Record ::Project(OrderMaker o, int numAttsNow) {
+  Project(o.whichAtts, o.numAtts, numAttsNow);
+}
+
 // consumes right record and leaves the left record as it is
 void Record ::MergeRecords(Record *left, Record *right, int numAttsLeft,
                            int numAttsRight, int *attsToKeep, int numAttsToKeep,
@@ -436,7 +440,7 @@ void Record ::Print(Schema *mySchema) {
   cout << "\n";
 }
 
-void Record ::TextFileVersion(Schema *mySchema, FILE *file) {
+std::string Record ::TextFileVersion(Schema *mySchema) {
   int n = mySchema->GetNumAtts();
   Attribute *atts = mySchema->GetAtts();
 
@@ -471,6 +475,5 @@ void Record ::TextFileVersion(Schema *mySchema, FILE *file) {
     s += '|';
   }
 
-  cout << s << endl;
-  fprintf(file, "%s\n", s.c_str());
+  return s;
 }

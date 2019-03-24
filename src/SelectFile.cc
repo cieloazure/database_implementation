@@ -62,9 +62,9 @@ SelectFile ::SelectFile() = default;
 SelectFile ::~SelectFile() {}
 
 void SelectFile ::WaitUntilDone() {
-  cout << "Select Waiting..." << endl;
+  cout << "Select File Waiting..." << endl;
   pthread_join(threadid, NULL);
-  cout << "Select done waiting!" << endl;
+  cout << "Select File done!" << endl;
 }
 
 void SelectFile ::Use_n_Pages(int n) {}

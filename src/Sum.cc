@@ -20,8 +20,10 @@ void *SumWorkerThreadRoutine(void *threadparams) {
   // Sum logic here
   Record temp;
   Type t;
+
   int intAggregator = 0;
   double doubleAggregator = 0.0;
+
   while (inPipe->Remove(&temp)) {
     int intResult = 0;
     double doubleResult = 0.0;
@@ -44,8 +46,8 @@ void *SumWorkerThreadRoutine(void *threadparams) {
 
   Schema sum_schema("sum", 1, sum_attr);
   Record sum_rec;
-  string s =
-      (t == Int) ? to_string(intAggregator) : to_string(doubleAggregator);
+  string s = (computeMe->GetReturnsInt()) ? to_string(intAggregator)
+                                          : to_string(doubleAggregator);
   s += '|';
   sum_rec.ComposeRecord(&sum_schema, s.c_str());
 
@@ -77,7 +79,7 @@ void Sum ::Run(Pipe &inPipe, Pipe &outPipe, Function &computeMe) {
 Sum ::Sum() {}
 Sum ::~Sum() {}
 void Sum ::WaitUntilDone() {
-  std::cout << "Waiting for Sum...." << std::endl;
+  std::cout << "Sum waiting...." << std::endl;
   pthread_join(threadid, NULL);
   std::cout << "Sum done!" << std::endl;
 }

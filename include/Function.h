@@ -35,6 +35,8 @@ class Function {
 
   int returnsInt;
 
+  Schema *mySchema;
+
  public:
   Function();
 
@@ -53,8 +55,9 @@ class Function {
   // applies the function to the given record and returns the result
   Type Apply(Record &toMe, int &intResult, double &doubleResult);
 
-  // Getter
+  // Getters
   int GetReturnsInt();
+  Schema *GetSchema();
 };
 
 #endif

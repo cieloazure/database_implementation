@@ -52,9 +52,13 @@ void Comparison ::Print() {
     cout << "(String)";
 }
 
-OrderMaker ::OrderMaker() { numAtts = 0; }
+OrderMaker ::OrderMaker() {
+  numAtts = 0;
+  mySchema = NULL;
+}
 
 OrderMaker ::OrderMaker(Schema *schema) {
+  mySchema = schema;
   numAtts = 0;
 
   int n = schema->GetNumAtts();
@@ -124,6 +128,18 @@ bool OrderMaker::IsEmpty() {
   }
 }
 
+void OrderMaker ::SetSchema(Schema &schema) { mySchema = &schema; }
+
+bool OrderMaker::GetSchema(Schema *s) {
+  if (mySchema == NULL) {
+    return false;
+  }
+  s = mySchema;
+  return true;
+}
+
+int OrderMaker ::GetNumAtts() { return numAtts; }
+
 bool OrderMaker::operator==(OrderMaker right) {
   if (numAtts != right.numAtts) {
     return false;
@@ -141,6 +157,10 @@ bool OrderMaker::operator==(OrderMaker right) {
 bool OrderMaker::operator!=(OrderMaker right) { return !(operator==(right)); }
 
 int CNF ::GetSortOrders(OrderMaker &left, OrderMaker &right) {
+  // Set ordermaker schemas
+  left.mySchema = leftSchema;
+  right.mySchema = rightSchema;
+
   // initialize the size of the OrderMakers
   left.numAtts = 0;
   right.numAtts = 0;
@@ -160,10 +180,12 @@ int CNF ::GetSortOrders(OrderMaker &left, OrderMaker &right) {
     }
 
     // now verify that it operates over atts from both tables
-    if (!((orList[i][0].operand1 == Left && orList[i][0].operand2 == Right) ||
-          (orList[i][0].operand2 == Left && orList[i][0].operand1 == Right))) {
-      continue;
-    }
+    // if (!((orList[i][0].operand1 == Left && orList[i][0].operand2 == Right)
+    // ||
+    //       (orList[i][0].operand2 == Left && orList[i][0].operand1 == Right)))
+    //       {
+    //   continue;
+    // }
 
     // since we are here, we have found a join attribute!!!
     // so all we need to do is add the new comparison info into the
@@ -236,6 +258,8 @@ void AddLitToFile(int &numFieldsInLiteral, FILE *outRecFile,
 
 void CNF ::GrowFromParseTree(struct AndList *parseTree, Schema *leftSchema,
                              Schema *rightSchema, Record &literal) {
+  this->leftSchema = leftSchema;
+  this->rightSchema = rightSchema;
   CNF &cnf = *this;
 
   // as kind of a hack, the literal record is built up insiide of a text file,
@@ -437,6 +461,7 @@ void CNF ::GrowFromParseTree(struct AndList *parseTree, Schema *leftSchema,
 // predicates
 void CNF ::GrowFromParseTree(struct AndList *parseTree, Schema *mySchema,
                              Record &literal) {
+  this->mySchema = mySchema;
   CNF &cnf = *this;
 
   // as kind of a hack, the literal record is built up insiide of a text file,

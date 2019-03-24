@@ -56,6 +56,9 @@ class Record {
   // tells how many attributes are currently in the record
   void Project(int *attsToKeep, int numAttsToKeep, int numAttsNow);
 
+  // this projects away various attributes using ordermaker
+  void Project(OrderMaker o, int numAttsNow);
+
   // takes two input records and creates a new record by concatenating them;
   // this is useful for a join operation
   // attsToKeep[] = {0, 1, 2, 0, 2, 4} --gets 0,1,2 records from left 0, 2, 4
@@ -69,7 +72,7 @@ class Record {
   // that the schema also be given so that the record can be interpreted
   void Print(Schema *mySchema);
 
-  void TextFileVersion(Schema *mySchema, FILE *file);
+  std::string TextFileVersion(Schema *mySchema);
 };
 
 #endif

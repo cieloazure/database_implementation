@@ -9,9 +9,13 @@ int yyfuncparse(void);  // defined in y.tab.c
 void init_lexical_parser_func(
     char *);                       // defined in lex.yyfunc.c (from Lexerfunc.l)
 void close_lexical_parser_func();  // defined in lex.yyfunc.c
+int yyparse(void);
+void init_lexical_parser(char *);
+void close_lexical_parser();
 }
 
 extern struct FuncOperator *finalfunc;
+extern struct AndList *final;
 
 struct ThreadData {
   Pipe *inputPipe;
@@ -19,9 +23,9 @@ struct ThreadData {
   int result;
 };
 
-struct ThreadData sumThreadArg;
+struct ThreadData groupByThreadArg;
 
-void *sum_producer(void *arg) {
+void *group_by_producer(void *arg) {
   ThreadData *t = (ThreadData *)arg;
 
   Pipe *inputPipe = t->inputPipe;
@@ -116,23 +120,41 @@ TEST_F(GroupByTest, TEST_WHETHER_THREAD_IS_INVOKED) {
   Function f;
   f.GrowFromParseTree(finalfunc, mySchema);
 
-  sumThreadArg.inputPipe = in;
-  sumThreadArg.path = (char *)"gtest.bin";
+  groupByThreadArg.inputPipe = in;
+  groupByThreadArg.path = (char *)"gtest.bin";
 
+  char *cnf_string = "(s_nationkey = s_nationkey)";
+  init_lexical_parser(cnf_string);
+  yyparse();
+  close_lexical_parser();
+
+  CNF cnf;
+  Record literal;
+  cnf.GrowFromParseTree(final, &mySchema, literal);
+  OrderMaker sortOrder;
+  OrderMaker dummy;
+
+  cnf.GetSortOrders(sortOrder, dummy);
+  // sortOrder.Print();
   pthread_t thread1;
-  pthread_create(&thread1, NULL, sum_producer, (void *)&sumThreadArg);
+  pthread_create(&thread1, NULL, group_by_producer, (void *)&groupByThreadArg);
 
-  //   op.Run(*in, *out, f);
+  op.Run(*in, *out, sortOrder, f);
 
   Record rec;
-  Attribute sum_attr[1];
-  sum_attr[0].name = "sum";
-  sum_attr[0].myType = f.GetReturnsInt() ? Int : Double;
-  Schema sum_schema("sum", 1, sum_attr);
+  // Attribute sum_attr[1];
+  // sum_attr[0].name = "sum";
+  // sum_attr[0].myType = f.GetReturnsInt() ? Int : Double;
+  // Schema sum_schema("sum" 1, sum_attr);
 
+  int count = 0;
   while (out->Remove(&rec)) {
-    rec.Print(&sum_schema);
+    count++;
+    // rec.Print(&mySchema);
   }
+
+  cout << "Removed :" << count << " records" << endl;
+  op.WaitUntilDone();
 
   delete out;
   delete in;

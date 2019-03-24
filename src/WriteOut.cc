@@ -1,4 +1,5 @@
 #include "WriteOut.h"
+#include <iostream>
 
 struct WriteOutWorkerThreadParams {
   Pipe *inPipe;
@@ -18,7 +19,8 @@ void *WriteOutWorkerThreadRoutine(void *threadparams) {
   // WriteOut logic
   Record *temp = new Record();
   while (in->Remove(temp) != 0) {
-    temp->TextFileVersion(mySchema, file);
+    string s = temp->TextFileVersion(mySchema);
+    fprintf(file, "%s\n", s.c_str());
   }
 
   pthread_exit(NULL);
@@ -46,5 +48,9 @@ void WriteOut::Run(Pipe &inPipe, FILE *outFile, Schema &mySchema) {
 
 WriteOut::WriteOut() {}
 WriteOut::~WriteOut() {}
-void WriteOut::WaitUntilDone() { pthread_join(threadid, NULL); }
+void WriteOut::WaitUntilDone() {
+  cout << "Write out waiting...." << endl;
+  pthread_join(threadid, NULL);
+  cout << "Write out done!" << endl;
+}
 void WriteOut::Use_n_Pages(int n) {}
