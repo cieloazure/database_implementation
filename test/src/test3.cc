@@ -110,7 +110,6 @@ void q1() {
   int cnt = clear_pipe(_ps, ps->schema(), true);
   SF_ps.WaitUntilDone();
   cout << "\n\n query1 returned " << cnt << " records \n";
-
   dbf_ps.Close();
 }
 

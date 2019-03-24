@@ -49,6 +49,8 @@ int HeapDBFile::Create(const char *f_path, fType f_type, void *startup) {
 
     // Check if the metadata file has opened
     if (metadata_file_descriptor < 0) {
+      printf("Oh dear, something went wrong with open()! %s\n",
+             strerror(errno));
       string err("Error creating metadata file for ");
       err += file_path;
       err += "\n";
@@ -84,6 +86,15 @@ int HeapDBFile::Open(const char *f_path) {
     int file_mode = O_RDWR;
     metadata_file_descriptor =
         open(GetMetaDataFileName(file_path), file_mode, S_IRUSR | S_IWUSR);
+
+    if (metadata_file_descriptor < 0) {
+      printf("Oh dear, something went wrong with open()! %s\n",
+             strerror(errno));
+      string err("Error opening metadata file for ");
+      err += file_path;
+      err += "\n";
+      throw runtime_error(err);
+    }
 
     lseek(metadata_file_descriptor, sizeof(fType), SEEK_SET);
     read(metadata_file_descriptor, &current_write_page_index, sizeof(off_t));

@@ -17,7 +17,9 @@ using namespace std;
 const char *settings = "test3.cat";
 
 // donot change this information here
-char *catalog_path, *dbfile_dir, *tpch_dir = NULL;
+char *catalog_path = "catalog";
+char *dbfile_dir = "";
+char *tpch_dir = "data_files/";
 
 extern "C" {
 int yyparse(void);                 // defined in y.tab.c
@@ -173,29 +175,29 @@ char *lineitem = "lineitem";
 relation *s, *p, *ps, *n, *li, *r, *o, *c;
 
 void setup() {
-  FILE *fp = fopen(settings, "r");
-  if (fp) {
-    char *mem = (char *)malloc(80 * 3);
-    catalog_path = &mem[0];
-    dbfile_dir = &mem[80];
-    tpch_dir = &mem[160];
-    char line[80];
-    fgets(line, 80, fp);
-    sscanf(line, "%s\n", catalog_path);
-    fgets(line, 80, fp);
-    sscanf(line, "%s\n", dbfile_dir);
-    fgets(line, 80, fp);
-    sscanf(line, "%s\n", tpch_dir);
-    fclose(fp);
-    if (!(catalog_path && dbfile_dir && tpch_dir)) {
-      cerr << " Test settings file 'test.cat' not in correct format.\n";
-      free(mem);
-      exit(1);
-    }
-  } else {
-    cerr << " Test settings files 'test.cat' missing \n";
-    exit(1);
-  }
+  // FILE *fp = fopen(settings, "r");
+  // if (fp) {
+  //   char *mem = (char *)malloc(80 * 3);
+  //   catalog_path = &mem[0];
+  //   dbfile_dir = &mem[80];
+  //   tpch_dir = &mem[160];
+  //   char line[80];
+  //   fgets(line, 80, fp);
+  //   sscanf(line, "%s\n", catalog_path);
+  //   fgets(line, 80, fp);
+  //   sscanf(line, "%s\n", dbfile_dir);
+  //   fgets(line, 80, fp);
+  //   sscanf(line, "%s\n", tpch_dir);
+  //   fclose(fp);
+  //   if (!(catalog_path && dbfile_dir && tpch_dir)) {
+  //     cerr << " Test settings file 'test.cat' not in correct format.\n";
+  //     free(mem);
+  //     exit(1);
+  //   }
+  // } else {
+  //   cerr << " Test settings files 'test.cat' missing \n";
+  //   exit(1);
+  // }
   cout << " \n** IMPORTANT: MAKE SURE THE INFORMATION BELOW IS CORRECT **\n";
   cout << " catalog location: \t" << catalog_path << endl;
   cout << " tpch files dir: \t" << tpch_dir << endl;
@@ -203,18 +205,26 @@ void setup() {
   cout << " \n\n";
 
   s = new relation(supplier, new Schema(catalog_path, supplier), dbfile_dir);
+  s->info();
   p = new relation(part, new Schema(catalog_path, part), dbfile_dir);
+  p->info();
   ps = new relation(partsupp, new Schema(catalog_path, partsupp), dbfile_dir);
+  ps->info();
   n = new relation(nation, new Schema(catalog_path, nation), dbfile_dir);
+  n->info();
   li = new relation(lineitem, new Schema(catalog_path, lineitem), dbfile_dir);
+  li->info();
   r = new relation(region, new Schema(catalog_path, region), dbfile_dir);
+  r->info();
   o = new relation(orders, new Schema(catalog_path, orders), dbfile_dir);
+  o->info();
   c = new relation(customer, new Schema(catalog_path, customer), dbfile_dir);
+  c->info();
 }
 
 void cleanup() {
   delete s, p, ps, n, li, r, o, c;
-  free(catalog_path);
+  // free(catalog_path);
 }
 
 #endif
