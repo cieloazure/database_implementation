@@ -1,48 +1,60 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
-#include "Record.h"
 #include "ParseTree.h"
+#include "Record.h"
 
 #define MAX_DEPTH 100
 
-
-enum ArithOp {PushInt, PushDouble, ToDouble, ToDouble2Down, 
-	IntUnaryMinus, IntMinus, IntPlus, IntDivide, IntMultiply,
-	DblUnaryMinus, DblMinus, DblPlus, DblDivide, DblMultiply};
+enum ArithOp {
+  PushInt,
+  PushDouble,
+  ToDouble,
+  ToDouble2Down,
+  IntUnaryMinus,
+  IntMinus,
+  IntPlus,
+  IntDivide,
+  IntMultiply,
+  DblUnaryMinus,
+  DblMinus,
+  DblPlus,
+  DblDivide,
+  DblMultiply
+};
 
 struct Arithmatic {
-
-	ArithOp myOp;
-	int recInput;
-	void *litInput;	
+  ArithOp myOp;
+  int recInput;
+  void *litInput;
 };
 
 class Function {
+ private:
+  Arithmatic *opList;
+  int numOps;
 
-private:
+  int returnsInt;
 
-	Arithmatic *opList;
-	int numOps;
+ public:
+  Function();
 
-	int returnsInt;
+  // this grows the specified function from a parse tree and converts
+  // it into an accumulator-based computation over the attributes in
+  // a record with the given schema; the record "literal" is produced
+  // by the GrowFromParseTree method
+  void GrowFromParseTree(struct FuncOperator *parseTree, Schema &mySchema);
 
-public:
+  // helper function
+  Type RecursivelyBuild(struct FuncOperator *parseTree, Schema &mySchema);
 
-	Function ();
+  // prints out the function to the screen
+  void Print();
 
-	// this grows the specified function from a parse tree and converts
-	// it into an accumulator-based computation over the attributes in
-	// a record with the given schema; the record "literal" is produced
-	// by the GrowFromParseTree method
-	void GrowFromParseTree (struct FuncOperator *parseTree, Schema &mySchema);
+  // applies the function to the given record and returns the result
+  Type Apply(Record &toMe, int &intResult, double &doubleResult);
 
-	// helper function
-	Type RecursivelyBuild (struct FuncOperator *parseTree, Schema &mySchema);
-
-	// prints out the function to the screen
-	void Print ();
-
-	// applies the function to the given record and returns the result
-	Type Apply (Record &toMe, int &intResult, double &doubleResult);
+  // Getter
+  int GetReturnsInt();
 };
+
 #endif
