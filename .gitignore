@@ -24,3 +24,5 @@ main
 P1.info
 .vscode/launch.json
 .vscode/*
+bin/*
+obj/*
