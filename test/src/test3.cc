@@ -108,6 +108,7 @@ void q1() {
   SF_ps.Run(dbf_ps, _ps, cnf_ps, lit_ps);
 
   int cnt = clear_pipe(_ps, ps->schema(), true);
+
   SF_ps.WaitUntilDone();
   cout << "\n\n query1 returned " << cnt << " records \n";
   dbf_ps.Close();
@@ -117,7 +118,7 @@ void q1() {
 // (p_retailprice > 931.01) AND (p_retailprice < 931.3); expected output: 22
 // records
 void q2() {
-  char *pred_p = "(p_retailprice > 931.01) AND (p_retailprice < 931.3)";
+  char *pred_p = "(p_retailprice > 1000.0)";
   init_SF_p(pred_p, 100);
 
   Project P_p;
@@ -130,14 +131,13 @@ void q2() {
   SF_p.Run(dbf_p, _p, cnf_p, lit_p);
   P_p.Run(_p, _out, keepMe, numAttsIn, numAttsOut);
 
-  SF_p.WaitUntilDone();
-  P_p.WaitUntilDone();
-
   Attribute att3[] = {IA, SA, DA};
   Schema out_sch("out_sch", numAttsOut, att3);
-  int cnt = clear_pipe(_p, p->schema(), true);
-
+  int cnt = clear_pipe(_out, &out_sch, true);
   cout << "\n\n query2 returned " << cnt << " records \n";
+
+  SF_p.WaitUntilDone();
+  P_p.WaitUntilDone();
 
   dbf_p.Close();
 }

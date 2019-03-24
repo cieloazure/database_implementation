@@ -1,4 +1,5 @@
 #include "Project.h"
+#include <iostream>
 
 struct ProjectWorkerThreadParams {
   Pipe *in;
@@ -22,6 +23,7 @@ void *ProjectWorkerThreadRoutine(void *threadparams) {
 
   // Project logic
   Record *temp = new Record();
+
   while (in->Remove(temp) != 0) {
     temp->Project(keepMe, numAttsOutput, numAttsInput);
     Record *copy = new Record();
@@ -33,7 +35,7 @@ void *ProjectWorkerThreadRoutine(void *threadparams) {
   pthread_exit(NULL);
 }
 
-Project::Project() {}
+Project::Project() = default;
 Project::~Project() {}
 
 void Project ::Run(Pipe &inPipe, Pipe &outPipe, int *keepMe, int numAttsInput,
@@ -58,5 +60,11 @@ void Project ::Run(Pipe &inPipe, Pipe &outPipe, int *keepMe, int numAttsInput,
   pthread_create(&threadid, &attr, ProjectWorkerThreadRoutine,
                  (void *)&project_thread_data);
 }
-void Project::WaitUntilDone() { pthread_join(threadid, NULL); }
+
+void Project::WaitUntilDone() {
+  cout << "Project Waiting...." << endl;
+  pthread_join(threadid, NULL);
+  cout << "Project done waiting!" << endl;
+}
+
 void Project::Use_n_Pages(int n) {}

@@ -25,7 +25,6 @@ void *SelectFileWorkerThreadRoutine(void *threadparams) {
   in->MoveFirst();
 
   while (in->GetNext(*temp) != 0) {
-    std::cout << "Removed a record from file" << std::endl;
     if (comp.Compare(temp, literal, selOp)) {
       Record *copy = new Record();
       copy->Copy(temp);
@@ -61,9 +60,11 @@ void SelectFile ::Run(DBFile &inFile, Pipe &outPipe, CNF &selOp,
 
 SelectFile ::SelectFile() = default;
 SelectFile ::~SelectFile() {}
+
 void SelectFile ::WaitUntilDone() {
-  cout << "Waiting..." << endl;
+  cout << "Select Waiting..." << endl;
   pthread_join(threadid, NULL);
+  cout << "Select done waiting!" << endl;
 }
 
 void SelectFile ::Use_n_Pages(int n) {}

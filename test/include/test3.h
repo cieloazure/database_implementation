@@ -175,6 +175,9 @@ char *lineitem = "lineitem";
 relation *s, *p, *ps, *n, *li, *r, *o, *c;
 
 void setup() {
+  // TODO: The metadata files does not open with system call if it is nested in
+  // directories
+  // TODO: Fix that
   // FILE *fp = fopen(settings, "r");
   // if (fp) {
   //   char *mem = (char *)malloc(80 * 3);
@@ -224,6 +227,7 @@ void setup() {
 
 void cleanup() {
   delete s, p, ps, n, li, r, o, c;
+  // TODO: Check what problem occurs here.
   // free(catalog_path);
 }
 
