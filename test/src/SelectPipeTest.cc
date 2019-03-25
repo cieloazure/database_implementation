@@ -129,9 +129,13 @@ TEST_F(SelectPipeTest, TEST_WHETHER_THREAD_IS_INVOKED) {
 
   Record rec;
   ComparisonEngine comp;
+  int count = 0;
   while (out->Remove(&rec)) {
+    count++;
     EXPECT_TRUE(comp.Compare(&rec, &literal, &cnf));
   }
+
+  cout << "Removed " << count << " records " << endl;
 
   pthread_join(thread1, NULL);
   delete in;

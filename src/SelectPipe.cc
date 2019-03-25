@@ -1,16 +1,7 @@
 #include "SelectPipe.h"
 #include <iostream>
 
-struct SelectPipeWorkerThreadParams {
-  Pipe *in;
-  Pipe *out;
-  CNF *selOp;
-  Record *literal;
-};
-
-struct SelectPipeWorkerThreadParams select_pipe_thread_data;
-
-void *SelectPipeWorkerThreadRoutine(void *threadparams) {
+void *SelectPipe ::SelectPipeWorkerThreadRoutine(void *threadparams) {
   struct SelectPipeWorkerThreadParams *params;
   params = (struct SelectPipeWorkerThreadParams *)threadparams;
   Pipe *in = params->in;
@@ -18,15 +9,16 @@ void *SelectPipeWorkerThreadRoutine(void *threadparams) {
   CNF *selOp = params->selOp;
   Record *literal = params->literal;
 
+  // Select Pipe logic start
   Record *temp = new Record();
   ComparisonEngine comp;
 
   while (in->Remove(temp) != 0) {
-    std::cout << "removed a record from pipe" << std::endl;
     if (comp.Compare(temp, literal, selOp)) {
       out->Insert(temp);
     }
   }
+  // Select pipe logic end
 
   out->ShutDown();
   pthread_exit(NULL);
@@ -45,20 +37,26 @@ void SelectPipe ::Run(Pipe &inPipe, Pipe &outPipe, CNF &selOp,
     throw runtime_error("Error spawning SelectPipe worker");
   }
 
-  select_pipe_thread_data.in = &inPipe;
-  select_pipe_thread_data.out = &outPipe;
-  select_pipe_thread_data.selOp = &selOp;
-  select_pipe_thread_data.literal = &literal;
+  struct SelectPipeWorkerThreadParams *thread_data =
+      (struct SelectPipeWorkerThreadParams *)malloc(
+          sizeof(struct SelectPipeWorkerThreadParams));
+
+  thread_data->in = &inPipe;
+  thread_data->out = &outPipe;
+  thread_data->selOp = &selOp;
+  thread_data->literal = &literal;
 
   pthread_create(&threadid, &attr, SelectPipeWorkerThreadRoutine,
-                 (void *)&select_pipe_thread_data);
+                 (void *)thread_data);
 }
 
 SelectPipe ::SelectPipe() {}
 SelectPipe ::~SelectPipe() {}
+
 void SelectPipe ::WaitUntilDone() {
   cout << "Select Pipe waiting...." << endl;
   pthread_join(threadid, NULL);
   cout << "Select Pipe done!" << endl;
 }
+
 void SelectPipe ::Use_n_Pages(int n) {}

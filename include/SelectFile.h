@@ -6,12 +6,22 @@
 #include "RelationalOp.h"
 
 class SelectFile : public RelationalOp {
+ private:
+  static void *SelectFileWorkerThreadRoutine(void *threadparams);
+
  public:
   SelectFile();
   ~SelectFile();
   void Run(DBFile &inFile, Pipe &outPipe, CNF &selOp, Record &literal);
   void WaitUntilDone();
   void Use_n_Pages(int n);
+
+  struct SelectFileWorkerThreadParams {
+    DBFile *in;
+    Pipe *out;
+    CNF *selOp;
+    Record *literal;
+  };
 };
 
 #endif

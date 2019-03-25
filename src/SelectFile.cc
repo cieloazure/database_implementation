@@ -1,16 +1,7 @@
 #include "SelectFile.h"
 #include <iostream>
 
-struct SelectFileWorkerThreadParams {
-  DBFile *in;
-  Pipe *out;
-  CNF *selOp;
-  Record *literal;
-};
-
-struct SelectFileWorkerThreadParams select_file_thread_data;
-
-void *SelectFileWorkerThreadRoutine(void *threadparams) {
+void *SelectFile::SelectFileWorkerThreadRoutine(void *threadparams) {
   std::cout << "Spawned select file worker thread" << std::endl;
   struct SelectFileWorkerThreadParams *params;
   params = (struct SelectFileWorkerThreadParams *)threadparams;
@@ -19,6 +10,7 @@ void *SelectFileWorkerThreadRoutine(void *threadparams) {
   CNF *selOp = params->selOp;
   Record *literal = params->literal;
 
+  // Select File logic
   Record *temp = new Record();
   ComparisonEngine comp;
 
@@ -31,6 +23,7 @@ void *SelectFileWorkerThreadRoutine(void *threadparams) {
       out->Insert(copy);
     }
   }
+  // Select File logic end
 
   out->ShutDown();
   pthread_exit(NULL);
@@ -49,13 +42,17 @@ void SelectFile ::Run(DBFile &inFile, Pipe &outPipe, CNF &selOp,
     throw runtime_error("Error spawning SelectFile worker");
   }
 
-  select_file_thread_data.in = &inFile;
-  select_file_thread_data.out = &outPipe;
-  select_file_thread_data.selOp = &selOp;
-  select_file_thread_data.literal = &literal;
+  struct SelectFileWorkerThreadParams *thread_data =
+      (struct SelectFileWorkerThreadParams *)malloc(
+          sizeof(struct SelectFileWorkerThreadParams));
+
+  thread_data->in = &inFile;
+  thread_data->out = &outPipe;
+  thread_data->selOp = &selOp;
+  thread_data->literal = &literal;
 
   pthread_create(&threadid, &attr, SelectFileWorkerThreadRoutine,
-                 (void *)&select_file_thread_data);
+                 (void *)thread_data);
 }
 
 SelectFile ::SelectFile() = default;
