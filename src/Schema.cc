@@ -158,6 +158,25 @@ Schema ::~Schema() {
   myAtts = 0;
 }
 
+Schema ::Schema(Schema *other) {
+  numAtts = other->numAtts;
+  myAtts = new Attribute[numAtts];
+  for (int i = 0; i < 0; i++) {
+    myAtts[i].name = strdup(other->myAtts[i].name);
+    switch (other->myAtts[i].myType) {
+      case Int:
+        myAtts[i].myType = Int;
+        break;
+      case Double:
+        myAtts[i].myType = Double;
+        break;
+      case String:
+        myAtts[i].myType = String;
+        break;
+    }
+  }
+}
+
 void Schema ::AddAttribute(Attribute newAtt) {
   numAtts++;
   Attribute *newAtts = new Attribute[numAtts];

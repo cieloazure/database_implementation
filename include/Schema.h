@@ -57,6 +57,10 @@ class Schema {
   // this composes a schema instance in-memory using ordermaker
   Schema(char *fName, OrderMaker *o, Schema *s);
 
+  // this composes a schema from another schema
+  // copy constructor
+  Schema(Schema *other);
+
   ~Schema();
 
   void AddAttribute(Attribute a);

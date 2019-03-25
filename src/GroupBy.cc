@@ -10,30 +10,45 @@ struct GroupByWorkerThreadParams {
 
 struct GroupByWorkerThreadParams group_by_thread_data;
 
-void computeAndAggregate(Function *computeMe, Record *temp, int &intAggregator,
-                         double &doubleAggregator) {
+void computeAndAggregate(Function *computeMe, Record *temp, int *intAggregator,
+                         double *doubleAggregator) {
   int intResult = 0;
   double doubleResult = 0.0;
   Type t = computeMe->Apply(*temp, intResult, doubleResult);
   switch (t) {
     case Int:
-      intAggregator += intResult;
+      (*intAggregator) += intResult;
       break;
     case Double:
-      doubleAggregator += doubleResult;
+      (*doubleAggregator) += doubleResult;
       break;
     case String:
       break;
   }
 }
 
-void resetAggregators(int &intAggregator, double &doubleAggregator) {
-  intAggregator = 0;
-  doubleAggregator = 0.0;
-}
+void composeAggregateRecord(Record *example_rec, OrderMaker *groupAtts,
+                            Schema *schema, Schema *group_att_schema,
+                            Schema *group_by_schema, string aggregate_result,
+                            Pipe *out) {
+  // Project example_rec to extract grouping attributes
+  example_rec->Project(*groupAtts, schema->GetNumAtts());
 
-void composeRecord(Record rec, OrderMaker groupAtts, int intAggregator,
-                   double doubleAggregator) {}
+  // Convert the projected example_rec to text
+  string projected_rec = example_rec->TextFileVersion(group_att_schema);
+
+  // Append the aggregate result to the front of projected_rec
+  string aggregated_rec_string;
+  aggregated_rec_string.append(aggregate_result);
+  aggregated_rec_string += '|';
+  aggregated_rec_string.append(projected_rec);
+
+  // Compose aggregate record based on the schema and the aggregated_rec_string
+  Record aggregateRec;
+  aggregateRec.ComposeRecord(group_by_schema, aggregated_rec_string.c_str());
+  aggregateRec.Print(group_by_schema);
+  out->Insert(&aggregateRec);
+}
 
 void *GroupByWorkerThreadRoutine(void *threadparams) {
   struct GroupByWorkerThreadParams *params;
@@ -46,64 +61,80 @@ void *GroupByWorkerThreadRoutine(void *threadparams) {
 
   // GroupBy logic here
   groupAtts->Print();
-  Schema *s = computeMe->GetSchema();
-  if (s == NULL) {
+
+  // Create a schema to group records
+  Schema *schema = computeMe->GetSchema();
+  if (schema == NULL) {
     std::cout
         << "Abort GroupBy! Schema not present to project and compose grouping"
         << std::endl;
     pthread_exit(NULL);
   }
 
-  Pipe *sortedOutPipe = new Pipe(100);
-  BigQ sortedGroupByQ(*inPipe, *sortedOutPipe, *groupAtts, 10);
+  Schema only_group_attributes_schema("group_schema", groupAtts, schema);
+  Attribute sum_attr;
+  sum_attr.name = "sum";
+  sum_attr.myType = computeMe->GetReturnsInt() ? Int : Double;
+  Schema group_by_schema(only_group_attributes_schema);
+  group_by_schema.AddAttribute(sum_attr);
 
-  Record temp;
-  Record prev;
-
-  Record aggregate;
+  // Initialize aggregators
   int intAggregator;
   double doubleAggregator;
 
-  resetAggregators(intAggregator, doubleAggregator);
+  auto resetAggregators = [&intAggregator, &doubleAggregator]() -> void {
+    intAggregator = 0;
+    doubleAggregator = 0.0;
+  };
 
-  if (!sortedOutPipe->Remove(&prev)) {
+  auto get_aggregate = [&computeMe, &intAggregator,
+                        &doubleAggregator]() -> string {
+    return to_string(computeMe->GetReturnsInt() ? intAggregator
+                                                : doubleAggregator);
+  };
+
+  resetAggregators();
+  // Create a BigQ which will give us sorted records
+  Pipe *sortedOutPipe = new Pipe(100);
+  BigQ sortedGroupByQ(*inPipe, *sortedOutPipe, *groupAtts, 10);
+
+  // Get the first record in the pipe
+  Record *prev = new Record();
+  if (!sortedOutPipe->Remove(prev)) {
     std::cout << "cannot sort! Internal BigQ pipe to GroupBy is closed"
               << std::endl;
     pthread_exit(NULL);
   }
 
-  computeAndAggregate(computeMe, &prev, intAggregator, doubleAggregator);
-  prev.Project(*groupAtts, s->GetNumAtts());
-  Schema print_schema("pschema", groupAtts, s);
-  prev.Print(&print_schema);
-  string prevText = prev.TextFileVersion(&print_schema);
+  // Start the aggregation with the first record
+  computeAndAggregate(computeMe, prev, &intAggregator, &doubleAggregator);
 
-  prevText =
-      to_string(computeMe->GetReturnsInt() ? intAggregator : doubleAggregator) +
-      '|' + prevText;
+  ComparisonEngine comp;
+  Record *curr = new Record();
+  while (sortedOutPipe->Remove(curr)) {
+    // compare with previous record
+    // if equal,
+    if (comp.Compare(curr, prev, groupAtts) == 0) {
+      //   - keep aggregating
+      computeAndAggregate(computeMe, curr, &intAggregator, &doubleAggregator);
+      prev = curr;
+      curr = new Record();
+    } else {
+      // else its a new group,
+      // output the record for old group
+      composeAggregateRecord(prev, groupAtts, schema,
+                             &only_group_attributes_schema, &group_by_schema,
+                             get_aggregate(), outPipe);
+      //   - stop aggregating and start aggregation for the new group
+      prev = curr;
+      curr = new Record();
+      resetAggregators();
+      computeAndAggregate(computeMe, prev, &intAggregator, &doubleAggregator);
+    }
+  }
 
-  cout << prevText << endl;
-  Attribute sum_attr;
-  sum_attr.name = "sum";
-  sum_attr.myType = computeMe->GetReturnsInt() ? Int : Double;
-
-  print_schema.AddAttribute(sum_attr);
-
-  Record opRec;
-  opRec.ComposeRecord(&print_schema, prevText.c_str());
-  opRec.Print(&print_schema);
-
-  // ComparisonEngine comp;
-  // while (sortedOutPipe->Remove(&temp)) {
-  //   // compare with previous record
-  //   // if equal,
-  //   if (comp.Compare(&temp, &prev, groupAtts) == 0) {
-  //     //   - keep aggregating
-  //   } else {
-  //     // else its a new group,
-  //     //   - stop aggregating and start aggregation for the new group
-  //   }
-  // }
+  composeAggregateRecord(prev, groupAtts, schema, &only_group_attributes_schema,
+                         &group_by_schema, get_aggregate(), outPipe);
 
   outPipe->ShutDown();
   pthread_exit(NULL);
