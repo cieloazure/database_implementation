@@ -1,15 +1,7 @@
 #include "WriteOut.h"
 #include <iostream>
 
-struct WriteOutWorkerThreadParams {
-  Pipe *inPipe;
-  FILE *outFile;
-  Schema *mySchema;
-};
-
-struct WriteOutWorkerThreadParams write_out_thread_data;
-
-void *WriteOutWorkerThreadRoutine(void *threadparams) {
+void *WriteOut ::WriteOutWorkerThreadRoutine(void *threadparams) {
   struct WriteOutWorkerThreadParams *params;
   params = (struct WriteOutWorkerThreadParams *)threadparams;
   Pipe *in = params->inPipe;
@@ -22,6 +14,7 @@ void *WriteOutWorkerThreadRoutine(void *threadparams) {
     string s = temp->TextFileVersion(mySchema);
     fprintf(file, "%s\n", s.c_str());
   }
+  // WriteOut logic end here
 
   pthread_exit(NULL);
 }
@@ -38,12 +31,16 @@ void WriteOut::Run(Pipe &inPipe, FILE *outFile, Schema &mySchema) {
     throw runtime_error("Error spawning SelectPipe worker");
   }
 
-  write_out_thread_data.inPipe = &inPipe;
-  write_out_thread_data.outFile = outFile;
-  write_out_thread_data.mySchema = &mySchema;
+  struct WriteOutWorkerThreadParams *thread_data =
+      (struct WriteOutWorkerThreadParams *)malloc(
+          sizeof(struct WriteOutWorkerThreadParams));
+
+  thread_data->inPipe = &inPipe;
+  thread_data->outFile = outFile;
+  thread_data->mySchema = &mySchema;
 
   pthread_create(&threadid, &attr, WriteOutWorkerThreadRoutine,
-                 (void *)&write_out_thread_data);
+                 (void *)thread_data);
 }
 
 WriteOut::WriteOut() {}
