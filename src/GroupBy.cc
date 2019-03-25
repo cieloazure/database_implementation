@@ -1,17 +1,9 @@
 #include "GroupBy.h"
 #include <iostream>
 
-struct GroupByWorkerThreadParams {
-  Pipe *inPipe;
-  Pipe *outPipe;
-  OrderMaker *groupAtts;
-  Function *computeMe;
-};
-
-struct GroupByWorkerThreadParams group_by_thread_data;
-
-void computeAndAggregate(Function *computeMe, Record *temp, int *intAggregator,
-                         double *doubleAggregator) {
+void GroupBy ::computeAndAggregate(Function *computeMe, Record *temp,
+                                   int *intAggregator,
+                                   double *doubleAggregator) {
   int intResult = 0;
   double doubleResult = 0.0;
   Type t = computeMe->Apply(*temp, intResult, doubleResult);
@@ -27,10 +19,11 @@ void computeAndAggregate(Function *computeMe, Record *temp, int *intAggregator,
   }
 }
 
-void composeAggregateRecord(Record *example_rec, OrderMaker *groupAtts,
-                            Schema *schema, Schema *group_att_schema,
-                            Schema *group_by_schema, string aggregate_result,
-                            Pipe *out) {
+void GroupBy ::composeAggregateRecord(Record *example_rec,
+                                      OrderMaker *groupAtts, Schema *schema,
+                                      Schema *group_att_schema,
+                                      Schema *group_by_schema,
+                                      string aggregate_result, Pipe *out) {
   // Project example_rec to extract grouping attributes
   example_rec->Project(*groupAtts, schema->GetNumAtts());
 
@@ -50,7 +43,7 @@ void composeAggregateRecord(Record *example_rec, OrderMaker *groupAtts,
   out->Insert(&aggregateRec);
 }
 
-void *GroupByWorkerThreadRoutine(void *threadparams) {
+void *GroupBy ::GroupByWorkerThreadRoutine(void *threadparams) {
   struct GroupByWorkerThreadParams *params;
   params = (struct GroupByWorkerThreadParams *)threadparams;
 
@@ -153,13 +146,17 @@ void GroupBy ::Run(Pipe &inPipe, Pipe &outPipe, OrderMaker &groupAtts,
     throw runtime_error("Error spawning GroupBy worker");
   }
 
-  group_by_thread_data.inPipe = &inPipe;
-  group_by_thread_data.outPipe = &outPipe;
-  group_by_thread_data.groupAtts = &groupAtts;
-  group_by_thread_data.computeMe = &computeMe;
+  struct GroupByWorkerThreadParams *thread_data =
+      (struct GroupByWorkerThreadParams *)malloc(
+          sizeof(struct GroupByWorkerThreadParams));
+
+  thread_data->inPipe = &inPipe;
+  thread_data->outPipe = &outPipe;
+  thread_data->groupAtts = &groupAtts;
+  thread_data->computeMe = &computeMe;
 
   pthread_create(&threadid, &attr, GroupByWorkerThreadRoutine,
-                 (void *)&group_by_thread_data);
+                 (void *)thread_data);
 }
 
 GroupBy ::GroupBy() {}

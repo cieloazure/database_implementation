@@ -1,17 +1,7 @@
 #include "Project.h"
 #include <iostream>
 
-struct ProjectWorkerThreadParams {
-  Pipe *in;
-  Pipe *out;
-  int *keepMe;
-  int numAttsInput;
-  int numAttsOutput;
-};
-
-struct ProjectWorkerThreadParams project_thread_data;
-
-void *ProjectWorkerThreadRoutine(void *threadparams) {
+void *Project ::ProjectWorkerThreadRoutine(void *threadparams) {
   struct ProjectWorkerThreadParams *params;
   params = (struct ProjectWorkerThreadParams *)threadparams;
 
@@ -30,6 +20,7 @@ void *ProjectWorkerThreadRoutine(void *threadparams) {
     copy->Copy(temp);
     out->Insert(copy);
   }
+  // Project logic ends
 
   out->ShutDown();
   pthread_exit(NULL);
@@ -51,14 +42,18 @@ void Project ::Run(Pipe &inPipe, Pipe &outPipe, int *keepMe, int numAttsInput,
     throw runtime_error("Error spawning Project worker");
   }
 
-  project_thread_data.in = &inPipe;
-  project_thread_data.out = &outPipe;
-  project_thread_data.keepMe = keepMe;
-  project_thread_data.numAttsInput = numAttsInput;
-  project_thread_data.numAttsOutput = numAttsOutput;
+  struct ProjectWorkerThreadParams *thread_data =
+      (struct ProjectWorkerThreadParams *)malloc(
+          sizeof(struct ProjectWorkerThreadParams));
+
+  thread_data->in = &inPipe;
+  thread_data->out = &outPipe;
+  thread_data->keepMe = keepMe;
+  thread_data->numAttsInput = numAttsInput;
+  thread_data->numAttsOutput = numAttsOutput;
 
   pthread_create(&threadid, &attr, ProjectWorkerThreadRoutine,
-                 (void *)&project_thread_data);
+                 (void *)thread_data);
 }
 
 void Project::WaitUntilDone() {

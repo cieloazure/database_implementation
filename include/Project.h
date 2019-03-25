@@ -1,11 +1,14 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 
+#include <algorithm>
 #include "Pipe.h"
 #include "RelationalOp.h"
-#include <algorithm>
 
 class Project : public RelationalOp {
+ private:
+  static void *ProjectWorkerThreadRoutine(void *threadparams);
+
  public:
   Project();
   ~Project();
@@ -13,6 +16,14 @@ class Project : public RelationalOp {
            int numAttsOutput);
   void WaitUntilDone();
   void Use_n_Pages(int n);
+
+  struct ProjectWorkerThreadParams {
+    Pipe *in;
+    Pipe *out;
+    int *keepMe;
+    int numAttsInput;
+    int numAttsOutput;
+  };
 };
 
 #endif

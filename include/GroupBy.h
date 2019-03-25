@@ -7,6 +7,17 @@
 #include "RelationalOp.h"
 
 class GroupBy : public RelationalOp {
+ private:
+  static void computeAndAggregate(Function *computeMe, Record *temp,
+                                  int *intAggregator, double *doubleAggregator);
+
+  static void composeAggregateRecord(Record *example_rec, OrderMaker *groupAtts,
+                                     Schema *schema, Schema *group_att_schema,
+                                     Schema *group_by_schema,
+                                     string aggregate_result, Pipe *out);
+
+  static void *GroupByWorkerThreadRoutine(void *threadparams);
+
  public:
   GroupBy();
   ~GroupBy();
@@ -19,6 +30,13 @@ class GroupBy : public RelationalOp {
 
   // tells how much internal memory the operation can use virtual void
   void Use_n_Pages(int n);
+
+  struct GroupByWorkerThreadParams {
+    Pipe *inPipe;
+    Pipe *outPipe;
+    OrderMaker *groupAtts;
+    Function *computeMe;
+  };
 };
 
 #endif

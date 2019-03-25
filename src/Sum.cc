@@ -1,17 +1,9 @@
 #include "Sum.h"
 #include <iostream>
 
-struct SumWorkerThreadParams {
-  Pipe *inPipe;
-  Pipe *outPipe;
-  Function *computeMe;
-};
-
-struct SumWorkerThreadParams sum_thread_data;
-
-void *SumWorkerThreadRoutine(void *threadparams) {
-  struct SumWorkerThreadParams *params;
-  params = (struct SumWorkerThreadParams *)threadparams;
+void *Sum ::SumWorkerThreadRoutine(void *threadparams) {
+  struct SumWorkerThreadParams *params =
+      (struct SumWorkerThreadParams *)threadparams;
 
   Pipe *inPipe = params->inPipe;
   Pipe *outPipe = params->outPipe;
@@ -68,19 +60,24 @@ void Sum ::Run(Pipe &inPipe, Pipe &outPipe, Function &computeMe) {
     throw runtime_error("Error spawning Sum worker");
   }
 
-  sum_thread_data.inPipe = &inPipe;
-  sum_thread_data.outPipe = &outPipe;
-  sum_thread_data.computeMe = &computeMe;
+  struct SumWorkerThreadParams *thread_data =
+      (struct SumWorkerThreadParams *)malloc(
+          sizeof(struct SumWorkerThreadParams));
 
-  pthread_create(&threadid, &attr, SumWorkerThreadRoutine,
-                 (void *)&sum_thread_data);
+  thread_data->inPipe = &inPipe;
+  thread_data->outPipe = &outPipe;
+  thread_data->computeMe = &computeMe;
+
+  pthread_create(&threadid, &attr, SumWorkerThreadRoutine, (void *)thread_data);
 }
 
 Sum ::Sum() {}
 Sum ::~Sum() {}
+
 void Sum ::WaitUntilDone() {
   std::cout << "Sum waiting...." << std::endl;
   pthread_join(threadid, NULL);
   std::cout << "Sum done!" << std::endl;
 }
+
 void Sum ::Use_n_Pages(int n) {}
