@@ -1,6 +1,7 @@
 #include "BigQ.h"
 #include <math.h>
 #include <pthread.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <iostream>
 #include <queue>
@@ -9,16 +10,7 @@
 
 typedef std::pair<Record *, int> pq_elem_t;
 
-struct WorkerThreadParams {
-  Pipe *in;
-  Pipe *out;
-  OrderMaker sortOrder;
-  int runlen;
-};
-
-struct WorkerThreadParams thread_data;
-
-std::string random_string(size_t length) {
+std::string BigQ ::random_string(size_t length) {
   auto randchar = []() -> char {
     const char charset[] =
         "0123456789"
@@ -32,7 +24,7 @@ std::string random_string(size_t length) {
   return str;
 }
 
-void CopyBufferToPage(Page *from, Page *to) {
+void BigQ ::CopyBufferToPage(Page *from, Page *to) {
   Record to_be_copied;
   while (from->GetFirst(&to_be_copied) != 0) {
     to->Append(&to_be_copied);
@@ -41,8 +33,8 @@ void CopyBufferToPage(Page *from, Page *to) {
 
 // Phase 1
 template <typename F>
-void MergeKSortedPages(std::vector<Page *> &input, int k, File *runFile,
-                       F &comparator, int nextPageIndex, Page *buffer) {
+void BigQ ::MergeKSortedPages(std::vector<Page *> &input, int k, File *runFile,
+                              F &comparator, int nextPageIndex, Page *buffer) {
   // initialize a page for the merge
   Page *mergedPageBuffer = new Page();
 
@@ -106,8 +98,8 @@ void MergeKSortedPages(std::vector<Page *> &input, int k, File *runFile,
   }
 }
 
-void CreateRun(std::vector<Page *> &input, int k, File *runFile,
-               OrderMaker sortOrder, int runIndex, Page *buffer) {
+void BigQ ::CreateRun(std::vector<Page *> &input, int k, File *runFile,
+                      OrderMaker sortOrder, int runIndex, Page *buffer) {
   ComparisonEngine comp;
 
   // Comparator for pair type in the priority queue
@@ -122,8 +114,8 @@ void CreateRun(std::vector<Page *> &input, int k, File *runFile,
 // End of phase 1
 
 // Phase 2
-void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
-                       OrderMaker sortOrder, Pipe *out) {
+void BigQ ::StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
+                              OrderMaker sortOrder, Pipe *out) {
   std::cout << "Streaming K=" << runsCreated << " sorted runs" << std::endl;
 
   // priority queue initialization
@@ -220,15 +212,15 @@ void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
 }
 // End of phase 2
 
-void *WorkerThreadRoutine(void *threadparams) {
-  struct WorkerThreadParams *params;
-  params = (struct WorkerThreadParams *)threadparams;
+void *BigQ ::WorkerThreadRoutine(void *threadparams) {
+  struct WorkerThreadParams *params = (struct WorkerThreadParams *)threadparams;
   Pipe *in = params->in;
   Pipe *out = params->out;
-  OrderMaker sortOrder = params->sortOrder;
-  int runlen = params->runlen;
+  OrderMaker *sortOrder = params->sortOrder;
+  int *runlen = params->runlen;
 
-  if (runlen <= 0 || in == NULL || out == NULL) {
+  if (runlen == NULL || *runlen <= 0 || in == NULL || out == NULL ||
+      sortOrder == NULL) {
     std::cout << "Argument Error in BigQ!" << std::endl;
     out->ShutDown();
     pthread_exit(NULL);
@@ -250,16 +242,16 @@ void *WorkerThreadRoutine(void *threadparams) {
       // Page is full now
       // Sort the page and put it into an list which we have to merge for
       // Phase 1
-      buffer->Sort(sortOrder);
+      buffer->Sort(*sortOrder);
       inputPagesForRun.push_back(buffer);
 
       // allocate a new Page for buffer
       buffer = new Page();
 
-      if (inputPagesForRun.size() == runlen) {
+      if (inputPagesForRun.size() == *runlen) {
         // Run Phase 1 to TPPMS and put the run into a file
-        CreateRun(inputPagesForRun, runlen, runFile, sortOrder, runs * runlen,
-                  buffer);
+        CreateRun(inputPagesForRun, *runlen, runFile, *sortOrder,
+                  runs * (*runlen), buffer);
 
         runs++;
         // Empty inputPagesForRun
@@ -277,15 +269,15 @@ void *WorkerThreadRoutine(void *threadparams) {
   // Are there any records in buffer?
   // Sort the page and put it in the vector
   if (buffer->GetNumRecords() > 0) {
-    buffer->Sort(sortOrder);
+    buffer->Sort(*sortOrder);
     inputPagesForRun.push_back(buffer);
   }
 
   // Are there any pages in inputPagesForRun?
   // Run phase 1 for the last run
   if (inputPagesForRun.size() > 0) {
-    CreateRun(inputPagesForRun, inputPagesForRun.size(), runFile, sortOrder,
-              runs * runlen, buffer);
+    CreateRun(inputPagesForRun, inputPagesForRun.size(), runFile, *sortOrder,
+              runs * (*runlen), buffer);
     runs++;
     inputPagesForRun.clear();
   }
@@ -294,12 +286,12 @@ void *WorkerThreadRoutine(void *threadparams) {
 
   // Ready for phase 2
   // Run Phase 2
-  StreamKSortedRuns(runFile, runs, runlen, sortOrder, out);
+  StreamKSortedRuns(runFile, runs, *runlen, *sortOrder, out);
   // Done with phase 2
 
   // CleanUp
 
-  remove("runFile.bin");
+  remove(s.c_str());
   out->ShutDown();
   pthread_exit(NULL);
 }
@@ -325,12 +317,15 @@ BigQ ::BigQ(Pipe &in, Pipe &out, OrderMaker &sortorder, int runlen) {
     throw runtime_error("Error spawning BigQ worker");
   }
 
-  thread_data.in = &in;
-  thread_data.out = &out;
-  thread_data.runlen = runlen;
-  thread_data.sortOrder = sortorder;
+  struct WorkerThreadParams *thread_data =
+      (struct WorkerThreadParams *)malloc(sizeof(struct WorkerThreadParams));
 
-  pthread_create(&threadid, &attr, WorkerThreadRoutine, (void *)&thread_data);
+  thread_data->in = &in;
+  thread_data->out = &out;
+  thread_data->runlen = &runlen;
+  thread_data->sortOrder = &sortorder;
+
+  pthread_create(&threadid, &attr, WorkerThreadRoutine, (void *)thread_data);
 }
 
 BigQ::~BigQ() {}

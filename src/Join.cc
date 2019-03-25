@@ -1,4 +1,5 @@
 #include "Join.h"
+#include <iostream>
 #include "BigQ.h"
 
 struct JoinWorkerThreadParams {
@@ -90,5 +91,9 @@ void Join::Run(Pipe &inPipeL, Pipe &inPipeR, Pipe &outPipe, CNF &selOp,
                  (void *)&join_thread_data);
 }
 
-void Join::WaitUntilDone() { pthread_join(threadid, NULL); }
+void Join::WaitUntilDone() {
+  cout << "Join waiting....." << endl;
+  pthread_join(threadid, NULL);
+  cout << "Join done!" << endl;
+}
 void Join::Use_n_Pages(int n) {}
