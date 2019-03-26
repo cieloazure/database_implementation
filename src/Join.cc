@@ -2,17 +2,7 @@
 #include <iostream>
 #include "BigQ.h"
 
-struct JoinWorkerThreadParams {
-  Pipe *inPipeL;
-  Pipe *inPipeR;
-  Pipe *outPipe;
-  CNF *selOp;
-  Record *literal;
-};
-
-struct JoinWorkerThreadParams join_thread_data;
-
-void *JoinWorkerThreadRoutine(void *threadparams) {
+void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
   struct JoinWorkerThreadParams *params;
   params = (struct JoinWorkerThreadParams *)threadparams;
 
@@ -22,45 +12,44 @@ void *JoinWorkerThreadRoutine(void *threadparams) {
   CNF *selOp = params->selOp;
   Record *literal = params->literal;
 
-  // Join logic
+  // Join logic starts
   OrderMaker leftOrderMaker;
   OrderMaker rightOrderMaker;
   if (selOp->GetSortOrders(leftOrderMaker, rightOrderMaker)) {
-    // sort-merge join
-    Pipe outPipeL(100);
-    BigQ leftbigq(*inPipeL, outPipeL, leftOrderMaker, 10);
+    // sort-merge join start
+    cout << "Starting sort-merge join" << endl;
+    Pipe sortedOutPipeL(100);
+    BigQ leftbigq(*inPipeL, sortedOutPipeL, leftOrderMaker, 10);
 
-    Pipe outPipeR(100);
-    BigQ rightbigq(*inPipeR, outPipeR, rightOrderMaker, 10);
-
-    Record leftRec;
-    Record rightRec;
-
-    ComparisonEngine compEng;
-
-    bool leftHasElem = outPipeL.Remove(&leftRec);
-    bool rightHasElem = outPipeR.Remove(&rightRec);
-    while (leftHasElem && rightHasElem) {
-      int compStatus = compEng.Compare(&leftRec, &leftOrderMaker, &rightRec,
-                                       &rightOrderMaker);
-      if (compStatus == 0) {
-        Record mergedRec;
-        // mergedRec.MergeRecords(&leftRec, &rightRec,
-        //                      numAttsLeft, numAttsRight,
-        //                      attsToKeep, numAttsToKeep, startOfRight);
-      } else if (compStatus < 0) {
-        leftHasElem = outPipeL.Remove(&leftRec);
-      } else {
-        rightHasElem = outPipeR.Remove(&rightRec);
-      }
+    Record left;
+    int count = 0;
+    while (sortedOutPipeL.Remove(&left)) {
+      count++;
+      outPipe->Insert(&left);
     }
 
-    outPipeL.ShutDown();
-    outPipeR.ShutDown();
+    cout << "Removed " << count
+         << " sorted records from outpipeL and inserted in main outpipe"
+         << endl;
+
+    Pipe sortedOutPipeR(100);
+    BigQ rightbigq(*inPipeR, sortedOutPipeR, rightOrderMaker, 10);
+    Record right;
+    int count2 = 0;
+    while (sortedOutPipeR.Remove(&right)) {
+      count2++;
+      outPipe->Insert(&right);
+    }
+    cout << "Removed " << count2
+         << " sorted records from outPipeR and inserted in main outpipe"
+         << endl;
+    // sort-merge join end
   } else {
-    // nested loop join
+    // nested loop join start
+    // nested loop join end
   }
 
+  // Join logic ends
   outPipe->ShutDown();
   pthread_exit(NULL);
 }
@@ -81,14 +70,18 @@ void Join::Run(Pipe &inPipeL, Pipe &inPipeR, Pipe &outPipe, CNF &selOp,
     throw runtime_error("Error spawning Project worker");
   }
 
-  join_thread_data.inPipeL = &inPipeL;
-  join_thread_data.inPipeR = &inPipeR;
-  join_thread_data.outPipe = &outPipe;
-  join_thread_data.selOp = &selOp;
-  join_thread_data.literal = &literal;
+  struct JoinWorkerThreadParams *thread_data =
+      (struct JoinWorkerThreadParams *)malloc(
+          sizeof(struct JoinWorkerThreadParams));
+
+  thread_data->inPipeL = &inPipeL;
+  thread_data->inPipeR = &inPipeR;
+  thread_data->outPipe = &outPipe;
+  thread_data->selOp = &selOp;
+  thread_data->literal = &literal;
 
   pthread_create(&threadid, &attr, JoinWorkerThreadRoutine,
-                 (void *)&join_thread_data);
+                 (void *)thread_data);
 }
 
 void Join::WaitUntilDone() {

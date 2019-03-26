@@ -1,4 +1,5 @@
 #include <string>
+#include "BigQ.h"
 #include "HeapDBFile.h"
 #include "Join.h"
 #include "gtest/gtest.h"
@@ -18,8 +19,6 @@ struct ThreadData {
   int result;
 };
 
-struct ThreadData jointhreadArg;
-
 void *join_producer(void *arg) {
   ThreadData *t = (ThreadData *)arg;
 
@@ -34,7 +33,7 @@ void *join_producer(void *arg) {
   cout << " producer: opened HeapDBFile " << path << endl;
   dbfile.MoveFirst();
 
-  while (dbfile.GetNext(temp) == 1 && counter < 20) {
+  while (dbfile.GetNext(temp) == 1) {
     counter += 1;
     if (counter % 100000 == 0) {
       cerr << " producer: " << counter << endl;
@@ -43,12 +42,40 @@ void *join_producer(void *arg) {
     copy->Copy(&temp);
     inputPipe->Insert(copy);
   }
+  cout << endl;
 
   dbfile.Close();
   inputPipe->ShutDown();
 
-  cout << " producer: inserted " << counter << " recs into the pipe\n";
+  cout << " producer: inserted " << counter << " recs into the pipe " << path
+       << "\n";
   t->result = counter;
+  pthread_exit(NULL);
+}
+
+struct ThreadData2 {
+  Pipe *outputPipe;
+  Schema *schema;
+  int result;
+  pthread_t *thread1;
+};
+
+void *join_consumer(void *threadargs) {
+  ThreadData2 *t = (ThreadData2 *)threadargs;
+
+  Pipe *outputPipe = t->outputPipe;
+  Schema *schema = t->schema;
+  pthread_t *thread = t->thread1;
+
+  Record outRec;
+  int counter = 0;
+  while (outputPipe->Remove(&outRec)) {
+    counter++;
+    outRec.Print(schema);
+  }
+
+  cout << "Removed " << counter << " records from pipe for " << endl;
+  pthread_join(*thread, NULL);
   pthread_exit(NULL);
 }
 
@@ -75,11 +102,11 @@ class JoinTest : public ::testing::Test {
   }
 
   static void TearDownTestSuite() {
-    remove("gtest1.bin");
-    remove("gtest1.header");
+    // remove("gtest1.bin");
+    // remove("gtest1.header");
 
-    remove("gtest2.bin");
-    remove("gtest2.header");
+    // remove("gtest2.bin");
+    // remove("gtest2.header");
   }
 
  protected:
@@ -110,9 +137,6 @@ class JoinTest : public ::testing::Test {
 };
 
 TEST_F(JoinTest, TEST_WHETHER_THREAD_IS_INVOKED) {
-  Join *op = new Join();
-  Pipe *out = new Pipe(100);
-
   string cnf_string = "(s_suppkey = ps_suppkey)";
   Schema suppSchema("catalog", "supplier");
   Schema partsSuppSchema("catalog", "partsupp");
@@ -129,31 +153,40 @@ TEST_F(JoinTest, TEST_WHETHER_THREAD_IS_INVOKED) {
   // print out the comparison to the screen
   cnf.Print();
 
-  //   Pipe *in1 = new Pipe(100);
-  //   jointhreadArg.inputPipe = in1;
-  //   jointhreadArg.path = (char *)"gtest1.bin";
-  //   pthread_t thread1;
-  //   pthread_create(&thread1, NULL, join_producer, (void *)&jointhreadArg);
+  Join j;
 
-  //   Pipe *in2 = new Pipe(100);
-  //   jointhreadArg.inputPipe = in1;
-  //   jointhreadArg.path = (char *)"gtest2.bin";
-  //   pthread_t thread2;
-  //   pthread_create(&thread2, NULL, join_producer, (void *)&jointhreadArg);
+  Pipe in1(100);
+  Pipe in2(100);
+  Pipe out(100);
 
-  //   op->Run(*in1, *in2, *out, )
+  pthread_t thread1;
+  struct ThreadData *thread_data1 =
+      (struct ThreadData *)malloc(sizeof(struct ThreadData));
+  thread_data1->inputPipe = &in1;
+  thread_data1->path = (char *)"gtest1.bin";
+  pthread_create(&thread1, NULL, join_producer, (void *)thread_data1);
 
-  //   Record rec;
-  //   Schema test_schema("catalog", "lineitem_project_test");
-  //   while (out->Remove(&rec)) {
-  //     rec.Print(&test_schema);
-  //   }
+  pthread_t thread2;
+  struct ThreadData *thread_data2 =
+      (struct ThreadData *)malloc(sizeof(struct ThreadData));
+  thread_data2->inputPipe = &in2;
+  thread_data2->path = (char *)"gtest2.bin";
+  pthread_create(&thread2, NULL, join_producer, (void *)thread_data2);
 
-  //   pthread_join(thread1, NULL);
-  //   pthread_join(thread2, NULL);
-  //   delete in1;
-  //   delete in2;
-  //   delete out;
+  j.Run(in1, in2, out, cnf, literal);
+  // OrderMaker partsupp(&partsSuppSchema);
+  // BigQ bigq(in2, out, partsupp, 10);
+
+  Record outRec;
+  int counter = 0;
+  while (out.Remove(&outRec)) {
+    counter++;
+  }
+  cout << "Removed " << counter << " records from pipe" << endl;
+
+  pthread_join(thread1, NULL);
+  pthread_join(thread2, NULL);
+  j.WaitUntilDone();
 }
 
 }  // namespace dbi

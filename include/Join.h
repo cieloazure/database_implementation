@@ -5,6 +5,9 @@
 #include "RelationalOp.h"
 
 class Join : public RelationalOp {
+ private:
+  static void *JoinWorkerThreadRoutine(void *threadparams);
+
  public:
   Join();
   ~Join();
@@ -17,6 +20,14 @@ class Join : public RelationalOp {
 
   // tells how much internal memory the operation can use virtual void
   void Use_n_Pages(int n);
+
+  struct JoinWorkerThreadParams {
+    Pipe *inPipeL;
+    Pipe *inPipeR;
+    Pipe *outPipe;
+    CNF *selOp;
+    Record *literal;
+  };
 };
 
 #endif

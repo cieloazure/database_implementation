@@ -53,11 +53,13 @@ void BigQ ::MergeKSortedPages(std::vector<Page *> &input, int k, File *runFile,
   }
 
   // while the priority queue is not empty
+  int record_count_in_run = 0;
   off_t pageIndexOffset = 0;
   while (!pqueue.empty()) {
     // remove the one with highest priority given by the comparator
     pq_elem_t dequeuedElem = pqueue.top();
     pqueue.pop();
+    record_count_in_run++;
 
     // put the record on the page we are merging
     if (mergedPageBuffer->Append(dequeuedElem.first) == 0) {
@@ -96,6 +98,9 @@ void BigQ ::MergeKSortedPages(std::vector<Page *> &input, int k, File *runFile,
       runFile->AddPage(toBeAdded, nextPageIndex + pageIndexOffset);
     }
   }
+
+  // cout << "Created a run with "<< record_count_in_run << " records" <<endl;
+  // cout << "Run file length: " << runFile->GetLength() << endl;
 }
 
 void BigQ ::CreateRun(std::vector<Page *> &input, int k, File *runFile,
@@ -116,7 +121,7 @@ void BigQ ::CreateRun(std::vector<Page *> &input, int k, File *runFile,
 // Phase 2
 void BigQ ::StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
                               OrderMaker sortOrder, Pipe *out) {
-  std::cout << "Streaming K=" << runsCreated << " sorted runs" << std::endl;
+    std::cout << "Streaming K=" << runsCreated << " sorted runs" << std::endl;
 
   // priority queue initialization
   // Priority queue comparator has reverse order than the sort order required
@@ -238,6 +243,7 @@ void *BigQ ::WorkerThreadRoutine(void *threadparams) {
   int runs = 0;
   int total_record_count = 0;
   while (in->Remove(temp) != 0) {
+    total_record_count++;
     if (buffer->Append(temp) == 0) {
       // Page is full now
       // Sort the page and put it into an list which we have to merge for
@@ -282,7 +288,8 @@ void *BigQ ::WorkerThreadRoutine(void *threadparams) {
     inputPagesForRun.clear();
   }
 
-  std::cout << "Merging and Streaming " << runs << " runs" << std::endl;
+  std::cout << "Merging and Streaming " << runs << " runs "
+            << " containing " << total_record_count << " records" << std::endl;
 
   // Ready for phase 2
   // Run Phase 2
@@ -290,7 +297,6 @@ void *BigQ ::WorkerThreadRoutine(void *threadparams) {
   // Done with phase 2
 
   // CleanUp
-
   remove(s.c_str());
   out->ShutDown();
   pthread_exit(NULL);
