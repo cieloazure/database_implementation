@@ -104,11 +104,11 @@ class JoinTest : public ::testing::Test {
   }
 
   static void TearDownTestSuite() {
-    // remove("gtest1.bin");
-    // remove("gtest1.header");
+    remove("gtest1.bin");
+    remove("gtest1.header");
 
-    // remove("gtest2.bin");
-    // remove("gtest2.header");
+    remove("gtest2.bin");
+    remove("gtest2.header");
   }
 
  protected:
@@ -179,8 +179,6 @@ TEST_F(JoinTest, TEST_WHETHER_THREAD_IS_INVOKED) {
 
   pthread_create(&thread1, NULL, join_producer, (void *)thread_data1);
   pthread_create(&thread2, NULL, join_producer, (void *)thread_data2);
-  // OrderMaker partsupp(&partsSuppSchema);
-  // BigQ bigq(in2, out, partsupp, 10);
 
   Record outRec;
   int counter = 0;

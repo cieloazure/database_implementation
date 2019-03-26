@@ -14,12 +14,12 @@ using namespace std;
 
 // test settings file should have the
 // catalog_path, dbfile_dir and tpch_dir information in separate lines
-const char *settings = "test3.cat";
+const char *settings = (char *)"test3.cat";
 
 // donot change this information here
-char *catalog_path = "catalog";
-char *dbfile_dir = "";
-char *tpch_dir = "data_files/";
+char *catalog_path = (char *)"catalog";
+char *dbfile_dir = (char *)"";
+char *tpch_dir = (char *)"data_files/";
 
 extern "C" {
 int yyparse(void);                 // defined in y.tab.c
@@ -163,14 +163,14 @@ void get_cnf(char *input, Schema *left, Function &fn_pred) {
 
 relation *rel;
 
-char *supplier = "supplier";
-char *partsupp = "partsupp";
-char *part = "part";
-char *nation = "nation";
-char *customer = "customer";
-char *orders = "orders";
-char *region = "region";
-char *lineitem = "lineitem";
+char *supplier = (char *)"supplier";
+char *partsupp = (char *)"partsupp";
+char *part = (char *)"part";
+char *nation = (char *)"nation";
+char *customer = (char *)"customer";
+char *orders = (char *)"orders";
+char *region = (char *)"region";
+char *lineitem = (char *)"lineitem";
 
 relation *s, *p, *ps, *n, *li, *r, *o, *c;
 
@@ -226,7 +226,7 @@ void setup() {
 }
 
 void cleanup() {
-  delete s, p, ps, n, li, r, o, c;
+  // delete s, p, ps, n, li, r, o, c;
   // TODO: Check what problem occurs here.
   // free(catalog_path);
 }

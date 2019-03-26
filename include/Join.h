@@ -8,6 +8,11 @@ class Join : public RelationalOp {
  private:
   static void *JoinWorkerThreadRoutine(void *threadparams);
 
+  static void ComposeMergedRecord(Record &left, Record &right,
+                                  Schema *leftSchema, Schema *rightSchema,
+                                  OrderMaker &rightOrderMaker,
+                                  Record *mergedRec);
+
  public:
   Join();
   ~Join();

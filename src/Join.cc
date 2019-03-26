@@ -2,6 +2,52 @@
 #include <iostream>
 #include "BigQ.h"
 
+void debugProjectAndPrint(Record *rec, OrderMaker *orderMaker, Schema *schema,
+                          Schema *proj_schema) {
+  Record *copy = new Record();
+  copy->Copy(rec);
+  copy->Project(*orderMaker, schema->GetNumAtts());
+  copy->Print(proj_schema);
+}
+// Merge left with right
+// Need both the left and right records and their schemas
+// In order to prevent duplicate of attributes we need the order maker of right
+// to remove the grouping attributes from the right record and keep it in the
+// left record
+void Join::ComposeMergedRecord(Record &left, Record &right, Schema *leftSchema,
+                               Schema *rightSchema, OrderMaker &rightOrderMaker,
+                               Record *mergedRec) {
+  // Remove the join attributes from right schema as they will be present in
+  // left schema
+  int numAttsRightAfter =
+      rightSchema->GetNumAtts() - rightOrderMaker.GetNumAtts();
+
+  int *rightAtts = new int[numAttsRightAfter];
+  rightSchema->DifferenceWithOrderMaker(rightOrderMaker, rightAtts);
+
+  // num of attributes to keep is number of attributes in left schema and right
+  // schema
+  int numAttsToKeep = leftSchema->GetNumAtts() + numAttsRightAfter;
+
+  // Allocate new array for attributes to keep
+  int *attsToKeep = new int[numAttsToKeep];
+  // Get attributes to keep from left
+  for (int i = 0; i < leftSchema->GetNumAtts(); i++) {
+    attsToKeep[i] = i;
+  }
+  // Set start of right
+  int startOfRight = leftSchema->GetNumAtts();
+  // Get attributes to keep from right
+  for (int i = 0, j = startOfRight; i < numAttsRightAfter; i++, j++) {
+    attsToKeep[j] = rightAtts[i];
+  }
+
+  // Merge Record Now!
+  mergedRec->MergeRecords(&left, &right, leftSchema->GetNumAtts(),
+                          rightSchema->GetNumAtts(), attsToKeep, numAttsToKeep,
+                          startOfRight);
+}
+
 void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
   struct JoinWorkerThreadParams *params;
   params = (struct JoinWorkerThreadParams *)threadparams;
@@ -15,36 +61,93 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
   // Join logic starts
   OrderMaker leftOrderMaker;
   OrderMaker rightOrderMaker;
+
+  Pipe *sortedOutPipeLeft = new Pipe(100);
+  Pipe *sortedOutPipeRight = new Pipe(100);
   if (selOp->GetSortOrders(leftOrderMaker, rightOrderMaker)) {
     // sort-merge join start
     cout << "Starting sort-merge join" << endl;
-    Pipe sortedOutPipeL(100);
-    Pipe sortedOutPipeR(100);
 
-    int i = 5;
-    int j = 10;
-    BigQ leftbigq(*inPipeL, sortedOutPipeL, leftOrderMaker, i);
-    BigQ rightbigq(*inPipeR, sortedOutPipeR, rightOrderMaker, j);
+    Schema *leftSchema = leftOrderMaker.GetSchema();
+    Schema *rightSchema = rightOrderMaker.GetSchema();
 
-    Record left;
-    int count = 0;
-    while (sortedOutPipeL.Remove(&left)) {
-      count++;
-      outPipe->Insert(&left);
+    // *TODO:* How to decide runlength
+    int runLengthLeft = 5;
+    int runLengthRight = 10;
+    BigQ leftbigq(*inPipeL, *sortedOutPipeLeft, leftOrderMaker, runLengthLeft);
+    BigQ rightbigq(*inPipeR, *sortedOutPipeRight, rightOrderMaker,
+                   runLengthRight);
+
+    // Debug!!!!
+    Schema leftJoinAttributeSchema((char *)"left_join_att", &leftOrderMaker,
+                                   leftSchema);
+
+    Schema rightJoinAttributeSchema((char *)"right_join_att", &rightOrderMaker,
+                                    rightSchema);
+
+    Record *left = new Record();
+    Record *right = new Record();
+
+    int isLeftPresent = sortedOutPipeLeft->Remove(left);
+    // debugProjectAndPrint(left, &leftOrderMaker, leftSchema,
+    //  &leftJoinAttributeSchema);
+
+    int isRightPresent = sortedOutPipeRight->Remove(right);
+    // debugProjectAndPrint(right, &rightOrderMaker, rightSchema,
+    //  &rightJoinAttributeSchema);
+
+    ComparisonEngine comp;
+    while (isLeftPresent && isRightPresent) {
+      int status = comp.Compare(left, &leftOrderMaker, right, &rightOrderMaker);
+      if (status < 0) {
+        cout << "Left less than right! Advance left" << endl;
+        left = new Record();
+        isLeftPresent = sortedOutPipeLeft->Remove(left);
+      } else if (status > 0) {
+        cout << "Right less than left! Advance right" << endl;
+        right = new Record();
+        isRightPresent = sortedOutPipeRight->Remove(right);
+      } else {
+        cout << "Join attribute is equal here!" << endl;
+        cout << "Start join..." << endl;
+        Record *mergedRec = new Record();
+        ComposeMergedRecord(*left, *right, leftSchema, rightSchema,
+                            rightOrderMaker, mergedRec);
+        break;
+      }
+      //   // bool joinDoneForKey = false;
+      //   // while (!joinDoneForKey) {
+      //   // }
+
+      //   Record *firstLeftRecord = new Record();
+      //   firstLeftRecord->Copy(&left);
+
+      //   Page *leftBuffer = new Page();
+      //   leftBuffer->Append(&left);
+      //   sortedOutPipeL.Remove(&left);
+      //   while (comp.Compare(&left, &leftOrderMaker, &right, &rightOrderMaker)
+      //   ==
+      //          0) {
+      //     if (leftBuffer->Append(&left) == 0) {
+      //       // TODO: To be merged back after emptying the buffer
+      //       break;
+      //     }
+      //     sortedOutPipeL.Remove(&left);
+      //   }
+      //   // while(comp.Compare(&left, ))
+
+      //   Page *rightBuffer = new Page();
+      //   rightBuffer->Append(&right);
+      //   sortedOutPipeL.Remove(&right);
+      //   while (comp.Compare(firstLeftRecord, &leftOrderMaker, &right,
+      //                       &rightOrderMaker)) {
+      //     if (rightBuffer->Append(&right) == 0) {
+      //       // TODO: To be merged after emptying the buffer
+      //       break;
+      //     }
+      //   }
+      // }
     }
-    cout << "Removed " << count
-         << " sorted records from outpipeL and inserted in main outpipe"
-         << endl;
-
-    Record right;
-    int count2 = 0;
-    while (sortedOutPipeR.Remove(&right)) {
-      count2++;
-      outPipe->Insert(&right);
-    }
-    cout << "Removed " << count2
-         << " sorted records from outPipeR and inserted in main outpipe"
-         << endl;
     // sort-merge join end
   } else {
     // nested loop join start
@@ -53,6 +156,8 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
 
   // Join logic ends
   outPipe->ShutDown();
+  delete sortedOutPipeLeft;
+  delete sortedOutPipeRight;
   pthread_exit(NULL);
 }
 

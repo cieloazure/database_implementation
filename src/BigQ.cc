@@ -238,7 +238,7 @@ void *BigQ ::WorkerThreadRoutine(void *threadparams) {
   Page *buffer = new Page();
   std::vector<Page *> inputPagesForRun;
   File *runFile = new File();
-  std::string s = BigQ::random_string(10);
+  std::string s = BigQ::random_string(10) + ".bin";
   char *rand_str = &s[0u];
   runFile->Open(0, rand_str);
 
@@ -299,8 +299,10 @@ void *BigQ ::WorkerThreadRoutine(void *threadparams) {
   // Done with phase 2
 
   // CleanUp
-  remove(s.c_str());
   out->ShutDown();
+
+  runFile->Close();
+  remove(s.c_str());
   pthread_exit(NULL);
 }
 

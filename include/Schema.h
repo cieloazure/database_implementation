@@ -10,7 +10,6 @@
 #include "Comparison.h"
 #include "ComparisonEngine.h"
 
-
 struct att_pair {
   char *name;
   Type type;
@@ -64,6 +63,8 @@ class Schema {
   ~Schema();
 
   void AddAttribute(Attribute a);
+
+  void DifferenceWithOrderMaker(OrderMaker o, int *diff);
 };
 
 #endif

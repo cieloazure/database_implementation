@@ -210,3 +210,24 @@ void Schema ::AddAttribute(Attribute newAtt) {
 
   myAtts = newAtts;
 }
+
+void Schema ::DifferenceWithOrderMaker(OrderMaker o, int *diff) {
+  int newNumAtts = GetNumAtts() - o.GetNumAtts();
+
+  auto isAttributeInOrderMaker = [&o](int att) -> bool {
+    for (int i = 0; i < o.numAtts; i++) {
+      if (o.whichAtts[i] == att) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  int newAttsIndex = 0;
+  for (int i = 0; i < numAtts; i++) {
+    if (!isAttributeInOrderMaker(i)) {
+      diff[newAttsIndex] = i;
+      newAttsIndex++;
+    }
+  }
+}

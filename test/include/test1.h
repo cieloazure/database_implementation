@@ -45,14 +45,14 @@ class relation {
   }
 };
 
- char *supplier = "supplier";
- char *partsupp = "partsupp";
- char *part = "part";
- char *nation = "nation";
- char *customer = "customer";
- char *orders = "orders";
- char *region = "region";
- char *lineitem = "lineitem";
+ char *supplier = (char *)"supplier";
+ char *partsupp = (char *)"partsupp";
+ char *part = (char *)"part";
+ char *nation = (char *)"nation";
+ char *customer = (char *)"customer";
+ char *orders = (char *)"orders";
+ char *region = (char *)"region";
+ char *lineitem = (char *)"lineitem";
 
 relation *s, *p, *ps, *n, *li, *r, *o, *c;
 

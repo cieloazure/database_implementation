@@ -130,13 +130,7 @@ bool OrderMaker::IsEmpty() {
 
 void OrderMaker ::SetSchema(Schema &schema) { mySchema = &schema; }
 
-bool OrderMaker::GetSchema(Schema *s) {
-  if (mySchema == NULL) {
-    return false;
-  }
-  s = mySchema;
-  return true;
-}
+Schema *OrderMaker::GetSchema() { return mySchema; }
 
 int OrderMaker ::GetNumAtts() { return numAtts; }
 
@@ -445,7 +439,7 @@ void CNF ::GrowFromParseTree(struct AndList *parseTree, Schema *leftSchema,
   outRecFile = fopen("sdafdsfFFDSDA", "r");
 
   // read in the record's schema
-  Schema mySchema("hkljdfgkSDFSDF", "tempSchema");
+  Schema mySchema((char *)"hkljdfgkSDFSDF", (char *)"tempSchema");
 
   // and get the record
   literal.SuckNextRecord(&mySchema, outRecFile);

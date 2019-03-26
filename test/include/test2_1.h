@@ -11,10 +11,10 @@ using namespace std;
 
 // make sure that the information below is correct
 
-char *catalog_path = "catalog";
-char *tpch_dir = "/data_files/1G/";  // dir where dbgen tpch files (extension
+char *catalog_path = (char *)"catalog";
+char *tpch_dir = (char *)"/data_files/1G/";  // dir where dbgen tpch files (extension
                                      // *.tbl) can be found
-char *dbfile_dir = "";
+char *dbfile_dir = (char *)"";
 
 extern "C" {
 int yyparse(void);  // defined in y.tab.c
@@ -77,14 +77,14 @@ class relation {
 
 relation *rel;
 
-char *supplier = "supplier";
-char *partsupp = "partsupp";
-char *part = "part";
-char *nation = "nation";
-char *customer = "customer";
-char *orders = "orders";
-char *region = "region";
-char *lineitem = "lineitem";
+char *supplier = (char *)"supplier";
+char *partsupp = (char *)"partsupp";
+char *part = (char *)"part";
+char *nation = (char *)"nation";
+char *customer = (char *)"customer";
+char *orders = (char *)"orders";
+char *region = (char *)"region";
+char *lineitem = (char *)"lineitem";
 
 relation *s, *p, *ps, *n, *li, *r, *o, *c;
 

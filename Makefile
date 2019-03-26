@@ -79,7 +79,7 @@ alltest: $(OBJECTS) $(TESTOBJECTS)
 BIN=bin
 $(shell mkdir -p bin/data_files)
 $(shell mkdir -p bin/heap_files)
-$(shell cp data_files/* bin/data_files)
+$(shell cp -r data_files/* bin/data_files)
 $(shell cp data_files/catalog bin/)
 $(shell cp data_files/test3.cat bin/)
 

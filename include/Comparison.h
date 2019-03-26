@@ -71,7 +71,7 @@ class OrderMaker {
 
   // Getter & Setter for schema
   void SetSchema(Schema &mySchema);
-  bool GetSchema(Schema *s);
+  Schema *GetSchema();
 
   int GetNumAtts();
 };
