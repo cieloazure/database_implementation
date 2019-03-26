@@ -121,7 +121,8 @@ void BigQ ::CreateRun(std::vector<Page *> &input, int k, File *runFile,
 // Phase 2
 void BigQ ::StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
                               OrderMaker sortOrder, Pipe *out) {
-    std::cout << "Streaming K=" << runsCreated << " sorted runs" << std::endl;
+  std::cout << "[BigQ]: Streaming K=" << runsCreated << " sorted runs"
+            << std::endl;
 
   // priority queue initialization
   // Priority queue comparator has reverse order than the sort order required
@@ -156,7 +157,7 @@ void BigQ ::StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
     return;
   }
 
-  cout << "Pages populated successfully" << endl;
+  // cout << "Pages populated successfully" << endl;
   // populate first rec in every page of listOfHeads into the priority queue.
 
   int record_count = 0;
@@ -213,7 +214,7 @@ void BigQ ::StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
       }
     }
   }
-  cout << "Added " << record_count << " to output queue." << endl;
+  cout << "[BigQ]: Added " << record_count << " to output pipe." << endl;
 }
 // End of phase 2
 
@@ -288,7 +289,7 @@ void *BigQ ::WorkerThreadRoutine(void *threadparams) {
     inputPagesForRun.clear();
   }
 
-  std::cout << "Merging and Streaming " << runs << " runs "
+  std::cout << "[BigQ]: Merging and Streaming " << runs << " runs "
             << " containing " << total_record_count << " records" << std::endl;
 
   // Ready for phase 2
@@ -331,7 +332,8 @@ BigQ ::BigQ(Pipe &in, Pipe &out, OrderMaker &sortorder, int runlen) {
   thread_data->runlen = &runlen;
   thread_data->sortOrder = &sortorder;
 
-  pthread_create(&threadid, &attr, WorkerThreadRoutine, (void *)thread_data);
+  pthread_create(&threadid, &attr, BigQ::WorkerThreadRoutine,
+                 (void *)thread_data);
 }
 
 BigQ::~BigQ() {}

@@ -19,7 +19,10 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
     // sort-merge join start
     cout << "Starting sort-merge join" << endl;
     Pipe sortedOutPipeL(100);
-    BigQ leftbigq(*inPipeL, sortedOutPipeL, leftOrderMaker, 10);
+    Pipe sortedOutPipeR(100);
+
+    BigQ leftbigq(*inPipeL, sortedOutPipeL, leftOrderMaker, 1);
+    BigQ rightbigq(*inPipeR, sortedOutPipeR, rightOrderMaker, 1);
 
     Record left;
     int count = 0;
@@ -27,13 +30,10 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
       count++;
       outPipe->Insert(&left);
     }
-
     cout << "Removed " << count
          << " sorted records from outpipeL and inserted in main outpipe"
          << endl;
 
-    Pipe sortedOutPipeR(100);
-    BigQ rightbigq(*inPipeR, sortedOutPipeR, rightOrderMaker, 10);
     Record right;
     int count2 = 0;
     while (sortedOutPipeR.Remove(&right)) {
