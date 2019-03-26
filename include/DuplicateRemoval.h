@@ -1,11 +1,15 @@
 #ifndef DUPLICATEREMOVAL_H
 #define DUPLICATEREMOVAL_H
 
+#include "BigQ.h"
 #include "Pipe.h"
 #include "RelationalOp.h"
-#include "BigQ.h"
 
 class DuplicateRemoval : public RelationalOp {
+ private:
+  static void *DuplicateRemovalWorkerThreadRoutine(
+      void *threadparams);
+
  public:
   DuplicateRemoval();
   ~DuplicateRemoval();
@@ -17,6 +21,12 @@ class DuplicateRemoval : public RelationalOp {
 
   // tells how much internal memory the operation can use virtual void
   void Use_n_Pages(int n);
+
+  struct DuplicateRemovalWorkerThreadParams {
+    Pipe *inPipe;
+    Pipe *outPipe;
+    Schema *mySchema;
+  };
 };
 
 #endif

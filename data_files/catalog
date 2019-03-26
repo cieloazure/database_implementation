@@ -108,3 +108,9 @@ l_extendedprice Double
 l_tax Double
 l_partkey Int
 END
+
+BEGIN
+lineitem_duplicate_removal_test
+lineitem.tbl
+l_orderkey Int
+END
