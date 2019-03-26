@@ -89,7 +89,8 @@ void *GroupBy ::GroupByWorkerThreadRoutine(void *threadparams) {
   resetAggregators();
   // Create a BigQ which will give us sorted records
   Pipe *sortedOutPipe = new Pipe(100);
-  BigQ sortedGroupByQ(*inPipe, *sortedOutPipe, *groupAtts, 10);
+  int j = 10;
+  BigQ sortedGroupByQ(*inPipe, *sortedOutPipe, *groupAtts, j);
 
   // Get the first record in the pipe
   Record *prev = new Record();

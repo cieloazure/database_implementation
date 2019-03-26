@@ -1,16 +1,31 @@
 #ifndef BIGQ_H
 #define BIGQ_H
-#include <pthread.h>
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 #include "File.h"
 #include "Pipe.h"
 #include "Record.h"
 
+extern "C" {
+#include <pthread.h>
+}
 using namespace std;
 
 class BigQ {
  private:
+  pthread_t threadid;
+
+ public:
+  BigQ(Pipe &in, Pipe &out, OrderMaker &sortorder, int &runlen);
+  ~BigQ();
+
+  struct WorkerThreadParams {
+    Pipe *in;
+    Pipe *out;
+    OrderMaker *sortOrder;
+    int *runlen;
+  };
+
   static std::string random_string(size_t length);
   static void CopyBufferToPage(Page *from, Page *to);
 
@@ -24,19 +39,6 @@ class BigQ {
 
   static void StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
                                 OrderMaker sortOrder, Pipe *out);
-
-  static void *WorkerThreadRoutine(void *threadparams);
-
- public:
-  BigQ(Pipe &in, Pipe &out, OrderMaker &sortorder, int runlen);
-  ~BigQ();
-
-  struct WorkerThreadParams {
-    Pipe *in;
-    Pipe *out;
-    OrderMaker *sortOrder;
-    int *runlen;
-  };
 };
 
 #endif

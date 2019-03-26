@@ -21,8 +21,10 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
     Pipe sortedOutPipeL(100);
     Pipe sortedOutPipeR(100);
 
-    BigQ leftbigq(*inPipeL, sortedOutPipeL, leftOrderMaker, 1);
-    BigQ rightbigq(*inPipeR, sortedOutPipeR, rightOrderMaker, 1);
+    int i = 5;
+    int j = 10;
+    BigQ leftbigq(*inPipeL, sortedOutPipeL, leftOrderMaker, i);
+    BigQ rightbigq(*inPipeR, sortedOutPipeR, rightOrderMaker, j);
 
     Record left;
     int count = 0;

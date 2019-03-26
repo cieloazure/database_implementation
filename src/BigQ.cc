@@ -218,8 +218,10 @@ void BigQ ::StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
 }
 // End of phase 2
 
-void *BigQ ::WorkerThreadRoutine(void *threadparams) {
-  struct WorkerThreadParams *params = (struct WorkerThreadParams *)threadparams;
+extern "C" {
+void *WorkerThreadRoutine(void *threadparams) {
+  struct BigQ::WorkerThreadParams *params =
+      (struct BigQ::WorkerThreadParams *)threadparams;
   Pipe *in = params->in;
   Pipe *out = params->out;
   OrderMaker *sortOrder = params->sortOrder;
@@ -237,7 +239,7 @@ void *BigQ ::WorkerThreadRoutine(void *threadparams) {
   Page *buffer = new Page();
   std::vector<Page *> inputPagesForRun;
   File *runFile = new File();
-  std::string s = random_string(10);
+  std::string s = BigQ::random_string(10);
   char *rand_str = &s[0u];
   runFile->Open(0, rand_str);
 
@@ -257,8 +259,8 @@ void *BigQ ::WorkerThreadRoutine(void *threadparams) {
 
       if (inputPagesForRun.size() == *runlen) {
         // Run Phase 1 to TPPMS and put the run into a file
-        CreateRun(inputPagesForRun, *runlen, runFile, *sortOrder,
-                  runs * (*runlen), buffer);
+        BigQ::CreateRun(inputPagesForRun, *runlen, runFile, *sortOrder,
+                        runs * (*runlen), buffer);
 
         runs++;
         // Empty inputPagesForRun
@@ -283,8 +285,8 @@ void *BigQ ::WorkerThreadRoutine(void *threadparams) {
   // Are there any pages in inputPagesForRun?
   // Run phase 1 for the last run
   if (inputPagesForRun.size() > 0) {
-    CreateRun(inputPagesForRun, inputPagesForRun.size(), runFile, *sortOrder,
-              runs * (*runlen), buffer);
+    BigQ::CreateRun(inputPagesForRun, inputPagesForRun.size(), runFile,
+                    *sortOrder, runs * (*runlen), buffer);
     runs++;
     inputPagesForRun.clear();
   }
@@ -294,7 +296,7 @@ void *BigQ ::WorkerThreadRoutine(void *threadparams) {
 
   // Ready for phase 2
   // Run Phase 2
-  StreamKSortedRuns(runFile, runs, *runlen, *sortOrder, out);
+  BigQ::StreamKSortedRuns(runFile, runs, *runlen, *sortOrder, out);
   // Done with phase 2
 
   // CleanUp
@@ -302,14 +304,13 @@ void *BigQ ::WorkerThreadRoutine(void *threadparams) {
   out->ShutDown();
   pthread_exit(NULL);
 }
+}
 
 // read data from in pipe sort them into runlen pages
 // construct priority queue over sorted runs and dump sorted data
 // into the out pipe
 // finally shut down the out pipe
-BigQ ::BigQ(Pipe &in, Pipe &out, OrderMaker &sortorder, int runlen) {
-  pthread_t threadid;
-
+BigQ ::BigQ(Pipe &in, Pipe &out, OrderMaker &sortorder, int &runlen) {
   // The worker thread is detached from the main thread
   // We do not expect the worker thread to join
   // The caller should be expected the sorted records to appear on out and
@@ -324,16 +325,16 @@ BigQ ::BigQ(Pipe &in, Pipe &out, OrderMaker &sortorder, int runlen) {
     throw runtime_error("Error spawning BigQ worker");
   }
 
-  struct WorkerThreadParams *thread_data =
-      (struct WorkerThreadParams *)malloc(sizeof(struct WorkerThreadParams));
+  struct BigQ::WorkerThreadParams *thread_data =
+      (struct BigQ::WorkerThreadParams *)malloc(
+          sizeof(struct BigQ::WorkerThreadParams));
 
   thread_data->in = &in;
   thread_data->out = &out;
   thread_data->runlen = &runlen;
   thread_data->sortOrder = &sortorder;
 
-  pthread_create(&threadid, &attr, BigQ::WorkerThreadRoutine,
-                 (void *)thread_data);
+  pthread_create(&threadid, &attr, WorkerThreadRoutine, (void *)thread_data);
 }
 
 BigQ::~BigQ() {}

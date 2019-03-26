@@ -3,6 +3,7 @@
 #include "HeapDBFile.h"
 #include "Join.h"
 #include "gtest/gtest.h"
+#include "pthread.h"
 
 extern "C" {
 typedef struct yy_buffer_state *YY_BUFFER_STATE;
@@ -13,6 +14,7 @@ void yy_delete_buffer(YY_BUFFER_STATE buffer);
 
 extern struct AndList *final;
 
+extern "C" {
 struct ThreadData {
   Pipe *inputPipe;
   char *path;
@@ -52,32 +54,32 @@ void *join_producer(void *arg) {
   t->result = counter;
   pthread_exit(NULL);
 }
-
-struct ThreadData2 {
-  Pipe *outputPipe;
-  Schema *schema;
-  int result;
-  pthread_t *thread1;
-};
-
-void *join_consumer(void *threadargs) {
-  ThreadData2 *t = (ThreadData2 *)threadargs;
-
-  Pipe *outputPipe = t->outputPipe;
-  Schema *schema = t->schema;
-  pthread_t *thread = t->thread1;
-
-  Record outRec;
-  int counter = 0;
-  while (outputPipe->Remove(&outRec)) {
-    counter++;
-    outRec.Print(schema);
-  }
-
-  cout << "Removed " << counter << " records from pipe for " << endl;
-  pthread_join(*thread, NULL);
-  pthread_exit(NULL);
 }
+// struct ThreadData2 {
+//   Pipe *outputPipe;
+//   Schema *schema;
+//   int result;
+//   pthread_t *thread1;
+// };
+
+// void *join_consumer(void *threadargs) {
+//   ThreadData2 *t = (ThreadData2 *)threadargs;
+
+//   Pipe *outputPipe = t->outputPipe;
+//   Schema *schema = t->schema;
+//   pthread_t *thread = t->thread1;
+
+//   Record outRec;
+//   int counter = 0;
+//   while (outputPipe->Remove(&outRec)) {
+//     counter++;
+//     outRec.Print(schema);
+//   }
+
+//   cout << "Removed " << counter << " records from pipe for " << endl;
+//   pthread_join(*thread, NULL);
+//   pthread_exit(NULL);
+// }
 
 namespace dbi {
 
@@ -152,28 +154,27 @@ TEST_F(JoinTest, TEST_WHETHER_THREAD_IS_INVOKED) {
 
   // print out the comparison to the screen
   cnf.Print();
-
-  Join j;
-
   Pipe in1(100);
   Pipe in2(100);
   Pipe out(100);
+
+  Join j;
+  j.Run(in1, in2, out, cnf, literal);
 
   pthread_t thread1;
   struct ThreadData *thread_data1 =
       (struct ThreadData *)malloc(sizeof(struct ThreadData));
   thread_data1->inputPipe = &in1;
   thread_data1->path = (char *)"gtest1.bin";
-  pthread_create(&thread1, NULL, join_producer, (void *)thread_data1);
 
   pthread_t thread2;
   struct ThreadData *thread_data2 =
       (struct ThreadData *)malloc(sizeof(struct ThreadData));
   thread_data2->inputPipe = &in2;
   thread_data2->path = (char *)"gtest2.bin";
-  pthread_create(&thread2, NULL, join_producer, (void *)thread_data2);
 
-  j.Run(in1, in2, out, cnf, literal);
+  pthread_create(&thread1, NULL, join_producer, (void *)thread_data1);
+  pthread_create(&thread2, NULL, join_producer, (void *)thread_data2);
   // OrderMaker partsupp(&partsSuppSchema);
   // BigQ bigq(in2, out, partsupp, 10);
 
