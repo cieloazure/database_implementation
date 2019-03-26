@@ -218,8 +218,7 @@ void BigQ ::StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
 }
 // End of phase 2
 
-extern "C" {
-void *WorkerThreadRoutine(void *threadparams) {
+void *BigQ ::WorkerThreadRoutine(void *threadparams) {
   struct BigQ::WorkerThreadParams *params =
       (struct BigQ::WorkerThreadParams *)threadparams;
   Pipe *in = params->in;
@@ -303,7 +302,6 @@ void *WorkerThreadRoutine(void *threadparams) {
   remove(s.c_str());
   out->ShutDown();
   pthread_exit(NULL);
-}
 }
 
 // read data from in pipe sort them into runlen pages

@@ -39,6 +39,9 @@ void GroupBy ::composeAggregateRecord(Record *example_rec,
   // Compose aggregate record based on the schema and the aggregated_rec_string
   Record aggregateRec;
   aggregateRec.ComposeRecord(group_by_schema, aggregated_rec_string.c_str());
+
+  // ### DANGER ###
+  // TODO: Remove this print!!!!
   aggregateRec.Print(group_by_schema);
   out->Insert(&aggregateRec);
 }
@@ -64,6 +67,8 @@ void *GroupBy ::GroupByWorkerThreadRoutine(void *threadparams) {
     pthread_exit(NULL);
   }
 
+  // Build Schemas for aggregate records and getting grouping attributes from
+  // records
   Schema only_group_attributes_schema("group_schema", groupAtts, schema);
   Attribute sum_attr;
   sum_attr.name = "sum";
@@ -75,6 +80,7 @@ void *GroupBy ::GroupByWorkerThreadRoutine(void *threadparams) {
   int intAggregator;
   double doubleAggregator;
 
+  // Lambdas
   auto resetAggregators = [&intAggregator, &doubleAggregator]() -> void {
     intAggregator = 0;
     doubleAggregator = 0.0;
@@ -86,7 +92,9 @@ void *GroupBy ::GroupByWorkerThreadRoutine(void *threadparams) {
                                                 : doubleAggregator);
   };
 
+  // Initialize the value of aggregators
   resetAggregators();
+
   // Create a BigQ which will give us sorted records
   Pipe *sortedOutPipe = new Pipe(100);
   int j = 10;
@@ -115,11 +123,11 @@ void *GroupBy ::GroupByWorkerThreadRoutine(void *threadparams) {
       curr = new Record();
     } else {
       // else its a new group,
-      // output the record for old group
+      //  - output the record for old group
       composeAggregateRecord(prev, groupAtts, schema,
                              &only_group_attributes_schema, &group_by_schema,
                              get_aggregate(), outPipe);
-      //   - stop aggregating and start aggregation for the new group
+      //  - stop aggregating and start aggregation for the new group
       prev = curr;
       curr = new Record();
       resetAggregators();
@@ -127,8 +135,11 @@ void *GroupBy ::GroupByWorkerThreadRoutine(void *threadparams) {
     }
   }
 
+  // Last aggregate record
   composeAggregateRecord(prev, groupAtts, schema, &only_group_attributes_schema,
                          &group_by_schema, get_aggregate(), outPipe);
+
+  // Group By Logic ends
 
   outPipe->ShutDown();
   pthread_exit(NULL);
@@ -162,6 +173,7 @@ void GroupBy ::Run(Pipe &inPipe, Pipe &outPipe, OrderMaker &groupAtts,
 
 GroupBy ::GroupBy() {}
 GroupBy ::~GroupBy() {}
+
 void GroupBy ::WaitUntilDone() {
   cout << "Group By waiting....." << endl;
   pthread_join(threadid, NULL);
