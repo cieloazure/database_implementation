@@ -92,14 +92,14 @@ class JoinTest : public ::testing::Test {
 
     HeapDBFile *heapFile = new HeapDBFile();
     heapFile->Create("gtest1.bin", t, NULL);
-    Schema mySchema("catalog", "supplier");
-    heapFile->Load(mySchema, "data_files/supplier.tbl");
+    Schema mySchema("catalog", "orders");
+    heapFile->Load(mySchema, "data_files/orders.tbl");
     heapFile->Close();
 
     HeapDBFile *heapFile2 = new HeapDBFile();
     heapFile2->Create("gtest2.bin", t, NULL);
-    Schema mySchema2("catalog", "partsupp");
-    heapFile2->Load(mySchema, "data_files/partsupp.tbl");
+    Schema mySchema2("catalog", "lineitem");
+    heapFile2->Load(mySchema, "data_files/lineitem.tbl");
     heapFile2->Close();
   }
 
@@ -139,9 +139,13 @@ class JoinTest : public ::testing::Test {
 };
 
 TEST_F(JoinTest, TEST_WHETHER_THREAD_IS_INVOKED) {
-  string cnf_string = "(s_suppkey = ps_suppkey)";
-  Schema suppSchema("catalog", "supplier");
-  Schema partsSuppSchema("catalog", "partsupp");
+  // string cnf_string = "(s_suppkey = ps_suppkey)";
+  // Schema suppSchema("catalog", "supplier");
+  // Schema partsSuppSchema("catalog", "partsupp");
+
+  string cnf_string = "(o_orderkey = l_orderkey)";
+  Schema ordersSchema("catalog", "orders");
+  Schema lineItemSchema("catalog", "lineitem");
 
   YY_BUFFER_STATE buffer = yy_scan_string(cnf_string.c_str());
   yyparse();
@@ -150,7 +154,7 @@ TEST_F(JoinTest, TEST_WHETHER_THREAD_IS_INVOKED) {
   // grow the CNF expression from the parse tree
   CNF cnf;
   Record literal;
-  cnf.GrowFromParseTree(final, &suppSchema, &partsSuppSchema, literal);
+  cnf.GrowFromParseTree(final, &ordersSchema, &lineItemSchema, literal);
 
   // print out the comparison to the screen
   cnf.Print();
