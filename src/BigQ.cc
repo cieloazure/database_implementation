@@ -2,6 +2,7 @@
 #include <math.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 #include <iostream>
 #include <queue>
@@ -11,6 +12,7 @@
 typedef std::pair<Record *, int> pq_elem_t;
 
 std::string BigQ ::random_string(size_t length) {
+  srand(time(NULL));
   auto randchar = []() -> char {
     const char charset[] =
         "0123456789"
@@ -299,10 +301,11 @@ void *BigQ ::WorkerThreadRoutine(void *threadparams) {
   // Done with phase 2
 
   // CleanUp
-  out->ShutDown();
-
   runFile->Close();
-  remove(s.c_str());
+  cout << "Trying to remove runFile " << rand_str << endl;
+  remove(rand_str);
+
+  out->ShutDown();
   pthread_exit(NULL);
 }
 

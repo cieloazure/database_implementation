@@ -89,12 +89,12 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
     Record *right = new Record();
 
     int isLeftPresent = sortedOutPipeLeft->Remove(left);
-    // debugProjectAndPrint(left, &leftOrderMaker, leftSchema,
-    //  &leftJoinAttributeSchema);
+    debugProjectAndPrint(left, &leftOrderMaker, leftSchema,
+                         &leftJoinAttributeSchema);
 
     int isRightPresent = sortedOutPipeRight->Remove(right);
-    // debugProjectAndPrint(right, &rightOrderMaker, rightSchema,
-    //  &rightJoinAttributeSchema);
+    debugProjectAndPrint(right, &rightOrderMaker, rightSchema,
+                         &rightJoinAttributeSchema);
 
     ComparisonEngine comp;
     while (isLeftPresent && isRightPresent) {
@@ -113,6 +113,7 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
         Record *mergedRec = new Record();
         ComposeMergedRecord(*left, *right, leftSchema, rightSchema,
                             rightOrderMaker, mergedRec);
+        outPipe->Insert(mergedRec);
         break;
       }
       //   // bool joinDoneForKey = false;
@@ -156,8 +157,8 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
 
   // Join logic ends
   outPipe->ShutDown();
-  delete sortedOutPipeLeft;
-  delete sortedOutPipeRight;
+  // delete sortedOutPipeLeft;
+  // delete sortedOutPipeRight;
   pthread_exit(NULL);
 }
 
