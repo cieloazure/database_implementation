@@ -99,7 +99,7 @@ class JoinTest : public ::testing::Test {
     HeapDBFile *heapFile2 = new HeapDBFile();
     heapFile2->Create("gtest2.bin", t, NULL);
     Schema mySchema2("catalog", "lineitem");
-    heapFile2->Load(mySchema, "data_files/lineitem.tbl");
+    heapFile2->Load(mySchema2, "data_files/lineitem.tbl");
     heapFile2->Close();
   }
 
