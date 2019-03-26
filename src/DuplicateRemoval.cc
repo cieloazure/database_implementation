@@ -14,9 +14,32 @@ void *DuplicateRemovalWorkerThreadRoutine(void *threadparams) {
   Pipe *inPipe = params->inPipe;
   Pipe *outPipe = params->outPipe;
   Schema *mySchema = params->mySchema;
+  OrderMaker sortOrder(mySchema);
 
   // Duplicate removal logic here
 
+  //different pipes for the BigQ thread
+  Pipe *bigqInPipe = new Pipe(100);
+  Pipe *bigqOutPipe = new Pipe(100);
+  int runlen = 3;
+
+  BigQ bq(*inPipe, *bigqOutPipe, sortOrder, runlen);
+
+  Record rec;
+  Record *prev = NULL;
+  while(bigqOutPipe->Remove(&rec)) {
+    Record *copy = new Record;
+    copy->Copy(&rec);
+
+    if (prev == &rec) {
+      continue;
+    }
+    prev = copy;
+    outPipe->Insert(&rec);
+  }
+
+  bigqOutPipe->ShutDown();
+  outPipe->ShutDown();
   pthread_exit(NULL);
 }
 

@@ -3,6 +3,7 @@
 
 #include "Pipe.h"
 #include "RelationalOp.h"
+#include "BigQ.h"
 
 class DuplicateRemoval : public RelationalOp {
  public:

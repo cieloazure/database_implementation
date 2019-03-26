@@ -1,6 +1,7 @@
 #ifndef RELATIONAL_OP_H
 #define RELATIONAL_OP_H
 #include <pthread.h>
+#include <stdexcept>
 #include "Pipe.h"
 
 class RelationalOp {
