@@ -101,6 +101,8 @@ class JoinTest : public ::testing::Test {
     Schema mySchema2("catalog", "lineitem");
     heapFile2->Load(mySchema2, "data_files/lineitem.tbl");
     heapFile2->Close();
+
+    srand(time(NULL));
   }
 
   static void TearDownTestSuite() {

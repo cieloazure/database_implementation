@@ -89,66 +89,80 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
     Record *right = new Record();
 
     int isLeftPresent = sortedOutPipeLeft->Remove(left);
-    debugProjectAndPrint(left, &leftOrderMaker, leftSchema,
-                         &leftJoinAttributeSchema);
+    // debugProjectAndPrint(left, &leftOrderMaker, leftSchema,
+    //                      &leftJoinAttributeSchema);
+    left->Print(leftSchema);
 
     int isRightPresent = sortedOutPipeRight->Remove(right);
-    debugProjectAndPrint(right, &rightOrderMaker, rightSchema,
-                         &rightJoinAttributeSchema);
+    right->Print(rightSchema);
+    // debugProjectAndPrint(right, &rightOrderMaker, rightSchema,
+    //                      &rightJoinAttributeSchema);
 
-    ComparisonEngine comp;
-    while (isLeftPresent && isRightPresent) {
-      int status = comp.Compare(left, &leftOrderMaker, right, &rightOrderMaker);
-      if (status < 0) {
-        cout << "Left less than right! Advance left" << endl;
-        left = new Record();
-        isLeftPresent = sortedOutPipeLeft->Remove(left);
-      } else if (status > 0) {
-        cout << "Right less than left! Advance right" << endl;
-        right = new Record();
-        isRightPresent = sortedOutPipeRight->Remove(right);
-      } else {
-        cout << "Join attribute is equal here!" << endl;
-        cout << "Start join..." << endl;
-        Record *mergedRec = new Record();
-        ComposeMergedRecord(*left, *right, leftSchema, rightSchema,
-                            rightOrderMaker, mergedRec);
-        outPipe->Insert(mergedRec);
-        break;
-      }
-      //   // bool joinDoneForKey = false;
-      //   // while (!joinDoneForKey) {
-      //   // }
+    // ComparisonEngine comp;
+    // while (isLeftPresent && isRightPresent) {
+    //   int status = comp.Compare(left, &leftOrderMaker, right,
+    //   &rightOrderMaker); if (status < 0) {
+    //     cout << "Left less than right! Advance left" << endl;
+    //     left = new Record();
+    //     isLeftPresent = sortedOutPipeLeft->Remove(left);
+    //   } else if (status > 0) {
+    //     cout << "Right less than left! Advance right" << endl;
+    //     right = new Record();
+    //     isRightPresent = sortedOutPipeRight->Remove(right);
+    //   } else {
+    //     Schema mySchema("catalog", "orders");
+    //     cout << "Join attribute is equal here!" << endl;
 
-      //   Record *firstLeftRecord = new Record();
-      //   firstLeftRecord->Copy(&left);
+    //     Record *firstLeftRecord = new Record();
+    //     firstLeftRecord->Copy(left);
+    //     firstLeftRecord->Print(&mySchema);
 
-      //   Page *leftBuffer = new Page();
-      //   leftBuffer->Append(&left);
-      //   sortedOutPipeL.Remove(&left);
-      //   while (comp.Compare(&left, &leftOrderMaker, &right, &rightOrderMaker)
-      //   ==
-      //          0) {
-      //     if (leftBuffer->Append(&left) == 0) {
-      //       // TODO: To be merged back after emptying the buffer
-      //       break;
-      //     }
-      //     sortedOutPipeL.Remove(&left);
-      //   }
-      //   // while(comp.Compare(&left, ))
+    //     Record *firstRightRecord = new Record();
+    //     firstRightRecord->Copy(right);
+    //     firstRightRecord->Print(&mySchema);
 
-      //   Page *rightBuffer = new Page();
-      //   rightBuffer->Append(&right);
-      //   sortedOutPipeL.Remove(&right);
-      //   while (comp.Compare(firstLeftRecord, &leftOrderMaker, &right,
-      //                       &rightOrderMaker)) {
-      //     if (rightBuffer->Append(&right) == 0) {
-      //       // TODO: To be merged after emptying the buffer
-      //       break;
-      //     }
-      //   }
-      // }
-    }
+    //     Page *leftBuffer = new Page();
+    //     while (comp.Compare(left, &leftOrderMaker, right, &rightOrderMaker)
+    //     ==
+    //            0) {
+    //       if (leftBuffer->Append(left) == 0) {
+    //         cout << "Buffer for left is full" << endl;
+    //         break;
+    //       }
+    //       left = new Record();
+    //       sortedOutPipeLeft->Remove(left);
+    //     }
+
+    //     // Debug
+    //     Record *temp = new Record();
+    //     while (leftBuffer->GetFirst(temp)) {
+    //       temp->Print(&mySchema);
+    //       delete temp;
+    //       temp = new Record();
+    //     }
+    //     break;
+    //     // Here, either the leftBuffer is full or the left record's join key
+    //     is
+    //     // not equal to right record's join key
+
+    //     // Page *rightBuffer = new Page();
+    //     // rightBuffer->Append(right);
+    //     // while (comp.Compare(firstLeftRecord, &leftOrderMaker, right,
+    //     //                     &rightOrderMaker) == 0) {
+    //     //   if (rightBuffer->Append(right) == 0) {
+    //     //     cout << "Buffer for right is full" << endl;
+    //     //     break;
+    //     //   }
+    //     //   right = new Record();
+    //     //   sortedOutPipeRight->Remove(right);
+    //     // }
+    //     // Here, either the rightBuffer is full or the right record's join
+    //     key
+    //     // is not equal to firstLeftRecord's join key
+
+    //     // BlockNestedLoopJoin(leftBuffer, rightBuffer);
+    //   }
+    // }
     // sort-merge join end
   } else {
     // nested loop join start
@@ -197,4 +211,5 @@ void Join::WaitUntilDone() {
   pthread_join(threadid, NULL);
   cout << "Join done!" << endl;
 }
+
 void Join::Use_n_Pages(int n) {}

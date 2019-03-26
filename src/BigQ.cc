@@ -12,7 +12,6 @@
 typedef std::pair<Record *, int> pq_elem_t;
 
 std::string BigQ ::random_string(size_t length) {
-  srand(time(NULL));
   auto randchar = []() -> char {
     const char charset[] =
         "0123456789"
