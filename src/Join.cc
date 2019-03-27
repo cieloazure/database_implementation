@@ -15,6 +15,39 @@ void debugProjectAndPrint(Record *rec, OrderMaker *orderMaker, Schema *schema,
 // to remove the grouping attributes from the right record and keep it in the
 // left record
 void Join::ComposeMergedRecord(Record &left, Record &right, Schema *leftSchema,
+                               Schema *rightSchema, Record *mergedRec) {
+
+  // num of attributes to keep is number of attributes in left schema and right
+  // schema
+  int numAttsToKeep = leftSchema->GetNumAtts() + rightSchema->GetNumAtts();
+
+  // Allocate new array for attributes to keep
+  int *attsToKeep = new int[numAttsToKeep];
+
+  // Get attributes to keep from left
+  for (int i = 0; i < leftSchema->GetNumAtts(); i++) {
+    attsToKeep[i] = i;
+  }
+  // Set start of right
+  int startOfRight = leftSchema->GetNumAtts();
+  // Get attributes to keep from right
+  for (int i = 0, j = startOfRight; i < rightSchema->GetNumAtts(); i++, j++) {
+    attsToKeep[j] = i;
+  }
+
+  // Merge Record Now!
+  mergedRec->MergeRecords(&left, &right, leftSchema->GetNumAtts(),
+                          rightSchema->GetNumAtts(), attsToKeep, numAttsToKeep,
+                          startOfRight);
+}
+
+
+// Merge left with right
+// Need both the left and right records and their schemas
+// In order to prevent duplicate of attributes we need the order maker of right
+// to remove the grouping attributes from the right record and keep it in the
+// left record
+void Join::ComposeMergedRecord(Record &left, Record &right, Schema *leftSchema,
                                Schema *rightSchema, OrderMaker &rightOrderMaker,
                                Record *mergedRec) {
   // Remove the join attributes from right schema as they will be present in
@@ -47,6 +80,7 @@ void Join::ComposeMergedRecord(Record &left, Record &right, Schema *leftSchema,
                           rightSchema->GetNumAtts(), attsToKeep, numAttsToKeep,
                           startOfRight);
 }
+
 
 void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
   struct JoinWorkerThreadParams *params;
@@ -97,7 +131,6 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
     right->Print(rightSchema);
     // debugProjectAndPrint(right, &rightOrderMaker, rightSchema,
     //                      &rightJoinAttributeSchema);
-
     // ComparisonEngine comp;
     // while (isLeftPresent && isRightPresent) {
     //   int status = comp.Compare(left, &leftOrderMaker, right,
@@ -165,6 +198,56 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
     // }
     // sort-merge join end
   } else {
+
+    Record *left = new Record();
+    Record *right = new Record();
+
+    
+    Schema *leftSchema = leftOrderMaker.GetSchema();
+    Schema *rightSchema = rightOrderMaker.GetSchema();
+
+    int isLeftPresent = sortedOutPipeRight->Remove(left);
+    int isRightPresent = sortedOutPipeRight->Remove(right);
+    int leftRecCount = 0;
+
+    HeapDBFile *dbFile = new HeapDBFile;
+    fType t = heap;
+    dbFile->Create("nestedLoopJoin.bin", t, NULL);
+    
+    while(isLeftPresent) {
+      //empty it out in DBFile
+      Record *copy = new Record();
+      copy->Copy(left);
+
+      dbFile->Add(*copy);
+
+      left = new Record;
+      isLeftPresent = sortedOutPipeLeft->Remove(left);
+      leftRecCount++;
+    }
+    cout<<"Wrote "<<leftRecCount<<" records in DBFile."<<endl;
+
+    while(isRightPresent) {
+      // while get next on DBFile
+      // merge left and right records
+      // push onto output queue.
+      //move first
+      Record temp;
+      while(dbFile->GetNext(temp)) {
+        Record *outPipeRec;
+        ComposeMergedRecord(temp, *right, leftSchema, rightSchema, outPipeRec);
+
+        outPipe->Insert(outPipeRec);
+
+        outPipeRec = new Record;
+      }
+
+      dbFile->MoveFirst();
+      right = new Record;
+      isRightPresent = sortedOutPipeRight->Remove(right);
+    }
+    dbFile->Close();
+    // sortedOutPipeRight->Remove(right);
     // nested loop join start
     // nested loop join end
   }
@@ -181,6 +264,7 @@ Join::~Join() {}
 
 void Join::Run(Pipe &inPipeL, Pipe &inPipeR, Pipe &outPipe, CNF &selOp,
                Record &literal) {
+  cout<<"Run started" <<endl;
   pthread_attr_t attr;
 
   if (pthread_attr_init(&attr) == 0) {

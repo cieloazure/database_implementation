@@ -144,4 +144,27 @@ TEST_F(ComparisonTest, SPECIFY_SORT_ORDER) {
   dummy.Print();
 }
 
+TEST_F(ComparisonTest, TEST_SORT_ORDER_OUTPUT_WHEN_NO_EQUALITY_PRESENT) {
+  const char cnf_string[] =
+      "l_partkey > l_partkey";
+  Schema mySchema("catalog", "lineitem");
+  YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
+  yyparse();
+  yy_delete_buffer(buffer);
+
+  // grow the CNF expression from the parse tree
+  CNF cnf;
+  Record literal;
+
+  cnf.GrowFromParseTree(final, &mySchema, literal);
+
+  // print out the comparison to the screen
+  cnf.Print();
+  OrderMaker dummy;
+  OrderMaker sortOrder;
+  cnf.GetSortOrders(sortOrder, dummy);
+  sortOrder.Print();
+  dummy.Print();
+}
+
 }  // namespace dbi

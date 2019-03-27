@@ -1,6 +1,7 @@
 #ifndef JOIN_H
 #define JOIN_H
 
+#include "HeapDBFile.h"
 #include "Pipe.h"
 #include "RelationalOp.h"
 
@@ -11,6 +12,10 @@ class Join : public RelationalOp {
   static void ComposeMergedRecord(Record &left, Record &right,
                                   Schema *leftSchema, Schema *rightSchema,
                                   OrderMaker &rightOrderMaker,
+                                  Record *mergedRec);
+                  
+  static void ComposeMergedRecord(Record &left, Record &right,
+                                  Schema *leftSchema, Schema *rightSchema,
                                   Record *mergedRec);
 
  public:
