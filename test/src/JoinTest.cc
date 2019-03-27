@@ -204,4 +204,54 @@ TEST_F(JoinTest, TEST_WHETHER_THREAD_IS_INVOKED) {
   j.WaitUntilDone();
 }
 
+TEST_F(JoinTest, TEST_NESTED_LOOP_JOIN) {
+  string cnf_string = "(o_orderkey > l_orderkey)";
+  Schema ordersSchema("catalog", "orders");
+  Schema lineItemSchema("catalog", "lineitem");
+
+  YY_BUFFER_STATE buffer = yy_scan_string(cnf_string.c_str());
+  yyparse();
+  yy_delete_buffer(buffer);
+
+  // grow the CNF expression from the parse tree
+  CNF cnf;
+  Record literal;
+  cnf.GrowFromParseTree(final, &ordersSchema, &lineItemSchema, literal);
+
+  // print out the comparison to the screen
+  cnf.Print();
+  Pipe in1(100);
+  Pipe in2(100);
+  Pipe out(100);
+
+  Join j;
+  j.Run(in1, in2, out, cnf, literal);
+
+  pthread_t thread1;
+  struct ThreadData *thread_data1 =
+      (struct ThreadData *)malloc(sizeof(struct ThreadData));
+  thread_data1->inputPipe = &in1;
+  thread_data1->path = (char *)"gtest1.bin";
+
+  pthread_t thread2;
+  struct ThreadData *thread_data2 =
+      (struct ThreadData *)malloc(sizeof(struct ThreadData));
+  thread_data2->inputPipe = &in2;
+  thread_data2->path = (char *)"gtest2.bin";
+
+  pthread_create(&thread1, NULL, join_producer, (void *)thread_data1);
+  pthread_create(&thread2, NULL, join_producer, (void *)thread_data2);
+
+  Record outRec;
+  int counter = 0;
+  while (out.Remove(&outRec)) {
+    counter++;
+  }
+  cout << "Removed " << counter << " records from pipe" << endl;
+
+  pthread_join(thread1, NULL);
+  pthread_join(thread2, NULL);
+  j.WaitUntilDone();
+}
+
 }  // namespace dbi
