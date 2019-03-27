@@ -102,6 +102,18 @@ class JoinTest : public ::testing::Test {
     heapFile2->Load(mySchema2, "data_files/lineitem.tbl");
     heapFile2->Close();
 
+    HeapDBFile *heapFile3 = new HeapDBFile();
+    heapFile3->Create("gtest3.bin", t, NULL);
+    Schema mySchema3("catalog", "supplier");
+    heapFile3->Load(mySchema3, "data_files/supplier.tbl");
+    heapFile3->Close();
+
+    HeapDBFile *heapFile4 = new HeapDBFile();
+    heapFile4->Create("gtest4.bin", t, NULL);
+    Schema mySchema4("catalog", "lineitem");
+    heapFile4->Load(mySchema4, "data_files/partsupp.tbl");
+    heapFile4->Close();
+
     srand(time(NULL));
   }
 
@@ -111,6 +123,12 @@ class JoinTest : public ::testing::Test {
 
     remove("gtest2.bin");
     remove("gtest2.header");
+
+    remove("gtest3.bin");
+    remove("gtest3.header");
+
+    remove("gtest4.bin");
+    remove("gtest4.header");
   }
 
  protected:
@@ -205,9 +223,9 @@ TEST_F(JoinTest, TEST_WHETHER_THREAD_IS_INVOKED) {
 }
 
 TEST_F(JoinTest, TEST_NESTED_LOOP_JOIN) {
-  string cnf_string = "(o_orderkey > l_orderkey)";
-  Schema ordersSchema("catalog", "orders");
-  Schema lineItemSchema("catalog", "lineitem");
+  string cnf_string = "(s_suppkey > ps_suppkey)";
+  Schema ordersSchema("catalog", "supplier");
+  Schema lineItemSchema("catalog", "partsupp");
 
   YY_BUFFER_STATE buffer = yy_scan_string(cnf_string.c_str());
   yyparse();
@@ -231,22 +249,26 @@ TEST_F(JoinTest, TEST_NESTED_LOOP_JOIN) {
   struct ThreadData *thread_data1 =
       (struct ThreadData *)malloc(sizeof(struct ThreadData));
   thread_data1->inputPipe = &in1;
-  thread_data1->path = (char *)"gtest1.bin";
+  thread_data1->path = (char *)"gtest3.bin";
 
   pthread_t thread2;
   struct ThreadData *thread_data2 =
       (struct ThreadData *)malloc(sizeof(struct ThreadData));
   thread_data2->inputPipe = &in2;
-  thread_data2->path = (char *)"gtest2.bin";
+  thread_data2->path = (char *)"gtest4.bin";
 
   pthread_create(&thread1, NULL, join_producer, (void *)thread_data1);
   pthread_create(&thread2, NULL, join_producer, (void *)thread_data2);
 
   Record outRec;
+
   int counter = 0;
+  cout << "Removed:";
   while (out.Remove(&outRec)) {
     counter++;
+    cout << "\r" << counter;
   }
+  cout << endl;
   cout << "Removed " << counter << " records from pipe" << endl;
 
   pthread_join(thread1, NULL);

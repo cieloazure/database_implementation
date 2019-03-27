@@ -274,7 +274,7 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
       dbFile->Add(*copy);
 
       left = new Record;
-      isLeftPresent = sortedOutPipeLeft->Remove(left);
+      isLeftPresent = inPipeL->Remove(left);
       leftRecCount++;
     }
     cout << "Wrote " << leftRecCount << " records in DBFile." << endl;
@@ -284,19 +284,18 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
       // merge left and right records
       // push onto output queue.
       // move first
-      Record temp;
-      while (dbFile->GetNext(temp)) {
-        Record *outPipeRec;
-        ComposeMergedRecord(temp, *right, leftSchema, rightSchema, outPipeRec);
-
+      Record *temp = new Record();
+      while (dbFile->GetNext(*temp)) {
+        Record *outPipeRec = new Record();
+        ComposeMergedRecord(*right, *temp, rightSchema, leftSchema, outPipeRec);
         outPipe->Insert(outPipeRec);
-
-        outPipeRec = new Record;
+        outPipeRec = new Record();
+        temp = new Record();
       }
 
       dbFile->MoveFirst();
-      right = new Record;
-      isRightPresent = sortedOutPipeRight->Remove(right);
+      right = new Record();
+      isRightPresent = inPipeR->Remove(right);
     }
     dbFile->Close();
     // sortedOutPipeRight->Remove(right);
