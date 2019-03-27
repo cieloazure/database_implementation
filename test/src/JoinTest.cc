@@ -160,6 +160,12 @@ TEST_F(JoinTest, TEST_WHETHER_THREAD_IS_INVOKED) {
 
   // print out the comparison to the screen
   cnf.Print();
+
+  OrderMaker leftOrderMaker;
+  OrderMaker rightOrderMaker;
+
+  cnf.GetSortOrders(leftOrderMaker, rightOrderMaker);
+
   Pipe in1(100);
   Pipe in2(100);
   Pipe out(100);
@@ -182,9 +188,13 @@ TEST_F(JoinTest, TEST_WHETHER_THREAD_IS_INVOKED) {
   pthread_create(&thread1, NULL, join_producer, (void *)thread_data1);
   pthread_create(&thread2, NULL, join_producer, (void *)thread_data2);
 
+  Schema join_schema("join_schema", &ordersSchema, &lineItemSchema,
+                     &rightOrderMaker);
   Record outRec;
   int counter = 0;
   while (out.Remove(&outRec)) {
+    outRec.Print(&join_schema);
+    cout << endl;
     counter++;
   }
   cout << "Removed " << counter << " records from pipe" << endl;

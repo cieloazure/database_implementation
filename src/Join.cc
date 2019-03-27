@@ -1,6 +1,7 @@
 #include "Join.h"
 #include <iostream>
 #include "BigQ.h"
+#include "HeapDBFile.h"
 
 void debugProjectAndPrint(Record *rec, OrderMaker *orderMaker, Schema *schema,
                           Schema *proj_schema) {
@@ -8,6 +9,35 @@ void debugProjectAndPrint(Record *rec, OrderMaker *orderMaker, Schema *schema,
   copy->Copy(rec);
   copy->Project(*orderMaker, schema->GetNumAtts());
   copy->Print(proj_schema);
+}
+
+void Join ::BlockNestedLoopJoinForSortMerge(
+    vector<Page *> leftBuffers, vector<Page *> rightBuffers, Schema *leftSchema,
+    Schema *rightSchema, OrderMaker &rightOrderMaker, Pipe *outPipe) {
+  for (Page *lbuffer : leftBuffers) {
+    Record *leftRec = new Record();
+    while (lbuffer->GetFirst(leftRec)) {
+      vector<Page *> resetBuffers;
+      for (Page *rbuffer : rightBuffers) {
+        Page *resetPage = new Page();
+        Record *rightRec = new Record();
+        while (rbuffer->GetFirst(rightRec)) {
+          Record *mergedRec = new Record();
+          ComposeMergedRecord(*leftRec, *rightRec, leftSchema, rightSchema,
+                              rightOrderMaker, mergedRec);
+          outPipe->Insert(mergedRec);
+          resetPage->Append(rightRec);
+          rightRec = new Record();
+        }
+        resetBuffers.push_back(resetPage);
+      }
+      rightBuffers.clear();
+      for (Page *resetPage : resetBuffers) {
+        rightBuffers.push_back(resetPage);
+      }
+      leftRec = new Record();
+    }
+  }
 }
 // Merge left with right
 // Need both the left and right records and their schemas
@@ -91,78 +121,104 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
     int isLeftPresent = sortedOutPipeLeft->Remove(left);
     // debugProjectAndPrint(left, &leftOrderMaker, leftSchema,
     //                      &leftJoinAttributeSchema);
-    left->Print(leftSchema);
+    // left->Print(leftSchema);
 
     int isRightPresent = sortedOutPipeRight->Remove(right);
-    right->Print(rightSchema);
+    // right->Print(rightSchema);
     // debugProjectAndPrint(right, &rightOrderMaker, rightSchema,
     //                      &rightJoinAttributeSchema);
 
-    // ComparisonEngine comp;
-    // while (isLeftPresent && isRightPresent) {
-    //   int status = comp.Compare(left, &leftOrderMaker, right,
-    //   &rightOrderMaker); if (status < 0) {
-    //     cout << "Left less than right! Advance left" << endl;
-    //     left = new Record();
-    //     isLeftPresent = sortedOutPipeLeft->Remove(left);
-    //   } else if (status > 0) {
-    //     cout << "Right less than left! Advance right" << endl;
-    //     right = new Record();
-    //     isRightPresent = sortedOutPipeRight->Remove(right);
-    //   } else {
-    //     Schema mySchema("catalog", "orders");
-    //     cout << "Join attribute is equal here!" << endl;
+    ComparisonEngine comp;
+    while (isLeftPresent && isRightPresent) {
+      int status = comp.Compare(left, &leftOrderMaker, right, &rightOrderMaker);
+      if (status < 0) {
+        cout << "Left less than right! Advance left" << endl;
+        left = new Record();
+        isLeftPresent = sortedOutPipeLeft->Remove(left);
+      } else if (status > 0) {
+        cout << "Right less than left! Advance right" << endl;
+        right = new Record();
+        isRightPresent = sortedOutPipeRight->Remove(right);
+      } else {
+        cout << "Join attribute is equal now!" << endl;
 
-    //     Record *firstLeftRecord = new Record();
-    //     firstLeftRecord->Copy(left);
-    //     firstLeftRecord->Print(&mySchema);
+        Record *firstLeftRecord = new Record();
+        firstLeftRecord->Copy(left);
+        // firstLeftRecord->Print(leftSchema);
 
-    //     Record *firstRightRecord = new Record();
-    //     firstRightRecord->Copy(right);
-    //     firstRightRecord->Print(&mySchema);
+        Record *firstRightRecord = new Record();
+        firstRightRecord->Copy(right);
+        // firstRightRecord->Print(rightSchema);
 
-    //     Page *leftBuffer = new Page();
-    //     while (comp.Compare(left, &leftOrderMaker, right, &rightOrderMaker)
-    //     ==
-    //            0) {
-    //       if (leftBuffer->Append(left) == 0) {
-    //         cout << "Buffer for left is full" << endl;
-    //         break;
-    //       }
-    //       left = new Record();
-    //       sortedOutPipeLeft->Remove(left);
-    //     }
+        vector<Page *> leftBuffers;
+        Page *leftBuffer = new Page();
+        while (isLeftPresent &&
+               comp.Compare(left, &leftOrderMaker, firstRightRecord,
+                            &rightOrderMaker) == 0) {
+          if (leftBuffer->Append(left) == 0) {
+            cout << "Buffer for left is full! Creating HeapDBFile" << endl;
+            leftBuffers.push_back(leftBuffer);
+            leftBuffer = new Page();
+          }
+          left = new Record();
+          isLeftPresent = sortedOutPipeLeft->Remove(left);
+          // left->Print(leftSchema);
+        }
+        if (leftBuffer->GetNumRecords() > 0) {
+          leftBuffers.push_back(leftBuffer);
+        }
 
-    //     // Debug
-    //     Record *temp = new Record();
-    //     while (leftBuffer->GetFirst(temp)) {
-    //       temp->Print(&mySchema);
-    //       delete temp;
-    //       temp = new Record();
-    //     }
-    //     break;
-    //     // Here, either the leftBuffer is full or the left record's join key
-    //     is
-    //     // not equal to right record's join key
+        cout << "Left buffer has: " << leftBuffers.size() << " pages of records"
+             << endl;
 
-    //     // Page *rightBuffer = new Page();
-    //     // rightBuffer->Append(right);
-    //     // while (comp.Compare(firstLeftRecord, &leftOrderMaker, right,
-    //     //                     &rightOrderMaker) == 0) {
-    //     //   if (rightBuffer->Append(right) == 0) {
-    //     //     cout << "Buffer for right is full" << endl;
-    //     //     break;
-    //     //   }
-    //     //   right = new Record();
-    //     //   sortedOutPipeRight->Remove(right);
-    //     // }
-    //     // Here, either the rightBuffer is full or the right record's join
-    //     key
-    //     // is not equal to firstLeftRecord's join key
+        // Debug
+        // cout << "LEFT" << endl;
+        // Record *temp = new Record();
+        // while (leftBuffer->GetFirst(temp)) {
+        //   temp->Print(leftSchema);
+        //   delete temp;
+        //   temp = new Record();
+        // }
 
-    //     // BlockNestedLoopJoin(leftBuffer, rightBuffer);
-    //   }
-    // }
+        vector<Page *> rightBuffers;
+        Page *rightBuffer = new Page();
+        while (isRightPresent &&
+               comp.Compare(right, &rightOrderMaker, firstLeftRecord,
+                            &leftOrderMaker) == 0) {
+          if (rightBuffer->Append(right) == 0) {
+            rightBuffers.push_back(rightBuffer);
+            rightBuffer = new Page();
+          }
+          right = new Record();
+          isRightPresent = sortedOutPipeRight->Remove(right);
+        }
+
+        if (rightBuffer->GetNumRecords() > 0) {
+          rightBuffers.push_back(rightBuffer);
+        }
+
+        cout << "Right buffer has: " << rightBuffers.size()
+             << " pages of records" << endl;
+
+        // debug
+        // cout << "RIGHT" << endl;
+        // Record *temp2 = new Record();
+        // while (rightBuffer->GetFirst(temp2)) {
+        //   temp2->Print(rightSchema);
+        //   delete temp2;
+        //   temp2 = new Record();
+        // }
+        // Here, either the leftBuffer is full or the left record's join key
+        // is
+        // not equal to right record's join key
+
+        // Join two buffers if both are not full
+        // TODO: otherwise use heapdbfile
+        BlockNestedLoopJoinForSortMerge(leftBuffers, rightBuffers, leftSchema,
+                                        rightSchema, rightOrderMaker, outPipe);
+        // break;
+      }
+    }
     // sort-merge join end
   } else {
     // nested loop join start

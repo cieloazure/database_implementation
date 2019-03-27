@@ -32,6 +32,10 @@ class Schema {
 
   void Init(char *fName, int num_atts, Attribute *atts);
 
+  void Copy(Schema *s);
+
+  void GetDifference(Schema *s, OrderMaker o, int *diff);
+
  public:
   // gets the set of attributes, but be careful with this, since it leads
   // to aliasing!!!
@@ -54,11 +58,16 @@ class Schema {
   Schema(char *fName, int num_atts, Attribute *atts);
 
   // this composes a schema instance in-memory using ordermaker
+  // Useful for group by operation when we need to get a schema based on
+  // grouping attributes
   Schema(char *fName, OrderMaker *o, Schema *s);
+
+  // Create a schema by combining two schemas
+  Schema(char *fName, Schema *s1, Schema *s2, OrderMaker *s2OrderMaker);
 
   // this composes a schema from another schema
   // copy constructor
-  Schema(Schema *other);
+  Schema(char *fName, Schema *other);
 
   ~Schema();
 

@@ -383,3 +383,5 @@ off_t HeapDBFile::GetCurrentWritePageIndex() {
 }
 
 File *HeapDBFile::GetPersistentFileInstance() { return persistent_file; }
+
+bool HeapDBFile ::IsOpen() { return is_open; }

@@ -158,7 +158,7 @@ Schema ::~Schema() {
   myAtts = 0;
 }
 
-Schema ::Schema(Schema *other) {
+void Schema::Copy(Schema *other) {
   numAtts = other->numAtts;
   myAtts = new Attribute[numAtts];
   for (int i = 0; i < 0; i++) {
@@ -175,6 +175,10 @@ Schema ::Schema(Schema *other) {
         break;
     }
   }
+}
+Schema ::Schema(char *fName, Schema *other) {
+  fileName = strdup(fName);
+  Copy(other);
 }
 
 void Schema ::AddAttribute(Attribute newAtt) {
@@ -211,8 +215,8 @@ void Schema ::AddAttribute(Attribute newAtt) {
   myAtts = newAtts;
 }
 
-void Schema ::DifferenceWithOrderMaker(OrderMaker o, int *diff) {
-  int newNumAtts = GetNumAtts() - o.GetNumAtts();
+void Schema::GetDifference(Schema *s, OrderMaker o, int *diff) {
+  int newNumAtts = s->GetNumAtts() - o.GetNumAtts();
 
   auto isAttributeInOrderMaker = [&o](int att) -> bool {
     for (int i = 0; i < o.numAtts; i++) {
@@ -224,10 +228,70 @@ void Schema ::DifferenceWithOrderMaker(OrderMaker o, int *diff) {
   };
 
   int newAttsIndex = 0;
-  for (int i = 0; i < numAtts; i++) {
+  for (int i = 0; i < s->GetNumAtts(); i++) {
     if (!isAttributeInOrderMaker(i)) {
       diff[newAttsIndex] = i;
       newAttsIndex++;
+    }
+  }
+}
+void Schema ::DifferenceWithOrderMaker(OrderMaker o, int *diff) {
+  GetDifference(this, o, diff);
+}
+
+Schema ::Schema(char *fName, Schema *s1, Schema *s2, OrderMaker *s2OrderMaker) {
+  fileName = strdup(fName);
+
+  // Initialize sizes
+  int diffSize = s2->GetNumAtts() - s2OrderMaker->GetNumAtts();
+  numAtts = s1->GetNumAtts() + diffSize;
+  myAtts = new Attribute[numAtts];
+
+  // Copy s1
+  for (int i = 0; i < s1->GetNumAtts(); i++) {
+    myAtts[i].name = strdup(s1->myAtts[i].name);
+    switch (s1->myAtts[i].myType) {
+      case Int:
+        myAtts[i].myType = Int;
+        break;
+      case Double:
+        myAtts[i].myType = Double;
+        break;
+      case String:
+        myAtts[i].myType = String;
+        break;
+    }
+  }
+
+  int *diff = new int[diffSize];
+  GetDifference(s2, *s2OrderMaker, diff);
+
+  auto uniqueAttribute = [&diff, &diffSize](int att) -> bool {
+    for (int i = 0; i < diffSize; i++) {
+      if (diff[i] == att) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Copy s2 only those contained in diff
+  int contIndex = s1->GetNumAtts();
+  for (int i = 0; i < s2->GetNumAtts(); i++) {
+    if (uniqueAttribute(i)) {
+      myAtts[contIndex].name = strdup(s2->myAtts[i].name);
+      switch (s2->myAtts[i].myType) {
+        case Int:
+          myAtts[contIndex].myType = Int;
+          break;
+        case Double:
+          myAtts[contIndex].myType = Double;
+          break;
+        case String:
+          myAtts[contIndex].myType = String;
+          break;
+      }
+      contIndex++;
     }
   }
 }

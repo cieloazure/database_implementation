@@ -13,6 +13,13 @@ class Join : public RelationalOp {
                                   OrderMaker &rightOrderMaker,
                                   Record *mergedRec);
 
+  static void BlockNestedLoopJoinForSortMerge(vector<Page *> leftBuffers,
+                                              vector<Page *> rightBuffers,
+                                              Schema *leftSchema,
+                                              Schema *rightSchema,
+                                              OrderMaker &rightOrderMaker,
+                                              Pipe *outPipe);
+
  public:
   Join();
   ~Join();

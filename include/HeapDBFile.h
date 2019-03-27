@@ -51,6 +51,7 @@ class HeapDBFile : public GenericDBFile {
   void Add(Record &addme);
   int GetNext(Record &fetchme);
   int GetNext(Record &fetchme, CNF &cnf, Record &literal);
+  bool IsOpen();
 
   /* TODO */
   /* Test Utility methods */
