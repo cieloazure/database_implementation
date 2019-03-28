@@ -210,7 +210,6 @@ void q4() {
   J.Run(_s, _ps, _s_ps, cnf_p_ps, lit_p_ps);
   T.Run(_s_ps, _out, func);
 
-
   Schema sum_sch((char *)"sum_sch", 1, &DA);
   int cnt = clear_pipe(_out, &sum_sch, true);
   cout << " query4 returned " << cnt << " recs \n";
@@ -277,13 +276,16 @@ void q6() {
   get_cnf((char *)"(s_suppkey = ps_suppkey)", s->schema(), ps->schema(),
           cnf_p_ps, lit_p_ps);
 
-  int outAtts = sAtts + psAtts;
+  int outAtts = sAtts + psAtts - 1;
   Attribute s_nationkey = {(char *)"s_nationkey", Int};
   Attribute ps_supplycost = {(char *)"ps_supplycost", Double};
-  Attribute joinatt[] = {IA, SA, SA, s_nationkey,   SA, DA, SA,
-                         IA, IA, IA, ps_supplycost, SA};
-  Schema join_sch((char *)"join_sch", outAtts, joinatt);
-
+  Attribute joinatt[] = {IA, SA, SA, s_nationkey,   SA, DA,
+                         SA, IA, IA, ps_supplycost, SA};
+  // Schema join_sch((char *)"join_sch", outAtts, joinatt);
+  OrderMaker po;
+  OrderMaker pso;
+  cnf_p_ps.GetSortOrders(po, pso);
+  Schema join_sch((char *)"join_sch", s->schema(), ps->schema(), &pso);
   GroupBy G;
   // _s (input pipe)
   Pipe _out(1);
@@ -291,18 +293,24 @@ void q6() {
   char *str_sum = (char *)"(ps_supplycost)";
   get_cnf(str_sum, &join_sch, func);
   func.Print();
-  OrderMaker grp_order(&join_sch);
+
+  CNF nationCNF;
+  Record nationLiteral;
+  char *nation_grp = (char *)"(s_nationkey = s_nationkey)";
+  get_cnf(nation_grp, &join_sch, nationCNF, nationLiteral);
+  OrderMaker grp_order;
+  OrderMaker dummy;
+  nationCNF.GetSortOrders(grp_order, dummy);
   G.Use_n_Pages(1);
-
-
-  Schema sum_sch((char *)"sum_sch", 1, &DA);
-  int cnt = clear_pipe(_out, &sum_sch, true);
-  cout << " query6 returned sum for " << cnt
-       << " groups (expected 25 groups)\n";
 
   SF_ps.Run(dbf_ps, _ps, cnf_ps, lit_ps);  // 161 recs qualified
   J.Run(_s, _ps, _s_ps, cnf_p_ps, lit_p_ps);
   G.Run(_s_ps, _out, grp_order, func);
+  Schema sum_sch((char *)"sum_sch", 1, &DA);
+
+  int cnt = clear_pipe(_out, &sum_sch, true);
+  cout << " query6 returned sum for " << cnt
+       << " groups (expected 25 groups)\n";
 
   SF_ps.WaitUntilDone();
   J.WaitUntilDone();

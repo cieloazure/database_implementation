@@ -127,7 +127,7 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
   Pipe *sortedOutPipeRight = new Pipe(100);
   if (selOp->GetSortOrders(leftOrderMaker, rightOrderMaker)) {
     // sort-merge join start
-    cout << "Starting sort-merge join" << endl;
+    cout << "[JOIN]: Starting sort-merge join..." << endl;
 
     Schema *leftSchema = leftOrderMaker.GetSchema();
     Schema *rightSchema = rightOrderMaker.GetSchema();
@@ -139,7 +139,6 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
     BigQ rightbigq(*inPipeR, *sortedOutPipeRight, rightOrderMaker,
                    runLengthRight);
 
-    // Debug!!!!
     Schema leftJoinAttributeSchema((char *)"left_join_att", &leftOrderMaker,
                                    leftSchema);
 
@@ -150,36 +149,24 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
     Record *right = new Record();
 
     int isLeftPresent = sortedOutPipeLeft->Remove(left);
-    // debugProjectAndPrint(left, &leftOrderMaker, leftSchema,
-    //                      &leftJoinAttributeSchema);
-    // left->Print(leftSchema);
 
     int isRightPresent = sortedOutPipeRight->Remove(right);
-    // right->Print(rightSchema);
-    // debugProjectAndPrint(right, &rightOrderMaker, rightSchema,
-    //                      &rightJoinAttributeSchema);
 
     ComparisonEngine comp;
     while (isLeftPresent && isRightPresent) {
       int status = comp.Compare(left, &leftOrderMaker, right, &rightOrderMaker);
       if (status < 0) {
-        cout << "Left less than right! Advance left" << endl;
         left = new Record();
         isLeftPresent = sortedOutPipeLeft->Remove(left);
       } else if (status > 0) {
-        cout << "Right less than left! Advance right" << endl;
         right = new Record();
         isRightPresent = sortedOutPipeRight->Remove(right);
       } else {
-        cout << "Join attribute is equal now!" << endl;
-
         Record *firstLeftRecord = new Record();
         firstLeftRecord->Copy(left);
-        // firstLeftRecord->Print(leftSchema);
 
         Record *firstRightRecord = new Record();
         firstRightRecord->Copy(right);
-        // firstRightRecord->Print(rightSchema);
 
         vector<Page *> leftBuffers;
         Page *leftBuffer = new Page();
@@ -187,29 +174,16 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
                comp.Compare(left, &leftOrderMaker, firstRightRecord,
                             &rightOrderMaker) == 0) {
           if (leftBuffer->Append(left) == 0) {
-            cout << "Buffer for left is full! Creating HeapDBFile" << endl;
             leftBuffers.push_back(leftBuffer);
             leftBuffer = new Page();
           }
           left = new Record();
           isLeftPresent = sortedOutPipeLeft->Remove(left);
-          // left->Print(leftSchema);
         }
+
         if (leftBuffer->GetNumRecords() > 0) {
           leftBuffers.push_back(leftBuffer);
         }
-
-        cout << "Left buffer has: " << leftBuffers.size() << " pages of records"
-             << endl;
-
-        // Debug
-        // cout << "LEFT" << endl;
-        // Record *temp = new Record();
-        // while (leftBuffer->GetFirst(temp)) {
-        //   temp->Print(leftSchema);
-        //   delete temp;
-        //   temp = new Record();
-        // }
 
         vector<Page *> rightBuffers;
         Page *rightBuffer = new Page();
@@ -228,30 +202,13 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
           rightBuffers.push_back(rightBuffer);
         }
 
-        cout << "Right buffer has: " << rightBuffers.size()
-             << " pages of records" << endl;
-
-        // debug
-        // cout << "RIGHT" << endl;
-        // Record *temp2 = new Record();
-        // while (rightBuffer->GetFirst(temp2)) {
-        //   temp2->Print(rightSchema);
-        //   delete temp2;
-        //   temp2 = new Record();
-        // }
-        // Here, either the leftBuffer is full or the left record's join key
-        // is
-        // not equal to right record's join key
-
-        // Join two buffers if both are not full
-        // TODO: otherwise use heapdbfile
         BlockNestedLoopJoinForSortMerge(leftBuffers, rightBuffers, leftSchema,
                                         rightSchema, rightOrderMaker, outPipe);
-        // break;
       }
     }
     // sort-merge join end
   } else {
+    // nested loop join start
     Record *left = new Record();
     Record *right = new Record();
 
@@ -277,7 +234,6 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
       isLeftPresent = inPipeL->Remove(left);
       leftRecCount++;
     }
-    cout << "Wrote " << leftRecCount << " records in DBFile." << endl;
 
     while (isRightPresent) {
       // while get next on DBFile
@@ -299,7 +255,6 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
     }
     dbFile->Close();
     // sortedOutPipeRight->Remove(right);
-    // nested loop join start
     // nested loop join end
   }
 

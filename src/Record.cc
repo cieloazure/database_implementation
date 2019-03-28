@@ -3,7 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
 #include <iostream>
+#include <map>
+// #include <numeric>
 
 Record ::Record() { bits = NULL; }
 
@@ -306,6 +309,11 @@ void Record ::Project(int *attsToKeep, int numAttsToKeep, int numAttsNow) {
 }
 
 void Record ::Project(OrderMaker o, int numAttsNow) {
+  // int *attsToKeep = new int[o.numAtts];
+  // for (int i = 0; i < o.numAtts; i++) {
+  //   attsToKeep[i] = o.whichAtts[i];
+  // }
+  // std::sort(attsToKeep, attsToKeep + o.numAtts);
   Project(o.whichAtts, o.numAtts, numAttsNow);
 }
 

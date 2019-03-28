@@ -56,8 +56,6 @@ void *GroupBy ::GroupByWorkerThreadRoutine(void *threadparams) {
   Function *computeMe = params->computeMe;
 
   // GroupBy logic here
-  groupAtts->Print();
-
   // Create a schema to group records
   Schema *schema = computeMe->GetSchema();
   if (schema == NULL) {
