@@ -63,7 +63,7 @@ TEST = clang++
 TESTCOMPILEFLAGS= -fsanitize=address -g -std=c++11 -stdlib=libc++
 TESTSOURCESDIR=test/src
 TESTIDIR=test/include
-TESTFLAGS = -I$(IDIR) -I$(TESTIDIR) -I$(SOURCEDIR) -I$(LIBIDIR)
+TESTFLAGS = -I$(IDIR) -I$(TESTIDIR) -I$(SOURCEDIR) -I$(LIBIDIR)  -I$(ODIR)
 TESTODIR=obj/test
 $(shell mkdir -p obj/test)
 
