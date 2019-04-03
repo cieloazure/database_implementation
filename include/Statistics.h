@@ -72,6 +72,17 @@ class Statistics {
                      struct AttributeStats *, 
                      struct AttStoreKeyHash, 
                      struct AttStoreKeyEqual> attributeStore;
+
+  void WriteRelationStatsToFile(struct RelationStats *relStats, int statisticsFileDes);
+  void WriteAttributeStatsToFile(struct AttributeStats *attStats, int statisticsFileDes);
+
+  void ReadRelationStatsFromFile(int statisticsFileDes, struct RelationStats *relStats);
+  void ReadAttributeStatsFromFile(int statisticsFileDes, struct RelationStats *whichRelStats, struct AttributeStats *attStats);
+
+  struct AttStoreKey MakeAttStoreKey(std::string attName, std::string relName);
+
+  void CopyRelStats(struct RelationStats *fromRel, struct RelationStats *toRel, std::string toRelName);
+  void CopyAttStats(struct AttributeStats *fromAtt, struct AttributeStats *toAtt, std::string toRelName);
 };
 
 #endif

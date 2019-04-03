@@ -2,32 +2,46 @@
 #include <stdio.h>
 
 Statistics::Statistics() {}
+
+Statistics::~Statistics() {}
+
 Statistics::Statistics(Statistics &copyMe) {
   for(auto it = copyMe.relationStore.begin(); it != copyMe.relationStore.end(); it++){
-    std::pair<std::string, struct RelationStats *> relationStoreEntry = *it;
+    std::pair<std::string, struct RelationStats *> copyMeRelationStoreEntry = *it;
 
-    std::string relationStoreKey = relationStoreEntry.first;
-    struct RelationStats * relationStoreValue = relationStoreEntry.second;
+    struct RelationStats *fromRel = copyMeRelationStoreEntry.second;
+    struct RelationStats *toRel = new struct RelationStats;
+    // Set the name of the new relation to the new name given
+    toRel->relName = fromRel->relName;
 
-    AddRel((char *)relationStoreKey.c_str(), relationStoreValue->numTuples);
+    // Set the number of tuple for new relation to the number of tuples for from
+    // relation
+    toRel->numTuples = fromRel->numTuples;
 
-    for(auto attIt = relationStoreValue->attributes.begin(); 
-        attIt != relationStoreValue->attributes.end(); 
-        attIt++){
+    // Iterate through all the attributes of the relation and add the attributes
+    // in the attribute store for copy relation
+    for (auto whichAtt = fromRel->attributes.begin();
+         whichAtt != fromRel->attributes.end(); whichAtt++) {
+      std::string copyAttStr(*whichAtt);
+      toRel->attributes.insert(copyAttStr);
 
-          std::string attName = *attIt;
-          struct AttStoreKey attKey;
-          attKey.attName = attName;
-          attKey.relName = relationStoreKey;
-          struct AttributeStats *attStats = copyMe.attributeStore.at(attKey);
-
-          AddAtt((char *)relationStoreKey.c_str(), (char *)attName.c_str(), attStats->numDistinctValues);
+      // Copy the attribute from old relation into new relation and insert it in
+      // the attributeStore
+      struct AttributeStats *fromAtt =
+          copyMe.attributeStore.at(MakeAttStoreKey(*whichAtt, toRel->relName));
+      struct AttributeStats *toAtt = new struct AttributeStats;
+      CopyAttStats(fromAtt, toAtt, toRel->relName);
+      std::pair<struct AttStoreKey, struct AttributeStats *>
+          attributeStoreEntry(MakeAttStoreKey(toAtt->attName, toAtt->relName),
+                              toAtt);
+      attributeStore.insert(attributeStoreEntry);
     }
   }
 }
-Statistics::~Statistics() {}
 
 void Statistics::AddRel(char *relName, int numTuples) {
+  // Insert a new relation OR 
+  // Update the relation stats if the relation exists
   std::string relNameStr(relName);
   struct RelationStats *relStats;
   try {
@@ -46,9 +60,6 @@ void Statistics::AddRel(char *relName, int numTuples) {
 void Statistics::AddAtt(char *relName, char *attName, int numDistincts) {
   std::string relNameStr(relName);
   std::string attNameStr(attName);
-  struct AttStoreKey attStoreKey;
-  attStoreKey.attName = attName;
-  attStoreKey.relName = relNameStr;
 
   // Check if a relation exist
   // If not, numTuples in relation is estimated to be equal to numDistincts
@@ -67,6 +78,9 @@ void Statistics::AddAtt(char *relName, char *attName, int numDistincts) {
     relStats->attributes.insert(attNameStr);
   }
 
+  // Create a attribute store key and insert OR 
+  // Update the attribute stats if the attribute exists
+  struct AttStoreKey attStoreKey{.attName = attNameStr, .relName = relNameStr};
   struct AttributeStats *attStats;
   try {
     attStats = attributeStore.at(attStoreKey);
@@ -87,27 +101,50 @@ void Statistics::CopyRel(char *oldName, char *newName) {
   std::string newNameStr(newName);
 
   try{
-    struct RelationStats *relStats = relationStore.at(oldNameStr);
-    // Copy number of tuples for new relation
-    AddRel(newName, relStats->numTuples);
-
-    // Copy number of distinct values for each attribute
-    for(auto it = relStats->attributes.begin(); it != relStats->attributes.end(); it++){
-      std::string attNameStr = *it;
-      struct AttStoreKey attStoreKey;
-      attStoreKey.attName = attNameStr;
-      attStoreKey.relName = oldNameStr;
-
-      try{
-        struct AttributeStats *attStats = attributeStore.at(attStoreKey);
-        AddAtt(newName, (char *)attNameStr.c_str(), attStats->numDistinctValues);
-      }catch(const std::out_of_range &oor){
-        throw std::runtime_error("Attribute error");
-      }
-    }
-  }catch(const std::out_of_range &oor){
-    throw std::runtime_error("Relation error");
+    struct RelationStats *fromRel = relationStore.at(oldNameStr);
+    struct RelationStats *toRel = new RelationStats;
+    CopyRelStats(fromRel, toRel, newNameStr);
+    std::pair<std::string, struct RelationStats *> relationStoreEntry(
+        toRel->relName, toRel);
+    relationStore.insert(relationStoreEntry);
+  } catch(const std::out_of_range &oor){
+    throw std::runtime_error("[Statistics]:[ERROR]: Relation or attribute error!" 
+                              "Hash table in statistics is corrupted and has"
+                              "missing keys");
   }
+}
+
+void Statistics::CopyRelStats(struct Statistics ::RelationStats *fromRel, 
+                              struct Statistics ::RelationStats *toRel, 
+                              std::string toRelName){
+  // Set the name of the new relation to the new name given
+  toRel->relName = toRelName;
+
+  // Set the number of tuple for new relation to the number of tuples for from relation
+  toRel->numTuples = fromRel->numTuples;
+
+  // Iterate through all the attributes of the relation and add the attributes in the attribute store for copy relation
+  for(auto whichAtt = fromRel->attributes.begin();
+      whichAtt != fromRel->attributes.end();
+      whichAtt++){
+        std::string copyAttStr(*whichAtt);
+        toRel->attributes.insert(copyAttStr);
+
+        // Copy the attribute from old relation into new relation and insert it in the attributeStore
+        struct AttributeStats *fromAtt = attributeStore.at(MakeAttStoreKey(*whichAtt, fromRel->relName));
+        struct AttributeStats *toAtt = new struct AttributeStats;
+        CopyAttStats(fromAtt, toAtt, toRelName);
+        std::pair<struct AttStoreKey, struct AttributeStats *> attributeStoreEntry(MakeAttStoreKey(toAtt->attName, toAtt->relName), toAtt);
+        attributeStore.insert(attributeStoreEntry);
+  }
+}
+
+void Statistics ::CopyAttStats(struct Statistics ::AttributeStats *fromAtt, 
+                               struct Statistics ::AttributeStats *toAtt, 
+                               std::string toRelName){
+  toAtt->attName = fromAtt->attName;
+  toAtt->relName = toRelName;
+  toAtt->numDistinctValues = fromAtt->numDistinctValues;
 }
 
 void Statistics::Read(char *fromWhere) {
@@ -119,56 +156,15 @@ void Statistics::Read(char *fromWhere) {
     throw std::runtime_error("Error opening file for writing statistics");
   }
 
+  // Read in the number of relations in the file
   lseek(statisticsFileDes, 0, SEEK_SET);
   size_t numberOfRelations = 0;
   read(statisticsFileDes, &numberOfRelations, sizeof(size_t));
 
-  for(int i = 0; i < numberOfRelations; i++){
-    struct RelationStats relationStoreValue;
-
-    size_t keyLength = 0;
-    read(statisticsFileDes, &keyLength, sizeof(size_t));
-    char key[keyLength];
-    read(statisticsFileDes, &key, keyLength);
-    for(int k = 0; k < keyLength; k++){
-      relationStoreValue.relName.push_back(key[k]);
-    }
-
-    long numTuples = 0;
-    read(statisticsFileDes, &numTuples, sizeof(long));
-    relationStoreValue.numTuples = numTuples;
-
-    size_t numberOfAttributes = 0;
-    read(statisticsFileDes, &numberOfAttributes, sizeof(size_t));
-
-    for(int j = 0; j < numberOfAttributes; j++){
-      struct AttributeStats attStoreVal;
-
-      size_t attLength = 0;
-      read(statisticsFileDes, &attLength, sizeof(size_t));
-      char attName[attLength];
-      read(statisticsFileDes, &attName, attLength);
-      for(int k = 0; k < attLength; k++){
-        attStoreVal.attName.push_back(attName[k]);
-      }
-
-      long numDistinctValues = 0;
-      read(statisticsFileDes, &numDistinctValues, sizeof(long));
-      attStoreVal.numDistinctValues = numDistinctValues;
-
-      attStoreVal.relName = relationStoreValue.relName;
-      relationStoreValue.attributes.insert(attStoreVal.attName);
-
-      struct AttStoreKey attStoreKey;
-      attStoreKey.attName = attStoreVal.attName;
-      attStoreKey.relName = attStoreVal.relName;
-
-      std::pair<struct AttStoreKey, struct AttributeStats *> attStoreEntry(attStoreKey, &attStoreVal);
-      attributeStore.insert(attStoreEntry);
-    }
-
-    std::pair<std::string, struct RelationStats *> relationStoreEntry(relationStoreValue.relName, &relationStoreValue);
-    relationStore.insert(relationStoreEntry);
+  // Iterate through each building each relation and its associated attributes from file
+  for(int whichRel = 0; whichRel < numberOfRelations; whichRel++){
+    struct RelationStats relStats;
+    ReadRelationStatsFromFile(statisticsFileDes, &relStats);
   }
 
   close(statisticsFileDes);
@@ -178,62 +174,139 @@ void Statistics::Write(char *toWhere) {
   int fileMode = O_TRUNC | O_RDWR | O_CREAT;
   int statisticsFileDes = open(toWhere, fileMode, S_IRUSR | S_IWUSR);
   if(statisticsFileDes < 0){
+    printf("Oh dear, something went wrong with open()! %s\n", strerror(errno));
     std::cerr << "Error opening file for writing statistics" << std::endl;
     throw std::runtime_error("Error opening file for writing statistics");
   }
 
-  // Proposed file structure:
+  // Proposed file structure of statisticsFileDes(statistics.bin):
   // relname1 numTuples numatts(2)
   // attName1 numdistincts
   // attName2 numdistincts
-  // relname2 numTuples numatts(3)
-  // attName1 numdistincts
-  // attName2 numdistincts
-  // attName3 numdistincts
 
   lseek(statisticsFileDes, 0, SEEK_SET);
   size_t relationSize = relationStore.size();
 
   // Write the total number of relations in the relation store
   write(statisticsFileDes, &relationSize, sizeof(size_t));
+
+  // Iterate through each relation and write the relation and its associated attributes in the file
   for(auto it = relationStore.begin(); it != relationStore.end(); it++){
     std::pair<std::string, struct RelationStats *> relationStoreEntry = *it;
 
-    std::string relationStoreKey = relationStoreEntry.first;
-    struct RelationStats * relationStoreValue = relationStoreEntry.second;
-
-    size_t relationStoreKeyLength = relationStoreKey.size();
-    // Write the length of the relName in the store
-    write(statisticsFileDes, &relationStoreKeyLength, sizeof(size_t));
-    // Write the actual string in relName
-    write(statisticsFileDes, relationStoreKey.c_str(), relationStoreKeyLength);
-    // Write the number of tuples in the store
-    write(statisticsFileDes, &relationStoreValue->numTuples, sizeof(long));
-
-    // Write the number of attributes for this relation
-    size_t attributesLength = relationStoreValue->attributes.size();
-    write(statisticsFileDes, &attributesLength, sizeof(size_t));
-    for(auto attributeIt = relationStoreValue->attributes.begin(); 
-        attributeIt != relationStoreValue->attributes.end(); 
-        attributeIt++){
-
-          std::string attName = *attributeIt;
-          struct AttStoreKey attKey;
-          attKey.attName = attName;
-          attKey.relName = relationStoreKey;
-          struct AttributeStats *attStats = attributeStore.at(attKey);
-
-          size_t attNameLen = attName.size();
-          // Write the length of attribute name string 
-          write(statisticsFileDes, &attNameLen, sizeof(size_t));
-          // Write the actual string of the attribute name
-          write(statisticsFileDes, attName.c_str(), attNameLen);
-          // Write the number of distinct values of the attribute obtained from the attributeStore
-          write(statisticsFileDes, &attStats->numDistinctValues, sizeof(long));
-    }
+    struct RelationStats *relationStatsFromStore = relationStoreEntry.second;
+    WriteRelationStatsToFile(relationStatsFromStore, statisticsFileDes);
   }
 
   close(statisticsFileDes);
+}
+
+void Statistics ::WriteRelationStatsToFile(struct Statistics ::RelationStats *relStats, int statisticsFileDes){
+    // Write the length of the relName in the store
+    size_t relNameLength = relStats->relName.size();
+    write(statisticsFileDes, &relNameLength, sizeof(size_t));
+
+    // Write the actual string in relName
+    write(statisticsFileDes, relStats->relName.c_str(), relNameLength);
+
+    // Write the number of tuples in the store
+    write(statisticsFileDes, &relStats->numTuples, sizeof(long));
+
+    // Write the number of attributes for this relation
+    size_t attributesLength = relStats->attributes.size();
+    write(statisticsFileDes, &attributesLength, sizeof(size_t));
+
+
+    // Iterate through all attributes and write those attribute stats to file
+    for(auto attributeIt = relStats->attributes.begin(); 
+        attributeIt != relStats->attributes.end(); 
+        attributeIt++){
+
+          std::string attName = *attributeIt;
+          struct AttributeStats *attStats = attributeStore.at(MakeAttStoreKey(attName, relStats->relName));
+
+          // Write the attribute stats to the file
+          WriteAttributeStatsToFile(attStats, statisticsFileDes);
+    }
+}
+
+void Statistics ::WriteAttributeStatsToFile(struct Statistics ::AttributeStats *attStats, int statisticsFileDes){
+  // Get length of the attribute name &
+  // Write the length of attribute name string
+  size_t attNameLen = attStats->attName.size();
+  write(statisticsFileDes, &attNameLen, sizeof(size_t));
+
+  // Write the actual string of the attribute name
+  write(statisticsFileDes, attStats->attName.c_str(), attNameLen);
+
+  // Write the number of distinct values of the attribute obtained from the
+  // attributeStore
+  write(statisticsFileDes, &attStats->numDistinctValues, sizeof(long));
+}
+
+void Statistics ::ReadRelationStatsFromFile(int statisticsFileDes, struct RelationStats *relStats){
+    // Read relName
+    size_t keyLength = 0;
+    read(statisticsFileDes, &keyLength, sizeof(size_t));
+    char key[keyLength];
+    read(statisticsFileDes, &key, keyLength);
+    for(int k = 0; k < keyLength; k++){
+      relStats->relName.push_back(key[k]);
+    }
+
+    // Read numTuples of the relation
+    long numTuples = 0;
+    read(statisticsFileDes, &numTuples, sizeof(long));
+    relStats->numTuples = numTuples;
+
+    // Read number of attributes belonging to the relation
+    size_t numberOfAttributes = 0;
+    read(statisticsFileDes, &numberOfAttributes, sizeof(size_t));
+
+    // Iterate and read all the attributes belonging to this relation and store
+    // them in attributeStore
+    for (int whichAtt = 0; whichAtt < numberOfAttributes; whichAtt++) {
+      struct AttributeStats attStats;
+      ReadAttributeStatsFromFile(statisticsFileDes, relStats, &attStats);
+    }
+
+    // Create an entry in relation store for this stats
+    std::pair<std::string, struct RelationStats *> relationStoreEntry(relStats->relName, relStats);
+    relationStore.insert(relationStoreEntry);
+}
+
+void Statistics ::ReadAttributeStatsFromFile(int statisticsFileDes, struct RelationStats *whichRelStats,
+                                             struct AttributeStats *attStats) {
+      // Read length of attribute name & the attribute name
+      size_t attLength = 0;
+      read(statisticsFileDes, &attLength, sizeof(size_t));
+      char attName[attLength];
+      read(statisticsFileDes, &attName, attLength);
+      for(int k = 0; k < attLength; k++){
+        attStats->attName.push_back(attName[k]);
+      }
+
+      // Insert the attribute name in relation stats struct
+      whichRelStats->attributes.insert(attStats->attName);
+
+      // Read the number of distinct values for this attribute
+      long numDistinctValues = 0;
+      read(statisticsFileDes, &numDistinctValues, sizeof(long));
+      attStats->numDistinctValues = numDistinctValues;
+
+      // Set the relName of attStats
+      attStats->relName = whichRelStats->relName;
+
+      // Create an entry in attribute store for this attribute
+      std::pair<struct AttStoreKey, struct AttributeStats *> attStoreEntry(MakeAttStoreKey(attStats->attName, whichRelStats->relName), attStats);
+      attributeStore.insert(attStoreEntry);
+}
+
+struct Statistics::AttStoreKey Statistics ::MakeAttStoreKey(std::string attName, std::string relName){
+  struct AttStoreKey *attStoreKey = new struct AttStoreKey;
+  attStoreKey->attName = attName;
+  attStoreKey->relName = relName;
+  return *attStoreKey;
 }
 
 void Statistics::Apply(struct AndList *parseTree, char *relNames[],
