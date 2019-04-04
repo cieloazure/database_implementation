@@ -1,14 +1,16 @@
 #ifndef STATISTICS_H
 #define STATISTICS_H
 
-#include <string>
-#include <unordered_map>
-#include <set>
-#include <unistd.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include <iostream>
+#include <set>
+#include <string>
+#include <unordered_map>
+#include <vector>
 #include "ParseTree.h"
 
 namespace dbi {}
@@ -27,6 +29,9 @@ class Statistics {
 
   void Apply(struct AndList *parseTree, char *relNames[], int numToJoin);
   double Estimate(struct AndList *parseTree, char **relNames, int numToJoin);
+
+  void PrintRelationStore();
+  void PrintAttributeStore();
 
  private:
   struct RelationStats {
@@ -49,7 +54,7 @@ class Statistics {
   struct AttStoreKeyHash {
     std::size_t operator()(const AttStoreKey &k) const {
       std::size_t seed = 0;
-      auto hash_combine = [](std::size_t &seed, const std::string &v)  -> void {
+      auto hash_combine = [](std::size_t &seed, const std::string &v) -> void {
         std::hash<std::string> hasher;
         seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
       };
@@ -61,28 +66,43 @@ class Statistics {
     }
   };
 
- struct AttStoreKeyEqual {
+  struct AttStoreKeyEqual {
     bool operator()(const AttStoreKey &lhs, const AttStoreKey &rhs) const {
       return lhs.attName == rhs.attName && lhs.relName == rhs.relName;
     }
   };
 
   std::unordered_map<std::string, struct RelationStats *> relationStore;
-  std::unordered_map<struct AttStoreKey, 
-                     struct AttributeStats *, 
-                     struct AttStoreKeyHash, 
-                     struct AttStoreKeyEqual> attributeStore;
+  std::unordered_map<struct AttStoreKey, struct AttributeStats *,
+                     struct AttStoreKeyHash, struct AttStoreKeyEqual>
+      attributeStore;
 
-  void WriteRelationStatsToFile(struct RelationStats *relStats, int statisticsFileDes);
-  void WriteAttributeStatsToFile(struct AttributeStats *attStats, int statisticsFileDes);
+  // std::set<std::set<std::string>> partitions;
+  std::set<std::set<std::string>> partitions;
 
-  void ReadRelationStatsFromFile(int statisticsFileDes, struct RelationStats *relStats);
-  void ReadAttributeStatsFromFile(int statisticsFileDes, struct RelationStats *whichRelStats, struct AttributeStats *attStats);
+  void WriteRelationStatsToFile(struct RelationStats *relStats,
+                                int statisticsFileDes);
+  void WriteAttributeStatsToFile(struct AttributeStats *attStats,
+                                 int statisticsFileDes);
+
+  void ReadRelationStatsFromFile(int statisticsFileDes,
+                                 struct RelationStats *relStats);
+  void ReadAttributeStatsFromFile(int statisticsFileDes,
+                                  struct RelationStats *whichRelStats,
+                                  struct AttributeStats *attStats);
 
   struct AttStoreKey MakeAttStoreKey(std::string attName, std::string relName);
 
-  void CopyRelStats(struct RelationStats *fromRel, struct RelationStats *toRel, std::string toRelName);
-  void CopyAttStats(struct AttributeStats *fromAtt, struct AttributeStats *toAtt, std::string toRelName);
+  void CopyRelStats(struct RelationStats *fromRel, struct RelationStats *toRel,
+                    std::string toRelName);
+  void CopyAttStats(struct AttributeStats *fromAtt,
+                    struct AttributeStats *toAtt, std::string toRelName);
+
+  bool CheckAttNameInRel(struct AndList *parseTree, char **relNames);
+
+  bool CheckAndList(struct AndList *andList, char **relNames);
+  bool CheckOrList(struct OrList *orList, char **relNames);
+  bool CheckOperand(struct Operand *operand, char **relNames);
 };
 
 #endif

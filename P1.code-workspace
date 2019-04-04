@@ -71,7 +71,12 @@
 			"vector": "cpp",
 			"queue": "cpp",
 			"numeric": "cpp",
-			"random": "cpp"
+			"random": "cpp",
+			"array": "cpp",
+			"*.tcc": "cpp",
+			"clocale": "cpp",
+			"optional": "cpp",
+			"cinttypes": "cpp"
 		},
 		"editor.formatOnSave": true
 	}
