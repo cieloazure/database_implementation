@@ -212,7 +212,7 @@ TEST_F(StatisticsTest, COPY_CONSTRUCTOR) {
 
 TEST_F(StatisticsTest, APPLY_ERROR_CHECKING_HAS_NO_ERRORS) {
   Statistics s;
-  char *relName[] = {"supplier", "partsupp"};
+  char *relName[] = {"supplier", "partsupp", NULL};
   char *cnf = "(s_suppkey = ps_suppkey)";
 
   s.AddRel(relName[0], 10000);
@@ -227,21 +227,21 @@ TEST_F(StatisticsTest, APPLY_ERROR_CHECKING_HAS_NO_ERRORS) {
   EXPECT_NO_THROW(s.Estimate(final, relName, 2));
 }
 
-// TEST_F(StatisticsTest, APPLY_ERROR_CHECKING_WILL_HAVE_ERRORS) {
-//   Statistics s;
-//   char *relName[] = {"supplier", "partsupp"};
-//   s.AddRel(relName[0], 10000);
-//   s.AddRel(relName[1], 800000);
+TEST_F(StatisticsTest, APPLY_ERROR_CHECKING_WILL_HAVE_ERRORS) {
+  Statistics s;
+  char *relName[] = {"supplier", "partsupp", NULL};
+  s.AddRel(relName[0], 10000);
+  s.AddRel(relName[1], 800000);
 
-//   char *cnf = "(s_suppkey = ps_suppkey)";
+  char *cnf = "(s_suppkey = ps_suppkey)";
 
-//   // s.AddAtt(relName[0], "s_suppkey", 10000);
-//   // s.AddAtt(relName[1], "ps_suppkey", 10000);
+  // s.AddAtt(relName[0], "s_suppkey", 10000);
+  // s.AddAtt(relName[1], "ps_suppkey", 10000);
 
-//   yy_scan_string(cnf);
-//   yyparse();
+  yy_scan_string(cnf);
+  yyparse();
 
-//   EXPECT_THROW(s.Estimate(final, relName, 2), std::runtime_error);
-// }
+  EXPECT_THROW(s.Estimate(final, relName, 2), std::runtime_error);
+}
 
 }  // namespace dbi

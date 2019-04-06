@@ -7,11 +7,12 @@ Statistics::~Statistics() {}
 Statistics::Statistics(Statistics &copyMe) {
   for (auto it = copyMe.relationStore.begin(); it != copyMe.relationStore.end();
        it++) {
-    std::pair<std::string, struct RelationStats *> copyMeRelationStoreEntry =
-        *it;
+    std::pair<std::string, struct Statistics::RelationStats *>
+        copyMeRelationStoreEntry = *it;
 
-    struct RelationStats *fromRel = copyMeRelationStoreEntry.second;
-    struct RelationStats *toRel = new struct RelationStats;
+    struct Statistics::RelationStats *fromRel = copyMeRelationStoreEntry.second;
+    struct Statistics::RelationStats *toRel =
+        new struct Statistics::RelationStats;
     // Set the name of the new relation to the new name given
     toRel->relName = fromRel->relName;
 
@@ -28,17 +29,19 @@ Statistics::Statistics(Statistics &copyMe) {
 
       // Copy the attribute from old relation into new relation and insert it in
       // the attributeStore
-      struct AttributeStats *fromAtt =
+      struct Statistics::AttributeStats *fromAtt =
           copyMe.attributeStore.at(MakeAttStoreKey(*whichAtt, toRel->relName));
-      struct AttributeStats *toAtt = new struct AttributeStats;
+      struct Statistics::AttributeStats *toAtt =
+          new struct Statistics::AttributeStats;
       CopyAttStats(fromAtt, toAtt, toRel->relName);
-      std::pair<struct AttStoreKey, struct AttributeStats *>
+      std::pair<struct Statistics::AttStoreKey,
+                struct Statistics::AttributeStats *>
           attributeStoreEntry(MakeAttStoreKey(toAtt->attName, toAtt->relName),
                               toAtt);
       attributeStore.insert(attributeStoreEntry);
     }
 
-    std::pair<std::string, struct RelationStats *> newRelStoreEntry(
+    std::pair<std::string, struct Statistics::RelationStats *> newRelStoreEntry(
         toRel->relName, toRel);
     relationStore.insert(newRelStoreEntry);
   }
@@ -56,16 +59,16 @@ void Statistics::AddRel(char *relName, int numTuples) {
 
   // Insert a new relation OR
   // Update the relation stats if the relation exists
-  struct RelationStats *relStats;
+  struct Statistics::RelationStats *relStats;
   try {
     relStats = relationStore.at(relNameStr);
     relStats->numTuples += numTuples;
   } catch (const std::out_of_range &oor) {
-    relStats = new struct RelationStats;
+    relStats = new struct Statistics::RelationStats;
     relStats->numTuples = numTuples;
     relStats->relName = relNameStr;
-    std::pair<std::string, struct RelationStats *> newRelStat(relNameStr,
-                                                              relStats);
+    std::pair<std::string, struct Statistics::Statistics::RelationStats *>
+        newRelStat(relNameStr, relStats);
     relationStore.insert(newRelStat);
   }
 }
@@ -77,7 +80,7 @@ void Statistics::AddAtt(char *relName, char *attName, int numDistincts) {
   // Check if a relation exist
   // If not, numTuples in relation is estimated to be equal to numDistincts
   try {
-    struct RelationStats *relStats = relationStore.at(relNameStr);
+    struct Statistics::RelationStats *relStats = relationStore.at(relNameStr);
     relStats->attributes.insert(attNameStr);
 
     // if numDistincts == -1, numDistincts is equal to number of tuples in
@@ -87,7 +90,7 @@ void Statistics::AddAtt(char *relName, char *attName, int numDistincts) {
     }
   } catch (const std::out_of_range &oor) {
     AddRel(relName, numDistincts);
-    struct RelationStats *relStats = relationStore.at(relNameStr);
+    struct Statistics::RelationStats *relStats = relationStore.at(relNameStr);
     relStats->attributes.insert(attNameStr);
   }
 
@@ -96,17 +99,17 @@ void Statistics::AddAtt(char *relName, char *attName, int numDistincts) {
   struct AttStoreKey attStoreKey {
     .attName = attNameStr, .relName = relNameStr
   };
-  struct AttributeStats *attStats;
+  struct Statistics::AttributeStats *attStats;
   try {
     attStats = attributeStore.at(attStoreKey);
     attStats->numDistinctValues += numDistincts;
   } catch (const std::out_of_range &oor) {
-    attStats = new struct AttributeStats;
+    attStats = new struct Statistics::AttributeStats;
     attStats->attName = attNameStr;
     attStats->relName = relNameStr;
     attStats->numDistinctValues = numDistincts;
-    std::pair<struct AttStoreKey, struct AttributeStats *> newAttStat(
-        attStoreKey, attStats);
+    std::pair<struct AttStoreKey, struct Statistics::AttributeStats *>
+        newAttStat(attStoreKey, attStats);
     attributeStore.insert(newAttStat);
   }
 }
@@ -116,11 +119,11 @@ void Statistics::CopyRel(char *oldName, char *newName) {
   std::string newNameStr(newName);
 
   try {
-    struct RelationStats *fromRel = relationStore.at(oldNameStr);
-    struct RelationStats *toRel = new RelationStats;
+    struct Statistics::RelationStats *fromRel = relationStore.at(oldNameStr);
+    struct Statistics::RelationStats *toRel = new Statistics::RelationStats;
     CopyRelStats(fromRel, toRel, newNameStr);
-    std::pair<std::string, struct RelationStats *> relationStoreEntry(
-        toRel->relName, toRel);
+    std::pair<std::string, struct Statistics::RelationStats *>
+        relationStoreEntry(toRel->relName, toRel);
     relationStore.insert(relationStoreEntry);
   } catch (const std::out_of_range &oor) {
     throw std::runtime_error(
@@ -149,12 +152,14 @@ void Statistics::CopyRelStats(struct Statistics ::RelationStats *fromRel,
 
     // Copy the attribute from old relation into new relation and insert it in
     // the attributeStore
-    struct AttributeStats *fromAtt =
+    struct Statistics::AttributeStats *fromAtt =
         attributeStore.at(MakeAttStoreKey(*whichAtt, fromRel->relName));
-    struct AttributeStats *toAtt = new struct AttributeStats;
+    struct Statistics::AttributeStats *toAtt =
+        new struct Statistics::AttributeStats;
     CopyAttStats(fromAtt, toAtt, toRelName);
-    std::pair<struct AttStoreKey, struct AttributeStats *> attributeStoreEntry(
-        MakeAttStoreKey(toAtt->attName, toAtt->relName), toAtt);
+    std::pair<struct AttStoreKey, struct Statistics::AttributeStats *>
+        attributeStoreEntry(MakeAttStoreKey(toAtt->attName, toAtt->relName),
+                            toAtt);
     attributeStore.insert(attributeStoreEntry);
   }
 }
@@ -213,9 +218,11 @@ void Statistics::Write(char *toWhere) {
   // Iterate through each relation and write the relation and its associated
   // attributes in the file
   for (auto it = relationStore.begin(); it != relationStore.end(); it++) {
-    std::pair<std::string, struct RelationStats *> relationStoreEntry = *it;
+    std::pair<std::string, struct Statistics::RelationStats *>
+        relationStoreEntry = *it;
 
-    struct RelationStats *relationStatsFromStore = relationStoreEntry.second;
+    struct Statistics::RelationStats *relationStatsFromStore =
+        relationStoreEntry.second;
     WriteRelationStatsToFile(relationStatsFromStore, statisticsFileDes);
   }
 
@@ -242,7 +249,7 @@ void Statistics ::WriteRelationStatsToFile(
   for (auto attributeIt = relStats->attributes.begin();
        attributeIt != relStats->attributes.end(); attributeIt++) {
     std::string attName = *attributeIt;
-    struct AttributeStats *attStats =
+    struct Statistics::AttributeStats *attStats =
         attributeStore.at(MakeAttStoreKey(attName, relStats->relName));
 
     // Write the attribute stats to the file
@@ -251,7 +258,8 @@ void Statistics ::WriteRelationStatsToFile(
 }
 
 void Statistics ::WriteAttributeStatsToFile(
-    struct Statistics ::AttributeStats *attStats, int statisticsFileDes) {
+    struct Statistics ::Statistics::AttributeStats *attStats,
+    int statisticsFileDes) {
   // Get length of the attribute name &
   // Write the length of attribute name string
   size_t attNameLen = attStats->attName.size();
@@ -266,7 +274,8 @@ void Statistics ::WriteAttributeStatsToFile(
 }
 
 void Statistics ::ReadRelationStatsFromFile(int statisticsFileDes) {
-  struct RelationStats *relStats = new struct RelationStats;
+  struct Statistics::RelationStats *relStats =
+      new struct Statistics::RelationStats;
   // Read relName
   size_t keyLength = 0;
   read(statisticsFileDes, &keyLength, sizeof(size_t));
@@ -290,14 +299,15 @@ void Statistics ::ReadRelationStatsFromFile(int statisticsFileDes) {
   }
 
   // Create an entry in relation store for this stats
-  std::pair<std::string, struct RelationStats *> relationStoreEntry(
+  std::pair<std::string, struct Statistics::RelationStats *> relationStoreEntry(
       relStats->relName, relStats);
   relationStore.insert(relationStoreEntry);
 }
 
 void Statistics ::ReadAttributeStatsFromFile(
-    int statisticsFileDes, struct RelationStats &whichRelStats) {
-  struct AttributeStats *attStats = new struct AttributeStats;
+    int statisticsFileDes, struct Statistics::RelationStats &whichRelStats) {
+  struct Statistics::AttributeStats *attStats =
+      new struct Statistics::AttributeStats;
   // Read length of attribute name & the attribute name
   size_t attLength = 0;
   read(statisticsFileDes, &attLength, sizeof(size_t));
@@ -319,20 +329,22 @@ void Statistics ::ReadAttributeStatsFromFile(
   attStats->relName = whichRelStats.relName;
 
   // Create an entry in attribute store for this attribute
-  std::pair<struct AttStoreKey, struct AttributeStats *> attStoreEntry(
-      MakeAttStoreKey(attStats->attName, whichRelStats.relName), attStats);
+  std::pair<struct AttStoreKey, struct Statistics::AttributeStats *>
+      attStoreEntry(MakeAttStoreKey(attStats->attName, whichRelStats.relName),
+                    attStats);
   attributeStore.insert(attStoreEntry);
 }
 
 struct Statistics::AttStoreKey Statistics ::MakeAttStoreKey(
     std::string attName, std::string relName) {
-  struct AttStoreKey *attStoreKey = new struct AttStoreKey;
-  attStoreKey->attName = attName;
-  attStoreKey->relName = relName;
-  return *attStoreKey;
+  struct AttStoreKey attStoreKey;
+  attStoreKey.attName = attName;
+  attStoreKey.relName = relName;
+  return attStoreKey;
 }
 
-bool Statistics ::CheckAndList(struct AndList *andList, char **relNames) {
+bool Statistics ::CheckAndList(struct AndList *andList,
+                               std::vector<std::string> relNames) {
   if (andList != NULL) {
     struct OrList *orList = andList->left;
     bool orListStatus = CheckOrList(orList, relNames);
@@ -346,7 +358,8 @@ bool Statistics ::CheckAndList(struct AndList *andList, char **relNames) {
   }
 }
 
-bool Statistics ::CheckOrList(struct OrList *orList, char **relNames) {
+bool Statistics ::CheckOrList(struct OrList *orList,
+                              std::vector<std::string> relNames) {
   if (orList != NULL) {
     struct ComparisonOp *compOp = orList->left;
 
@@ -368,17 +381,14 @@ bool Statistics ::CheckOrList(struct OrList *orList, char **relNames) {
   }
 }
 
-bool Statistics ::CheckOperand(struct Operand *operand, char **relNames) {
+bool Statistics ::CheckOperand(struct Operand *operand,
+                               std::vector<std::string> relNames) {
   if (operand != NULL) {
     std::string attName(operand->value);
-    std::cout << "Attribute name" << std::endl;
-    std::cout << operand->value << std::endl;
-    for (char *relName = *relNames; relName; relName = *++relNames) {
-      std::cout << "Relation name" << std::endl;
-      std::cout << relName << std::endl;
-      std::string relNameStr(relName);
+    for (auto it = relNames.begin(); it != relNames.end(); it++) {
+      std::string relName = *it;
       try {
-        attributeStore.at(MakeAttStoreKey(attName, relNameStr));
+        attributeStore.at(MakeAttStoreKey(attName, relName));
         return true;
       } catch (const std::out_of_range &oor) {
         continue;
@@ -391,16 +401,20 @@ bool Statistics ::CheckOperand(struct Operand *operand, char **relNames) {
 }
 
 bool Statistics ::CheckAttNameInRel(struct AndList *parseTree,
-                                    char **relNames) {
+                                    std::vector<std::string> relNames) {
   return CheckAndList(parseTree, relNames);
 }
 
 void Statistics::Apply(struct AndList *parseTree, char *relNames[],
                        int numToJoin) {}
 
-double Statistics::Estimate(struct AndList *parseTree, char **relNames,
+double Statistics::Estimate(struct AndList *parseTree, char *relNames[],
                             int numToJoin) {
-  if (!CheckAttNameInRel(parseTree, relNames)) {
+  std::vector<std::string> relNamesVec;
+  for (char *c = *relNames; c; c = *++relNames) {
+    relNamesVec.push_back(c);
+  }
+  if (!CheckAttNameInRel(parseTree, relNamesVec)) {
     throw std::runtime_error("Attribute name is not in relNames");
   }
   return 0.0;
@@ -410,7 +424,7 @@ void Statistics ::PrintRelationStore() {
   std::cout << "Relations currently in the store:" << std::endl;
   for (auto relationEntry : relationStore) {
     std::cout << relationEntry.first << std::endl;
-    struct RelationStats *val = relationEntry.second;
+    struct Statistics::RelationStats *val = relationEntry.second;
     std::cout << "Tuples in the relation " << relationEntry.first << ":"
               << val->numTuples << std::endl;
   }
@@ -422,7 +436,7 @@ void Statistics ::PrintAttributeStore() {
     struct AttStoreKey attStoreKey = attributeEntry.first;
     std::cout << attStoreKey.attName << " in relation " << attStoreKey.relName
               << std::endl;
-    struct AttributeStats *val = attributeEntry.second;
+    struct Statistics::AttributeStats *val = attributeEntry.second;
     std::cout << "Num distincts of attribute " << attStoreKey.attName << " in "
               << attStoreKey.relName << ":" << val->numDistinctValues
               << std::endl;

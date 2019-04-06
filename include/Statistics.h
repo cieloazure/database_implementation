@@ -16,24 +16,6 @@
 namespace dbi {}
 class Statistics {
  public:
-  Statistics();
-  Statistics(Statistics &copyMe);  // Performs deep copy
-  ~Statistics();
-
-  void AddRel(char *relName, int numTuples);
-  void AddAtt(char *relName, char *attName, int numDistincts);
-  void CopyRel(char *oldName, char *newName);
-
-  void Read(char *fromWhere);
-  void Write(char *toWhere);
-
-  void Apply(struct AndList *parseTree, char *relNames[], int numToJoin);
-  double Estimate(struct AndList *parseTree, char **relNames, int numToJoin);
-
-  void PrintRelationStore();
-  void PrintAttributeStore();
-
- private:
   struct RelationStats {
     std::string relName;
     long numTuples;
@@ -52,7 +34,7 @@ class Statistics {
   };
 
   struct AttStoreKeyHash {
-    std::size_t operator()(const AttStoreKey &k) const {
+    std::size_t operator()(const Statistics::AttStoreKey &k) const {
       std::size_t seed = 0;
       auto hash_combine = [](std::size_t &seed, const std::string &v) -> void {
         std::hash<std::string> hasher;
@@ -67,40 +49,64 @@ class Statistics {
   };
 
   struct AttStoreKeyEqual {
-    bool operator()(const AttStoreKey &lhs, const AttStoreKey &rhs) const {
+    bool operator()(const Statistics::AttStoreKey &lhs,
+                    const Statistics::AttStoreKey &rhs) const {
       return lhs.attName == rhs.attName && lhs.relName == rhs.relName;
     }
   };
 
-  std::unordered_map<std::string, struct RelationStats *> relationStore;
-  std::unordered_map<struct AttStoreKey, struct AttributeStats *,
-                     struct AttStoreKeyHash, struct AttStoreKeyEqual>
+  Statistics();
+  Statistics(Statistics &copyMe);  // Performs deep copy
+  ~Statistics();
+
+  void AddRel(char *relName, int numTuples);
+  void AddAtt(char *relName, char *attName, int numDistincts);
+  void CopyRel(char *oldName, char *newName);
+
+  void Read(char *fromWhere);
+  void Write(char *toWhere);
+
+  void Apply(struct AndList *parseTree, char *relNames[], int numToJoin);
+  double Estimate(struct AndList *parseTree, char *relNames[], int numToJoin);
+
+  void PrintRelationStore();
+  void PrintAttributeStore();
+
+ private:
+  std::unordered_map<std::string, struct Statistics::RelationStats *>
+      relationStore;
+  std::unordered_map<
+      struct Statistics::AttStoreKey, struct Statistics::AttributeStats *,
+      struct Statistics::AttStoreKeyHash, struct Statistics::AttStoreKeyEqual>
       attributeStore;
 
   // std::set<std::set<std::string>> partitions;
   std::set<std::set<std::string>> partitions;
 
-  void WriteRelationStatsToFile(struct RelationStats *relStats,
+  void WriteRelationStatsToFile(struct Statistics::RelationStats *relStats,
                                 int statisticsFileDes);
-  void WriteAttributeStatsToFile(struct AttributeStats *attStats,
+  void WriteAttributeStatsToFile(struct Statistics::AttributeStats *attStats,
                                  int statisticsFileDes);
 
   void ReadRelationStatsFromFile(int statisticsFileDes);
-  void ReadAttributeStatsFromFile(int statisticsFileDes,
-                                  struct RelationStats& whichRelStats);
+  void ReadAttributeStatsFromFile(
+      int statisticsFileDes, struct Statistics::RelationStats &whichRelStats);
 
-  struct AttStoreKey MakeAttStoreKey(std::string attName, std::string relName);
+  struct Statistics::AttStoreKey MakeAttStoreKey(std::string attName,
+                                                 std::string relName);
 
-  void CopyRelStats(struct RelationStats *fromRel, struct RelationStats *toRel,
+  void CopyRelStats(struct Statistics::RelationStats *fromRel,
+                    struct Statistics::RelationStats *toRel,
                     std::string toRelName);
-  void CopyAttStats(struct AttributeStats *fromAtt,
-                    struct AttributeStats *toAtt, std::string toRelName);
+  void CopyAttStats(struct Statistics::AttributeStats *fromAtt,
+                    struct Statistics::AttributeStats *toAtt,
+                    std::string toRelName);
 
-  bool CheckAttNameInRel(struct AndList *parseTree, char **relNames);
-
-  bool CheckAndList(struct AndList *andList, char **relNames);
-  bool CheckOrList(struct OrList *orList, char **relNames);
-  bool CheckOperand(struct Operand *operand, char **relNames);
+  bool CheckAttNameInRel(struct AndList *parseTree,
+                         std::vector<std::string> relNames);
+  bool CheckAndList(struct AndList *andList, std::vector<std::string> relNames);
+  bool CheckOrList(struct OrList *orList, std::vector<std::string> relNames);
+  bool CheckOperand(struct Operand *operand, std::vector<std::string> relNames);
 };
 
 #endif
