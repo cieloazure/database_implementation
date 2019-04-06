@@ -184,8 +184,7 @@ void Statistics::Read(char *fromWhere) {
   // Iterate through each building each relation and its associated attributes
   // from file
   for (int whichRel = 0; whichRel < numberOfRelations; whichRel++) {
-    struct RelationStats relStats;
-    ReadRelationStatsFromFile(statisticsFileDes, &relStats);
+    ReadRelationStatsFromFile(statisticsFileDes);
   }
 
   close(statisticsFileDes);
@@ -266,8 +265,8 @@ void Statistics ::WriteAttributeStatsToFile(
   write(statisticsFileDes, &attStats->numDistinctValues, sizeof(long));
 }
 
-void Statistics ::ReadRelationStatsFromFile(int statisticsFileDes,
-                                            struct RelationStats *relStats) {
+void Statistics ::ReadRelationStatsFromFile(int statisticsFileDes) {
+  struct RelationStats *relStats = new struct RelationStats;
   // Read relName
   size_t keyLength = 0;
   read(statisticsFileDes, &keyLength, sizeof(size_t));
@@ -287,8 +286,7 @@ void Statistics ::ReadRelationStatsFromFile(int statisticsFileDes,
   // Iterate and read all the attributes belonging to this relation and store
   // them in attributeStore
   for (int whichAtt = 0; whichAtt < numberOfAttributes; whichAtt++) {
-    struct AttributeStats attStats;
-    ReadAttributeStatsFromFile(statisticsFileDes, relStats, &attStats);
+    ReadAttributeStatsFromFile(statisticsFileDes, *relStats);
   }
 
   // Create an entry in relation store for this stats
@@ -298,8 +296,8 @@ void Statistics ::ReadRelationStatsFromFile(int statisticsFileDes,
 }
 
 void Statistics ::ReadAttributeStatsFromFile(
-    int statisticsFileDes, struct RelationStats *whichRelStats,
-    struct AttributeStats *attStats) {
+    int statisticsFileDes, struct RelationStats &whichRelStats) {
+  struct AttributeStats *attStats = new struct AttributeStats;
   // Read length of attribute name & the attribute name
   size_t attLength = 0;
   read(statisticsFileDes, &attLength, sizeof(size_t));
@@ -310,7 +308,7 @@ void Statistics ::ReadAttributeStatsFromFile(
   }
 
   // Insert the attribute name in relation stats struct
-  whichRelStats->attributes.insert(attStats->attName);
+  whichRelStats.attributes.insert(attStats->attName);
 
   // Read the number of distinct values for this attribute
   long numDistinctValues = 0;
@@ -318,11 +316,11 @@ void Statistics ::ReadAttributeStatsFromFile(
   attStats->numDistinctValues = numDistinctValues;
 
   // Set the relName of attStats
-  attStats->relName = whichRelStats->relName;
+  attStats->relName = whichRelStats.relName;
 
   // Create an entry in attribute store for this attribute
   std::pair<struct AttStoreKey, struct AttributeStats *> attStoreEntry(
-      MakeAttStoreKey(attStats->attName, whichRelStats->relName), attStats);
+      MakeAttStoreKey(attStats->attName, whichRelStats.relName), attStats);
   attributeStore.insert(attStoreEntry);
 }
 

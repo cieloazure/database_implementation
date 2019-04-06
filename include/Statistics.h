@@ -85,11 +85,9 @@ class Statistics {
   void WriteAttributeStatsToFile(struct AttributeStats *attStats,
                                  int statisticsFileDes);
 
-  void ReadRelationStatsFromFile(int statisticsFileDes,
-                                 struct RelationStats *relStats);
+  void ReadRelationStatsFromFile(int statisticsFileDes);
   void ReadAttributeStatsFromFile(int statisticsFileDes,
-                                  struct RelationStats *whichRelStats,
-                                  struct AttributeStats *attStats);
+                                  struct RelationStats& whichRelStats);
 
   struct AttStoreKey MakeAttStoreKey(std::string attName, std::string relName);
 
