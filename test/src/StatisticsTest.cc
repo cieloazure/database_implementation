@@ -210,7 +210,7 @@ TEST_F(StatisticsTest, COPY_CONSTRUCTOR) {
   newStatistics.PrintAttributeStore();
 }
 
-TEST_F(StatisticsTest, APPLY_ERROR_CHECKING_HAS_NO_ERRORS) {
+TEST_F(StatisticsTest, ERROR_CHECK_FOR_PARSE_TREE_ATTRIBUTES_HAS_NO_ERRORS) {
   Statistics s;
   char *relName[] = {"supplier", "partsupp", NULL};
   char *cnf = "(s_suppkey = ps_suppkey)";
@@ -227,7 +227,8 @@ TEST_F(StatisticsTest, APPLY_ERROR_CHECKING_HAS_NO_ERRORS) {
   EXPECT_NO_THROW(s.Estimate(final, relName, 2));
 }
 
-TEST_F(StatisticsTest, APPLY_ERROR_CHECKING_WILL_HAVE_ERRORS) {
+TEST_F(StatisticsTest,
+       ERROR_CHECKING_FOR_PARSE_TREE_ATTRIBUTES_WILL_HAVE_ERRORS) {
   Statistics s;
   char *relName[] = {"supplier", "partsupp", NULL};
   s.AddRel(relName[0], 10000);
@@ -242,6 +243,19 @@ TEST_F(StatisticsTest, APPLY_ERROR_CHECKING_WILL_HAVE_ERRORS) {
   yyparse();
 
   EXPECT_THROW(s.Estimate(final, relName, 2), std::runtime_error);
+}
+
+TEST_F(StatisticsTest, DISJOINT_SET) {
+  Statistics s;
+  char *relName[] = {"supplier", "partsupp", NULL};
+  s.AddRel(relName[0], 10000);
+  s.AddRel(relName[1], 800000);
+  std::string a(relName[0]);
+  std::string b(relName[1]);
+  s.PrintDisjointSets();
+  s.Union(a, b);
+  s.PrintDisjointSets();
+  s.GetSets();
 }
 
 }  // namespace dbi

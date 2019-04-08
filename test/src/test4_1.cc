@@ -491,7 +491,7 @@ int main(int argc, char *argv[]) {
     cerr << "You need to supply me the query number to run as a command-line "
             "arg.."
          << endl;
-    cerr << "Usage: ./test.out [0-11] >" << endl;
+    cerr << "Usage: ./test4_1.out [0-11] >" << endl;
     exit(1);
   }
 

@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <iostream>
+#include <map>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -16,10 +17,29 @@
 namespace dbi {}
 class Statistics {
  public:
+  Statistics();
+  Statistics(Statistics &copyMe);  // Performs deep copy
+  ~Statistics();
+
+  void AddRel(char *relName, int numTuples);
+  void AddAtt(char *relName, char *attName, int numDistincts);
+  void CopyRel(char *oldName, char *newName);
+
+  void Read(char *fromWhere);
+  void Write(char *toWhere);
+
+  void Apply(struct AndList *parseTree, char *relNames[], int numToJoin);
+  double Estimate(struct AndList *parseTree, char *relNames[], int numToJoin);
+
+  void PrintRelationStore();
+  void PrintAttributeStore();
+
+ private:
   struct RelationStats {
     std::string relName;
     long numTuples;
     std::set<std::string> attributes;
+    int disjointSetIndex;
   };
 
   struct AttributeStats {
@@ -55,24 +75,6 @@ class Statistics {
     }
   };
 
-  Statistics();
-  Statistics(Statistics &copyMe);  // Performs deep copy
-  ~Statistics();
-
-  void AddRel(char *relName, int numTuples);
-  void AddAtt(char *relName, char *attName, int numDistincts);
-  void CopyRel(char *oldName, char *newName);
-
-  void Read(char *fromWhere);
-  void Write(char *toWhere);
-
-  void Apply(struct AndList *parseTree, char *relNames[], int numToJoin);
-  double Estimate(struct AndList *parseTree, char *relNames[], int numToJoin);
-
-  void PrintRelationStore();
-  void PrintAttributeStore();
-
- private:
   std::unordered_map<std::string, struct Statistics::RelationStats *>
       relationStore;
   std::unordered_map<
@@ -80,7 +82,6 @@ class Statistics {
       struct Statistics::AttStoreKeyHash, struct Statistics::AttStoreKeyEqual>
       attributeStore;
 
-  // std::set<std::set<std::string>> partitions;
   std::set<std::set<std::string>> partitions;
 
   void WriteRelationStatsToFile(struct Statistics::RelationStats *relStats,
@@ -107,6 +108,32 @@ class Statistics {
   bool CheckAndList(struct AndList *andList, std::vector<std::string> relNames);
   bool CheckOrList(struct OrList *orList, std::vector<std::string> relNames);
   bool CheckOperand(struct Operand *operand, std::vector<std::string> relNames);
+  bool IsRelNamesValid(std::vector<std::string> relNames,
+                       std::set<std::set<std::string>> partitions);
+
+ public:
+  struct DisjointSetNode {
+    std::string relName;
+    int rank;
+    DisjointSetNode *parent;
+
+    DisjointSetNode(std::string rel) : relName(rel) {}
+  };
+
+  struct DisjointSetNodeComp {
+    bool operator()(const struct Statistics::DisjointSetNode *lhs,
+                    const struct Statistics::DisjointSetNode *rhs) const {
+      return lhs->relName < rhs->relName;
+    }
+  };
+
+  std::vector<struct Statistics::DisjointSetNode *> disjointSets;
+  void MakeSet(struct Statistics::RelationStats *relStats);
+  void Link(Statistics::DisjointSetNode *x, Statistics::DisjointSetNode *y);
+  void Union(std::string relName1, std::string relName2);
+  struct Statistics::DisjointSetNode *FindSet(Statistics::DisjointSetNode *x);
+  void PrintDisjointSets();
+  void GetSets();
 };
 
 #endif

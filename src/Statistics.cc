@@ -63,10 +63,12 @@ void Statistics::AddRel(char *relName, int numTuples) {
   try {
     relStats = relationStore.at(relNameStr);
     relStats->numTuples += numTuples;
+    MakeSet(relStats);
   } catch (const std::out_of_range &oor) {
     relStats = new struct Statistics::RelationStats;
     relStats->numTuples = numTuples;
     relStats->relName = relNameStr;
+    MakeSet(relStats);
     std::pair<std::string, struct Statistics::Statistics::RelationStats *>
         newRelStat(relNameStr, relStats);
     relationStore.insert(newRelStat);
@@ -362,20 +364,23 @@ bool Statistics ::CheckOrList(struct OrList *orList,
                               std::vector<std::string> relNames) {
   if (orList != NULL) {
     struct ComparisonOp *compOp = orList->left;
+    if (compOp->code == EQUALS) {
+      // check compOp
+      bool compOpStatus = true;
+      if (compOp != NULL) {
+        compOpStatus = CheckOperand(compOp->left, relNames) &&
+                       CheckOperand(compOp->right, relNames);
+      }
 
-    // check compOp
-    bool compOpStatus = true;
-    if (compOp != NULL) {
-      compOpStatus = CheckOperand(compOp->left, relNames) &&
-                     CheckOperand(compOp->right, relNames);
+      bool rightOrStatus = true;
+      if (orList->rightOr) {
+        rightOrStatus = CheckOrList(orList->rightOr, relNames);
+      }
+
+      return compOpStatus && rightOrStatus;
+    } else {
+      return true;
     }
-
-    bool rightOrStatus = true;
-    if (orList->rightOr) {
-      rightOrStatus = CheckOrList(orList->rightOr, relNames);
-    }
-
-    return compOpStatus && rightOrStatus;
   } else {
     return true;
   }
@@ -405,6 +410,11 @@ bool Statistics ::CheckAttNameInRel(struct AndList *parseTree,
   return CheckAndList(parseTree, relNames);
 }
 
+bool Statistics::IsRelNamesValid(std::vector<std::string> relNames,
+                                 std::set<std::set<std::string>> partitions) {
+  return false;
+}
+
 void Statistics::Apply(struct AndList *parseTree, char *relNames[],
                        int numToJoin) {}
 
@@ -414,9 +424,15 @@ double Statistics::Estimate(struct AndList *parseTree, char *relNames[],
   for (char *c = *relNames; c; c = *++relNames) {
     relNamesVec.push_back(c);
   }
+
   if (!CheckAttNameInRel(parseTree, relNamesVec)) {
     throw std::runtime_error("Attribute name is not in relNames");
   }
+
+  // if (!IsRelNamesValid(relNamesVec, partitions)) {
+  //   throw std::runtime_error("Relation names are not valid");
+  // }
+
   return 0.0;
 }
 
@@ -440,5 +456,83 @@ void Statistics ::PrintAttributeStore() {
     std::cout << "Num distincts of attribute " << attStoreKey.attName << " in "
               << attStoreKey.relName << ":" << val->numDistinctValues
               << std::endl;
+  }
+}
+
+void Statistics ::MakeSet(struct Statistics::RelationStats *relStats) {
+  relStats->disjointSetIndex = disjointSets.size();
+  struct Statistics::DisjointSetNode *node =
+      new struct Statistics::DisjointSetNode(relStats->relName);
+  node->rank = 0;
+  node->parent = node;
+  disjointSets.push_back(node);
+}
+
+void Statistics ::Link(Statistics::DisjointSetNode *x,
+                       Statistics::DisjointSetNode *y) {
+  if (x->rank > y->rank) {
+    y->parent = x;
+  } else {
+    x->parent = y;
+    if (x->rank == y->rank) {
+      y->rank++;
+    }
+  }
+}
+
+void Statistics ::Union(std::string relName1, std::string relName2) {
+  struct RelationStats *relStats1 = relationStore.at(relName1);
+  struct RelationStats *relStats2 = relationStore.at(relName2);
+
+  // std::cout << relStats1->disjointSetIndex << std::endl;
+  // std::cout << relStats2->disjointSetIndex << std::endl;
+
+  struct DisjointSetNode *node1 = disjointSets.at(relStats1->disjointSetIndex);
+  struct DisjointSetNode *node2 = disjointSets.at(relStats2->disjointSetIndex);
+
+  struct DisjointSetNode *nodeRep1 = FindSet(node1);
+  struct DisjointSetNode *nodeRep2 = FindSet(node2);
+
+  Link(nodeRep1, nodeRep2);
+}
+
+struct Statistics::DisjointSetNode *Statistics ::FindSet(
+    Statistics::DisjointSetNode *x) {
+  if (x != x->parent) {
+    x->parent = FindSet(x->parent);
+  }
+  return x->parent;
+}
+
+void Statistics ::PrintDisjointSets() {
+  for (auto it = disjointSets.begin(); it != disjointSets.end(); it++) {
+    std::cout << "NODE" << std::endl;
+    std::cout << (*it)->relName << std::endl;
+    std::cout << (*it)->rank << std::endl;
+    std::cout << (*it)->parent->relName << std::endl;
+  }
+}
+
+void Statistics ::GetSets() {
+  std::map<std::string, std::vector<std::string>> sets;
+  for (auto it = disjointSets.begin(); it != disjointSets.end(); it++) {
+    struct DisjointSetNode *rep = FindSet(*it);
+    auto jt = sets.find(rep->relName);
+    if (jt == sets.end()) {
+      std::vector<std::string> vec;
+      vec.push_back((*it)->relName);
+      sets.emplace(rep->relName, vec);
+    } else {
+      sets[rep->relName].push_back((*it)->relName);
+    }
+  }
+
+  for (auto it = sets.begin(); it != sets.end(); it++) {
+    std::vector<std::string> vec = it->second;
+    std::cout << "Set ->{" << std::endl;
+    for (auto jt = vec.begin(); jt != vec.end(); jt++) {
+      std::cout << (*jt) << std::endl;
+    }
+    std::cout << "}" << std::endl;
   }
 }
