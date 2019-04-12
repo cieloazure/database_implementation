@@ -364,23 +364,19 @@ bool Statistics ::CheckOrList(struct OrList *orList,
                               std::vector<std::string> relNames) {
   if (orList != NULL) {
     struct ComparisonOp *compOp = orList->left;
-    if (compOp->code == EQUALS) {
-      // check compOp
-      bool compOpStatus = true;
-      if (compOp != NULL) {
-        compOpStatus = CheckOperand(compOp->left, relNames) &&
-                       CheckOperand(compOp->right, relNames);
-      }
-
-      bool rightOrStatus = true;
-      if (orList->rightOr) {
-        rightOrStatus = CheckOrList(orList->rightOr, relNames);
-      }
-
-      return compOpStatus && rightOrStatus;
-    } else {
-      return true;
+    // check compOp
+    bool compOpStatus = true;
+    if (compOp != NULL) {
+      compOpStatus = CheckOperand(compOp->left, relNames) &&
+                     CheckOperand(compOp->right, relNames);
     }
+
+    bool rightOrStatus = true;
+    if (orList->rightOr) {
+      rightOrStatus = CheckOrList(orList->rightOr, relNames);
+    }
+
+    return compOpStatus && rightOrStatus;
   } else {
     return true;
   }
@@ -388,18 +384,13 @@ bool Statistics ::CheckOrList(struct OrList *orList,
 
 bool Statistics ::CheckOperand(struct Operand *operand,
                                std::vector<std::string> relNames) {
-  if (operand != NULL) {
-    std::string attName(operand->value);
-    for (auto it = relNames.begin(); it != relNames.end(); it++) {
-      std::string relName = *it;
-      try {
-        attributeStore.at(MakeAttStoreKey(attName, relName));
-        return true;
-      } catch (const std::out_of_range &oor) {
-        continue;
-      }
+  if (operand != NULL && !IsALiteral(operand)) {
+    struct Statistics::AttributeStats *att = FindAtt(operand->value, relNames);
+    if (att == NULL) {
+      return false;
+    } else {
+      return true;
     }
-    return false;
   } else {
     return true;
   }
@@ -418,11 +409,23 @@ bool Statistics::IsRelNamesValid(std::vector<std::string> relNames,
 void Statistics::Apply(struct AndList *parseTree, char *relNames[],
                        int numToJoin) {}
 
-double Statistics::Estimate(struct AndList *parseTree, char *relNames[],
-                            int numToJoin) {
-  std::vector<std::string> relNamesVec;
+double Statistics ::Estimate(struct AndList *parseTree, char *relNames[],
+                             int numToJoin) {
+  std::set<std::string> disjointSetSubset;
   for (char *c = *relNames; c; c = *++relNames) {
-    relNamesVec.push_back(c);
+    std::string cstr(c);
+    struct Statistics::DisjointSetNode *setNode = FindSet(cstr);
+    disjointSetSubset.insert(setNode->relName);
+  }
+
+  // Change parameters to set
+  std::vector<std::string> relNamesVec;
+  std::copy(disjointSetSubset.begin(), disjointSetSubset.end(),
+            std::back_inserter(relNamesVec));
+
+  std::vector<double> costs;
+  for (int i = 0; i < relNamesVec.size(); i++) {
+    costs.push_back(-1.0);
   }
 
   if (!CheckAttNameInRel(parseTree, relNamesVec)) {
@@ -431,9 +434,228 @@ double Statistics::Estimate(struct AndList *parseTree, char *relNames[],
 
   // if (!IsRelNamesValid(relNamesVec, partitions)) {
   //   throw std::runtime_error("Relation names are not valid");
-  // }
+  //}
+  CalculateCostAndList(parseTree, costs, relNamesVec);
+}
 
-  return 0.0;
+double Statistics ::CalculateCostAndList(AndList *andList,
+                                         std::vector<double> &costs,
+                                         std::vector<std::string> relNames,
+                                         bool apply) {
+  if (andList != NULL) {
+    CalculateCostOrList(andList->left, costs, relNames, apply);
+    if (andList->rightAnd) {
+      CalculateCostAndList(andList->rightAnd, costs, relNames, apply);
+    }
+  }
+}
+
+double Statistics ::CalculateCostOrList(OrList *orList,
+                                        std::vector<double> &costs,
+                                        std::vector<std::string> relNames,
+                                        bool apply) {
+  std::vector<std::vector<double>> orListsCostsForAllRelations;
+  for (int i = 0; i < relNames.size(); i++) {
+    std::vector<double> orListCostForEachRelation;
+    orListsCostsForEachRelation.insert(orListCostForEachRelation);
+  }
+  CalculateCostOrListHelper(orList, costs, orListsCostForAllRelations, relNames,
+                            apply);
+  // TODO
+  // iterate over orListsCostForAllRelation
+  // For each relation reduce the vector for each relation to one value and
+  // update std::vector<double> &costs
+}
+
+void Statistics ::CalculateCostOrListHelper(
+    OrList *orList, std::vector<double> costs,
+    std::vector<std::vector<double>> &orListsCostForAllRelations,
+    std::vector<std::string> relNames, bool apply) {
+  if (orList != NULL) {
+    struct ComparisonOp *compOp = orList->left;
+    if (compOp != NULL) {
+      std::pair<double, int> cost_index_pair;
+      if (compOp->code == EQUALS) {
+        // Check quotes or unquotes
+        if (ContainsLiteral(compOp)) {
+          // Selection on equality attributes
+          // T(S) = T(R)/V(R,A)
+          cost_index_pair =
+              CalculateCostSelectionEquality(compOp, relNames, costs);
+        } else {
+          // Cost for join
+          // T(S JOIN R) = T(S)T(R) / max(V(R,Y)V(S,Y))
+          // Where Y is the attribute to joined
+          std::pair<double, std::pair<int, int>> cost_indexes_pair;
+          cost_indexes_pair = CalculateCostJoin(compOp, relNames, apply);
+        }
+      } else {
+        // Seletion on inequality attributes Like GREATER_THAN or LESS_THAN
+        // T(S) = T(R) / 3
+        cost_index_pair = CalculateCostSelectionInequality(initial_cost);
+      }
+
+      orListsCostForAllRelations.at(cost_index_pair.second)
+          .push_back(cost_index_pair.first);
+
+      if (orList->rightOr) {
+        CalculateCostOrListHelper(orList->rightOr, costs,
+                                  orListsCostForAllRelations, relNames, apply);
+      }
+    }
+  }
+}
+
+bool Statistics ::IsALiteral(Operand *op) { return op->code != NAME; }
+
+bool Statistics ::ContainsLiteral(ComparisonOp *compOp) {
+  return IsALiteral(compOp->left) || IsALiteral(compOp->right);
+}
+
+std::pair<double, int> Statistics ::CalculateCostSelectionEquality(
+    ComparisonOp *compOp, std::vector<std::string> relNames,
+    std::vector<double> costs) {
+  struct Statistics::AttributeStats *att;
+  // Find out which one is literal and get the next one from attribute store
+  if (IsALiteral(compOp->left)) {
+    att = FindAtt(compOp->right->value, relNames);
+  } else {
+    att = FindAtt(compOp->left->value, relNames);
+  }
+  double distinctValues = att->numDistinctValues;
+  auto idxit = std::find(relNames.begin(), relNames.end(), att->relName);
+  int idx = idxit - relNames.begin();
+  int initial_cost = costs.at(idx);
+  if (initial_cost < 0) {
+    struct Statistics::RelationStats *rel = relationStore.at(att->relName);
+    double totalTuples = rel->numTuples;
+    return std::pair<double, int> retVal(totalTuples / distinctValues, idx);
+  } else {
+    return std::pair<double, int> retVal(initial_cost / distinctValues, idx);
+  }
+}
+
+std::pair<double, int> Statistics ::CalculateCostSelectionInequality(
+    ComparisonOp *compOp, std::vector<std::string> relNames,
+    std::vector<double> costs) {
+  struct Statistics::AttributeStats *att;
+  // Find out which one is literal and get the next one from attribute store
+  if (IsALiteral(compOp->left)) {
+    att = FindAtt(compOp->right->value, relNames);
+  } else {
+    att = FindAtt(compOp->left->value, relNames);
+  }
+  auto idxit = std::find(relNames.begin(), relNames.end(), att->relName);
+  int idx = idxit - relNames.begin();
+  int initial_cost = costs.at(idx);
+  if (initial_cost < 0) {
+    struct Statistics::RelationStats *rel = relationStore.at(att->relName);
+    double totalTuples = rel->numTuples;
+    return std::pair<double, int> retVal(totalTuple / 3, idx);
+  } else {
+    return std::pair<double, int> retVal(initial_cost / 3, idx);
+  }
+}
+
+std::pair<double, std::pair<int, int>> Statistics ::CalculateCostJoin(
+    ComparisonOp *op, std::vector<std::string> relNames) {
+  struct Statistics::AttributeStats *att1 = FindAtt(op->left->value, relNames);
+  struct Statistics::AttributeStats *att2 = FindAtt(op->right->value, relNames);
+
+  int distinctTuplesLeft = att1->numDistinctValues;
+  struct Statistics::RelationStats *rel1 = relationStore.at(att1->relName);
+  double totalTuplesLeft = rel1->numTuples;
+
+  double distinctTuplesRight = att2->numDistinctValues;
+  struct Statistics::RelationStats *rel2 = relationStore.at(att2->relName);
+  int totalTuplesRight = rel2->numTuples;
+
+  double maxOfLeftOrRight = -1.0;
+  if (distinctTuplesLeft > distinctTuplesRight) {
+    maxOfLeftOrRight = distinctTuplesLeft;
+  } else {
+    maxOfLeftOrRight = distinctTuplesRight;
+  }
+
+  double result = ((totalTuplesLeft * totalTuplesRight) / maxOfLeftOrRight);
+
+  if (apply) {
+    struct Statistics::DisjointSetNode *rep =
+        Union(att1->relName, att2->relName);
+    struct Statistics::RelationStats *reltemp = relationStore.at(rep->relName);
+    struct Statistics::RelationStats *relJoin = new struct RelationStats;
+    relJoin->relName = rep->relName;
+    relJoin->numTuples = result;
+    relJoin->disjointSetIndex = reltemp->disjointSetIndex;
+
+    auto addJoinAtt = [relJoin](std::vector<std::string>::iterator it,
+                                struct RelationStats rel) -> void {
+      relJoin->attributes.insert(*it);
+      struct AttributeStats *oldAttStats = FindAtt(*it, rel->relName);
+      struct AttributeStats *newAttStats = new struct AttributeStats;
+      newAttStats->relName = relJoin->relName;
+      newAttStats->attName = oldAttStats->attName;
+      newAttStats->numDistinctValues = oldAttStats->numDistinctValues;
+      RemoveAtt(*it, rel->relName);
+      std::pair<std::string, struct AttributeStats *> newAttStoreTuple(
+          MakeAttStoreKey(newAttStats->attName, newAttStats->relName),
+          newAttStats);
+      attributeStore.insert(newAttStoreTuple);
+    };
+
+    for (auto it = rel1->attributes.begin(); it != rel1->attributes.end();
+         it++) {
+      addJoinAtt(it, rel1);
+    }
+    for (auto it = rel2->attributes.begin(); it != rel2->attributes.end();
+         it++) {
+      // skip adding att2 to join as we have already added att1
+      if (*it != att2->attName) {
+        addJoinAtt(it, rel2);
+      }
+    }
+
+    relationStore.erase(rel1->relName);
+    relationStore.erase(rel2->relname);
+    std::pair<std::string, struct RelationStats *> newRelStoreTuple(
+        relJoin->relName, relJoin);
+    relationStore.insert(newRelStoreTuple);
+  }
+
+  auto idxit1 = std::find(relNames.begin(), relNames.end(), att1->relName);
+  int idx1 = idxit1 - relNames.begin();
+
+  auto idxit2 = std::find(relNames.begin(), relNames.end(), att2->relName);
+  int idx2 = idxit2 - relNames.begin();
+
+  std::pair<int, int> costsToRemove(idx1, idx2);
+  return std::pair<double, std::pair<int, int>> joinRetVal(result,
+                                                           costsToRemove);
+}
+
+double Statistics ::ApplySelectionOrFormulaList(std::vector<double> orListsCost,
+                                                int totalTuples) {
+  double result = 0.0;
+  auto it = orListsCost.begin();
+  double m1 = *it;
+  it++;
+  double m2 = *it;
+  it++;
+  result = ApplySelectionOrFormula(m1, m2, totalTuples);
+  while (it != orListsCost.end()) {
+    m2 = *it;
+    it++;
+    result = ApplySelectionOrFormula(result, m2, totalTuples);
+  }
+  return result;
+}
+
+double Statistics ::ApplySelectionOrFormula(double distinctValuesOr1,
+                                            double distinctValuesOr2,
+                                            int totalTuples) {
+  double op1 = 1 - (distinctValuesOr1 / totalTuples);
+  double op2 = 1 - (distinctValuesOr2 / totalTuples);
+  return totalTuples * (1 - (op1 * op2));
 }
 
 void Statistics ::PrintRelationStore() {
@@ -480,7 +702,8 @@ void Statistics ::Link(Statistics::DisjointSetNode *x,
   }
 }
 
-void Statistics ::Union(std::string relName1, std::string relName2) {
+struct Statistics::DisjointSetNode *Statistics ::Union(std::string relName1,
+                                                       std::string relName2) {
   struct RelationStats *relStats1 = relationStore.at(relName1);
   struct RelationStats *relStats2 = relationStore.at(relName2);
 
@@ -494,6 +717,7 @@ void Statistics ::Union(std::string relName1, std::string relName2) {
   struct DisjointSetNode *nodeRep2 = FindSet(node2);
 
   Link(nodeRep1, nodeRep2);
+  return FindSet(node1);
 }
 
 struct Statistics::DisjointSetNode *Statistics ::FindSet(
@@ -502,6 +726,15 @@ struct Statistics::DisjointSetNode *Statistics ::FindSet(
     x->parent = FindSet(x->parent);
   }
   return x->parent;
+}
+
+struct Statistics::DisjointSetNode *Statistics ::FindSet(std::string x) {
+  for (auto it = disjointSets.begin(); it != disjointSets.end(); it++) {
+    if ((*it)->relName == x) {
+      return FindSet(*it);
+    }
+  }
+  return NULL;
 }
 
 void Statistics ::PrintDisjointSets() {
@@ -535,4 +768,48 @@ void Statistics ::GetSets() {
     }
     std::cout << "}" << std::endl;
   }
+}
+
+struct Statistics::AttributeStats *Statistics ::FindAtt(
+    char *att, std::vector<std::string> relNamesSubset) {
+  std::string attName(att);
+  for (auto it = relNamesSubset.begin(); it != relNamesSubset.end(); it++) {
+    std::string relName = *it;
+    try {
+      return attributeStore.at(MakeAttStoreKey(attName, relName));
+    } catch (const std::out_of_range &oor) {
+      continue;
+    }
+  }
+  return NULL;
+}
+
+struct Statistics::AttributeStats *Statistics::FindAtt(std::string attName,
+                                                       std::string relName) {
+  try {
+    return attributeStore.at(MakeAttStoreKey(attName, relName));
+  } catch (std::out_of_range &e) {
+    return NULL;
+  }
+}
+
+struct Statistics::RelationStats *Statistics::FindRel(std::string relName) {
+  try {
+    return relationStore.at(relName);
+  } catch (std::out_of_range &e) {
+    return NULL;
+  }
+}
+
+void Statistics::RemoveRel(std::string relName) {
+  struct RelationStats *relStats = relationStore.at(relName);
+  for (auto it = relStats->attributes.begin(); it != relStats->attributes.end();
+       it++) {
+    RemoveAtt(*it, relName);
+  }
+  relationStore.erase(relName);
+}
+
+void Statistics::RemoveAtt(std::string attName, std::string relName) {
+  attributeStore.erase(MakeAttStoreKey(attName, relName));
 }

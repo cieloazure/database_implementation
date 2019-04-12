@@ -1,6 +1,9 @@
+#include <math.h>
 #include <iostream>
+#include "ParseTree.h"
 #include "Statistics.h"
 #include "gtest/gtest.h"
+#include "y.tab.h"
 
 extern "C" {
 typedef struct yy_buffer_state *YY_BUFFER_STATE;
@@ -245,6 +248,24 @@ TEST_F(StatisticsTest,
   EXPECT_THROW(s.Estimate(final, relName, 2), std::runtime_error);
 }
 
+TEST_F(StatisticsTest,
+       ERROR_CHECKING_FOR_PARSE_TREE_ATTRIBUTES_WILL_HAVE_ERRORS_2) {
+  Statistics s;
+  char *relName[] = {"supplier", "partsupp", NULL};
+  s.AddRel(relName[0], 10000);
+  s.AddRel(relName[1], 800000);
+  s.AddAtt(relName[0], "s_suppkey", 10000);
+  s.AddAtt(relName[1], "ps_suppkey", 10000);
+
+  // A attribute is not present in the store
+  char *cnf = "(s_suppkey = p_suppkey)";
+
+  yy_scan_string(cnf);
+  yyparse();
+
+  EXPECT_THROW(s.Estimate(final, relName, 2), std::runtime_error);
+}
+
 TEST_F(StatisticsTest, DISJOINT_SET) {
   Statistics s;
   char *relName[] = {"supplier", "partsupp", NULL};
@@ -252,10 +273,54 @@ TEST_F(StatisticsTest, DISJOINT_SET) {
   s.AddRel(relName[1], 800000);
   std::string a(relName[0]);
   std::string b(relName[1]);
-  s.PrintDisjointSets();
   s.Union(a, b);
-  s.PrintDisjointSets();
+  char *relName2[] = {"lineitem", "orders", NULL};
+  s.AddRel(relName2[0], 10000);
+  s.AddRel(relName2[1], 800000);
+  std::string c(relName2[0]);
+  std::string d(relName2[1]);
+  s.Union(c, d);
   s.GetSets();
+}
+
+TEST_F(StatisticsTest, ESTIMATE_TEST_Q0) {
+  Statistics s;
+  char *relName[] = {"supplier", "partsupp", NULL};
+
+  s.AddRel(relName[0], 10000);
+  s.AddAtt(relName[0], "s_suppkey", 10000);
+
+  s.AddRel(relName[1], 800000);
+  s.AddAtt(relName[1], "ps_suppkey", 10000);
+
+  char *cnf = "(s_suppkey = ps_suppkey)";
+
+  yy_scan_string(cnf);
+  yyparse();
+
+  PrintAndList(final);
+  cout << endl;
+  double result = s.Estimate(final, relName, 2);
+  EXPECT_EQ(800000, result);
+}
+
+TEST_F(StatisticsTest, ESTIMATE_TEST_Q1) {
+  Statistics s;
+  char *relName[] = {"lineitem", NULL};
+
+  s.AddRel(relName[0], 6001215);
+  s.AddAtt(relName[0], "l_returnflag", 3);
+  s.AddAtt(relName[0], "l_discount", 11);
+  s.AddAtt(relName[0], "l_shipmode", 7);
+
+  char *cnf =
+      "(l_returnflag = 'R') AND (l_discount < 0.04 OR l_shipmode = 'MAIL')";
+
+  yy_scan_string(cnf);
+  yyparse();
+
+  double result = s.Estimate(final, relName, 1);
+  cout << "Estimate result:" << fabs(result - 8.5732e5) << endl;
 }
 
 }  // namespace dbi
