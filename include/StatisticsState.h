@@ -122,7 +122,8 @@ class StatisticsState {
                     std::string toRelName, StatisticsState *copy);
   void CopyAttStats(AttributeStats *fromAtt, AttributeStats *toAtt,
                     std::string toRelName);
-
+  bool IsQualifiedAtt(std::string value);
+  std::pair<std::string, std::string> SplitQualifiedAtt(std::string value);
   // Required to debug/test state variables
   void PrintRelationStore();
   void PrintAttributeStore();

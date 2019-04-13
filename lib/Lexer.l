@@ -74,6 +74,9 @@ void close_lexical_parser () { yy_delete_buffer (yylex_buf_state); }
 [A-Za-z][A-Za-z0-9_-]* {yylval.actualChars = strdup(yytext);
   			return(Name);
 			}     
+[A-Za-z][A-Za-z0-9_-]*\.[A-Za-z][A-Za-z0-9_-]* {yylval.actualChars = strdup(yytext);
+  			return(Name);
+			}  
 
 \n                	lineno++;
 

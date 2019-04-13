@@ -23,7 +23,7 @@ StatisticsState::StatisticsState(StatisticsState *copy) {
     oldToNewMap[oldNode] = newNode;
     newToOldMap[newNode] = oldNode;
     RelationStats *relStats = FindRel(oldNode->relName);
-    if(relStats != NULL){
+    if (relStats != NULL) {
       relStats->disjointSetIndex = disjointSets.size();
     }
     disjointSets.push_back(newNode);
@@ -73,7 +73,8 @@ void StatisticsState ::AddNewAtt(char *relName, char *attName,
 AttributeStats *StatisticsState ::FindAtt(std::string relName,
                                           std::string attName) {
   try {
-    return attributeStore.at(MakeAttStoreKey(relName, attName));
+    DisjointSetNode *node = FindSet(relName);
+    return attributeStore.at(MakeAttStoreKey(node->relName, attName));
   } catch (std::out_of_range &e) {
     return NULL;
   }
@@ -83,7 +84,8 @@ AttributeStats *StatisticsState ::FindAtt(std::string relName,
                                           std::string attName,
                                           StatisticsState *copy) {
   try {
-    return copy->attributeStore.at(MakeAttStoreKey(relName, attName));
+    DisjointSetNode *node = FindSet(relName);
+    return copy->attributeStore.at(MakeAttStoreKey(node->relName, attName));
   } catch (std::out_of_range &e) {
     return NULL;
   }
@@ -316,14 +318,24 @@ DisjointSetNode *StatisticsState ::FindSet(std::string x) {
 AttributeStats *StatisticsState ::FindAtt(
     char *att, std::vector<std::string> relNamesSubset) {
   std::string attName(att);
-  for (auto it = relNamesSubset.begin(); it != relNamesSubset.end(); it++) {
-    std::string relName = *it;
-    AttributeStats *attStats = FindAtt(relName, attName);
+  if (IsQualifiedAtt(attName)) {
+    std::pair<std::string, std::string> attSplit = SplitQualifiedAtt(attName);
+    AttributeStats *attStats = FindAtt(attSplit.first, attSplit.second);
     if (attStats != NULL) {
       return attStats;
+    } else {
+      return NULL;
     }
+  } else {
+    for (auto it = relNamesSubset.begin(); it != relNamesSubset.end(); it++) {
+      std::string relName = *it;
+      AttributeStats *attStats = FindAtt(relName, attName);
+      if (attStats != NULL) {
+        return attStats;
+      }
+    }
+    return NULL;
   }
-  return NULL;
 }
 
 void StatisticsState ::PrintDisjointSets() {
@@ -378,4 +390,25 @@ void StatisticsState ::PrintAttributeStore() {
 DisjointSetNode *StatisticsState::FindSet(RelationStats *relStats) {
   DisjointSetNode *node = disjointSets.at(relStats->disjointSetIndex);
   return FindSet(node);
+}
+
+bool StatisticsState ::IsQualifiedAtt(std::string value) {
+  return value.find('.', 0) != std::string::npos;
+}
+
+std::pair<std::string, std::string> StatisticsState::SplitQualifiedAtt(
+    std::string value) {
+  size_t idx = value.find('.', 0);
+  std::string rel;
+  std::string att;
+  if (idx == std::string::npos) {
+    att = value;
+  } else {
+    rel = value.substr(0, idx);
+    att = value.substr(idx + 1, value.length());
+  }
+  std::pair<std::string, std::string> retPair;
+  retPair.first = rel;
+  retPair.second = att;
+  return retPair;
 }

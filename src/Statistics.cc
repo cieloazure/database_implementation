@@ -197,8 +197,8 @@ void Statistics::CalculateCostOrListHelper(
 
           // joinRetTuple
           // 0 -> cost after join
-          // 1 -> rep rel of the join
-          // 2 -> <relname1, relname2> : relations which are joined
+          // 1 -> representative relation name of the joined(unioned) set
+          // 2 -> <relname1, relname2> : relations which are joined(unioned)
           std::tuple<std::string, double, std::pair<std::string, std::string>>
               joinRetTuple =
                   CalculateCostJoin(compOp, relNameToCostMap, currentState);
@@ -359,14 +359,17 @@ double Statistics ::ApplySelectionOrFormulaList(std::vector<double> orListsCost,
                                                 int totalTuples) {
   double result = 0.0;
   auto it = orListsCost.begin();
-  double m1 = *it;
+  if (it == orListsCost.end()) {
+    return result;
+  }
+  result = *it;
   it++;
   if (it == orListsCost.end()) {
-    return *it;
+    return result;
   }
   double m2 = *it;
   it++;
-  result = ApplySelectionOrFormula(m1, m2, totalTuples);
+  result = ApplySelectionOrFormula(result, m2, totalTuples);
   while (it != orListsCost.end()) {
     m2 = *it;
     it++;
