@@ -60,7 +60,7 @@ OBJECTS += $(patsubst $(SOURCEDIR)/%.cc, $(ODIR)/%.o, $(SOURCES))
 
 TEST = clang++ 
 # TESTCOMPILEFLAGS= -fsanitize=address -fno-omit-frame-pointer -g -std=c++11 -stdlib=libc++ -fprofile-arcs -ftest-coverage
-TESTCOMPILEFLAGS= -fsanitize=address -g -std=c++11 -stdlib=libc++
+TESTCOMPILEFLAGS= -fsanitize=address -g -std=c++11 -stdlib=libc++ 
 TESTSOURCESDIR=test/src
 TESTIDIR=test/include
 TESTFLAGS = -I$(IDIR) -I$(TESTIDIR) -I$(SOURCEDIR) -I$(LIBIDIR)  -I$(ODIR)
@@ -83,7 +83,7 @@ $(shell cp -r data_files/* bin/data_files)
 $(shell cp data_files/catalog bin/)
 $(shell cp data_files/test3.cat bin/)
 
-TESTLINKFLAGS=-ll -lgtest -lpthread  
+TESTLINKFLAGS=-ll -lgtest -lpthread 
 
 GIVENTEST=$(wildcard $(TESTSOURCESDIR)/test*)
 GIVENTESTOBJECTS=$(patsubst $(TESTSOURCESDIR)/%.cc, $(TESTODIR)/%.o, $(GIVENTEST))

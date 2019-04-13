@@ -156,7 +156,8 @@ TEST_F(StatisticsTest, ADD_ATT_DIFFERENT_ATTRIBUTES) {
 
 TEST_F(StatisticsTest, ADD_ATT_WITHOUT_RELATION_FIRST) {
   Statistics statistics;
-  EXPECT_NO_THROW(statistics.AddAtt("lineitem", "l_orderkey", 60000));
+  EXPECT_THROW(statistics.AddAtt("lineitem", "l_orderkey", 60000),
+               std::runtime_error);
 }
 
 TEST_F(StatisticsTest, COPY_REL_NORMAL) {
@@ -175,29 +176,30 @@ TEST_F(StatisticsTest, COPY_REL_WHEN_RELATION_DOES_NOT_EXITS_IN_RELSTORE) {
                std::runtime_error);
 }
 
-TEST_F(StatisticsTest, COPY_REL_WHEN_AN_ATTRIBUTE_DOES_NOT_EXIST_IN_ATTSTORE) {}
+// TEST_F(StatisticsTest, COPY_REL_WHEN_AN_ATTRIBUTE_DOES_NOT_EXIST_IN_ATTSTORE)
+// {}
 
-TEST_F(StatisticsTest, WRITE_AND_READ_STATISTICS) {
-  Statistics statistics;
-  EXPECT_NO_THROW(statistics.AddRel("lineitem", 60175));
-  EXPECT_NO_THROW(statistics.AddAtt("lineitem", "l_orderkey", 1000));
-  EXPECT_NO_THROW(statistics.AddAtt("lineitem", "l_suppkey", 1000));
-  EXPECT_NO_THROW(statistics.AddAtt("lineitem", "l_linenumber", 1000));
-  EXPECT_NO_THROW(statistics.AddAtt("lineitem", "l_quantity", 1000));
-  EXPECT_NO_THROW(statistics.AddAtt("lineitem", "l_extendedprice", 1000));
+// // TEST_F(StatisticsTest, WRITE_AND_READ_STATISTICS) {
+// //   Statistics statistics;
+// //   EXPECT_NO_THROW(statistics.AddRel("lineitem", 60175));
+// //   EXPECT_NO_THROW(statistics.AddAtt("lineitem", "l_orderkey", 1000));
+// //   EXPECT_NO_THROW(statistics.AddAtt("lineitem", "l_suppkey", 1000));
+// //   EXPECT_NO_THROW(statistics.AddAtt("lineitem", "l_linenumber", 1000));
+// //   EXPECT_NO_THROW(statistics.AddAtt("lineitem", "l_quantity", 1000));
+// //   EXPECT_NO_THROW(statistics.AddAtt("lineitem", "l_extendedprice", 1000));
 
-  EXPECT_NO_THROW(statistics.AddRel("orders", 15000));
-  EXPECT_NO_THROW(statistics.AddAtt("orders", "o_orderkey", 1000));
-  EXPECT_NO_THROW(statistics.AddAtt("orders", "o_custkey", 1000));
-  EXPECT_NO_THROW(statistics.AddAtt("orders", "o_orderstatus", 1000));
-  EXPECT_NO_THROW(statistics.AddAtt("orders", "o_totalprice", 1000));
+// //   EXPECT_NO_THROW(statistics.AddRel("orders", 15000));
+// //   EXPECT_NO_THROW(statistics.AddAtt("orders", "o_orderkey", 1000));
+// //   EXPECT_NO_THROW(statistics.AddAtt("orders", "o_custkey", 1000));
+// //   EXPECT_NO_THROW(statistics.AddAtt("orders", "o_orderstatus", 1000));
+// //   EXPECT_NO_THROW(statistics.AddAtt("orders", "o_totalprice", 1000));
 
-  EXPECT_NO_THROW(statistics.Write("statistics.bin"));
-  Statistics newStatistics;
-  EXPECT_NO_THROW(newStatistics.Read("statistics.bin"));
-  newStatistics.PrintRelationStore();
-  newStatistics.PrintAttributeStore();
-}
+// //   EXPECT_NO_THROW(statistics.Write("statistics.bin"));
+// //   Statistics newStatistics;
+// //   EXPECT_NO_THROW(newStatistics.Read("statistics.bin"));
+// //   newStatistics.PrintRelationStore();
+// //   newStatistics.PrintAttributeStore();
+// // }
 
 TEST_F(StatisticsTest, COPY_CONSTRUCTOR) {
   Statistics statistics;
@@ -213,75 +215,75 @@ TEST_F(StatisticsTest, COPY_CONSTRUCTOR) {
   newStatistics.PrintAttributeStore();
 }
 
-TEST_F(StatisticsTest, ERROR_CHECK_FOR_PARSE_TREE_ATTRIBUTES_HAS_NO_ERRORS) {
-  Statistics s;
-  char *relName[] = {"supplier", "partsupp", NULL};
-  char *cnf = "(s_suppkey = ps_suppkey)";
+// TEST_F(StatisticsTest, ERROR_CHECK_FOR_PARSE_TREE_ATTRIBUTES_HAS_NO_ERRORS) {
+//   Statistics s;
+//   char *relName[] = {"supplier", "partsupp", NULL};
+//   char *cnf = "(s_suppkey = ps_suppkey)";
 
-  s.AddRel(relName[0], 10000);
-  s.AddAtt(relName[0], "s_suppkey", 10000);
+//   s.AddRel(relName[0], 10000);
+//   s.AddAtt(relName[0], "s_suppkey", 10000);
 
-  s.AddRel(relName[1], 800000);
-  s.AddAtt(relName[1], "ps_suppkey", 10000);
+//   s.AddRel(relName[1], 800000);
+//   s.AddAtt(relName[1], "ps_suppkey", 10000);
 
-  yy_scan_string(cnf);
-  yyparse();
+//   yy_scan_string(cnf);
+//   yyparse();
 
-  EXPECT_NO_THROW(s.Estimate(final, relName, 2));
-}
+//   EXPECT_NO_THROW(s.Estimate(final, relName, 2));
+// }
 
-TEST_F(StatisticsTest,
-       ERROR_CHECKING_FOR_PARSE_TREE_ATTRIBUTES_WILL_HAVE_ERRORS) {
-  Statistics s;
-  char *relName[] = {"supplier", "partsupp", NULL};
-  s.AddRel(relName[0], 10000);
-  s.AddRel(relName[1], 800000);
+// TEST_F(StatisticsTest,
+//        ERROR_CHECKING_FOR_PARSE_TREE_ATTRIBUTES_WILL_HAVE_ERRORS) {
+//   Statistics s;
+//   char *relName[] = {"supplier", "partsupp", NULL};
+//   s.AddRel(relName[0], 10000);
+//   s.AddRel(relName[1], 800000);
 
-  char *cnf = "(s_suppkey = ps_suppkey)";
+//   char *cnf = "(s_suppkey = ps_suppkey)";
 
-  // s.AddAtt(relName[0], "s_suppkey", 10000);
-  // s.AddAtt(relName[1], "ps_suppkey", 10000);
+//   // s.AddAtt(relName[0], "s_suppkey", 10000);
+//   // s.AddAtt(relName[1], "ps_suppkey", 10000);
 
-  yy_scan_string(cnf);
-  yyparse();
+//   yy_scan_string(cnf);
+//   yyparse();
 
-  EXPECT_THROW(s.Estimate(final, relName, 2), std::runtime_error);
-}
+//   EXPECT_THROW(s.Estimate(final, relName, 2), std::runtime_error);
+// }
 
-TEST_F(StatisticsTest,
-       ERROR_CHECKING_FOR_PARSE_TREE_ATTRIBUTES_WILL_HAVE_ERRORS_2) {
-  Statistics s;
-  char *relName[] = {"supplier", "partsupp", NULL};
-  s.AddRel(relName[0], 10000);
-  s.AddRel(relName[1], 800000);
-  s.AddAtt(relName[0], "s_suppkey", 10000);
-  s.AddAtt(relName[1], "ps_suppkey", 10000);
+// TEST_F(StatisticsTest,
+//        ERROR_CHECKING_FOR_PARSE_TREE_ATTRIBUTES_WILL_HAVE_ERRORS_2) {
+//   Statistics s;
+//   char *relName[] = {"supplier", "partsupp", NULL};
+//   s.AddRel(relName[0], 10000);
+//   s.AddRel(relName[1], 800000);
+//   s.AddAtt(relName[0], "s_suppkey", 10000);
+//   s.AddAtt(relName[1], "ps_suppkey", 10000);
 
-  // A attribute is not present in the store
-  char *cnf = "(s_suppkey = p_suppkey)";
+//   // A attribute is not present in the store
+//   char *cnf = "(s_suppkey = p_suppkey)";
 
-  yy_scan_string(cnf);
-  yyparse();
+//   yy_scan_string(cnf);
+//   yyparse();
 
-  EXPECT_THROW(s.Estimate(final, relName, 2), std::runtime_error);
-}
+//   EXPECT_THROW(s.Estimate(final, relName, 2), std::runtime_error);
+// }
 
-TEST_F(StatisticsTest, DISJOINT_SET) {
-  Statistics s;
-  char *relName[] = {"supplier", "partsupp", NULL};
-  s.AddRel(relName[0], 10000);
-  s.AddRel(relName[1], 800000);
-  std::string a(relName[0]);
-  std::string b(relName[1]);
-  s.Union(a, b);
-  char *relName2[] = {"lineitem", "orders", NULL};
-  s.AddRel(relName2[0], 10000);
-  s.AddRel(relName2[1], 800000);
-  std::string c(relName2[0]);
-  std::string d(relName2[1]);
-  s.Union(c, d);
-  s.GetSets();
-}
+// // TEST_F(StatisticsTest, DISJOINT_SET) {
+// //   Statistics s;
+// //   char *relName[] = {"supplier", "partsupp", NULL};
+// //   s.AddRel(relName[0], 10000);
+// //   s.AddRel(relName[1], 800000);
+// //   std::string a(relName[0]);
+// //   std::string b(relName[1]);
+// //   s.Union(a, b);
+// //   char *relName2[] = {"lineitem", "orders", NULL};
+// //   s.AddRel(relName2[0], 10000);
+// //   s.AddRel(relName2[1], 800000);
+// //   std::string c(relName2[0]);
+// //   std::string d(relName2[1]);
+// //   s.Union(c, d);
+// //   s.GetSets();
+// // }
 
 TEST_F(StatisticsTest, ESTIMATE_TEST_Q0) {
   Statistics s;
@@ -302,6 +304,26 @@ TEST_F(StatisticsTest, ESTIMATE_TEST_Q0) {
   cout << endl;
   double result = s.Estimate(final, relName, 2);
   EXPECT_EQ(800000, result);
+}
+
+TEST_F(StatisticsTest, APPLY_TEST_Q0) {
+  Statistics s;
+  char *relName[] = {"supplier", "partsupp", NULL};
+
+  s.AddRel(relName[0], 10000);
+  s.AddAtt(relName[0], "s_suppkey", 10000);
+
+  s.AddRel(relName[1], 800000);
+  s.AddAtt(relName[1], "ps_suppkey", 10000);
+
+  char *cnf = "(s_suppkey = ps_suppkey)";
+
+  yy_scan_string(cnf);
+  yyparse();
+
+  PrintAndList(final);
+  cout << endl;
+  s.Apply(final, relName, 2);
 }
 
 TEST_F(StatisticsTest, ESTIMATE_TEST_Q1) {
