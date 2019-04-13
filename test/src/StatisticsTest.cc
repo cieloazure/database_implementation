@@ -404,7 +404,103 @@ TEST_F(StatisticsTest, ESTIMATE_AND_APPLY_TEST_Q2) {
   yyparse();
 
   double result = s.Estimate(final, relName, 3);
-  cout << "Diff:" << fabs(result - 1500000)  << endl;
+  cout << "Diff:" << fabs(result - 1500000) << endl;
+}
+
+TEST_F(StatisticsTest, ESTIMATE_AND_APPLY_TEST_Q3) {
+  Statistics s;
+  char *relName[] = {"supplier", "customer", "nation"};
+
+  s.AddRel(relName[0], 10000);
+  s.AddAtt(relName[0], "s_nationkey", 25);
+
+  s.AddRel(relName[1], 150000);
+  s.AddAtt(relName[1], "c_custkey", 150000);
+  s.AddAtt(relName[1], "c_nationkey", 25);
+
+  s.AddRel(relName[2], 25);
+  s.AddAtt(relName[2], "n_nationkey", 25);
+
+  s.CopyRel("nation", "n1");
+  s.CopyRel("nation", "n2");
+  s.CopyRel("supplier", "s");
+  s.CopyRel("customer", "c");
+
+  char *set1[] = {"s", "n1"};
+  char *cnf = "(s.s_nationkey = n1.n_nationkey)";
+  yy_scan_string(cnf);
+  yyparse();
+  s.Apply(final, set1, 2);
+
+  char *set2[] = {"c", "n2"};
+  cnf = "(c.c_nationkey = n2.n_nationkey)";
+  yy_scan_string(cnf);
+  yyparse();
+  s.Apply(final, set2, 2);
+
+  char *set3[] = {"c", "s", "n1", "n2"};
+  cnf = " (n1.n_nationkey = n2.n_nationkey )";
+  yy_scan_string(cnf);
+  yyparse();
+
+  double result = s.Estimate(final, set3, 4);
+  cout << "Diff:" << fabs(result - 60000000.0) << endl;
+}
+
+TEST_F(StatisticsTest, ESTIMATE_AND_APPLY_TEST_Q4) {
+  Statistics s;
+  char *relName[] = {"part", "partsupp", "supplier", "nation", "region"};
+
+  s.AddRel(relName[0], 200000);
+  s.AddAtt(relName[0], "p_partkey", 200000);
+  s.AddAtt(relName[0], "p_size", 50);
+
+  s.AddRel(relName[1], 800000);
+  s.AddAtt(relName[1], "ps_suppkey", 10000);
+  s.AddAtt(relName[1], "ps_partkey", 200000);
+
+  s.AddRel(relName[2], 10000);
+  s.AddAtt(relName[2], "s_suppkey", 10000);
+  s.AddAtt(relName[2], "s_nationkey", 25);
+
+  s.AddRel(relName[3], 25);
+  s.AddAtt(relName[3], "n_nationkey", 25);
+  s.AddAtt(relName[3], "n_regionkey", 5);
+
+  s.AddRel(relName[4], 5);
+  s.AddAtt(relName[4], "r_regionkey", 5);
+  s.AddAtt(relName[4], "r_name", 5);
+
+  s.CopyRel("part", "p");
+  s.CopyRel("partsupp", "ps");
+  s.CopyRel("supplier", "s");
+  s.CopyRel("nation", "n");
+  s.CopyRel("region", "r");
+  char *relNameCopy[] = {"p", "ps", "s", "n", "r"};
+
+  char *cnf = "(p.p_partkey=ps.ps_partkey) AND (p.p_size = 2)";
+  yy_scan_string(cnf);
+  yyparse();
+  s.Apply(final, relNameCopy, 2);
+
+  cnf = "(s.s_suppkey = ps.ps_suppkey)";
+  yy_scan_string(cnf);
+  yyparse();
+  s.Apply(final, relNameCopy, 3);
+
+  cnf = " (s.s_nationkey = n.n_nationkey)";
+  yy_scan_string(cnf);
+  yyparse();
+  s.Apply(final, relNameCopy, 4);
+
+  cnf = "(n.n_regionkey = r.r_regionkey) AND (r.r_name = 'AMERICA') ";
+  yy_scan_string(cnf);
+  yyparse();
+
+  double result = s.Estimate(final, relNameCopy, 5);
+  cout << "Diff:" << fabs(result - 3200) << endl;
+
+  s.Apply(final, relName, 5);
 }
 
 }  // namespace dbi
