@@ -326,7 +326,39 @@ TEST_F(StatisticsTest, APPLY_TEST_Q0) {
   s.Apply(final, relName, 2);
 }
 
-TEST_F(StatisticsTest, ESTIMATE_TEST_Q1) {
+TEST_F(StatisticsTest, MULTIPLE_APPLY_TEST_Q0) {
+  Statistics s;
+  char *relName[] = {"supplier", "partsupp", NULL};
+
+  s.AddRel(relName[0], 10000);
+  s.AddAtt(relName[0], "s_suppkey", 10000);
+
+  s.AddRel(relName[1], 800000);
+  s.AddAtt(relName[1], "ps_suppkey", 10000);
+
+  char *cnf = "(s_suppkey = ps_suppkey)";
+
+  yy_scan_string(cnf);
+  yyparse();
+
+  PrintAndList(final);
+  cout << endl;
+  double result = s.Estimate(final, relName, 2);
+  s.Apply(final, relName, 2);
+
+  cnf = "(s_suppkey>1000)";
+  yy_scan_string(cnf);
+  yyparse();
+
+  double dummy = s.Estimate(final, relName, 2);
+  s.Apply(final, relName, 2);
+  cout << "Diff:" << fabs(dummy * 3.0 - result) << endl;
+  // if (fabs(dummy * 3.0 - result) > 0.1) {
+  //   cout << "Read or write or last apply is not correct\n";
+  // }
+}
+
+TEST_F(StatisticsTest, ESTIMATE_AND_APPLY_TEST_Q1) {
   Statistics s;
   char *relName[] = {"lineitem", NULL};
 
@@ -342,7 +374,37 @@ TEST_F(StatisticsTest, ESTIMATE_TEST_Q1) {
   yyparse();
 
   double result = s.Estimate(final, relName, 1);
-  cout << "Estimate result:" << fabs(result - 8.5732e5) << endl;
+  cout << "Diff:" << fabs(result - 8.5732e5) << endl;
+  s.Apply(final, relName, 1);
+}
+
+TEST_F(StatisticsTest, ESTIMATE_AND_APPLY_TEST_Q2) {
+  Statistics s;
+  char *relName[] = {"orders", "customer", "nation"};
+
+  s.AddRel(relName[0], 1500000);
+  s.AddAtt(relName[0], "o_custkey", 150000);
+
+  s.AddRel(relName[1], 150000);
+  s.AddAtt(relName[1], "c_custkey", 150000);
+  s.AddAtt(relName[1], "c_nationkey", 25);
+
+  s.AddRel(relName[2], 25);
+  s.AddAtt(relName[2], "n_nationkey", 25);
+
+  char *cnf = "(c_custkey = o_custkey)";
+  yy_scan_string(cnf);
+  yyparse();
+
+  // Join the first two relations in relName
+  s.Apply(final, relName, 2);
+
+  cnf = " (c_nationkey = n_nationkey)";
+  yy_scan_string(cnf);
+  yyparse();
+
+  double result = s.Estimate(final, relName, 3);
+  cout << "Diff:" << fabs(result - 1500000)  << endl;
 }
 
 }  // namespace dbi

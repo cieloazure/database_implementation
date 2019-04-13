@@ -44,43 +44,47 @@ class Statistics {
   bool CheckOperand(struct Operand *operand, std::vector<std::string> relNames);
 
   /* Utility functions to calculate cost of AND & OR list */
-  void CalculateCostAndList(AndList *andList, std::vector<double> &costs,
-                            std::vector<std::string> &relNames,
+
+  void CalculateCostAndList(AndList *andList,
+                            std::map<std::string, double> &relNameToCostMap,
                             StatisticsState *currentState);
 
-  void CalculateCostOrList(OrList *orList, std::vector<double> &costs,
-                           std::vector<std::string> &relNames,
+  void CalculateCostOrList(OrList *orList,
+                           std::map<std::string, double> &relNameToCostMap,
                            StatisticsState *currentState);
 
-  /* Helper Functions to calculate OrList cost */
   void CalculateCostOrListHelper(
-      OrList *orList, std::vector<double> &costs,
-      std::vector<std::vector<double>> &independentCosts,
-      std::vector<std::string> &relNames, StatisticsState *currentState);
+      OrList *orList, std::map<std::string, double> &relNameToCostMap,
+      std::map<std::string, std::vector<double>> &relNameToIndependentCostsMap,
+      StatisticsState *currentState);
+
+  std::pair<std::string, double> CalculateCostSelectionEquality(
+      ComparisonOp *compOp, std::map<std::string, double> &relNameToCostMap,
+      StatisticsState *currentState);
+
+  std::pair<std::string, double> CalculateCostSelectionInequality(
+      ComparisonOp *compOp, std::map<std::string, double> &relNamesToCostMap,
+      StatisticsState *currentState);
+
+  std::tuple<std::string, double, std::pair<std::string, std::string>>
+  CalculateCostJoin(ComparisonOp *op,
+                    std::map<std::string, double> &relNameToCostMap,
+                    StatisticsState *currentState);
+
   double ApplySelectionOrFormulaList(std::vector<double> orListsCost,
                                      int totalTuples);
+
   double ApplySelectionOrFormula(double distinctValuesOr1,
                                  double distinctValuesOr2, int totalTuples);
-
-  /* Utility function to calculate cost of various operators */
-  std::pair<double, int> CalculateCostSelectionEquality(
-      ComparisonOp *compOp, std::vector<std::string> relNames,
-      std::vector<double> costs, StatisticsState *currentState);
-
-  std::pair<double, int> CalculateCostSelectionInequality(
-      ComparisonOp *compOp, std::vector<std::string> relNames,
-      std::vector<double> costs, StatisticsState *currentState);
-
-  std::tuple<double, std::string, std::pair<int, int>> CalculateCostJoin(
-      ComparisonOp *compOp, std::vector<std::string> &relNames,
-      std::vector<double> &costs, StatisticsState *currentState);
-
   /* Utility functions */
   bool IsALiteral(Operand *op);
   bool ContainsLiteral(ComparisonOp *compOp);
 
   double CalculateCost(AndList *parseTree, char *relNames[], int numToJoin,
                        StatisticsState *currentState);
+
+  std::vector<std::string> RelNamesKeySet(
+      std::map<std::string, double> relNamesToCostMap);
 
   // Required to debug/test state variables
   void PrintRelationStore();

@@ -97,85 +97,85 @@ double Statistics::CalculateCost(AndList *parseTree, char *relNames[],
                                  int numToJoin, StatisticsState *currentState) {
   // Get representatives of the sets
   std::set<std::string> disjointSetSubset;
+  int ridx = numToJoin;
   for (char *c = *relNames; c; c = *++relNames) {
     std::string cstr(c);
     DisjointSetNode *setNode = currentState->FindSet(cstr);
     disjointSetSubset.insert(setNode->relName);
+    ridx--;
+    if (!ridx) {
+      break;
+    }
   }
 
   // Copy the set to a vector
   // TODO: Change parameters to set
-  std::vector<std::string> relNamesVec;
-  std::copy(disjointSetSubset.begin(), disjointSetSubset.end(),
-            std::back_inserter(relNamesVec));
+  std::map<std::string, double> relNameToCostMap;
 
   // Initialize cost for each relation
-  std::vector<double> costs;
-  for (int i = 0; i < relNamesVec.size(); i++) {
-    RelationStats *relStats = currentState->FindRel(relNamesVec.at(i));
-    costs.push_back(relStats->numTuples);
+  for (auto it = disjointSetSubset.begin(); it != disjointSetSubset.end();
+       it++) {
+    RelationStats *relStats = currentState->FindRel(*it);
+    relNameToCostMap.emplace(*it, relStats->numTuples);
   }
 
-  if (!CheckAttNameInRel(parseTree, relNamesVec)) {
-    throw std::runtime_error("Attribute name is not in relNames");
-  }
+  // ERROR CHECKING
+  // if (!CheckAttNameInRel(parseTree, relNamesVec)) {
+  //   throw std::runtime_error("ParseTree invalid!");
+  // }
 
   // if (!IsRelNamesValid(relNamesVec, partitions)) {
-  //   throw std::runtime_error("Relation names are not valid");
+  //   throw std::runtime_error("Relation names invalid!");
   //}
-  CalculateCostAndList(parseTree, costs, relNamesVec, currentState);
-  int idx = 0;
-  for (std::string relName : relNamesVec) {
-    currentState->UpdateRel(relName, costs.at(idx), false);
-    idx++;
+
+  CalculateCostAndList(parseTree, relNameToCostMap, currentState);
+  for (auto it = relNameToCostMap.begin(); it != relNameToCostMap.end(); it++) {
+    currentState->UpdateRel((*it).first, (*it).second, false);
   }
-  if (costs.size() == 1) {
-    return costs.at(0);
+  if (relNameToCostMap.size() == 1) {
+    return (*relNameToCostMap.begin()).second;
   } else {
     return -1.0;
   }
 }
 
-void Statistics ::CalculateCostAndList(AndList *andList,
-                                       std::vector<double> &costs,
-                                       std::vector<std::string> &relNames,
-                                       StatisticsState *currentState) {
+void Statistics ::CalculateCostAndList(
+    AndList *andList, std::map<std::string, double> &relNameToCostMap,
+    StatisticsState *currentState) {
   if (andList != NULL) {
-    CalculateCostOrList(andList->left, costs, relNames, currentState);
+    CalculateCostOrList(andList->left, relNameToCostMap, currentState);
     if (andList->rightAnd) {
-      CalculateCostAndList(andList->rightAnd, costs, relNames, currentState);
+      CalculateCostAndList(andList->rightAnd, relNameToCostMap, currentState);
     }
   }
 }
 
-void Statistics ::CalculateCostOrList(OrList *orList,
-                                      std::vector<double> &costs,
-                                      std::vector<std::string> &relNames,
-                                      StatisticsState *currentState) {
-  std::vector<std::vector<double>> independentCosts;
-  for (int i = 0; i < relNames.size(); i++) {
-    std::vector<double> relationCosts;
-    independentCosts.push_back(relationCosts);
+void Statistics ::CalculateCostOrList(
+    OrList *orList, std::map<std::string, double> &relNameToCostMap,
+    StatisticsState *currentState) {
+  std::map<std::string, std::vector<double>> relNameToIndependentCostsMap;
+  for (auto it = relNameToCostMap.begin(); it != relNameToCostMap.end(); it++) {
+    std::vector<double> emptyVec;
+    relNameToIndependentCostsMap.emplace((*it).first, emptyVec);
   }
-  CalculateCostOrListHelper(orList, costs, independentCosts, relNames,
-                            currentState);
-  int i = 0;
-  for (auto it = independentCosts.begin(); it != independentCosts.end(); it++) {
-    double relCost = -1.0;
-    if ((*it).size() > 1) {
-      relCost = ApplySelectionOrFormulaList(*it, costs.at(i));
-    } else {
-      relCost = (*it).at(0);
-    }
-    costs[i] = relCost;
-    i++;
+
+  CalculateCostOrListHelper(orList, relNameToCostMap,
+                            relNameToIndependentCostsMap, currentState);
+
+  for (auto it = relNameToIndependentCostsMap.begin();
+       it != relNameToIndependentCostsMap.end(); it++) {
+    std::string relName = (*it).first;
+    std::vector<double> relNameIndependentCosts = (*it).second;
+    double relCost = ApplySelectionOrFormulaList(relNameIndependentCosts,
+                                                 relNameToCostMap[relName]);
+    relNameToCostMap[relName] = relCost;
   }
 }
 
 void Statistics::CalculateCostOrListHelper(
-    OrList *orList, std::vector<double> &costs,
-    std::vector<std::vector<double>> &independentCosts,
-    std::vector<std::string> &relNames, StatisticsState *currentState) {
+    OrList *orList, std::map<std::string, double> &relNameToCostMap,
+    std::map<std::string, std::vector<double>> &relNameToIndependentCostsMap,
+    StatisticsState *currentState) {
   if (orList != NULL) {
     struct ComparisonOp *compOp = orList->left;
     if (compOp != NULL) {
@@ -184,66 +184,63 @@ void Statistics::CalculateCostOrListHelper(
         if (ContainsLiteral(compOp)) {
           // Selection on equality attributes
           // T(S) = T(R)/V(R,A)
-          std::pair<double, int> costIndexRetPair =
-              CalculateCostSelectionEquality(compOp, relNames, costs,
+          std::pair<std::string, double> relNameCostPair =
+              CalculateCostSelectionEquality(compOp, relNameToCostMap,
                                              currentState);
-          independentCosts.at(costIndexRetPair.second)
-              .push_back(costIndexRetPair.first);
+          relNameToIndependentCostsMap[relNameCostPair.first].push_back(
+              relNameCostPair.second);
+
         } else {
           // Cost for join
           // T(S JOIN R) = T(S)T(R) / max(V(R,Y)V(S,Y))
           // Where Y is the attribute to joined
-          std::tuple<double, std::string, std::pair<int, int>> joinRetTuple =
-              CalculateCostJoin(compOp, relNames, costs, currentState);
 
-          std::pair<int, int> toRemove = std::get<2>(joinRetTuple);
+          // joinRetTuple
+          // 0 -> cost after join
+          // 1 -> rep rel of the join
+          // 2 -> <relname1, relname2> : relations which are joined
+          std::tuple<std::string, double, std::pair<std::string, std::string>>
+              joinRetTuple =
+                  CalculateCostJoin(compOp, relNameToCostMap, currentState);
 
-          costs.erase(costs.begin() + toRemove.first);
-          relNames.erase(relNames.begin() + toRemove.first);
-          independentCosts.erase(independentCosts.begin() + toRemove.first);
+          std::string repString = std::get<0>(joinRetTuple);
+          double cost = std::get<1>(joinRetTuple);
+          std::pair<std::string, std::string> relToRemove =
+              std::get<2>(joinRetTuple);
 
-          costs.erase(costs.begin() + toRemove.second);
-          relNames.erase(relNames.begin() + toRemove.second);
-          independentCosts.erase(independentCosts.begin() + toRemove.second);
-
-          relNames.push_back(std::get<1>(joinRetTuple));
-          costs.push_back(std::get<0>(joinRetTuple));
-          std::vector<double> costRel;
-          independentCosts.push_back(costRel);
-
-          std::vector<std::vector<double>>::iterator independentCostsIt;
-          std::vector<double>::iterator costIt;
-
-          for (independentCostsIt = independentCosts.begin(),
-              costIt = costs.begin();
-               independentCostsIt != independentCosts.end();
-               independentCostsIt++, costIt++) {
-            (*independentCostsIt).clear();
-            (*independentCostsIt).push_back(*costIt);
-          }
+          relNameToCostMap.erase(relToRemove.first);
+          relNameToIndependentCostsMap.erase(relToRemove.first);
+          relNameToCostMap.erase(relToRemove.second);
+          relNameToIndependentCostsMap.erase(relToRemove.second);
+          relNameToCostMap[repString] = cost;
+          std::vector<double> costVec;
+          costVec.push_back(cost);
+          relNameToIndependentCostsMap[repString] = costVec;
         }
       } else {
         // Seletion on inequality attributes Like GREATER_THAN or LESS_THAN
         // T(S) = T(R) / 3
-        std::pair<double, int> costIndexRetPair =
-            CalculateCostSelectionInequality(compOp, relNames, costs,
+        std::pair<std::string, double> relNameCostPair =
+            CalculateCostSelectionInequality(compOp, relNameToCostMap,
                                              currentState);
-        independentCosts.at(costIndexRetPair.second)
-            .push_back(costIndexRetPair.first);
+
+        relNameToIndependentCostsMap[relNameCostPair.first].push_back(
+            relNameCostPair.second);
       }
 
       if (orList->rightOr) {
-        CalculateCostOrListHelper(orList->rightOr, costs, independentCosts,
-                                  relNames, currentState);
+        CalculateCostOrListHelper(orList->rightOr, relNameToCostMap,
+                                  relNameToIndependentCostsMap, currentState);
       }
     }
   }
 }
 
-std::pair<double, int> Statistics ::CalculateCostSelectionEquality(
-    ComparisonOp *compOp, std::vector<std::string> relNames,
-    std::vector<double> costs, StatisticsState *currentState) {
+std::pair<std::string, double> Statistics ::CalculateCostSelectionEquality(
+    ComparisonOp *compOp, std::map<std::string, double> &relNameToCostMap,
+    StatisticsState *currentState) {
   AttributeStats *att;
+  std::vector<std::string> relNames = RelNamesKeySet(relNameToCostMap);
   // Find out which one is literal and get the next one from attribute store
   if (IsALiteral(compOp->left)) {
     att = currentState->FindAtt(compOp->right->value, relNames);
@@ -251,35 +248,33 @@ std::pair<double, int> Statistics ::CalculateCostSelectionEquality(
     att = currentState->FindAtt(compOp->left->value, relNames);
   }
   double distinctValues = att->numDistincts;
-  auto idxit = std::find(relNames.begin(), relNames.end(), att->relName);
-  int idx = idxit - relNames.begin();
-  double prev_cost = costs.at(idx);
-  std::pair<double, int> retTuple(prev_cost / distinctValues, idx);
+  double prev_cost = relNameToCostMap[att->relName];
+  std::pair<std::string, double> retTuple(att->relName,
+                                          prev_cost / distinctValues);
   return retTuple;
 }
 
-std::pair<double, int> Statistics ::CalculateCostSelectionInequality(
-    ComparisonOp *compOp, std::vector<std::string> relNames,
-    std::vector<double> costs, StatisticsState *currentState) {
+std::pair<std::string, double> Statistics ::CalculateCostSelectionInequality(
+    ComparisonOp *compOp, std::map<std::string, double> &relNamesToCostMap,
+    StatisticsState *currentState) {
   AttributeStats *att;
+  std::vector<std::string> relNames = RelNamesKeySet(relNamesToCostMap);
   // Find out which one is literal and get the next one from attribute store
   if (IsALiteral(compOp->left)) {
     att = currentState->FindAtt(compOp->right->value, relNames);
   } else {
     att = currentState->FindAtt(compOp->left->value, relNames);
   }
-  auto idxit = std::find(relNames.begin(), relNames.end(), att->relName);
-  int idx = idxit - relNames.begin();
-  double initial_cost = costs.at(idx);
-  std::pair<double, int> retTuple(initial_cost / 3.0, idx);
+  double initial_cost = relNamesToCostMap[att->relName];
+  std::pair<std::string, double> retTuple(att->relName, initial_cost / 3.0);
   return retTuple;
 }
 
-std::tuple<double, std::string, std::pair<int, int>>
+std::tuple<std::string, double, std::pair<std::string, std::string>>
 Statistics ::CalculateCostJoin(ComparisonOp *op,
-                               std::vector<std::string> &relNames,
-                               std::vector<double> &costs,
+                               std::map<std::string, double> &relNameToCostMap,
                                StatisticsState *currentState) {
+  std::vector<std::string> relNames = RelNamesKeySet(relNameToCostMap);
   AttributeStats *att1 = currentState->FindAtt(op->left->value, relNames);
   AttributeStats *att2 = currentState->FindAtt(op->right->value, relNames);
 
@@ -293,17 +288,13 @@ Statistics ::CalculateCostJoin(ComparisonOp *op,
     maxOfLeftOrRight = distinctTuplesRight;
   }
 
-  auto idxit1 = std::find(relNames.begin(), relNames.end(), att1->relName);
-  int idx1 = idxit1 - relNames.begin();
-  double tuplesLeft = costs.at(idx1);
-
-  auto idxit2 = std::find(relNames.begin(), relNames.end(), att2->relName);
-  int idx2 = idxit2 - relNames.begin();
-  double tuplesRight = costs.at(idx2);
+  double tuplesLeft = relNameToCostMap[att1->relName];
+  double tuplesRight = relNameToCostMap[att2->relName];
 
   double result = ((tuplesLeft * tuplesRight) / maxOfLeftOrRight);
 
-  std::pair<int, int> costsToRemove(idx1, idx2);
+  std::pair<std::string, std::string> costsToRemove(att1->relName,
+                                                    att2->relName);
 
   /* CHANGING STATE */
   // modify disjointsets in the state
@@ -359,8 +350,8 @@ Statistics ::CalculateCostJoin(ComparisonOp *op,
   /* CHANGING STATE END */
 
   /* Return tuple */
-  std::tuple<double, std::string, std::pair<int, int>> joinRetVal(
-      result, rep->relName, costsToRemove);
+  std::tuple<std::string, double, std::pair<std::string, std::string>>
+      joinRetVal(rep->relName, result, costsToRemove);
   return joinRetVal;
 }
 
@@ -370,6 +361,9 @@ double Statistics ::ApplySelectionOrFormulaList(std::vector<double> orListsCost,
   auto it = orListsCost.begin();
   double m1 = *it;
   it++;
+  if (it == orListsCost.end()) {
+    return *it;
+  }
   double m2 = *it;
   it++;
   result = ApplySelectionOrFormula(m1, m2, totalTuples);
@@ -392,3 +386,13 @@ double Statistics ::ApplySelectionOrFormula(double distinctValuesOr1,
 void Statistics::PrintAttributeStore() { currentState->PrintAttributeStore(); }
 void Statistics::PrintRelationStore() { currentState->PrintRelationStore(); }
 void Statistics::PrintDisjointSets() { currentState->PrintDisjointSets(); }
+
+std::vector<std::string> Statistics::RelNamesKeySet(
+    std::map<std::string, double> relNamesToCostMap) {
+  std::vector<std::string> keySet;
+  for (auto it = relNamesToCostMap.begin(); it != relNamesToCostMap.end();
+       it++) {
+    keySet.push_back((*it).first);
+  }
+  return keySet;
+}

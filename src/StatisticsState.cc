@@ -23,7 +23,9 @@ StatisticsState::StatisticsState(StatisticsState *copy) {
     oldToNewMap[oldNode] = newNode;
     newToOldMap[newNode] = oldNode;
     RelationStats *relStats = FindRel(oldNode->relName);
-    relStats->disjointSetIndex = disjointSets.size();
+    if(relStats != NULL){
+      relStats->disjointSetIndex = disjointSets.size();
+    }
     disjointSets.push_back(newNode);
   }
 
