@@ -344,6 +344,8 @@ Statistics ::CalculateCostJoin(ComparisonOp *op,
          it != relStats2->attributes.end(); it++) {
       AttributeStats *attStats = currentState->FindAtt(relStats2->relName, *it);
       attStats->relName = rep->relName;
+      currentState->RemoveAtt(relStats2->relName, *it);
+      currentState->InsertAtt(attStats);
       repRelStats->attributes.insert(attStats->attName);
     }
     // Remove this relation
@@ -354,7 +356,7 @@ Statistics ::CalculateCostJoin(ComparisonOp *op,
   // The relation store after join will only contain the representative of the
   // union However the stats of the join will change and reflect the estimate
   // i.e. `result`
-  /* CHAGING STATE END */
+  /* CHANGING STATE END */
 
   /* Return tuple */
   std::tuple<double, std::string, std::pair<int, int>> joinRetVal(
