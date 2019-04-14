@@ -1,6 +1,7 @@
 #ifndef STATISTICS_STATE_H
 #define STATISTICS_STATE_H
 
+#include <algorithm>
 #include <fcntl.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -10,6 +11,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <string.h>
 #include <unordered_map>
 #include <vector>
 #include "ParseTree.h"
@@ -65,6 +67,15 @@ typedef struct DisjointSetNode {
   DisjointSetNode() {}
   DisjointSetNode(std::string rel) : relName(rel) {}
 } DisjointSetNode;
+
+typedef struct ParentFinder {
+  std::string relName;
+  ParentFinder(std::string rel) : relName(rel) {}
+  bool operator () (const DisjointSetNode *disjointSetNode) const
+  {
+    return disjointSetNode->relName.compare(relName) == 0? true : false; 
+  }
+} ParentFinder;
 /* Data strucres ends */
 
 class StatisticsState {
@@ -131,6 +142,16 @@ class StatisticsState {
   void PrintRelationStore();
   void PrintAttributeStore();
   void PrintDisjointSets();
+
+  //Read and write functions.
+  void Read(char *fromWhere);
+  void ReadRelationStatsFromFile(int statisticsFileDes);
+  void ReadAttributeStatsFromFile(int statisticsFileDes, RelationStats &whichRelStats);
+  void ReadDisjointSetNodeFromFile(int statisticsFileDes, DisjointSetNode &node, std::vector<std::string> &parentNames);
+  void Write(char *toWhere);
+  void WriteRelationStatsToFile(RelationStats *relStats, int statisticsFileDes);
+  void WriteAttributeStatsToFile(AttributeStats *attStats, int statisticsFileDes);
+  void WriteDisjointSetToFile(DisjointSetNode *disjointSetNode, int statisticsFileDes);
 };
 
 #endif

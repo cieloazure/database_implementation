@@ -404,3 +404,11 @@ std::vector<std::string> Statistics::RelNamesKeySet(
   }
   return keySet;
 }
+
+void Statistics::Read(char *fromWhere) {
+  currentState->Read(fromWhere);
+}
+
+void Statistics::Write(char *toWhere) {
+  currentState->Write(toWhere);
+}
