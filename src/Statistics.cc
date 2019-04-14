@@ -168,7 +168,10 @@ void Statistics ::CalculateCostOrList(
     std::vector<double> relNameIndependentCosts = (*it).second;
     double relCost = ApplySelectionOrFormulaList(relNameIndependentCosts,
                                                  relNameToCostMap[relName]);
-    relNameToCostMap[relName] = relCost;
+
+    if (relCost >= 0) {
+      relNameToCostMap[relName] = relCost;
+    }
   }
 }
 
@@ -313,14 +316,15 @@ Statistics ::CalculateCostJoin(ComparisonOp *op,
   // Considering that the representative chosen will be the relation belonging
   // to either relStats1 or relStats2
   // TODO: Prove correctness of this situation
-  RelationStats *relStats1 = currentState->FindRel(att1->relName);
+  RelationStats *relStats1 = currentState->SearchRelStore(att1->relName);
   if (repRelStats != relStats1) {
     // Copy all the attributes to representative
     for (auto it = relStats1->attributes.begin();
          it != relStats1->attributes.end(); it++) {
-      AttributeStats *attStats = currentState->FindAtt(relStats1->relName, *it);
+      AttributeStats *attStats =
+          currentState->SearchAttStore(relStats1->relName, *it);
       attStats->relName = rep->relName;
-      currentState->RemoveAtt(relStats1->relName, *it);
+      currentState->RemoveAttStore(relStats1->relName, *it);
       currentState->InsertAtt(attStats);
       repRelStats->attributes.insert(attStats->attName);
     }
@@ -328,14 +332,15 @@ Statistics ::CalculateCostJoin(ComparisonOp *op,
     currentState->RemoveRel(relStats1->relName, false);
   }
 
-  RelationStats *relStats2 = currentState->FindRel(att2->relName);
+  RelationStats *relStats2 = currentState->SearchRelStore(att2->relName);
   if (repRelStats != relStats2) {
     // Copy all the attributes to representative
     for (auto it = relStats2->attributes.begin();
          it != relStats2->attributes.end(); it++) {
-      AttributeStats *attStats = currentState->FindAtt(relStats2->relName, *it);
+      AttributeStats *attStats =
+          currentState->SearchAttStore(relStats2->relName, *it);
       attStats->relName = rep->relName;
-      currentState->RemoveAtt(relStats2->relName, *it);
+      currentState->RemoveAttStore(relStats2->relName, *it);
       currentState->InsertAtt(attStats);
       repRelStats->attributes.insert(attStats->attName);
     }
@@ -357,7 +362,7 @@ Statistics ::CalculateCostJoin(ComparisonOp *op,
 
 double Statistics ::ApplySelectionOrFormulaList(std::vector<double> orListsCost,
                                                 int totalTuples) {
-  double result = 0.0;
+  double result = -1.0;
   auto it = orListsCost.begin();
   if (it == orListsCost.end()) {
     return result;

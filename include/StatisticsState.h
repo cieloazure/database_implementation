@@ -101,11 +101,14 @@ class StatisticsState {
   AttStoreKey MakeAttStoreKey(std::string relName, std::string attName);
   AttributeStats *FindAtt(char *att, std::vector<std::string> relNamesSubset);
   AttributeStats *FindAtt(std::string relName, std::string attName);
+  AttributeStats *SearchAttStore(std::string relName, std::string attName);
   AttributeStats *FindAtt(std::string relName, std::string attName,
                           StatisticsState *copy);
   RelationStats *FindRel(std::string relName);
+  RelationStats *SearchRelStore(std::string relName);
   void RemoveRel(std::string relName, bool removeAttributes);
   void RemoveAtt(std::string relName, std::string attName);
+  void RemoveAttStore(std::string relName, std::string attName);
   void AddNewRel(char *relName, int numTuples);
   void AddNewAtt(char *relName, char *attName, int numDistincts);
   void InsertRel(std::string relName, int numTuples);

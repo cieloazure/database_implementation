@@ -503,4 +503,209 @@ TEST_F(StatisticsTest, ESTIMATE_AND_APPLY_TEST_Q4) {
   s.Apply(final, relName, 5);
 }
 
+TEST_F(StatisticsTest, ESTIMATE_AND_APPLY_TEST_Q5) {
+  Statistics s;
+  char *relName[] = {"customer", "orders", "lineitem"};
+
+  s.AddRel(relName[0], 150000);
+  s.AddAtt(relName[0], "c_custkey", 150000);
+  s.AddAtt(relName[0], "c_mktsegment", 5);
+
+  s.AddRel(relName[1], 1500000);
+  s.AddAtt(relName[1], "o_orderkey", 1500000);
+  s.AddAtt(relName[1], "o_custkey", 150000);
+  s.AddAtt(relName[1], "o_orderdate", -1);
+
+  s.AddRel(relName[2], 6001215);
+  s.AddAtt(relName[2], "l_orderkey", 1500000);
+
+  char *cnf =
+      "(c_mktsegment = 'BUILDING')  AND (c_custkey = o_custkey)  AND "
+      "(o_orderdate < '1995-03-1')";
+  yy_scan_string(cnf);
+  yyparse();
+  s.Apply(final, relName, 2);
+
+  cnf = " (l_orderkey = o_orderkey) ";
+  yy_scan_string(cnf);
+  yyparse();
+
+  double result = s.Estimate(final, relName, 3);
+
+  cout << "Diff:" << fabs(result - 400081) << endl;
+
+  s.Apply(final, relName, 3);
+}
+
+TEST_F(StatisticsTest, ESTIMATE_AND_APPLY_TEST_Q6) {
+  Statistics s;
+  char *relName[] = {"partsupp", "supplier", "nation"};
+  s.AddRel(relName[0], 800000);
+  s.AddAtt(relName[0], "ps_suppkey", 10000);
+
+  s.AddRel(relName[1], 10000);
+  s.AddAtt(relName[1], "s_suppkey", 10000);
+  s.AddAtt(relName[1], "s_nationkey", 25);
+
+  s.AddRel(relName[2], 25);
+  s.AddAtt(relName[2], "n_nationkey", 25);
+  s.AddAtt(relName[2], "n_name", 25);
+
+  char *cnf = " (s_suppkey = ps_suppkey) ";
+  yy_scan_string(cnf);
+  yyparse();
+  s.Apply(final, relName, 2);
+
+  cnf = " (s_nationkey = n_nationkey)  AND (n_name = 'AMERICA')   ";
+  yy_scan_string(cnf);
+  yyparse();
+
+  double result = s.Estimate(final, relName, 3);
+
+  cout << "Diff:" << fabs(result - 32000) << endl;
+  s.Apply(final, relName, 3);
+}
+
+TEST_F(StatisticsTest, ESTIMATE_AND_APPLY_TEST_Q7) {
+  Statistics s;
+  char *relName[] = {"orders", "lineitem"};
+
+  s.AddRel(relName[0], 1500000);
+  s.AddAtt(relName[0], "o_orderkey", 1500000);
+
+  s.AddRel(relName[1], 6001215);
+  s.AddAtt(relName[1], "l_orderkey", 1500000);
+  s.AddAtt(relName[1], "l_receiptdate", -1);
+
+  char *cnf = "(l_receiptdate >'1995-02-01' ) AND (l_orderkey = o_orderkey)";
+
+  yy_scan_string(cnf);
+  yyparse();
+  double result = s.Estimate(final, relName, 2);
+
+  cout << "Diff:" << fabs(result - 2000405) << endl;
+
+  s.Apply(final, relName, 2);
+}
+
+TEST_F(StatisticsTest, ESTIMATE_AND_APPLY_TEST_Q8) {
+  Statistics s;
+  char *relName[] = {"part", "partsupp"};
+
+  s.AddRel(relName[0], 200000);
+  s.AddAtt(relName[0], "p_partkey", 200000);
+  s.AddAtt(relName[0], "p_size", 50);
+
+  s.AddRel(relName[1], 800000);
+  s.AddAtt(relName[1], "ps_partkey", 200000);
+
+  char *cnf =
+      "(p_partkey=ps_partkey) AND (p_size =3 OR p_size=6 OR p_size =19)";
+
+  yy_scan_string(cnf);
+  yyparse();
+
+  double result = s.Estimate(final, relName, 2);
+
+  cout << "Diff:" << fabs(result - 48000) << endl;
+}
+
+TEST_F(StatisticsTest, ESTIMATE_AND_APPLY_TEST_Q9) {
+  Statistics s;
+  char *relName[] = {"part", "partsupp", "supplier"};
+
+  s.AddRel(relName[0], 200000);
+  s.AddAtt(relName[0], "p_partkey", 200000);
+  s.AddAtt(relName[0], "p_name", 199996);
+
+  s.AddRel(relName[1], 800000);
+  s.AddAtt(relName[1], "ps_partkey", 200000);
+  s.AddAtt(relName[1], "ps_suppkey", 10000);
+
+  s.AddRel(relName[2], 10000);
+  s.AddAtt(relName[2], "s_suppkey", 10000);
+
+  char *cnf =
+      "(p_partkey=ps_partkey) AND (p_name = 'dark green antique puff wheat') ";
+  yy_scan_string(cnf);
+  yyparse();
+  s.Apply(final, relName, 2);
+
+  cnf = " (s_suppkey = ps_suppkey) ";
+  yy_scan_string(cnf);
+  yyparse();
+
+  double result = s.Estimate(final, relName, 3);
+  cout << "Diff:" << fabs(result - 4) << endl;
+
+  s.Apply(final, relName, 3);
+}
+
+TEST_F(StatisticsTest, ESTIMATE_AND_APPLY_Q10) {
+  Statistics s;
+  char *relName[] = {"customer", "orders", "lineitem", "nation"};
+
+  s.AddRel(relName[0], 150000);
+  s.AddAtt(relName[0], "c_custkey", 150000);
+  s.AddAtt(relName[0], "c_nationkey", 25);
+
+  s.AddRel(relName[1], 1500000);
+  s.AddAtt(relName[1], "o_orderkey", 1500000);
+  s.AddAtt(relName[1], "o_custkey", 150000);
+  s.AddAtt(relName[1], "o_orderdate", -1);
+
+  s.AddRel(relName[2], 6001215);
+  s.AddAtt(relName[2], "l_orderkey", 1500000);
+
+  s.AddRel(relName[3], 25);
+  s.AddAtt(relName[3], "n_nationkey", 25);
+
+  char *cnf = "(c_custkey = o_custkey)  AND (o_orderdate > '1994-01-23') ";
+  yy_scan_string(cnf);
+  yyparse();
+  s.Apply(final, relName, 2);
+
+  cnf = " (l_orderkey = o_orderkey) ";
+  yy_scan_string(cnf);
+  yyparse();
+
+  s.Apply(final, relName, 3);
+
+  cnf = "(c_nationkey = n_nationkey) ";
+  yy_scan_string(cnf);
+  yyparse();
+
+  double result = s.Estimate(final, relName, 4);
+  cout << "Diff:" << fabs(result - 2000405) << endl;
+
+  s.Apply(final, relName, 4);
+}
+
+TEST_F(StatisticsTest, ESTIMATE_AND_APPLY_Q11) {
+  Statistics s;
+  char *relName[] = {"part", "lineitem"};
+
+  s.AddRel(relName[0], 200000);
+  s.AddAtt(relName[0], "p_partkey", 200000);
+  s.AddAtt(relName[0], "p_container", 40);
+
+  s.AddRel(relName[1], 6001215);
+  s.AddAtt(relName[1], "l_partkey", 200000);
+  s.AddAtt(relName[1], "l_shipinstruct", 4);
+  s.AddAtt(relName[1], "l_shipmode", 7);
+
+  char *cnf =
+      "(l_partkey = p_partkey) AND (l_shipmode = 'AIR' OR l_shipmode = 'AIR "
+      "REG') AND (p_container ='SM BOX' OR p_container = 'SM PACK')  AND "
+      "(l_shipinstruct = 'DELIVER IN PERSON')";
+
+  yy_scan_string(cnf);
+  yyparse();
+
+  double result = s.Estimate(final, relName, 2);
+
+  cout << "Diff:" << fabs(result - 21432.9) << endl;
+  s.Apply(final, relName, 2);
+}
+
 }  // namespace dbi

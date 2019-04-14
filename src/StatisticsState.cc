@@ -74,6 +74,9 @@ AttributeStats *StatisticsState ::FindAtt(std::string relName,
                                           std::string attName) {
   try {
     DisjointSetNode *node = FindSet(relName);
+    if (node == NULL) {
+      throw std::runtime_error("Relation not found in disjoint set");
+    }
     return attributeStore.at(MakeAttStoreKey(node->relName, attName));
   } catch (std::out_of_range &e) {
     return NULL;
@@ -84,7 +87,10 @@ AttributeStats *StatisticsState ::FindAtt(std::string relName,
                                           std::string attName,
                                           StatisticsState *copy) {
   try {
-    DisjointSetNode *node = FindSet(relName);
+    DisjointSetNode *node = copy->FindSet(relName);
+    if (node == NULL) {
+      throw std::runtime_error("Relation not found in disjoint set");
+    }
     return copy->attributeStore.at(MakeAttStoreKey(node->relName, attName));
   } catch (std::out_of_range &e) {
     return NULL;
@@ -93,6 +99,7 @@ AttributeStats *StatisticsState ::FindAtt(std::string relName,
 
 RelationStats *StatisticsState::FindRel(std::string relName) {
   try {
+    DisjointSetNode *node = FindSet(relName);
     return relationStore.at(relName);
   } catch (std::out_of_range &e) {
     return NULL;
@@ -411,4 +418,30 @@ std::pair<std::string, std::string> StatisticsState::SplitQualifiedAtt(
   retPair.first = rel;
   retPair.second = att;
   return retPair;
+}
+
+AttributeStats *StatisticsState ::SearchAttStore(std::string relName,
+                                                 std::string attName) {
+  try {
+    return attributeStore.at(MakeAttStoreKey(relName, attName));
+  } catch (std::out_of_range &e) {
+    return NULL;
+  }
+}
+
+RelationStats *StatisticsState::SearchRelStore(std::string relName) {
+  try {
+    return relationStore.at(relName);
+  } catch (std::out_of_range &e) {
+    return NULL;
+  }
+}
+
+void StatisticsState::RemoveAttStore(std::string relName, std::string attName) {
+  AttributeStats *attStats = SearchAttStore(relName, attName);
+  if (attStats == NULL) {
+    throw std::runtime_error("[ArgumentError]: Attribute  " + relName + +"|" +
+                             attName + " does not exists");
+  }
+  attributeStore.erase(MakeAttStoreKey(relName, attName));
 }
