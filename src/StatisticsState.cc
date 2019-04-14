@@ -485,11 +485,17 @@ void StatisticsState::Read(char* fromWhere) {
   int parentIdx = 0;
 
   for (auto it: disjointSets) {
-    auto p_it = std::find_if(disjointSets.begin(), disjointSets.end(), ParentFinder(parentNames[++parentIdx]));
 
-    if(p_it != disjointSets.end()) {
-      it->parent = *p_it;
+    if (parentNames[parentIdx].compare(it->relName) == 0) {
+      it->parent = it;
     }
+    else {
+      auto p_it = std::find_if(disjointSets.begin(), disjointSets.end(), ParentFinder(parentNames[++parentIdx]));
+
+      if(p_it != disjointSets.end()) {
+        it->parent = *p_it;
+    }
+    } 
   }
 
   close(statisticsFileDes);
@@ -554,7 +560,7 @@ void StatisticsState::ReadAttributeStatsFromFile(int statisticsFileDes, Relation
 
   // Create an entry in attribute store for this attribute
   std::pair<struct AttStoreKey, struct AttributeStats *>
-      attStoreEntry(MakeAttStoreKey(attStats->attName, whichRelStats.relName),
+      attStoreEntry(MakeAttStoreKey(whichRelStats.relName, attStats->attName),
                     attStats);
   attributeStore.insert(attStoreEntry);
 
@@ -581,7 +587,10 @@ void StatisticsState::ReadDisjointSetNodeFromFile(int statisticsFileDes, Disjoin
   read(statisticsFileDes, &keyLength, sizeof(size_t));
   char pkey[keyLength];
   read(statisticsFileDes, &pkey, keyLength);
-  std::string parentRelName(pkey);
+  std::string parentRelName;
+  for (int k = 0; k < keyLength; k++) {
+    parentRelName.push_back(pkey[k]);
+  }
   parentNames.push_back(parentRelName);
 
 }
@@ -656,7 +665,7 @@ void StatisticsState::WriteRelationStatsToFile(
        attributeIt != relStats->attributes.end(); attributeIt++) {
     std::string attName = *attributeIt;
     struct AttributeStats *attStats =
-        attributeStore.at(MakeAttStoreKey(attName, relStats->relName));
+        attributeStore.at(MakeAttStoreKey(relStats->relName, attName));
 
     // Write the attribute stats to the file
     WriteAttributeStatsToFile(attStats, statisticsFileDes);
