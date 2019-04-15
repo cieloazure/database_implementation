@@ -104,6 +104,9 @@ test3: alltest
 test4_1: alltest
 	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test4_1.out $(FILTERED_OBJECTS) obj/test/test4_1.o $(TESTLINKFLAGS) $(TESTFLAGS)
 
+test4_1_1: alltest
+	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test4_1.out $(FILTERED_OBJECTS) obj/test/test4_1_1.o $(TESTLINKFLAGS) $(TESTFLAGS)
+
 clean:
 	rm -f $(ODIR)/*.o 
 	rm -f $(ODIR)/*.h 

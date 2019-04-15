@@ -607,7 +607,8 @@ TEST_F(StatisticsTest, ESTIMATE_AND_APPLY_TEST_Q8) {
 
   double result = s.Estimate(final, relName, 2);
 
-  cout << "Diff:" << fabs(result - 48000) << endl;
+  cout << "Result:" << result << endl;
+  cout << "Diff:" << fabs(result - 47046.4) << endl;
 }
 
 TEST_F(StatisticsTest, ESTIMATE_AND_APPLY_TEST_Q9) {
@@ -704,7 +705,8 @@ TEST_F(StatisticsTest, ESTIMATE_AND_APPLY_Q11) {
 
   double result = s.Estimate(final, relName, 2);
 
-  cout << "Diff:" << fabs(result - 21432.9) << endl;
+  cout << "Result:" << result << endl;
+  cout << "Diff:" << fabs(result - 19653.2) << endl;
   s.Apply(final, relName, 2);
 }
 
