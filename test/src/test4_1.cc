@@ -159,10 +159,12 @@ void q3() {
   Statistics s;
   char *relName[] = {"supplier", "customer", "nation"};
 
-  s.Read(fileName);
+  // If you read the file from previous fileName,
+  // The attribute `c_custkey` exists as part of the joined relation
+  // s.Read(fileName);
 
   s.AddRel(relName[0], 10000);
-  s.AddAtt(relName[0], "s_nationey", 25);
+  s.AddAtt(relName[0], "s_nationkey", 25);
 
   s.AddRel(relName[1], 150000);
   s.AddAtt(relName[1], "c_custkey", 150000);
@@ -231,29 +233,36 @@ void q4() {
   s.CopyRel("nation", "n");
   s.CopyRel("region", "r");
 
+  // Added relNameCopy array as following operations are performed on the copies
+  // and not on original
+  char *relNameCopy[] = {"p", "ps", "s", "n", "r"};
+
   char *cnf = "(p.p_partkey=ps.ps_partkey) AND (p.p_size = 2)";
   yy_scan_string(cnf);
   yyparse();
-  s.Apply(final, relName, 2);
+  s.Apply(final, relNameCopy, 2);
 
   cnf = "(s.s_suppkey = ps.ps_suppkey)";
   yy_scan_string(cnf);
   yyparse();
-  s.Apply(final, relName, 3);
+  s.Apply(final, relNameCopy, 3);
 
   cnf = " (s.s_nationkey = n.n_nationkey)";
   yy_scan_string(cnf);
   yyparse();
-  s.Apply(final, relName, 4);
+  s.Apply(final, relNameCopy, 4);
 
   cnf = "(n.n_regionkey = r.r_regionkey) AND (r.r_name = 'AMERICA') ";
   yy_scan_string(cnf);
   yyparse();
 
-  double result = s.Estimate(final, relName, 5);
+  // CNF operations are performed on copies, but in estimate the relName array
+  // is used
+  // using relNameCopy
+  double result = s.Estimate(final, relNameCopy, 5);
   if (fabs(result - 3200) > 0.1) cout << "error in estimating Q4\n";
 
-  s.Apply(final, relName, 5);
+  s.Apply(final, relNameCopy, 5);
 
   s.Write(fileName);
 }
@@ -269,6 +278,12 @@ void q5() {
   s.AddRel(relName[1], 1500000);
   s.AddAtt(relName[1], "o_orderkey", 1500000);
   s.AddAtt(relName[1], "o_custkey", 150000);
+
+  // Orderdate attribute is missing in order to estimate the cost
+  // Should be expected to throw an error, however the test does not mention the
+  // error condition
+  // Hence, adding this attribute
+  s.AddAtt(relName[1], "o_orderdate", -1);
 
   s.AddRel(relName[2], 6001215);
   s.AddAtt(relName[2], "l_orderkey", 1500000);
@@ -331,13 +346,17 @@ void q7() {
   Statistics s;
   char *relName[] = {"orders", "lineitem"};
 
-  s.Read(fileName);
+  // s.Read(fileName);
 
   s.AddRel(relName[0], 1500000);
   s.AddAtt(relName[0], "o_orderkey", 1500000);
 
   s.AddRel(relName[1], 6001215);
   s.AddAtt(relName[1], "l_orderkey", 1500000);
+
+  // Receipt date is missing in statistics, added it here as we are not
+  // expecting errors in this test
+  s.AddAtt(relName[1], "l_receiptdate", -1);
 
   char *cnf = "(l_receiptdate >'1995-02-01' ) AND (l_orderkey = o_orderkey)";
 
@@ -355,9 +374,7 @@ void q7() {
 void q8() {
   Statistics s;
   char *relName[] = {"part", "partsupp"};
-
   s.Read(fileName);
-
   s.AddRel(relName[0], 200000);
   s.AddAtt(relName[0], "p_partkey", 200000);
   s.AddAtt(relName[0], "p_size", 50);
@@ -416,7 +433,7 @@ void q10() {
   Statistics s;
   char *relName[] = {"customer", "orders", "lineitem", "nation"};
 
-  s.Read(fileName);
+  // s.Read(fileName);
 
   s.AddRel(relName[0], 150000);
   s.AddAtt(relName[0], "c_custkey", 150000);
@@ -425,6 +442,7 @@ void q10() {
   s.AddRel(relName[1], 1500000);
   s.AddAtt(relName[1], "o_orderkey", 1500000);
   s.AddAtt(relName[1], "o_custkey", 150000);
+  s.AddAtt(relName[1], "o_orderdate", -1);
 
   s.AddRel(relName[2], 6001215);
   s.AddAtt(relName[2], "l_orderkey", 1500000);
@@ -459,11 +477,11 @@ void q11() {
   Statistics s;
   char *relName[] = {"part", "lineitem"};
 
-  s.Read(fileName);
+  // s.Read(fileName);
 
   s.AddRel(relName[0], 200000);
   s.AddAtt(relName[0], "p_partkey", 200000);
-  s.AddAtt(relName[0], "p_conatiner", 40);
+  s.AddAtt(relName[0], "p_container", 40);
 
   s.AddRel(relName[1], 6001215);
   s.AddAtt(relName[1], "l_partkey", 200000);
