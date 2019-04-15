@@ -250,6 +250,9 @@ std::pair<std::string, double> Statistics ::CalculateCostSelectionEquality(
   } else {
     att = currentState->FindAtt(compOp->left->value, relNames);
   }
+  if (att == NULL) {
+    throw std::runtime_error("Invalid relNames[]. Join operation failed.");
+  }
   double distinctValues = att->numDistincts;
   double prev_cost = relNameToCostMap[att->relName];
   std::pair<std::string, double> retTuple(att->relName,
@@ -268,6 +271,9 @@ std::pair<std::string, double> Statistics ::CalculateCostSelectionInequality(
   } else {
     att = currentState->FindAtt(compOp->left->value, relNames);
   }
+  if (att == NULL) {
+    throw std::runtime_error("Invalid relNames[]. Join operation failed.");
+  }
   double initial_cost = relNamesToCostMap[att->relName];
   std::pair<std::string, double> retTuple(att->relName, initial_cost / 3.0);
   return retTuple;
@@ -280,6 +286,10 @@ Statistics ::CalculateCostJoin(ComparisonOp *op,
   std::vector<std::string> relNames = RelNamesKeySet(relNameToCostMap);
   AttributeStats *att1 = currentState->FindAtt(op->left->value, relNames);
   AttributeStats *att2 = currentState->FindAtt(op->right->value, relNames);
+
+  if (att1 == NULL && att2 == NULL) {
+    throw std::runtime_error("Invalid relNames[]. Join operation failed.");
+  }
 
   double distinctTuplesLeft = att1->numDistincts;
   double distinctTuplesRight = att2->numDistincts;
