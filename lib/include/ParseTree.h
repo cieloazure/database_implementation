@@ -14,7 +14,7 @@
 
 struct Operand {
 
-	// this tells us the type of the operand: FLOAT, INT, STRING...
+	// this tells us the type of the operand: FLOAT, INT, STRING, NAME...
 	int code;
 
 	// this is the actual operand
