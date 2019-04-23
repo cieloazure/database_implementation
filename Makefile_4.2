@@ -1,0 +1,62 @@
+
+CC = g++ -O2 -Wno-deprecated 
+
+ODIR=obj
+$(shell mkdir -p obj)
+LIBDIR=lib
+LIBIDIR=lib/include
+INCLUDEDIR=include
+SOURCEDIR=src
+CCOMPILEFLAGS= -std=c++11
+
+tag = -i
+
+ifdef linux
+tag = -n
+endif
+
+$(ODIR)/%.o: $(SOURCEDIR)/%.cc 
+	$(CC) -c -o $@ $< -I$(INCLUDEDIR)
+	
+$(ODIR)/main.o : $(SOURCEDIR)/main.cc
+	$(CC)$(CCOMPILEFLAGS) -g -c -o $@ $< -I$(INCLUDEDIR)
+
+$(ODIR)/Optimizer.o : $(SOURCEDIR)/Optimizer.cc
+	$(CC) $(CCOMPILEFLAGS) -g -c -o $@ $<
+
+$(ODIR)/y.tab.c: $(LIBDIR)/Parser.y
+	yacc -d -o $@ $<
+	sed $(tag) $(ODIR)/y.tab.c -e "s/  __attribute__ ((__unused__))$$/# ifndef __cplusplus\n  __attribute__ ((__unused__));\n# endif/" 
+	
+$(ODIR)/y.tab.o: $(ODIR)/y.tab.c
+	g++ -c -o $@ $< -I$(INCLUDEDIR)
+
+$(ODIR)/lex.yy.c: $(LIBDIR)/Lexer.l
+	lex -o $@ $<
+
+$(ODIR)/lex.yy.o: $(ODIR)/lex.yy.c
+	gcc -c -o $@ $< -I$(INCLUDEDIR)
+
+OBJECTS += $(ODIR)/y.tab.o
+OBJECTS += $(ODIR)/lex.yy.o
+
+OBJECTS +=$(ODIR)/main.o
+# OBJECTS +=$(ODIR)/Optimizer.o
+SOURCES=$(wildcard $(SOURCEDIR)/*.cc)
+OBJECTS += $(patsubst $(SOURCEDIR)/%.cc, $(ODIR)/%.o, $(SOURCES))
+all: 
+
+main: $(OBJECTS)
+	$(CC) -o $(LIBDIR)/main -I$(SOURCEDIR) -I$(LIBIDIR)  -I$(ODIR) -ll
+
+clean: 
+	rm -f *.o
+	rm -f *.out
+	rm -f y.tab.c
+	rm -f lex.yy.c
+	rm -f y.tab.h
+	rm -f $(ODIR)/*.o 
+	rm -f $(ODIR)/*.h 
+	rm -f $(ODIR)/*.c 
+	rm -f $(ODIR)/*.c-e
+	rm -f $(ODIR)/*.gcno
