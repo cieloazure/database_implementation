@@ -119,7 +119,7 @@ clean:
 	rm -rf $(ODIR)/test
 	rm -f *~ core 
 	rm -f $(INCDIR)/*~ 
-	# rm -rf bin/
+	rm -rf bin/
 
 test_clean:
 	rm -f $(ODIR)/*.gcda
