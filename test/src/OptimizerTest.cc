@@ -240,4 +240,16 @@ TEST_F(OptimizerTest, PARSE_TEST_11) {
   ParseTreePrinter::PrintSQL(tables, attsToSelect, groupingAtts, boolean,
                              finalFunction);
 }
+
+TEST_F(OptimizerTest, OptimumOrderingOfJoinTest) {
+  std::map<std::string, std::string> joinrelNameTojoinAtt;
+  joinrelNameTojoinAtt["R"] = "r";
+  joinrelNameTojoinAtt["S"] = "s";
+  joinrelNameTojoinAtt["T"] = "t";
+  joinrelNameTojoinAtt["U"] = "u";
+
+  Optimizer o;
+  o.ConstructJoinCNF(joinrelNameTojoinAtt, "R", "S");
+  // o.OptimumOrderingOfJoin(relNames);
+}
 }  // namespace dbi

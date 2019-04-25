@@ -64,7 +64,7 @@
 %type <myBoolOperand> Literal
 %type <myNames> Atts
 
-%start SQL
+%start SQL 
 
 
 //******************************************************************************
