@@ -64,7 +64,7 @@
 %type <myBoolOperand> Literal
 %type <myNames> Atts
 
-%start SQL 
+%start START
 
 
 //******************************************************************************
@@ -75,6 +75,8 @@
  */
 
 %%
+
+START: SQL | AndList
 
 SQL: SELECT WhatIWant FROM Tables WHERE AndList
 {
@@ -235,6 +237,7 @@ AndList: '(' OrList ')' AND AndList
         // here we need to pre-pend the OrList to the AndList
         // first we allocate space for this node
         $$ = (struct AndList *) malloc (sizeof (struct AndList));
+		final = $$;
 
         // hang the OrList off of the left
         $$->left = $2;
@@ -248,6 +251,7 @@ AndList: '(' OrList ')' AND AndList
 {
         // just return the OrList!
         $$ = (struct AndList *) malloc (sizeof (struct AndList));
+		final = $$;
         $$->left = $2;
         $$->rightAnd = NULL;
 }

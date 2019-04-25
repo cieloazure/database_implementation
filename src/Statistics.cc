@@ -95,6 +95,9 @@ double Statistics ::Estimate(struct AndList *parseTree, char *relNames[],
 
 double Statistics::CalculateCost(AndList *parseTree, char *relNames[],
                                  int numToJoin, StatisticsState *currentState) {
+  if (parseTree == NULL) {
+    return -1000000000000.0;
+  }
   // Get representatives of the sets
   std::set<std::string> disjointSetSubset;
   int ridx = numToJoin;
@@ -415,10 +418,6 @@ std::vector<std::string> Statistics::RelNamesKeySet(
   return keySet;
 }
 
-void Statistics::Read(char *fromWhere) {
-  currentState->Read(fromWhere);
-}
+void Statistics::Read(char *fromWhere) { currentState->Read(fromWhere); }
 
-void Statistics::Write(char *toWhere) {
-  currentState->Write(toWhere);
-}
+void Statistics::Write(char *toWhere) { currentState->Write(toWhere); }
