@@ -24,11 +24,16 @@ void ParseTreePrinter::PrintAndListHelper(struct AndList *boolean) {
 }
 
 void ParseTreePrinter::PrintFuncOperator(struct FuncOperator *func) {
+  std::cout << "FUNCTION -> Aggregation Function ";
   if (func == NULL) {
-    std::cout << "null]" << std::endl;
+    std::cout << "not present!" << std::endl;
     return;
+  } else {
+    std::cout << "present! Don't know how to "
+                 "print it for understanding!"
+              << std::endl;
   }
-  PrintFuncOperatorHelper(func);
+  // PrintFuncOperatorHelper(func);
 }
 
 void ParseTreePrinter::PrintFuncOperatorHelper(struct FuncOperator *func) {
@@ -131,6 +136,6 @@ void ParseTreePrinter::PrintSQL(struct TableList *tables,
   std::cout << "GROUPING ATTRIBUTE ";
   ParseTreePrinter::PrintNameList(groupingAtts);
   ParseTreePrinter::PrintAndList(boolean);
-  // ParseTreePrinter::PrintFuncOperator(func);
+  ParseTreePrinter::PrintFuncOperator(func);
   std::cout << std::endl;
 }

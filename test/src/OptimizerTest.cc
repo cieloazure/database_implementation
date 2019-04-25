@@ -59,6 +59,7 @@ TEST_F(OptimizerTest, PARSE_TEST) {
       "SELECT l_orderkey FROM lineitem AS li WHERE (l_orderkey = 5)";
   YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
   yyparse();
+  std::cout << cnf_string << std::endl;
   ParseTreePrinter::PrintSQL(tables, attsToSelect, groupingAtts, boolean,
                              finalFunction);
 }
@@ -73,6 +74,7 @@ TEST_F(OptimizerTest, PARSE_TEST_2) {
       "SELECT SUM(l_orderkey) FROM lineitem AS li WHERE (l_orderkey = 5)";
   YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
   yyparse();
+  std::cout << cnf_string << std::endl;
   ParseTreePrinter::PrintSQL(tables, attsToSelect, groupingAtts, boolean,
                              finalFunction);
 }
@@ -88,6 +90,7 @@ TEST_F(OptimizerTest, PARSE_TEST_3) {
       "5)";
   YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
   yyparse();
+  std::cout << cnf_string << std::endl;
   ParseTreePrinter::PrintSQL(tables, attsToSelect, groupingAtts, boolean,
                              finalFunction);
 }
@@ -104,6 +107,7 @@ TEST_F(OptimizerTest, PARSE_TEST_4) {
       "5)";
   YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
   yyparse();
+  std::cout << cnf_string << std::endl;
   ParseTreePrinter::PrintSQL(tables, attsToSelect, groupingAtts, boolean,
                              finalFunction);
 }
@@ -122,6 +126,7 @@ TEST_F(OptimizerTest, PARSE_TEST_5) {
       "5)";
   YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
   yyparse();
+  std::cout << cnf_string << std::endl;
   ParseTreePrinter::PrintSQL(tables, attsToSelect, groupingAtts, boolean,
                              finalFunction);
 }
@@ -141,6 +146,7 @@ TEST_F(OptimizerTest, PARSE_TEST_6) {
       "5)";
   YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
   yyparse();
+  std::cout << cnf_string << std::endl;
   ParseTreePrinter::PrintSQL(tables, attsToSelect, groupingAtts, boolean,
                              finalFunction);
 }
@@ -160,6 +166,7 @@ TEST_F(OptimizerTest, PARSE_TEST_7) {
       "5)";
   YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
   yyparse();
+  std::cout << cnf_string << std::endl;
   ParseTreePrinter::PrintSQL(tables, attsToSelect, groupingAtts, boolean,
                              finalFunction);
 }
@@ -175,6 +182,7 @@ TEST_F(OptimizerTest, PARSE_TEST_8) {
       "5)";
   YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
   yyparse();
+  std::cout << cnf_string << std::endl;
   ParseTreePrinter::PrintSQL(tables, attsToSelect, groupingAtts, boolean,
                              finalFunction);
 }
@@ -191,6 +199,7 @@ TEST_F(OptimizerTest, PARSE_TEST_9) {
       "5)";
   YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
   yyparse();
+  std::cout << cnf_string << std::endl;
   ParseTreePrinter::PrintSQL(tables, attsToSelect, groupingAtts, boolean,
                              finalFunction);
 }
@@ -207,6 +216,7 @@ TEST_F(OptimizerTest, PARSE_TEST_10) {
       "5)";
   YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
   yyparse();
+  std::cout << cnf_string << std::endl;
   ParseTreePrinter::PrintSQL(tables, attsToSelect, groupingAtts, boolean,
                              finalFunction);
 }
@@ -226,6 +236,7 @@ TEST_F(OptimizerTest, PARSE_TEST_11) {
   //       "5)";
   YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
   yyparse();
+  std::cout << cnf_string << std::endl;
   ParseTreePrinter::PrintSQL(tables, attsToSelect, groupingAtts, boolean,
                              finalFunction);
 }

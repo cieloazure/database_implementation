@@ -108,7 +108,7 @@ test4_1: alltest
 	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test4_1.out $(FILTERED_OBJECTS) obj/test/test4_1.o $(TESTLINKFLAGS) $(TESTFLAGS)
 
 test4_1_1: alltest
-	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test4_1.out $(FILTERED_OBJECTS) obj/test/test4_1_1.o $(TESTLINKFLAGS) $(TESTFLAGS)
+	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test4_1.old.out $(FILTERED_OBJECTS) obj/test/test4_1_1.old.o $(TESTLINKFLAGS) $(TESTFLAGS)
 
 clean:
 	rm -f $(ODIR)/*.o 
