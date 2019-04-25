@@ -241,7 +241,7 @@ TEST_F(OptimizerTest, PARSE_TEST_11) {
                              finalFunction);
 }
 
-TEST_F(OptimizerTest, OptimumOrderingOfJoinTest) {
+TEST_F(OptimizerTest, ConstructJoinCNFTest) {
   std::map<std::string, std::string> joinrelNameTojoinAtt;
   joinrelNameTojoinAtt["R"] = "r";
   joinrelNameTojoinAtt["S"] = "s";
@@ -250,6 +250,7 @@ TEST_F(OptimizerTest, OptimumOrderingOfJoinTest) {
 
   Optimizer o;
   o.ConstructJoinCNF(joinrelNameTojoinAtt, "R", "S");
+  EXPECT_TRUE(final != NULL);
   // o.OptimumOrderingOfJoin(relNames);
 }
 }  // namespace dbi

@@ -170,6 +170,10 @@ void Optimizer::CalculateCost2(
     min = cost3;
     minIdx = 2;
   }
+
+  // Update matrices with min cost
+  costMatrix[start][end] = min;
+  stateMatrix[start][end] = perm[minIdx];
 }
 
 void Optimizer::ConstructJoinCNF(
