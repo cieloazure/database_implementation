@@ -241,16 +241,80 @@ TEST_F(OptimizerTest, PARSE_TEST_11) {
                              finalFunction);
 }
 
+TEST_F(OptimizerTest, PARSE_TEST_12) {
+  const char cnf_string[] =
+      "SELECT a,b,c FROM d AS d1,e AS e1 WHERE (d1.a = e1.a)";
+  //   "SELECT SUM DISTINCT (a + b) FROM c AS c1"
+  //   "WHERE ('foo' > this.that OR 2 = 3) AND (12 > 5)"
+  //   "GROUP BY a.f,"
+  //   "c.d, g.f";
+  //   const char cnf_string[] =
+  //       "SELECT SUM(l_orderkey), l_suppkey FROM lineitem AS li WHERE "
+  //       "(l_orderkey = "
+  //       "5)";
+  YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
+  yyparse();
+  std::cout << cnf_string << std::endl;
+  ParseTreePrinter::PrintSQL(tables, attsToSelect, groupingAtts, boolean,
+                             finalFunction);
+}
+
 TEST_F(OptimizerTest, ConstructJoinCNFTest) {
-  std::map<std::string, std::string> joinrelNameTojoinAtt;
-  joinrelNameTojoinAtt["R"] = "r";
-  joinrelNameTojoinAtt["S"] = "s";
-  joinrelNameTojoinAtt["T"] = "t";
-  joinrelNameTojoinAtt["U"] = "u";
+  std::vector<std::vector<std::string>> joinMatrix;
+  std::vector<std::string> row1;
+  row1.push_back("");
+  row1.push_back("b");
+  row1.push_back("");
+  row1.push_back("a");
+  joinMatrix.push_back(row1);
+  std::vector<std::string> row2;
+  row2.push_back("b");
+  row2.push_back("");
+  row2.push_back("c");
+  row2.push_back("");
+  joinMatrix.push_back(row2);
+  std::vector<std::string> row3;
+  row3.push_back("");
+  row3.push_back("c");
+  row3.push_back("");
+  row3.push_back("d");
+  joinMatrix.push_back(row3);
+  std::vector<std::string> row4;
+  row4.push_back("a");
+  row4.push_back("");
+  row4.push_back("d");
+  row4.push_back("");
+  joinMatrix.push_back(row4);
 
   Optimizer o;
-  o.ConstructJoinCNF(joinrelNameTojoinAtt, "R", "S");
+  std::vector<std::string> relNames;
+  relNames.push_back("R");
+  relNames.push_back("S");
+  relNames.push_back("T");
+  relNames.push_back("U");
+  o.ConstructJoinCNF(relNames, joinMatrix, "R", "S");
   EXPECT_TRUE(final != NULL);
-  // o.OptimumOrderingOfJoin(relNames);
 }
+
+TEST_F(OptimizerTest, OptimizeOrderOfRelations) {
+  Statistics s;
+  char *relName[] = {"R", "S", "T", "U"};
+
+  s.AddRel(relName[0], 1000);
+  s.AddAtt(relName[0], "a", 100);
+  s.AddAtt(relName[0], "b", 200);
+
+  s.AddRel(relName[1], 1000);
+  s.AddAtt(relName[1], "b", 100);
+  s.AddAtt(relName[1], "c", 500);
+
+  s.AddRel(relName[2], 1000);
+  s.AddAtt(relName[2], "c", 20);
+  s.AddAtt(relName[2], "d", 50);
+
+  s.AddRel(relName[3], 1000);
+  s.AddAtt(relName[3], "a", 50);
+  s.AddAtt(relName[3], "d", 1000);
+}
+
 }  // namespace dbi

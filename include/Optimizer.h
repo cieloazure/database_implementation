@@ -40,23 +40,26 @@ class Optimizer {
   Optimizer();
   void Read(char *fromWhere);
   void ReadParserDatastructures();
-  void OptimumOrderingOfJoin(
-      Statistics *prevStats,
-      std::map<std::string, std::string> joinRelationsTojoinAttributes);
-  void CalculateCost1(std::vector<std::vector<double> > &costMatrix,
-                      std::vector<std::vector<Statistics *> > &stateMatrix,
-                      std::vector<std::string> &relNames, int start, int end,
-                      std::map<std::string, std::string> joinRelTojoinAtt);
 
-  void CalculateCost2(Statistics *prevStats,
-                      std::vector<std::vector<double> > &costMatrix,
-                      std::vector<std::vector<Statistics *> > &stateMatrix,
-                      std::vector<std::string> &relNames, int start, int end,
-                      std::map<std::string, std::string> joinRelTojoinAtt);
+  void OptimumOrderingOfJoin(Statistics *prevStats,
+                             std::vector<std::string> relNames,
+                             std::vector<std::vector<std::string> > joinMatrix);
 
-  void ConstructJoinCNF(
-      std::map<std::string, std::string> relNameToJoinAttribute,
-      std::string left, std::string right);
+  void CalculateCostForGreaterThanThreeRelations(
+      std::vector<std::vector<double> > &costMatrix,
+      std::vector<std::vector<Statistics *> > &stateMatrix,
+      std::vector<std::string> &relNames,
+      std::vector<std::vector<std::string> > joinMatrix, int start, int end);
+
+  void CalculateCostForThreeRelations(
+      Statistics *prevStats, std::vector<std::vector<double> > &costMatrix,
+      std::vector<std::vector<Statistics *> > &stateMatrix,
+      std::vector<std::string> &relNames,
+      std::vector<std::vector<std::string> > joinMatrix, int start, int end);
+
+  void ConstructJoinCNF(std::vector<std::string> relNames,
+                        std::vector<std::vector<std::string> > joinMatrix,
+                        std::string left, std::string right);
 };
 
 #endif

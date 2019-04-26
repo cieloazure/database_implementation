@@ -9,21 +9,15 @@ void Optimizer::ReadParserDatastructures() {
 void Optimizer::Read(char *fromWhere) { currentState->Read(fromWhere); }
 
 void Optimizer::OptimumOrderingOfJoin(
-    Statistics *prevStats,
-    std::map<std::string, std::string> joinRelTojoinAtt) {
-  int length = joinRelTojoinAtt.size();
-  std::vector<std::string> relNames;
+    Statistics *prevStats, std::vector<std::string> relNames,
+    std::vector<std::vector<std::string>> joinMatrix) {
+  // Start Optimization
   std::vector<std::vector<double>> costMatrix;
   std::vector<std::vector<Statistics *>> stateMatrix;
 
   // Initialization
-
-  // keyset of map
-  for (auto it = joinRelTojoinAtt.begin(); it != joinRelTojoinAtt.end(); it++) {
-    relNames.push_back(it->first);
-  }
-
   // init matrices
+  int length = relNames.size();
   for (int i = 0; i < length; i++) {
     std::vector<Statistics *> initialState;
     std::vector<double> initialCosts;
@@ -52,11 +46,13 @@ void Optimizer::OptimumOrderingOfJoin(
       double minCost = -1.0;
       if (diff > 2) {
         // Use costMatrix to estimate cost
-        // CalculateCost1(costMatrix, stateMatrix);
+        CalculateCostForGreaterThanThreeRelations(
+            costMatrix, stateMatrix, relNames, joinMatrix, start, end);
       } else {
         // Calculate permutations of three relations
         // and use prevStats to estimate cost
-        // CalculateCost2(costMatrix, stateMatrix);
+        CalculateCostForThreeRelations(prevStats, costMatrix, stateMatrix,
+                                       relNames, joinMatrix, start, end);
       }
       start++;
       end++;
@@ -73,11 +69,12 @@ void Optimizer::OptimumOrderingOfJoin(
   }
 }
 
-void Optimizer::CalculateCost1(
+void Optimizer::CalculateCostForGreaterThanThreeRelations(
     std::vector<std::vector<double>> &costMatrix,
     std::vector<std::vector<Statistics *>> &stateMatrix,
-    std::vector<std::string> &relNames, int start, int end,
-    std::map<std::string, std::string> joinRelTojoinAtt) {
+    std::vector<std::string> &relNames,
+    std::vector<std::vector<std::string>> joinMatrix, int start, int end) {
+  // Start
   // find min
   bool firstMatch = costMatrix[start][end - 1] < costMatrix[start + 1][end];
 
@@ -86,11 +83,12 @@ void Optimizer::CalculateCost1(
   if (firstMatch) {
     toJoinState = stateMatrix[start][end - 1];
     // Create parse Tree for join condition
-    ConstructJoinCNF(joinRelTojoinAtt, relNames[start], relNames[end]);
+    ConstructJoinCNF(relNames, joinMatrix, relNames[start], relNames[end]);
   } else {
     toJoinState = stateMatrix[start + 1][end];
     // Create parse Tree for join condition
-    ConstructJoinCNF(joinRelTojoinAtt, relNames[start + 1], relNames[start]);
+    ConstructJoinCNF(relNames, joinMatrix, relNames[start + 1],
+                     relNames[start]);
   }
   Statistics *toJoinStateCopy = new Statistics(*toJoinState);
 
@@ -111,11 +109,11 @@ void Optimizer::CalculateCost1(
   stateMatrix[start][end] = toJoinStateCopy;
 }
 
-void Optimizer::CalculateCost2(
+void Optimizer::CalculateCostForThreeRelations(
     Statistics *prevStats, std::vector<std::vector<double>> &costMatrix,
     std::vector<std::vector<Statistics *>> &stateMatrix,
-    std::vector<std::string> &relNames, int start, int end,
-    std::map<std::string, std::string> joinRelTojoinAtt) {
+    std::vector<std::string> &relNames,
+    std::vector<std::vector<std::string>> joinMatrix, int start, int end) {
   // Create relNames array for joining relations
   int joinNum = end - start + 1;
   int min = -1;
@@ -128,9 +126,9 @@ void Optimizer::CalculateCost2(
   relNamesSubset[0] = relNames[start].c_str();
   relNamesSubset[1] = relNames[start + 1].c_str();
   relNamesSubset[2] = relNames[end].c_str();
-  ConstructJoinCNF(joinRelTojoinAtt, relNamesSubset[0], relNamesSubset[1]);
+  ConstructJoinCNF(relNames, joinMatrix, relNamesSubset[0], relNamesSubset[1]);
   copy1->Apply(final, (char **)relNamesSubset, 2);
-  ConstructJoinCNF(joinRelTojoinAtt, relNamesSubset[0], relNamesSubset[2]);
+  ConstructJoinCNF(relNames, joinMatrix, relNamesSubset[0], relNamesSubset[2]);
   double cost1 = copy1->Estimate(final, (char **)relNamesSubset, 3);
   copy1->Apply(final, (char **)relNamesSubset, 3);
   perm.push_back(copy1);
@@ -144,9 +142,9 @@ void Optimizer::CalculateCost2(
   relNamesSubset[0] = relNames[start + 1].c_str();
   relNamesSubset[1] = relNames[end].c_str();
   relNamesSubset[2] = relNames[start].c_str();
-  ConstructJoinCNF(joinRelTojoinAtt, relNamesSubset[0], relNamesSubset[1]);
+  ConstructJoinCNF(relNames, joinMatrix, relNamesSubset[0], relNamesSubset[1]);
   copy2->Apply(final, (char **)relNamesSubset, 2);
-  ConstructJoinCNF(joinRelTojoinAtt, relNamesSubset[0], relNamesSubset[2]);
+  ConstructJoinCNF(relNames, joinMatrix, relNamesSubset[0], relNamesSubset[2]);
   double cost2 = copy2->Estimate(final, (char **)relNamesSubset, 3);
   copy2->Apply(final, (char **)relNamesSubset, 3);
   perm.push_back(copy2);
@@ -160,9 +158,9 @@ void Optimizer::CalculateCost2(
   relNamesSubset[0] = relNames[start].c_str();
   relNamesSubset[1] = relNames[end].c_str();
   relNamesSubset[2] = relNames[start + 1].c_str();
-  ConstructJoinCNF(joinRelTojoinAtt, relNamesSubset[0], relNamesSubset[1]);
+  ConstructJoinCNF(relNames, joinMatrix, relNamesSubset[0], relNamesSubset[1]);
   copy3->Apply(final, (char **)relNamesSubset, 2);
-  ConstructJoinCNF(joinRelTojoinAtt, relNamesSubset[0], relNamesSubset[2]);
+  ConstructJoinCNF(relNames, joinMatrix, relNamesSubset[0], relNamesSubset[2]);
   double cost3 = copy3->Estimate(final, (char **)relNamesSubset, 3);
   copy3->Apply(final, (char **)relNamesSubset, 3);
   perm.push_back(copy3);
@@ -177,13 +175,24 @@ void Optimizer::CalculateCost2(
 }
 
 void Optimizer::ConstructJoinCNF(
-    std::map<std::string, std::string> relNameToJoinAttribute, std::string left,
+    std::vector<std::string> relNames,
+    std::vector<std::vector<std::string>> joinMatrix, std::string left,
     std::string right) {
+  auto leftIter = std::find(relNames.begin(), relNames.end(), left);
+  int idxLeft = std::distance(relNames.begin(), leftIter);
+
+  auto rightIter = std::find(relNames.begin(), relNames.end(), right);
+  int idxRight = std::distance(relNames.begin(), rightIter);
+
   std::string cnfString;
   cnfString.append("(");
-  cnfString.append(relNameToJoinAttribute[left]);
+  cnfString.append(left);
+  cnfString.append(".");
+  cnfString.append(joinMatrix[idxLeft][idxRight]);
   cnfString.append(" = ");
-  cnfString.append(relNameToJoinAttribute[right]);
+  cnfString.append(right);
+  cnfString.append(".");
+  cnfString.append(joinMatrix[idxRight][idxLeft]);
   cnfString.append(")");
   std::cout << "Joining...." << cnfString << std::endl;
   yy_scan_string(cnfString.c_str());
