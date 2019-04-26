@@ -315,6 +315,41 @@ TEST_F(OptimizerTest, OptimizeOrderOfRelations) {
   s.AddRel(relName[3], 1000);
   s.AddAtt(relName[3], "a", 50);
   s.AddAtt(relName[3], "d", 1000);
+
+  std::vector<std::vector<std::string>> joinMatrix;
+  std::vector<std::string> row1;
+  row1.push_back("");
+  row1.push_back("b");
+  row1.push_back("");
+  row1.push_back("a");
+  joinMatrix.push_back(row1);
+  std::vector<std::string> row2;
+  row2.push_back("b");
+  row2.push_back("");
+  row2.push_back("c");
+  row2.push_back("");
+  joinMatrix.push_back(row2);
+  std::vector<std::string> row3;
+  row3.push_back("");
+  row3.push_back("c");
+  row3.push_back("");
+  row3.push_back("d");
+  joinMatrix.push_back(row3);
+  std::vector<std::string> row4;
+  row4.push_back("a");
+  row4.push_back("");
+  row4.push_back("d");
+  row4.push_back("");
+  joinMatrix.push_back(row4);
+
+  std::vector<std::string> relNames;
+  relNames.push_back("R");
+  relNames.push_back("S");
+  relNames.push_back("T");
+  relNames.push_back("U");
+
+  Optimizer o;
+  o.OptimumOrderingOfJoin(&s, relNames, joinMatrix);
 }
 
 }  // namespace dbi

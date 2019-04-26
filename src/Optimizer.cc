@@ -34,6 +34,16 @@ void Optimizer::OptimumOrderingOfJoin(
     costMatrix[i][i + 1] = 0;
   }
 
+  // Print
+  auto print = [&costMatrix, &length]() -> void {
+    for (int i = 0; i < length; i++) {
+      for (int j = 0; j < length; j++) {
+        std::cout << costMatrix[i][j] << " ";
+      }
+      std::cout << std::endl;
+    }
+  };
+
   // DP begins
   int diff = 2;
   while (diff < length) {
@@ -43,7 +53,6 @@ void Optimizer::OptimumOrderingOfJoin(
     while (end < length) {
       std::cout << "Calculate min cost of range of relations:" << start
                 << " to " << end << std::endl;
-      double minCost = -1.0;
       if (diff > 2) {
         // Use costMatrix to estimate cost
         CalculateCostForGreaterThanThreeRelations(
@@ -58,14 +67,7 @@ void Optimizer::OptimumOrderingOfJoin(
       end++;
     }
     diff++;
-  }
-
-  // Print
-  for (int i = 0; i < length; i++) {
-    for (int j = 0; j < length; j++) {
-      std::cout << costMatrix[i][j] << " ";
-    }
-    std::cout << std::endl;
+    print();
   }
 }
 
@@ -114,7 +116,7 @@ void Optimizer::CalculateCostForThreeRelations(
     std::vector<std::vector<Statistics *>> &stateMatrix,
     std::vector<std::string> &relNames,
     std::vector<std::vector<std::string>> joinMatrix, int start, int end) {
-  // Create relNames array for joining relations
+  // Init
   int joinNum = end - start + 1;
   int min = -1;
   int minIdx = -1;
@@ -127,9 +129,10 @@ void Optimizer::CalculateCostForThreeRelations(
   relNamesSubset[1] = relNames[start + 1].c_str();
   relNamesSubset[2] = relNames[end].c_str();
   ConstructJoinCNF(relNames, joinMatrix, relNamesSubset[0], relNamesSubset[1]);
+  double cost1 = copy1->Estimate(final, (char **)relNamesSubset, 2);
   copy1->Apply(final, (char **)relNamesSubset, 2);
   ConstructJoinCNF(relNames, joinMatrix, relNamesSubset[0], relNamesSubset[2]);
-  double cost1 = copy1->Estimate(final, (char **)relNamesSubset, 3);
+  double debugcost1 = copy1->Estimate(final, (char **)relNamesSubset, 3);
   copy1->Apply(final, (char **)relNamesSubset, 3);
   perm.push_back(copy1);
   if (cost1 < min) {
@@ -143,9 +146,10 @@ void Optimizer::CalculateCostForThreeRelations(
   relNamesSubset[1] = relNames[end].c_str();
   relNamesSubset[2] = relNames[start].c_str();
   ConstructJoinCNF(relNames, joinMatrix, relNamesSubset[0], relNamesSubset[1]);
+  double cost2 = copy2->Estimate(final, (char **)relNamesSubset, 2);
   copy2->Apply(final, (char **)relNamesSubset, 2);
   ConstructJoinCNF(relNames, joinMatrix, relNamesSubset[0], relNamesSubset[2]);
-  double cost2 = copy2->Estimate(final, (char **)relNamesSubset, 3);
+  double debugcost2 = copy2->Estimate(final, (char **)relNamesSubset, 3);
   copy2->Apply(final, (char **)relNamesSubset, 3);
   perm.push_back(copy2);
   if (cost2 < min) {
@@ -159,9 +163,10 @@ void Optimizer::CalculateCostForThreeRelations(
   relNamesSubset[1] = relNames[end].c_str();
   relNamesSubset[2] = relNames[start + 1].c_str();
   ConstructJoinCNF(relNames, joinMatrix, relNamesSubset[0], relNamesSubset[1]);
+  double cost3 = copy3->Estimate(final, (char **)relNamesSubset, 2);
   copy3->Apply(final, (char **)relNamesSubset, 2);
   ConstructJoinCNF(relNames, joinMatrix, relNamesSubset[0], relNamesSubset[2]);
-  double cost3 = copy3->Estimate(final, (char **)relNamesSubset, 3);
+  double debugcost3 = copy3->Estimate(final, (char **)relNamesSubset, 3);
   copy3->Apply(final, (char **)relNamesSubset, 3);
   perm.push_back(copy3);
   if (cost3 < min) {
