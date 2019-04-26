@@ -4,6 +4,7 @@
 #include <iostream>
 #include "Schema.h"
 #include "Function.h"
+#include "Optimizer.h"
 
 enum
 {
@@ -54,10 +55,13 @@ typedef struct SumNode : BaseNode
 
 typedef struct RelationNode : BaseNode
 {
-
+    char *relName;
 } RelationNode;
 class QueryPlan
 {
+
+public:
+    void generateTree(JoinNode *joinNode);
 };
 
 #endif
