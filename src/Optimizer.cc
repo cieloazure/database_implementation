@@ -1,8 +1,9 @@
 #include "Optimizer.h"
 
-Optimizer::Optimizer() { currentState = new StatisticsState(); }
+Optimizer::Optimizer() { currentState = new Statistics(); }
 
-void Optimizer::ReadParserDatastructures() {
+void Optimizer::ReadParserDatastructures()
+{
   std::cout << "Here." << std::endl;
 }
 
@@ -10,7 +11,8 @@ void Optimizer::Read(char *fromWhere) { currentState->Read(fromWhere); }
 
 void Optimizer::OptimumOrderingOfJoin(
     Statistics *prevStats,
-    std::map<std::string, std::string> joinRelTojoinAtt) {
+    std::map<std::string, std::string> joinRelTojoinAtt)
+{
   int length = joinRelTojoinAtt.size();
   std::vector<std::string> relNames;
   std::vector<std::vector<double>> costMatrix;
@@ -19,15 +21,18 @@ void Optimizer::OptimumOrderingOfJoin(
   // Initialization
 
   // keyset of map
-  for (auto it = joinRelTojoinAtt.begin(); it != joinRelTojoinAtt.end(); it++) {
+  for (auto it = joinRelTojoinAtt.begin(); it != joinRelTojoinAtt.end(); it++)
+  {
     relNames.push_back(it->first);
   }
 
   // init matrices
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < length; i++)
+  {
     std::vector<Statistics *> initialState;
     std::vector<double> initialCosts;
-    for (int j = 0; j < length; j++) {
+    for (int j = 0; j < length; j++)
+    {
       initialCosts.push_back(-1.0);
       initialState.push_back(NULL);
     }
@@ -35,25 +40,31 @@ void Optimizer::OptimumOrderingOfJoin(
     costMatrix.push_back(initialCosts);
   }
 
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < length; i++)
+  {
     costMatrix[i][i] = 0;
     costMatrix[i][i + 1] = 0;
   }
 
   // DP begins
   int diff = 2;
-  while (diff < length) {
+  while (diff < length)
+  {
     int start = 0;
     int end = start + diff;
     std::cout << "ITER " << diff << std::endl;
-    while (end < length) {
+    while (end < length)
+    {
       std::cout << "Calculate min cost of range of relations:" << start
                 << " to " << end << std::endl;
       double minCost = -1.0;
-      if (diff > 2) {
+      if (diff > 2)
+      {
         // Use costMatrix to estimate cost
         // CalculateCost1(costMatrix, stateMatrix);
-      } else {
+      }
+      else
+      {
         // Calculate permutations of three relations
         // and use prevStats to estimate cost
         // CalculateCost2(costMatrix, stateMatrix);
@@ -65,8 +76,10 @@ void Optimizer::OptimumOrderingOfJoin(
   }
 
   // Print
-  for (int i = 0; i < length; i++) {
-    for (int j = 0; j < length; j++) {
+  for (int i = 0; i < length; i++)
+  {
+    for (int j = 0; j < length; j++)
+    {
       std::cout << costMatrix[i][j] << " ";
     }
     std::cout << std::endl;
@@ -77,17 +90,21 @@ void Optimizer::CalculateCost1(
     std::vector<std::vector<double>> &costMatrix,
     std::vector<std::vector<Statistics *>> &stateMatrix,
     std::vector<std::string> &relNames, int start, int end,
-    std::map<std::string, std::string> joinRelTojoinAtt) {
+    std::map<std::string, std::string> joinRelTojoinAtt)
+{
   // find min
   bool firstMatch = costMatrix[start][end - 1] < costMatrix[start + 1][end];
 
   // Get state of min cost
   Statistics *toJoinState;
-  if (firstMatch) {
+  if (firstMatch)
+  {
     toJoinState = stateMatrix[start][end - 1];
     // Create parse Tree for join condition
     ConstructJoinCNF(joinRelTojoinAtt, relNames[start], relNames[end]);
-  } else {
+  }
+  else
+  {
     toJoinState = stateMatrix[start + 1][end];
     // Create parse Tree for join condition
     ConstructJoinCNF(joinRelTojoinAtt, relNames[start + 1], relNames[start]);
@@ -97,7 +114,8 @@ void Optimizer::CalculateCost1(
   // Create relNames array for joining relations
   int joinNum = end - start + 1;
   const char *relNamesSubset[joinNum];
-  for (int i = start; i < end; i++) {
+  for (int i = start; i < end; i++)
+  {
     relNamesSubset[i] = relNames[i].c_str();
   }
 
@@ -115,7 +133,8 @@ void Optimizer::CalculateCost2(
     Statistics *prevStats, std::vector<std::vector<double>> &costMatrix,
     std::vector<std::vector<Statistics *>> &stateMatrix,
     std::vector<std::string> &relNames, int start, int end,
-    std::map<std::string, std::string> joinRelTojoinAtt) {
+    std::map<std::string, std::string> joinRelTojoinAtt)
+{
   // Create relNames array for joining relations
   int joinNum = end - start + 1;
   int min = -1;
@@ -134,7 +153,8 @@ void Optimizer::CalculateCost2(
   double cost1 = copy1->Estimate(final, (char **)relNamesSubset, 3);
   copy1->Apply(final, (char **)relNamesSubset, 3);
   perm.push_back(copy1);
-  if (cost1 < min) {
+  if (cost1 < min)
+  {
     min = cost1;
     minIdx = 0;
   }
@@ -150,7 +170,8 @@ void Optimizer::CalculateCost2(
   double cost2 = copy2->Estimate(final, (char **)relNamesSubset, 3);
   copy2->Apply(final, (char **)relNamesSubset, 3);
   perm.push_back(copy2);
-  if (cost2 < min) {
+  if (cost2 < min)
+  {
     min = cost2;
     minIdx = 1;
   }
@@ -166,7 +187,8 @@ void Optimizer::CalculateCost2(
   double cost3 = copy3->Estimate(final, (char **)relNamesSubset, 3);
   copy3->Apply(final, (char **)relNamesSubset, 3);
   perm.push_back(copy3);
-  if (cost3 < min) {
+  if (cost3 < min)
+  {
     min = cost3;
     minIdx = 2;
   }
@@ -178,7 +200,8 @@ void Optimizer::CalculateCost2(
 
 void Optimizer::ConstructJoinCNF(
     std::map<std::string, std::string> relNameToJoinAttribute, std::string left,
-    std::string right) {
+    std::string right)
+{
   std::string cnfString;
   cnfString.append("(");
   cnfString.append(relNameToJoinAttribute[left]);
@@ -188,4 +211,91 @@ void Optimizer::ConstructJoinCNF(
   std::cout << "Joining...." << cnfString << std::endl;
   yy_scan_string(cnfString.c_str());
   yyparse();
+}
+
+void Optimizer::SeparateJoinsandSelects(std::vector<std::vector<std::string>> &joinMatrix)
+{
+  OrList *orList;
+  AndList *head = boolean;
+  AndList *current = boolean;
+  AndList *prev = boolean;
+
+  //generate a table list that will help with filling the matrix
+  std::vector<std::string> tableList;
+  struct TableList *table = tables;
+
+  while (table)
+  {
+    tableList.push_back(table->tableName);
+    table = table->next;
+  }
+
+  for (int vecSize = 0; vecSize < tableList.size(); ++vecSize)
+  {
+    std::vector<std::string> dummy(tableList.size(), std::string(""));
+    joinMatrix.push_back(dummy);
+  }
+
+  //start populating the matrix
+  while (current)
+  {
+    orList = current->left;
+    if (!orList)
+    {
+      //andList empty, throw error?
+      return;
+    }
+    struct ComparisonOp *compOp = orList->left;
+    if (compOp != NULL)
+    {
+      if (!ContainsLiteral(compOp))
+      {
+        //join operation
+        char *operand1 = compOp->left->value;
+        char *operand2 = compOp->right->value;
+
+        // find index of these operands in the tables vector
+        AttributeStats *attr1 = currentState->getRelationNameOfAttribute(operand1, tableList, tables);
+        AttributeStats *attr2 = currentState->getRelationNameOfAttribute(operand2, tableList, tables);
+
+        if (attr1 && attr2)
+        {
+          std::ptrdiff_t operandOneIndex = std::distance(tableList.begin(),
+                                                         std::find(tableList.begin(), tableList.end(), attr1->relName));
+          std::ptrdiff_t operandTwoIndex = std::distance(tableList.begin(),
+                                                         std::find(tableList.begin(), tableList.end(), attr2->relName));
+
+          // TODO: check if index out of range?
+          joinMatrix[operandOneIndex][operandTwoIndex] = std::string(attr2->attName);
+          joinMatrix[operandTwoIndex][operandOneIndex] = std::string(attr1->attName);
+        }
+
+        //pop this join op from the andList
+        if (current == head)
+        {
+          head = head->rightAnd;
+          boolean = boolean->rightAnd;
+        }
+        else
+        {
+          prev->rightAnd = current->rightAnd;
+        }
+
+        if (current != head)
+        {
+          prev = prev->rightAnd;
+        }
+
+        current = current->rightAnd;
+
+      } //else go to next AND list element.
+    }
+  }
+}
+
+bool Optimizer::IsALiteral(Operand *op) { return op->code != NAME; }
+
+bool Optimizer::ContainsLiteral(ComparisonOp *compOp)
+{
+  return IsALiteral(compOp->left) || IsALiteral(compOp->right);
 }

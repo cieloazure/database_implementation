@@ -59,7 +59,7 @@ OBJECTS += $(ODIR)/lex.yyfunc.o
 SOURCES=$(wildcard $(SOURCEDIR)/*.cc)
 OBJECTS += $(patsubst $(SOURCEDIR)/%.cc, $(ODIR)/%.o, $(SOURCES))
 
-TEST = clang++ 
+TEST = g++ 
 # TESTCOMPILEFLAGS= -fsanitize=address -fno-omit-frame-pointer -g -std=c++11 -stdlib=libc++ -fprofile-arcs -ftest-coverage
 TESTCOMPILEFLAGS= -g -std=c++11  # -stdlib=libc++ 
 TESTSOURCESDIR=test/src

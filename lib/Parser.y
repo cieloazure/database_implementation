@@ -142,7 +142,7 @@ Atts: Name
 	$$ = (struct NameList *) malloc (sizeof (struct NameList));
 	$$->name = $3;
 	$$->next = $1;
-}
+};
 
 Tables: Name AS Name 
 {
@@ -158,7 +158,7 @@ Tables: Name AS Name
 	$$->tableName = $3;
 	$$->aliasAs = $5;
 	$$->next = $1;
-}
+};
 
 
 
