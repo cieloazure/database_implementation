@@ -10,290 +10,208 @@ void Optimizer::ReadParserDatastructures()
 void Optimizer::Read(char *fromWhere) { currentState->Read(fromWhere); }
 
 void Optimizer::OptimumOrderingOfJoin(
-    Statistics *prevStats,
-    std::map<std::string, std::string> joinRelTojoinAtt)
-{
-  int length = joinRelTojoinAtt.size();
-  std::vector<std::string> relNames;
-  std::vector<std::vector<double>> costMatrix;
-  std::vector<std::vector<Statistics *>> stateMatrix;
+    Statistics *prevStats, std::vector<std::string> relNames,
+    std::vector<std::vector<std::string>> joinMatrix) {
+  // Start Optimization
 
-  // Initialization
-
-  // keyset of map
-  for (auto it = joinRelTojoinAtt.begin(); it != joinRelTojoinAtt.end(); it++)
-  {
-    relNames.push_back(it->first);
-  }
-
-  // init matrices
-  for (int i = 0; i < length; i++)
-  {
-    std::vector<Statistics *> initialState;
-    std::vector<double> initialCosts;
-    for (int j = 0; j < length; j++)
-    {
-      initialCosts.push_back(-1.0);
-      initialState.push_back(NULL);
+  // Decl
+  std::unordered_map<std::string, struct Memo> combinationToMemo;
+  auto print = [&combinationToMemo]() -> void {
+    for (auto it = combinationToMemo.begin(); it != combinationToMemo.end();
+         it++) {
+      std::string key = it->first;
+      for (int i = 0; i < key.size(); i++) {
+        if (key[i]) {
+          std::cout << "1";
+        } else {
+          std::cout << "0";
+        }
+      }
+      std::cout << " ->  {";
+      struct Memo val = it->second;
+      std::cout << "Size: " << val.size << ",";
+      std::cout << "Cost: " << val.cost << "}" << std::endl;
     }
-    stateMatrix.push_back(initialState);
-    costMatrix.push_back(initialCosts);
+  };
+
+  // Initialize for singletons
+  int length = relNames.size();
+  auto singletons = GenerateCombinations(length, 1);
+  for (auto set : singletons) {
+    std::vector<std::string> relNamesSubset =
+        GetRelNamesFromBitSet(set, relNames);
+    struct Memo newMemo;
+    newMemo.cost = 0;
+    newMemo.size = prevStats->GetRelSize(relNamesSubset[0]);  // get from stats
+    newMemo.state = prevStats;
+    combinationToMemo[set] = newMemo;
   }
 
-  for (int i = 0; i < length; i++)
-  {
-    costMatrix[i][i] = 0;
-    costMatrix[i][i + 1] = 0;
+  print();
+
+  auto doubletons = GenerateCombinations(length, 2);
+  for (auto set : doubletons) {
+    std::vector<std::string> relNamesSubset =
+        GetRelNamesFromBitSet(set, relNames);
+    Statistics *prevStatsCopy = new Statistics(*prevStats);
+    struct Memo newMemo;
+    newMemo.cost = 0;
+    if (!ConstructJoinCNF(relNames, joinMatrix, relNamesSubset[0],
+                          relNamesSubset[1])) {
+      final = NULL;
+    }
+    const char *relNamesCStyle[2];
+    relNamesCStyle[0] = relNamesSubset[0].c_str();
+    relNamesCStyle[1] = relNamesSubset[1].c_str();
+    newMemo.size = prevStatsCopy->Estimate(final, (char **)relNamesCStyle, 2);
+    prevStatsCopy->Apply(final, (char **)relNamesCStyle, 2);
+    newMemo.state = prevStatsCopy;
+    combinationToMemo[set] = newMemo;
   }
+
+  print();
 
   // DP begins
-  int diff = 2;
-  while (diff < length)
-  {
-    int start = 0;
-    int end = start + diff;
-    std::cout << "ITER " << diff << std::endl;
-    while (end < length)
-    {
-      std::cout << "Calculate min cost of range of relations:" << start
-                << " to " << end << std::endl;
-      double minCost = -1.0;
-      if (diff > 2)
-      {
-        // Use costMatrix to estimate cost
-        // CalculateCost1(costMatrix, stateMatrix);
+  for (int idx = 3; idx < length + 1; idx++) {
+    auto combinations = GenerateCombinations(length, idx);
+    for (auto set : combinations) {
+      std::vector<std::string> relNamesSubset =
+          GetRelNamesFromBitSet(set, relNames);
+      std::map<std::string, double> possibleCosts;
+      // Iterate through each character of string and get the previous cost
+      // stored in the table
+      // then choose min of the prev cost
+      // Get prev combination by unsetting the bit that was previously set
+      possibleCosts.clear();
+      for (int stridx = 0; stridx < set.size(); stridx++) {
+        // unset the bit if it is set
+        if (set[stridx]) {
+          set[stridx] = '\0';
+          // Search the memoized table and get the size in possible cost
+          struct Memo prevMemo = combinationToMemo[set];
+          possibleCosts[set] = prevMemo.size;
+          set[stridx] = '\x01';
+        }
       }
-      else
-      {
-        // Calculate permutations of three relations
-        // and use prevStats to estimate cost
-        // CalculateCost2(costMatrix, stateMatrix);
+
+      // Get the minimum cost
+      std::string minCostString = GetMinimumOfPossibleCosts(possibleCosts);
+
+      // Join it with the minimum cost and store the state, update combinations
+      // map
+      struct Memo prevMemo = combinationToMemo[minCostString];
+      const char *relNamesCStyle[relNamesSubset.size()];
+      for (int i = 0; i < relNamesSubset.size(); i++) {
+        relNamesCStyle[i] = relNamesSubset[i].c_str();
       }
-      start++;
-      end++;
+
+      int joinWith = BitSetDifferenceWithPrev(set, minCostString);
+      std::string right = relNames[joinWith];
+      int leftIdx = 0;
+      for (; leftIdx < minCostString.size(); leftIdx++) {
+        if (minCostString[leftIdx]) {
+          std::string left = relNames[leftIdx];
+          if (ConstructJoinCNF(relNames, joinMatrix, left, right)) {
+            break;
+          }
+        }
+      }
+      Statistics *prevStatsCopy = new Statistics(*prevMemo.state);
+
+      struct Memo newMemo;
+      newMemo.cost = prevMemo.size + prevMemo.cost;
+      newMemo.size =
+          prevStatsCopy->Estimate(final, (char **)relNamesCStyle, idx);
+      prevStatsCopy->Apply(final, (char **)relNamesCStyle, idx);
+      newMemo.state = prevStatsCopy;
+
+      combinationToMemo[set] = newMemo;
     }
-    diff++;
-  }
 
-  // Print
-  for (int i = 0; i < length; i++)
-  {
-    for (int j = 0; j < length; j++)
-    {
-      std::cout << costMatrix[i][j] << " ";
+    print();
+  }
+  // DP ends
+
+  // Return result
+  std::string optimalJoin = *(GenerateCombinations(length, length).begin());
+  std::cout << "Cost of optimal join:" << combinationToMemo[optimalJoin].cost<< std::endl;
+}
+
+std::vector<std::string> Optimizer::GenerateCombinations(int n, int r) {
+  std::vector<std::string> combinations;
+  std::string bitmask(r, 1);
+  bitmask.resize(n, 0);
+  do {
+    combinations.push_back(bitmask);
+  } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
+
+  return combinations;
+}
+
+std::vector<std::string> Optimizer::GetRelNamesFromBitSet(
+    std::string bitset, std::vector<std::string> relNames) {
+  std::vector<std::string> subset;
+  for (int i = 0; i < bitset.size(); i++) {
+    if (bitset[i]) {
+      subset.push_back(relNames[i]);
     }
-    std::cout << std::endl;
   }
+  return subset;
 }
 
-void Optimizer::CalculateCost1(
-    std::vector<std::vector<double>> &costMatrix,
-    std::vector<std::vector<Statistics *>> &stateMatrix,
-    std::vector<std::string> &relNames, int start, int end,
-    std::map<std::string, std::string> joinRelTojoinAtt)
-{
-  // find min
-  bool firstMatch = costMatrix[start][end - 1] < costMatrix[start + 1][end];
+bool Optimizer::ConstructJoinCNF(
+    std::vector<std::string> relNames,
+    std::vector<std::vector<std::string>> joinMatrix, std::string left,
+    std::string right) {
+  auto leftIter = std::find(relNames.begin(), relNames.end(), left);
+  int idxLeft = std::distance(relNames.begin(), leftIter);
 
-  // Get state of min cost
-  Statistics *toJoinState;
-  if (firstMatch)
-  {
-    toJoinState = stateMatrix[start][end - 1];
-    // Create parse Tree for join condition
-    ConstructJoinCNF(joinRelTojoinAtt, relNames[start], relNames[end]);
-  }
-  else
-  {
-    toJoinState = stateMatrix[start + 1][end];
-    // Create parse Tree for join condition
-    ConstructJoinCNF(joinRelTojoinAtt, relNames[start + 1], relNames[start]);
-  }
-  Statistics *toJoinStateCopy = new Statistics(*toJoinState);
+  auto rightIter = std::find(relNames.begin(), relNames.end(), right);
+  int idxRight = std::distance(relNames.begin(), rightIter);
 
-  // Create relNames array for joining relations
-  int joinNum = end - start + 1;
-  const char *relNamesSubset[joinNum];
-  for (int i = start; i < end; i++)
-  {
-    relNamesSubset[i] = relNames[i].c_str();
-  }
-
-  // calculate new cost
-  double cost =
-      toJoinStateCopy->Estimate(final, (char **)relNamesSubset, joinNum);
-  toJoinStateCopy->Apply(final, (char **)relNamesSubset, joinNum);
-
-  // update the matrices
-  costMatrix[start][end] = cost;
-  stateMatrix[start][end] = toJoinStateCopy;
-}
-
-void Optimizer::CalculateCost2(
-    Statistics *prevStats, std::vector<std::vector<double>> &costMatrix,
-    std::vector<std::vector<Statistics *>> &stateMatrix,
-    std::vector<std::string> &relNames, int start, int end,
-    std::map<std::string, std::string> joinRelTojoinAtt)
-{
-  // Create relNames array for joining relations
-  int joinNum = end - start + 1;
-  int min = -1;
-  int minIdx = -1;
-  std::vector<Statistics *> perm;
-  const char *relNamesSubset[joinNum + 1];
-
-  // Perm 1
-  Statistics *copy1 = new Statistics(*prevStats);
-  relNamesSubset[0] = relNames[start].c_str();
-  relNamesSubset[1] = relNames[start + 1].c_str();
-  relNamesSubset[2] = relNames[end].c_str();
-  ConstructJoinCNF(joinRelTojoinAtt, relNamesSubset[0], relNamesSubset[1]);
-  copy1->Apply(final, (char **)relNamesSubset, 2);
-  ConstructJoinCNF(joinRelTojoinAtt, relNamesSubset[0], relNamesSubset[2]);
-  double cost1 = copy1->Estimate(final, (char **)relNamesSubset, 3);
-  copy1->Apply(final, (char **)relNamesSubset, 3);
-  perm.push_back(copy1);
-  if (cost1 < min)
-  {
-    min = cost1;
-    minIdx = 0;
-  }
-
-  // Perm 2
-  Statistics *copy2 = new Statistics(*prevStats);
-  relNamesSubset[0] = relNames[start + 1].c_str();
-  relNamesSubset[1] = relNames[end].c_str();
-  relNamesSubset[2] = relNames[start].c_str();
-  ConstructJoinCNF(joinRelTojoinAtt, relNamesSubset[0], relNamesSubset[1]);
-  copy2->Apply(final, (char **)relNamesSubset, 2);
-  ConstructJoinCNF(joinRelTojoinAtt, relNamesSubset[0], relNamesSubset[2]);
-  double cost2 = copy2->Estimate(final, (char **)relNamesSubset, 3);
-  copy2->Apply(final, (char **)relNamesSubset, 3);
-  perm.push_back(copy2);
-  if (cost2 < min)
-  {
-    min = cost2;
-    minIdx = 1;
-  }
-
-  // Perm 3
-  Statistics *copy3 = new Statistics(*prevStats);
-  relNamesSubset[0] = relNames[start].c_str();
-  relNamesSubset[1] = relNames[end].c_str();
-  relNamesSubset[2] = relNames[start + 1].c_str();
-  ConstructJoinCNF(joinRelTojoinAtt, relNamesSubset[0], relNamesSubset[1]);
-  copy3->Apply(final, (char **)relNamesSubset, 2);
-  ConstructJoinCNF(joinRelTojoinAtt, relNamesSubset[0], relNamesSubset[2]);
-  double cost3 = copy3->Estimate(final, (char **)relNamesSubset, 3);
-  copy3->Apply(final, (char **)relNamesSubset, 3);
-  perm.push_back(copy3);
-  if (cost3 < min)
-  {
-    min = cost3;
-    minIdx = 2;
-  }
-
-  // Update matrices with min cost
-  costMatrix[start][end] = min;
-  stateMatrix[start][end] = perm[minIdx];
-}
-
-void Optimizer::ConstructJoinCNF(
-    std::map<std::string, std::string> relNameToJoinAttribute, std::string left,
-    std::string right)
-{
   std::string cnfString;
   cnfString.append("(");
-  cnfString.append(relNameToJoinAttribute[left]);
+  cnfString.append(left);
+  cnfString.append(".");
+  if (joinMatrix[idxLeft][idxRight].size() > 0) {
+    cnfString.append(joinMatrix[idxLeft][idxRight]);
+  } else {
+    return false;
+  }
   cnfString.append(" = ");
-  cnfString.append(relNameToJoinAttribute[right]);
+  cnfString.append(right);
+  cnfString.append(".");
+  cnfString.append(joinMatrix[idxRight][idxLeft]);
   cnfString.append(")");
   std::cout << "Joining...." << cnfString << std::endl;
   yy_scan_string(cnfString.c_str());
   yyparse();
+  return true;
 }
 
-void Optimizer::SeparateJoinsandSelects(std::vector<std::vector<std::string>> &joinMatrix)
-{
-  OrList *orList;
-  AndList *head = boolean;
-  AndList *current = boolean;
-  AndList *prev = boolean;
+std::string Optimizer::GetMinimumOfPossibleCosts(
+    std::map<std::string, double> possibleCosts) {
+  bool begin = true;
+  double min = -1.0;
+  std::string minCostString;
 
-  //generate a table list that will help with filling the matrix
-  std::vector<std::string> tableList;
-  struct TableList *table = tables;
-
-  while (table)
-  {
-    tableList.push_back(table->tableName);
-    table = table->next;
-  }
-
-  for (int vecSize = 0; vecSize < tableList.size(); ++vecSize)
-  {
-    std::vector<std::string> dummy(tableList.size(), std::string(""));
-    joinMatrix.push_back(dummy);
-  }
-
-  //start populating the matrix
-  while (current)
-  {
-    orList = current->left;
-    if (!orList)
-    {
-      //andList empty, throw error?
-      return;
+  for (auto it = possibleCosts.begin(); it != possibleCosts.end(); it++) {
+    double currCost = it->second;
+    if (begin || currCost < min) {
+      min = currCost;
+      minCostString = it->first;
+      if (begin) begin = false;
     }
-    struct ComparisonOp *compOp = orList->left;
-    if (compOp != NULL)
-    {
-      if (!ContainsLiteral(compOp))
-      {
-        //join operation
-        char *operand1 = compOp->left->value;
-        char *operand2 = compOp->right->value;
-
-        // find index of these operands in the tables vector
-        AttributeStats *attr1 = currentState->getRelationNameOfAttribute(operand1, tableList, tables);
-        AttributeStats *attr2 = currentState->getRelationNameOfAttribute(operand2, tableList, tables);
-
-        if (attr1 && attr2)
-        {
-          std::ptrdiff_t operandOneIndex = std::distance(tableList.begin(),
-                                                         std::find(tableList.begin(), tableList.end(), attr1->relName));
-          std::ptrdiff_t operandTwoIndex = std::distance(tableList.begin(),
-                                                         std::find(tableList.begin(), tableList.end(), attr2->relName));
-
-          // TODO: check if index out of range?
-          joinMatrix[operandOneIndex][operandTwoIndex] = std::string(attr2->attName);
-          joinMatrix[operandTwoIndex][operandOneIndex] = std::string(attr1->attName);
-        }
-
-        //pop this join op from the andList
-        if (current == head)
-        {
-          head = head->rightAnd;
-          boolean = boolean->rightAnd;
-        }
-        else
-        {
-          prev->rightAnd = current->rightAnd;
-        }
-
-        if (current != head)
-        {
-          prev = prev->rightAnd;
-        }
-      }
-    }
-    current = current->rightAnd; //else go to next AND list element.
   }
+  return minCostString;
 }
 
-bool Optimizer::IsALiteral(Operand *op) { return op->code != NAME; }
-
-bool Optimizer::ContainsLiteral(ComparisonOp *compOp)
-{
-  return IsALiteral(compOp->left) || IsALiteral(compOp->right);
+int Optimizer::BitSetDifferenceWithPrev(std::string set,
+                                        std::string minCostString) {
+  for (int i = 0; i < set.size(); i++) {
+    if (set[i] != minCostString[i]) {
+      return i;
+    }
+  }
+  return -1;
 }
