@@ -118,7 +118,7 @@ void Optimizer::OptimumOrderingOfJoin(
       Statistics *prevStatsCopy = new Statistics(*prevMemo.state);
 
       struct Memo newMemo;
-      newMemo.cost = prevMemo.size;
+      newMemo.cost = prevMemo.size + prevMemo.cost;
       newMemo.size =
           prevStatsCopy->Estimate(final, (char **)relNamesCStyle, idx);
       prevStatsCopy->Apply(final, (char **)relNamesCStyle, idx);
@@ -130,6 +130,10 @@ void Optimizer::OptimumOrderingOfJoin(
     print();
   }
   // DP ends
+
+  // Return result
+  std::string optimalJoin = *(GenerateCombinations(length, length).begin());
+  std::cout << "Cost of optimal join:" << combinationToMemo[optimalJoin].cost<< std::endl;
 }
 
 std::vector<std::string> Optimizer::GenerateCombinations(int n, int r) {
