@@ -59,11 +59,11 @@ void Optimizer::OptimumOrderingOfJoin(
                           relNamesSubset[1])) {
       final = NULL;
     }
-    const char *relNames[2];
-    relNames[0] = relNamesSubset[0].c_str();
-    relNames[1] = relNamesSubset[1].c_str();
-    newMemo.size = prevStatsCopy->Estimate(final, (char **)relNames, 2);
-    prevStatsCopy->Apply(final, (char **)relNames, 2);
+    const char *relNamesCStyle[2];
+    relNamesCStyle[0] = relNamesSubset[0].c_str();
+    relNamesCStyle[1] = relNamesSubset[1].c_str();
+    newMemo.size = prevStatsCopy->Estimate(final, (char **)relNamesCStyle, 2);
+    prevStatsCopy->Apply(final, (char **)relNamesCStyle, 2);
     newMemo.state = prevStatsCopy;
     combinationToMemo[set] = newMemo;
   }
@@ -71,7 +71,7 @@ void Optimizer::OptimumOrderingOfJoin(
   print();
 
   // DP begins
-  for (int idx = 3; idx < length; idx++) {
+  for (int idx = 3; idx < length + 1; idx++) {
     auto combinations = GenerateCombinations(length, idx);
     for (auto set : combinations) {
       std::vector<std::string> relNamesSubset =
@@ -81,22 +81,15 @@ void Optimizer::OptimumOrderingOfJoin(
       // stored in the table
       // then choose min of the prev cost
       // Get prev combination by unsetting the bit that was previously set
-      bool prevCombFlag = false;
+      possibleCosts.clear();
       for (int stridx = 0; stridx < set.size(); stridx++) {
         // unset the bit if it is set
         if (set[stridx]) {
-          prevCombFlag = true;
-          set[stridx] = '0';
-        }
-
-        // Search the memoized table and get the size in possible cost
-        struct Memo prevMemo = combinationToMemo[set];
-        possibleCosts[set] = prevMemo.size;
-
-        // reset the bit
-        if (prevCombFlag) {
-          set[stridx] = '1';
-          prevCombFlag = false;
+          set[stridx] = '\0';
+          // Search the memoized table and get the size in possible cost
+          struct Memo prevMemo = combinationToMemo[set];
+          possibleCosts[set] = prevMemo.size;
+          set[stridx] = '\x01';
         }
       }
 
@@ -106,9 +99,9 @@ void Optimizer::OptimumOrderingOfJoin(
       // Join it with the minimum cost and store the state, update combinations
       // map
       struct Memo prevMemo = combinationToMemo[minCostString];
-      const char *relNames[relNamesSubset.size()];
+      const char *relNamesCStyle[relNamesSubset.size()];
       for (int i = 0; i < relNamesSubset.size(); i++) {
-        relNames[i] = relNamesSubset[i].c_str();
+        relNamesCStyle[i] = relNamesSubset[i].c_str();
       }
 
       int joinWith = BitSetDifferenceWithPrev(set, minCostString);
@@ -116,17 +109,19 @@ void Optimizer::OptimumOrderingOfJoin(
       int leftIdx = 0;
       for (; leftIdx < minCostString.size(); leftIdx++) {
         if (minCostString[leftIdx]) {
-          break;
+          std::string left = relNames[leftIdx];
+          if (ConstructJoinCNF(relNames, joinMatrix, left, right)) {
+            break;
+          }
         }
       }
-      std::string left = relNames[leftIdx];
-      ConstructJoinCNF(relNames, joinMatrix, left, right);
       Statistics *prevStatsCopy = new Statistics(*prevMemo.state);
 
       struct Memo newMemo;
       newMemo.cost = prevMemo.size;
-      newMemo.size = prevStatsCopy->Estimate(final, relNames, idx);
-      prevStatsCopy->Apply(final, relNames, idx);
+      newMemo.size =
+          prevStatsCopy->Estimate(final, (char **)relNamesCStyle, idx);
+      prevStatsCopy->Apply(final, (char **)relNamesCStyle, idx);
       newMemo.state = prevStatsCopy;
 
       combinationToMemo[set] = newMemo;
