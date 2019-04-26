@@ -95,9 +95,6 @@ double Statistics ::Estimate(struct AndList *parseTree, char *relNames[],
 
 double Statistics::CalculateCost(AndList *parseTree, char *relNames[],
                                  int numToJoin, StatisticsState *currentState) {
-  if (parseTree == NULL) {
-    return -1000000000000.0;
-  }
   // Get representatives of the sets
   std::set<std::string> disjointSetSubset;
   int ridx = numToJoin;
@@ -131,14 +128,74 @@ double Statistics::CalculateCost(AndList *parseTree, char *relNames[],
   //   throw std::runtime_error("Relation names invalid!");
   //}
 
-  CalculateCostAndList(parseTree, relNameToCostMap, currentState);
-  for (auto it = relNameToCostMap.begin(); it != relNameToCostMap.end(); it++) {
-    currentState->UpdateRel((*it).first, (*it).second, false);
-  }
-  if (relNameToCostMap.size() == 1) {
-    return (*relNameToCostMap.begin()).second;
+  if (parseTree == NULL) {
+    if (disjointSetSubset.size() == 1) {
+      return -1.0;
+    } else {
+      // Calculate cross product of the relations in the relNames array
+      // Taking union of the two relations to be subjected to cross product
+      std::string rel1;
+      std::string rel2;
+      int i = 0;
+      for (auto it = disjointSetSubset.begin(); it != disjointSetSubset.end();
+           it++) {
+        if (i == 0) {
+          rel1 = *it;
+        } else {
+          rel2 = *it;
+        }
+        i++;
+      }
+      DisjointSetNode *rep = currentState->Union(rel1, rel2);
+      RelationStats *repRelStats = currentState->FindRel(rep->relName);
+      long result = relNameToCostMap[rel1] * relNameToCostMap[rel2];
+      repRelStats->numTuples = result;
+
+      RelationStats *relStats1 = currentState->SearchRelStore(rel1);
+      if (repRelStats != relStats1) {
+        // Copy all the attributes to representative
+        for (auto it = relStats1->attributes.begin();
+             it != relStats1->attributes.end(); it++) {
+          AttributeStats *attStats =
+              currentState->SearchAttStore(relStats1->relName, *it);
+          attStats->relName = rep->relName;
+          currentState->RemoveAttStore(relStats1->relName, *it);
+          currentState->InsertAtt(attStats);
+          repRelStats->attributes.insert(attStats->attName);
+        }
+        // Remove this relation
+        currentState->RemoveRel(relStats1->relName, false);
+      }
+
+      RelationStats *relStats2 = currentState->SearchRelStore(rel2);
+      if (repRelStats != relStats2) {
+        // Copy all the attributes to representative
+        for (auto it = relStats2->attributes.begin();
+             it != relStats2->attributes.end(); it++) {
+          AttributeStats *attStats =
+              currentState->SearchAttStore(relStats2->relName, *it);
+          attStats->relName = rep->relName;
+          currentState->RemoveAttStore(relStats2->relName, *it);
+          currentState->InsertAtt(attStats);
+          repRelStats->attributes.insert(attStats->attName);
+        }
+        // Remove this relation
+        currentState->RemoveRel(relStats2->relName, false);
+      }
+
+      return result;
+    }
   } else {
-    return -1.0;
+    CalculateCostAndList(parseTree, relNameToCostMap, currentState);
+    for (auto it = relNameToCostMap.begin(); it != relNameToCostMap.end();
+         it++) {
+      currentState->UpdateRel((*it).first, (*it).second, false);
+    }
+    if (relNameToCostMap.size() == 1) {
+      return (*relNameToCostMap.begin()).second;
+    } else {
+      return -1.0;
+    }
   }
 }
 
@@ -421,3 +478,8 @@ std::vector<std::string> Statistics::RelNamesKeySet(
 void Statistics::Read(char *fromWhere) { currentState->Read(fromWhere); }
 
 void Statistics::Write(char *toWhere) { currentState->Write(toWhere); }
+
+int Statistics::GetRelSize(std::string rel) {
+  struct RelationStats *relStats = currentState->FindRel(rel);
+  return relStats->numTuples;
+}

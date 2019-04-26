@@ -296,6 +296,66 @@ TEST_F(OptimizerTest, ConstructJoinCNFTest) {
   EXPECT_TRUE(final != NULL);
 }
 
+TEST_F(OptimizerTest, PERMUTATIONS_TEST) {
+  Optimizer o;
+  auto combs = o.GenerateCombinations(4, 2);
+  for (auto comb : combs) {
+    for (int i = 0; i < comb.size(); i++) {
+      if (comb[i]) {
+        std::cout << "1";
+      } else {
+        std::cout << "0";
+      }
+    }
+    std::cout << std::endl;
+  }
+}
+
+TEST_F(OptimizerTest, PERMUTATIONS_TEST_2) {
+  Optimizer o;
+  auto combs = o.GenerateCombinations(4, 3);
+  for (auto comb : combs) {
+    for (int i = 0; i < comb.size(); i++) {
+      if (comb[i]) {
+        std::cout << "1";
+      } else {
+        std::cout << "0";
+      }
+    }
+    std::cout << std::endl;
+  }
+}
+
+TEST_F(OptimizerTest, PERMUTATIONS_TEST_3) {
+  Optimizer o;
+  auto combs = o.GenerateCombinations(3, 2);
+  for (auto comb : combs) {
+    for (int i = 0; i < comb.size(); i++) {
+      if (comb[i]) {
+        std::cout << "1";
+      } else {
+        std::cout << "0";
+      }
+    }
+    std::cout << std::endl;
+  }
+}
+
+TEST_F(OptimizerTest, PERMUTATIONS_TEST_4) {
+  Optimizer o;
+  auto combs = o.GenerateCombinations(5, 4);
+  for (auto comb : combs) {
+    for (int i = 0; i < comb.size(); i++) {
+      if (comb[i]) {
+        std::cout << "1";
+      } else {
+        std::cout << "0";
+      }
+    }
+    std::cout << std::endl;
+  }
+}
+
 TEST_F(OptimizerTest, OptimizeOrderOfRelations) {
   Statistics s;
   char *relName[] = {"R", "S", "T", "U"};

@@ -91,6 +91,9 @@ class Statistics {
   void PrintAttributeStore();
   void PrintDisjointSets();
   /* Helpers end */
+
+  /* Function needed for optimization */
+  int GetRelSize(std::string rel);
 };
 
 #endif
