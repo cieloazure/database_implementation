@@ -296,7 +296,7 @@ TEST_F(OptimizerTest, SeparateJoinsAndSelects)
   o.currentState->AddAtt(relName[3], "d", 1000);
 
   const char cnf_string[] =
-      "SELECT a, b FROM R AS r, S AS s WHERE (r.a = s.b)";
+      "SELECT a, b FROM R AS r, S AS s WHERE (r.a = s.b) AND (r.a > 0)";
   YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
   yyparse();
 

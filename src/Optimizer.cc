@@ -285,11 +285,9 @@ void Optimizer::SeparateJoinsandSelects(std::vector<std::vector<std::string>> &j
         {
           prev = prev->rightAnd;
         }
-
-        current = current->rightAnd;
-
-      } //else go to next AND list element.
+      }
     }
+    current = current->rightAnd; //else go to next AND list element.
   }
 }
 
