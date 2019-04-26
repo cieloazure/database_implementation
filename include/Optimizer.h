@@ -71,6 +71,11 @@ class Optimizer {
 
   std::vector<std::string> GetRelNamesFromBitSet(
       std::string bitset, std::vector<std::string> relNames);
+
+  std::string GetMinimumOfPossibleCosts(
+      std::map<std::string, double> possibleCosts);
+
+  int BitSetDifferenceWithPrev(std::string set, std::string minCostString);
 };
 
 #endif

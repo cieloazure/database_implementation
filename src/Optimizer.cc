@@ -69,7 +69,71 @@ void Optimizer::OptimumOrderingOfJoin(
   }
 
   print();
+
   // DP begins
+  for (int idx = 3; idx < length; idx++) {
+    auto combinations = GenerateCombinations(length, idx);
+    for (auto set : combinations) {
+      std::vector<std::string> relNamesSubset =
+          GetRelNamesFromBitSet(set, relNames);
+      std::map<std::string, double> possibleCosts;
+      // Iterate through each character of string and get the previous cost
+      // stored in the table
+      // then choose min of the prev cost
+      // Get prev combination by unsetting the bit that was previously set
+      bool prevCombFlag = false;
+      for (int stridx = 0; stridx < set.size(); stridx++) {
+        // unset the bit if it is set
+        if (set[stridx]) {
+          prevCombFlag = true;
+          set[stridx] = '0';
+        }
+
+        // Search the memoized table and get the size in possible cost
+        struct Memo prevMemo = combinationToMemo[set];
+        possibleCosts[set] = prevMemo.size;
+
+        // reset the bit
+        if (prevCombFlag) {
+          set[stridx] = '1';
+          prevCombFlag = false;
+        }
+      }
+
+      // Get the minimum cost
+      std::string minCostString = GetMinimumOfPossibleCosts(possibleCosts);
+
+      // Join it with the minimum cost and store the state, update combinations
+      // map
+      struct Memo prevMemo = combinationToMemo[minCostString];
+      const char *relNames[relNamesSubset.size()];
+      for (int i = 0; i < relNamesSubset.size(); i++) {
+        relNames[i] = relNamesSubset[i].c_str();
+      }
+
+      int joinWith = BitSetDifferenceWithPrev(set, minCostString);
+      std::string right = relNames[joinWith];
+      int leftIdx = 0;
+      for (; leftIdx < minCostString.size(); leftIdx++) {
+        if (minCostString[leftIdx]) {
+          break;
+        }
+      }
+      std::string left = relNames[leftIdx];
+      ConstructJoinCNF(relNames, joinMatrix, left, right);
+      Statistics *prevStatsCopy = new Statistics(*prevMemo.state);
+
+      struct Memo newMemo;
+      newMemo.cost = prevMemo.size;
+      newMemo.size = prevStatsCopy->Estimate(final, relNames, idx);
+      prevStatsCopy->Apply(final, relNames, idx);
+      newMemo.state = prevStatsCopy;
+
+      combinationToMemo[set] = newMemo;
+    }
+
+    print();
+  }
   // DP ends
 }
 
@@ -123,4 +187,31 @@ bool Optimizer::ConstructJoinCNF(
   yy_scan_string(cnfString.c_str());
   yyparse();
   return true;
+}
+
+std::string Optimizer::GetMinimumOfPossibleCosts(
+    std::map<std::string, double> possibleCosts) {
+  bool begin = true;
+  double min = -1.0;
+  std::string minCostString;
+
+  for (auto it = possibleCosts.begin(); it != possibleCosts.end(); it++) {
+    double currCost = it->second;
+    if (begin || currCost < min) {
+      min = currCost;
+      minCostString = it->first;
+      if (begin) begin = false;
+    }
+  }
+  return minCostString;
+}
+
+int Optimizer::BitSetDifferenceWithPrev(std::string set,
+                                        std::string minCostString) {
+  for (int i = 0; i < set.size(); i++) {
+    if (set[i] != minCostString[i]) {
+      return i;
+    }
+  }
+  return -1;
 }
