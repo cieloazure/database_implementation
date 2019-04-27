@@ -194,7 +194,11 @@ void Function ::GrowFromParseTree(struct FuncOperator *parseTree,
     returnsInt = 0;
 }
 
-void Function ::Print() {}
+void Function ::Print() {
+  // for (int i = 0; i < numOps; i++) {
+  //   struct Arithmatic a = *(opList + i);
+  // }
+}
 
 Type Function ::Apply(Record &toMe, int &intResult, double &doubleResult) {
   // this is rather simple; we just loop through and apply all of the
@@ -339,6 +343,4 @@ Type Function ::Apply(Record &toMe, int &intResult, double &doubleResult) {
 
 int Function::GetReturnsInt() { return returnsInt; }
 
-Schema *Function::GetSchema() {
-  return mySchema;
-}
+Schema *Function::GetSchema() { return mySchema; }

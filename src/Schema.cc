@@ -364,3 +364,13 @@ std::pair<std::string, std::string> Schema::SplitQualifiedAtt(
   retPair.second = att;
   return retPair;
 }
+
+void Schema::Print(std::string prefixtabs) {
+  std::cout << prefixtabs << "Schema name:" << fileName << std::endl;
+  std::cout << prefixtabs << "Schema number of atts:" << numAtts << std::endl;
+  std::cout << prefixtabs << "Schema atts details:" << std::endl;
+  for (int i = 0; i < numAtts; i++) {
+    std::cout << prefixtabs << "\t"
+              << "Name:" << myAtts[i].name << ",Type:" << myAtts[i].myType << std::endl;
+  }
+}

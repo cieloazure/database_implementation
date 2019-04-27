@@ -4,11 +4,11 @@
 
 #include <stdio.h>
 
-#include "Record.h"
-#include "Schema.h"
-#include "File.h"
 #include "Comparison.h"
 #include "ComparisonEngine.h"
+#include "File.h"
+#include "Record.h"
+#include "Schema.h"
 
 struct att_pair {
   char *name;
@@ -65,7 +65,8 @@ class Schema {
   // Create a schema by combining two schemas with an ordermaker(join)
   Schema(char *fName, Schema *s1, Schema *s2, OrderMaker *s2OrderMaker);
 
-  // Create a schema by combining two schemas without an ordermaker(cartesian product)
+  // Create a schema by combining two schemas without an ordermaker(cartesian
+  // product)
   Schema(char *fName, Schema *s1, Schema *s2);
 
   // this composes a schema from another schema
@@ -80,6 +81,8 @@ class Schema {
 
   bool IsQualifiedAtt(std::string value);
   std::pair<std::string, std::string> SplitQualifiedAtt(std::string value);
+
+  void Print(std::string prefix);
 };
 
 #endif

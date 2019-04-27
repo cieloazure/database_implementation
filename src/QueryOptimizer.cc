@@ -72,9 +72,15 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     relNode->relName = dest;
     relNode->schema = relNameToSchema[relNode->relName];
     relNode->nodeType = RELATION_NODE;
+
     // Set the root for newMemo
     BaseNode *root = new BaseNode;
-    root->left = relNode;
+
+    // Set links of root
+    Link sentinelLink(relNode);
+    root->left = sentinelLink;
+    relNode->parent = sentinelLink;
+
     newMemo.root = root;
     PrintTree(newMemo.root);
     std::cout << std::endl;
@@ -126,10 +132,21 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     // Set Join Node for newMemo
     JoinNode *newJoinNode = new JoinNode;
     newJoinNode->nodeType = JOIN;
-    RelationNode *relNode1 = dynamic_cast<RelationNode *>(joinPair[1]->left);
-    RelationNode *relNode2 = dynamic_cast<RelationNode *>(joinPair[0]->left);
-    newJoinNode->left = relNode1;
-    newJoinNode->right = relNode2;
+    RelationNode *relNode1 =
+        dynamic_cast<RelationNode *>(joinPair[1]->left.value);
+    RelationNode *relNode2 =
+        dynamic_cast<RelationNode *>(joinPair[0]->left.value);
+
+    // Set left link of new join node
+    Link leftLink(relNode1);
+    newJoinNode->left = leftLink;
+    relNode1->parent = leftLink;
+
+    // Set right link of new join node
+    Link rightLink(relNode2);
+    newJoinNode->right = rightLink;
+    relNode2->parent = rightLink;
+
     if (final != NULL)
     {
       CNF cnf;
@@ -146,12 +163,15 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     }
     else
     {
-      Schema s("join_schema", relNode2->schema, relNode1->schema);
-      newJoinNode->schema = &s;
+      Schema *s = new Schema("join_schema", relNode2->schema, relNode1->schema);
+      newJoinNode->schema = s;
     }
     // Set root node for newMemo
     BaseNode *root = new BaseNode;
-    root->left = newJoinNode;
+    Link sentinelLink(newJoinNode);
+    root->left = sentinelLink;
+    newJoinNode->parent = sentinelLink;
+
     newMemo.root = root;
     PrintTree(newMemo.root);
     std::cout << std::endl;
@@ -159,7 +179,7 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     combinationToMemo[set] = newMemo;
     if (length == 2)
     {
-      return newMemo.root->left;
+      return newMemo.root->left.value;
     }
   }
 
@@ -228,7 +248,8 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       newMemo.state = prevStatsCopy;
 
       // Set join node for newMemo
-      JoinNode *prevJoinNode = dynamic_cast<JoinNode *>(prevMemo.root->left);
+      JoinNode *prevJoinNode =
+          dynamic_cast<JoinNode *>(prevMemo.root->left.value);
       RelationNode *newRelNode = new RelationNode;
       newRelNode->nodeType = RELATION_NODE;
       char *temp = (char *)right.c_str();
@@ -238,8 +259,17 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       newRelNode->schema = relNameToSchema[right];
       JoinNode *newJoinNode = new JoinNode;
       newJoinNode->nodeType = JOIN;
-      newJoinNode->left = prevJoinNode;
-      newJoinNode->right = newRelNode;
+
+      // Set left link of new join node
+      Link leftLink(prevJoinNode);
+      newJoinNode->left = leftLink;
+      prevJoinNode->parent = leftLink;
+
+      // Set right link of new join node
+      Link rightLink(newRelNode);
+      newJoinNode->right = rightLink;
+      newRelNode->parent = rightLink;
+
       if (final != NULL)
       {
         CNF cnf;
@@ -262,7 +292,10 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       }
       // Set root node for newMemo
       BaseNode *root = new BaseNode;
-      root->left = newJoinNode;
+      Link sentinelLink(newJoinNode);
+      root->left = sentinelLink;
+      newJoinNode->parent = sentinelLink;
+
       newMemo.root = root;
       PrintTree(newMemo.root);
       std::cout << std::endl;
@@ -283,7 +316,7 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
   std::cout << std::endl;
   // End Optimization
 
-  return combinationToMemo[optimalJoin].root->left;
+  return combinationToMemo[optimalJoin].root->left.value;
 }
 
 std::vector<std::string> QueryOptimizer::GenerateCombinations(int n, int r)
@@ -499,12 +532,11 @@ std::pair<std::string, std::string> QueryOptimizer::SplitQualifiedAtt(
   retPair.second = att;
   return retPair;
 }
-
 void QueryOptimizer::PrintTree(BaseNode *base)
 {
   if (base == NULL)
     return;
-  PrintTree(base->left);
+  PrintTree(base->left.value);
   switch (base->nodeType)
   {
   case BASE_NODE:
@@ -514,13 +546,15 @@ void QueryOptimizer::PrintTree(BaseNode *base)
   case JOIN:
     std::cout << "JOIN"
               << " ";
+    std::cout << "{Input pipes: (" << base->left.id << "," << base->right.id
+              << "), Output pipe: (" << base->parent.id << ")}  ";
     break;
   case RELATION_NODE:
     RelationNode *r = (RelationNode *)base;
     std::cout << r->relName << " ";
     break;
   }
-  PrintTree(base->right);
+  PrintTree(base->right.value);
 }
 
 QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query)
@@ -586,8 +620,10 @@ void QueryOptimizer::GenerateTree(struct BaseNode *child,
     if (currentNode)
     {
       drNode->nodeType = DUPLICATE_REMOVAL;
-      currentNode->left = drNode;
-      currentNode = currentNode->left;
+      Link link(drNode);
+      currentNode->left = link;
+      drNode->parent = link;
+      currentNode = currentNode->left.value;
     }
   }
 
@@ -625,8 +661,10 @@ void QueryOptimizer::GenerateTree(struct BaseNode *child,
     projectNode->numAttsInput = child->schema->GetNumAtts();
     projectNode->numAttsOutput = keepMe.size();
 
-    currentNode->left = projectNode;
-    currentNode = currentNode->left;
+    Link link(projectNode);
+    currentNode->left = link;
+    projectNode->parent = link;
+    currentNode = currentNode->left.value;
   }
 
   // Handle SELECTS.
@@ -642,10 +680,14 @@ void QueryOptimizer::GenerateTree(struct BaseNode *child,
     selectNode->literal = literal;
     selectNode->schema = child->schema;
 
-    currentNode->left = selectNode;
-    currentNode = currentNode->left;
+    Link link(selectNode);
+    currentNode->left = link;
+    selectNode->parent = link;
+    currentNode = currentNode->left.value;
   }
 
   // Finally join the JOIN subtree
-  currentNode->left = child;
+  Link link(child);
+  currentNode->left = link;
+  child->parent = link;
 }
