@@ -48,7 +48,9 @@ class Optimizer {
   void Read(char *fromWhere);
   void ReadParserDatastructures();
 
-  void OptimumOrderingOfJoin(Statistics *prevStats,
+  void OptimumOrderingOfJoin(
+                             std::unordered_map<std::string, Schema *> relNameToSchema,
+                             Statistics *prevStats,
                              std::vector<std::string> relNames,
                              std::vector<std::vector<std::string>> joinMatrix);
 

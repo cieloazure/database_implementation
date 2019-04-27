@@ -9,6 +9,7 @@ void Optimizer::ReadParserDatastructures() {
 void Optimizer::Read(char *fromWhere) { currentState->Read(fromWhere); }
 
 void Optimizer::OptimumOrderingOfJoin(
+    std::unordered_map<std::string, Schema *> relNameToSchema,
     Statistics *prevStats, std::vector<std::string> relNames,
     std::vector<std::vector<std::string>> joinMatrix) {
   // Start Optimization
@@ -45,13 +46,13 @@ void Optimizer::OptimumOrderingOfJoin(
     newMemo.state = prevStats;
 
     // Set RelationNode for newMemo
-    // RelationNode *relNode = new RelationNode;
-    // relNode->relName = (char *)relNamesSubset[0].c_str();
-    // relNode->schema = map[relname]
+    RelationNode *relNode = new RelationNode;
+    relNode->relName = (char *)relNamesSubset[0].c_str();
+    relNode->schema = relNameToSchema[relNode->relName];
     // Set the root for newMemo
-    // BaseNode *root = new BaseNode;
-    // root->left = relNode;
-    // newMemo.root = root;
+    BaseNode *root = new BaseNode;
+    root->left = relNode;
+    newMemo.root = root;
 
     combinationToMemo[set] = newMemo;
   }
@@ -94,29 +95,29 @@ void Optimizer::OptimumOrderingOfJoin(
     newMemo.state = prevStatsCopy;
 
     // Set Join Node for newMemo
-    // JoinNode *j = new JoinNode;
-    // RelationNode *relNode1 = (RelationNode *)joinPair[0]->left;
-    // RelationNode *relNode2 = (RelationNode *)joinPair[1]->left;
-    // j->left = relNode1;
-    // j->right = relNode2;
-    // if(final != NULL){
-    //  CNF cnf;
-    //  Record literal;
-    //  cnf.GrowFromParseTree(final, relNode1->schema, relNode2->schema, literal);
-    //  OrderMaker left;
-    //  OrderMaker right;
-    //  Schema s("join_schema", relNode1->schema, relNode2->schema, right);
-    //  j->schema = s;
-    //  j->cnf = cnf;
-    //  j->literal = literal;
-    // }else{
-    //   Schema s("join_schema", relNode2->schema, relNode1->schema);
-    //   j->schema = s;
-    // }
+    JoinNode *newJoinNode = new JoinNode;
+    RelationNode *relNode1 = (RelationNode *)joinPair[0]->left;
+    RelationNode *relNode2 = (RelationNode *)joinPair[1]->left;
+    newJoinNode->left = relNode1;
+    newJoinNode->right = relNode2;
+    if(final != NULL){
+     CNF cnf;
+     Record literal;
+     cnf.GrowFromParseTree(final, relNode1->schema, relNode2->schema, literal);
+     OrderMaker left;
+     OrderMaker right;
+     Schema s("join_schema", relNode1->schema, relNode2->schema, &right);
+     newJoinNode->schema = &s;
+     newJoinNode->cnf = &cnf;
+     newJoinNode->literal = &literal;
+    }else{
+      Schema s("join_schema", relNode2->schema, relNode1->schema);
+      newJoinNode->schema = &s;
+    }
     // Set root node for newMemo
-    // BaseNode *root = new BaseNode;
-    // root->left = joinNode;
-    // newMemo.root = root;
+    BaseNode *root = new BaseNode;
+    root->left = newJoinNode;
+    newMemo.root = root;
 
     combinationToMemo[set] = newMemo;
   }
@@ -178,31 +179,31 @@ void Optimizer::OptimumOrderingOfJoin(
       newMemo.state = prevStatsCopy;
 
       // Set join node for newMemo
-      // JoinNode *prevJoinNode = (JoinNode *)prevMemo.root->left;
-      // RelationNode *newRelNode = new RelationNode;
-      // newRelNode->relName = (char *)right.c_str();
-      // newRelNode->schema = map[right];
-      // JoinNode *newJoinNode = new JoinNode;
-      // newJoinNode->left = prevJoinNode;
-      // newJoinNode->right = newRelNode;
-      // if(final != NULL){
-      //  CNF cnf;
-      //  Record literal;
-      //  cnf.GrowFromParseTree(final, prevJoinNode->schema, newRelNode->schema, literal);
-      //  OrderMaker left;
-      //  OrderMaker right;
-      //  Schema s("join_schema", prevJoinNode->schema, newRelNode->schema, right);
-      //  newJoinNode->schema = s;
-      //  newJoinNode->cnf = cnf;
-      //  newJoinNode->literal = literal;
-      // }else{
-      //   Schema s("join_schema", newRelNode->schema, prevJoinNode->schema);
-      //   newJoinNode->schema = s;
-      // }
+      JoinNode *prevJoinNode = (JoinNode *)prevMemo.root->left;
+      RelationNode *newRelNode = new RelationNode;
+      newRelNode->relName = (char *)right.c_str();
+      newRelNode->schema = relNameToSchema[right];
+      JoinNode *newJoinNode = new JoinNode;
+      newJoinNode->left = prevJoinNode;
+      newJoinNode->right = newRelNode;
+      if(final != NULL){
+       CNF cnf;
+       Record literal;
+       cnf.GrowFromParseTree(final, prevJoinNode->schema, newRelNode->schema, literal);
+       OrderMaker left;
+       OrderMaker right;
+       Schema s("join_schema", prevJoinNode->schema, newRelNode->schema, &right);
+       newJoinNode->schema = &s;
+       newJoinNode->cnf = &cnf;
+       newJoinNode->literal = &literal;
+      }else{
+        Schema s("join_schema", newRelNode->schema, prevJoinNode->schema);
+        newJoinNode->schema = &s;
+      }
       // Set root node for newMemo
-      // BaseNode *root = new BaseNode;
-      // root->left = newJoinNode;
-      // newMemo.root = root;
+      BaseNode *root = new BaseNode;
+      root->left = newJoinNode;
+      newMemo.root = root;
 
       combinationToMemo[set] = newMemo;
     }
