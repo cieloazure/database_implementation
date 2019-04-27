@@ -2,6 +2,7 @@
 #define QUERYPLAN_H
 
 #include "Comparison.h"
+#include "Pipe.h"
 #include "Record.h"
 #include "Schema.h"
 
@@ -17,18 +18,37 @@ enum PlanNodeType {
   RELATION_NODE
 };
 
+class BaseNode;
+
+struct Link {
+  BaseNode *value;
+  Pipe *pipe;
+  int id;
+
+  static int pool;
+
+  Link() {
+    value = NULL;
+    pipe = NULL;
+    id = -1;
+  }
+
+  Link(BaseNode *val) {
+    value = val;
+    id = Link::pool;
+    Link::pool++;
+  }
+};
+
 class BaseNode {
  protected:
  public:
   PlanNodeType nodeType;
   Schema *schema;
-  BaseNode *left;
-  BaseNode *right;
-  BaseNode() {
-    nodeType = BASE_NODE;
-    left = NULL;
-    right = NULL;
-  }
+  Link left;
+  Link right;
+  Link parent;
+  BaseNode() { nodeType = BASE_NODE; }
   virtual void dummy(){};
 };
 
@@ -85,5 +105,4 @@ class QueryPlan {
   void Execute();
   void Print();
 };
-
 #endif

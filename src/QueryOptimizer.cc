@@ -62,9 +62,15 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     relNode->relName = dest;
     relNode->schema = relNameToSchema[relNode->relName];
     relNode->nodeType = RELATION_NODE;
+
     // Set the root for newMemo
     BaseNode *root = new BaseNode;
-    root->left = relNode;
+
+    // Set links of root
+    Link sentinelLink(relNode);
+    root->left = sentinelLink;
+    relNode->parent = sentinelLink;
+
     newMemo.root = root;
     PrintTree(newMemo.root);
     std::cout << std::endl;
@@ -112,10 +118,21 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     // Set Join Node for newMemo
     JoinNode *newJoinNode = new JoinNode;
     newJoinNode->nodeType = JOIN;
-    RelationNode *relNode1 = dynamic_cast<RelationNode *>(joinPair[1]->left);
-    RelationNode *relNode2 = dynamic_cast<RelationNode *>(joinPair[0]->left);
-    newJoinNode->left = relNode1;
-    newJoinNode->right = relNode2;
+    RelationNode *relNode1 =
+        dynamic_cast<RelationNode *>(joinPair[1]->left.value);
+    RelationNode *relNode2 =
+        dynamic_cast<RelationNode *>(joinPair[0]->left.value);
+
+    // Set left link of new join node
+    Link leftLink(relNode1);
+    newJoinNode->left = leftLink;
+    relNode1->parent = leftLink;
+
+    // Set right link of new join node
+    Link rightLink(relNode2);
+    newJoinNode->right = rightLink;
+    relNode2->parent = rightLink;
+
     if (final != NULL) {
       CNF cnf;
       Record literal;
@@ -134,7 +151,9 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     }
     // Set root node for newMemo
     BaseNode *root = new BaseNode;
-    root->left = newJoinNode;
+    Link sentinelLink(newJoinNode);
+    root->left = sentinelLink;
+
     newMemo.root = root;
     PrintTree(newMemo.root);
     std::cout << std::endl;
@@ -202,7 +221,8 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       newMemo.state = prevStatsCopy;
 
       // Set join node for newMemo
-      JoinNode *prevJoinNode = dynamic_cast<JoinNode *>(prevMemo.root->left);
+      JoinNode *prevJoinNode =
+          dynamic_cast<JoinNode *>(prevMemo.root->left.value);
       RelationNode *newRelNode = new RelationNode;
       newRelNode->nodeType = RELATION_NODE;
       char *temp = (char *)right.c_str();
@@ -212,8 +232,17 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       newRelNode->schema = relNameToSchema[right];
       JoinNode *newJoinNode = new JoinNode;
       newJoinNode->nodeType = JOIN;
-      newJoinNode->left = prevJoinNode;
-      newJoinNode->right = newRelNode;
+
+      // Set left link of new join node
+      Link leftLink(prevJoinNode);
+      newJoinNode->left = leftLink;
+      prevJoinNode->parent = leftLink;
+
+      // Set right link of new join node
+      Link rightLink(newRelNode);
+      newJoinNode->right = rightLink;
+      newRelNode->parent = rightLink;
+
       if (final != NULL) {
         CNF cnf;
         Record literal;
@@ -233,7 +262,10 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       }
       // Set root node for newMemo
       BaseNode *root = new BaseNode;
-      root->left = newJoinNode;
+      Link sentinelLink(newJoinNode);
+      root->left = sentinelLink;
+      newJoinNode->parent = sentinelLink;
+
       newMemo.root = root;
       PrintTree(newMemo.root);
       std::cout << std::endl;
@@ -418,7 +450,7 @@ bool QueryOptimizer::ContainsLiteral(ComparisonOp *compOp) {
 
 void QueryOptimizer::PrintTree(BaseNode *base) {
   if (base == NULL) return;
-  PrintTree(base->left);
+  PrintTree(base->left.value);
   switch (base->nodeType) {
     case BASE_NODE:
       std::cout << "BASE"
@@ -433,7 +465,7 @@ void QueryOptimizer::PrintTree(BaseNode *base) {
       std::cout << r->relName << " ";
       break;
   }
-  PrintTree(base->right);
+  PrintTree(base->right.value);
 }
 
 QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query) {
