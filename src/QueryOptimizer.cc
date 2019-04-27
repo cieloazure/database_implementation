@@ -146,8 +146,8 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       newJoinNode->cnf = &cnf;
       newJoinNode->literal = &literal;
     } else {
-      Schema s("join_schema", relNode2->schema, relNode1->schema);
-      newJoinNode->schema = &s;
+      Schema *s = new Schema("join_schema", relNode2->schema, relNode1->schema);
+      newJoinNode->schema = s;
     }
     // Set root node for newMemo
     BaseNode *root = new BaseNode;

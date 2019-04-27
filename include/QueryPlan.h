@@ -1,6 +1,7 @@
 #ifndef QUERYPLAN_H
 #define QUERYPLAN_H
 
+#include <iostream>
 #include "Comparison.h"
 #include "Function.h"
 #include "Pipe.h"
@@ -123,5 +124,6 @@ class QueryPlan {
   QueryPlan(BaseNode *root);
   void Execute();
   void Print();
+  void PrintTree(BaseNode *base);
 };
 #endif
