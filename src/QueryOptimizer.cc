@@ -650,6 +650,7 @@ void QueryOptimizer::GenerateTree(struct BaseNode *child,
       }
       int attIndex = child->schema->Find((char *)attrName.c_str());
       keepMe.push_back(attIndex);
+      nameList = nameList->next;
     }
     int keepMeArr[keepMe.size()];
     for (int i = 0; i < keepMe.size(); ++i)
