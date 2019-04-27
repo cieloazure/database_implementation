@@ -197,6 +197,52 @@ void Function ::GrowFromParseTree(struct FuncOperator *parseTree,
 void Function ::Print() {
   for (int i = 0; i < numOps; i++) {
     struct Arithmatic a = *(opList + i);
+    std::cout << "\tArithmatic op:";
+    switch (a.myOp) {
+      case PushInt:
+        std::cout << "\tPushInt" << std::endl;
+        break;
+      case PushDouble:
+        std::cout << "\tPushDouble" << std::endl;
+        break;
+      case ToDouble:
+        std::cout << "\tToDouble" << std::endl;
+        break;
+      case ToDouble2Down:
+        std::cout << "\tToDouble2Down" << std::endl;
+        break;
+      case IntUnaryMinus:
+        std::cout << "\tIntUnaryMinus" << std::endl;
+        break;
+      case IntMinus:
+        std::cout << "\tIntMinus" << std::endl;
+        break;
+      case IntPlus:
+        std::cout << "\tIntPlus" << std::endl;
+        break;
+      case IntDivide:
+        std::cout << "\tIntDivide" << std::endl;
+        break;
+      case IntMultiply:
+        std::cout << "\tIntMultiply" << std::endl;
+        break;
+      case DblUnaryMinus:
+        std::cout << "\tDblUnaryMinus" << std::endl;
+        break;
+      case DblMinus:
+        std::cout << "\tDblMinus" << std::endl;
+        break;
+      case DblPlus:
+        std::cout << "\tDblPlus" << std::endl;
+        break;
+      case DblDivide:
+        std::cout << "\tDblDivide" << std::endl;
+        break;
+      case DblMultiply:
+        std::cout << "\tDblMultiply" << std::endl;
+        break;
+    }
+    std::cout << "\tRec Input:" << a.recInput << std::endl;
   }
 }
 
