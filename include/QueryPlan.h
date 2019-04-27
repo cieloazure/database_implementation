@@ -5,6 +5,7 @@
 #include "Schema.h"
 #include "Function.h"
 #include "Optimizer.h"
+#include "Statistics.h"
 
 enum
 {
@@ -39,7 +40,8 @@ typedef struct JoinNode : BaseNode
 {
     CNF *cnf;
     Record *record;
-} JoinNode, SelectFileNode, SelectPipeNode;
+    Schema *schema;
+} JoinNode, SelectNode;
 
 typedef struct ProjectNode : BaseNode
 {
@@ -56,12 +58,18 @@ typedef struct SumNode : BaseNode
 typedef struct RelationNode : BaseNode
 {
     char *relName;
+    Schema *schema;
 } RelationNode;
 class QueryPlan
 {
 
 public:
+    Statistics *statsObject;
+    QueryPlan(Statistics *s);
     void generateTree(JoinNode *joinNode);
+    std::pair<std::string, std::string> SplitQualifiedAtt(
+        std::string value);
+    bool IsQualifiedAtt(std::string value);
 };
 
 #endif

@@ -15,29 +15,35 @@
 #include <unordered_map>
 #include <vector>
 #include "ParseTree.h"
+// #include "Schema.h"
 
 /* Data structures begin */
 /* Hash table definition begins */
-typedef struct RelationStats {
+typedef struct RelationStats
+{
   std::string relName;
   long numTuples;
   std::set<std::string> attributes;
   int disjointSetIndex;
 } RelationStats;
 
-typedef struct AttributeStats {
+typedef struct AttributeStats
+{
   std::string attName;
   std::string relName;
   long numDistincts;
 } AttributeStats;
 
-typedef struct AttStoreKey {
+typedef struct AttStoreKey
+{
   std::string attName;
   std::string relName;
 } AttStoreKey;
 
-typedef struct AttStoreKeyHash {
-  std::size_t operator()(const AttStoreKey &k) const {
+typedef struct AttStoreKeyHash
+{
+  std::size_t operator()(const AttStoreKey &k) const
+  {
     std::size_t seed = 0;
     auto hash_combine = [](std::size_t &seed, const std::string &v) -> void {
       std::hash<std::string> hasher;
@@ -51,15 +57,18 @@ typedef struct AttStoreKeyHash {
   }
 } AttStoreKeyHash;
 
-typedef struct AttStoreKeyEqual {
-  bool operator()(const AttStoreKey &lhs, const AttStoreKey &rhs) const {
+typedef struct AttStoreKeyEqual
+{
+  bool operator()(const AttStoreKey &lhs, const AttStoreKey &rhs) const
+  {
     return lhs.attName == rhs.attName && lhs.relName == rhs.relName;
   }
 } AttStoreKeyEqual;
 
 /* Hash table data structures ends */
 /* Disjoint Set data structure functions  begins*/
-typedef struct DisjointSetNode {
+typedef struct DisjointSetNode
+{
   std::string relName;
   int rank;
   DisjointSetNode *parent;
@@ -68,18 +77,20 @@ typedef struct DisjointSetNode {
   DisjointSetNode(std::string rel) : relName(rel) {}
 } DisjointSetNode;
 
-typedef struct ParentFinder {
+typedef struct ParentFinder
+{
   std::string relName;
   ParentFinder(std::string rel) : relName(rel) {}
-  bool operator () (const DisjointSetNode *disjointSetNode) const
+  bool operator()(const DisjointSetNode *disjointSetNode) const
   {
-    return disjointSetNode->relName.compare(relName) == 0? true : false; 
+    return disjointSetNode->relName.compare(relName) == 0 ? true : false;
   }
 } ParentFinder;
 /* Data strucres ends */
 
-class StatisticsState {
- public:
+class StatisticsState
+{
+public:
   /* State of the statistics is stored in these 3 variables*/
   /*
   1. relationStore
@@ -94,6 +105,8 @@ class StatisticsState {
       attributeStore;
   /* FOREST OF DISJOINT SETS */
   std::vector<DisjointSetNode *> disjointSets;
+
+  // std::vector<Schema> schemaList;
 
   StatisticsState();
   StatisticsState(StatisticsState *copyState);

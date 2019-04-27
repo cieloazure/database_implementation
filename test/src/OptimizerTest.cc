@@ -488,4 +488,12 @@ TEST_F(OptimizerTest, SeparateJoinsAndSelects)
   o.SeparateJoinsandSelects(joinList);
 }
 
+// TEST_F(OptimizerTest, TESTSCHEMA)
+// {
+//   Attribute IA = {(char *)"int", Int};
+//   Attribute SA = {(char *)"string", String};
+//   Attribute DA = {(char *)"double", Double};
+//   Attribute att3[] = {IA, SA, DA};
+//   Schema *schema = new Schema("R1", 3, att3);
+// }
 } // namespace dbi
