@@ -357,6 +357,7 @@ TEST_F(OptimizerTest, PERMUTATIONS_TEST_4) {
 }
 
 TEST_F(OptimizerTest, OptimizeOrderOfRelations) {
+  // Set up statistics
   Statistics s;
   char *relName[] = {"R", "S", "T", "U"};
 
@@ -376,6 +377,7 @@ TEST_F(OptimizerTest, OptimizeOrderOfRelations) {
   s.AddAtt(relName[3], "a", 50);
   s.AddAtt(relName[3], "d", 1000);
 
+  // Set up join matrix
   std::vector<std::vector<std::string>> joinMatrix;
   std::vector<std::string> row1;
   row1.push_back("");
@@ -408,8 +410,33 @@ TEST_F(OptimizerTest, OptimizeOrderOfRelations) {
   relNames.push_back("T");
   relNames.push_back("U");
 
+  // Set up map of relNameToSchema
+  Attribute IA = {(char *)"a", Int};
+  Attribute IB = {(char *)"b", Int};
+  Attribute IC = {(char *)"c", Int};
+  Attribute ID = {(char *)"d", Int};
+
+  Attribute rAtts[] = {IA, IB};
+  Schema rSchema("rSchema", 2, rAtts);
+
+  Attribute s1Atts[] = {IB, IC};
+  Schema sSchema("sSchema", 2, s1Atts);
+
+  Attribute tAtts[] = {IC, ID};
+  Schema tSchema("tSchema", 2, tAtts);
+
+  Attribute uAtts[] = {IA, ID};
+  Schema uSchema("uSchema", 2, uAtts);
+
+  std::unordered_map<std::string, Schema *> relNameToSchema;
+  relNameToSchema["R"] = &rSchema;
+  relNameToSchema["S"] = &sSchema;
+  relNameToSchema["T"] = &tSchema;
+  relNameToSchema["U"] = &uSchema;
+
+  // call optimizer
   Optimizer o;
-  // o.OptimumOrderingOfJoin(&s, relNames, joinMatrix);
+  o.OptimumOrderingOfJoin(relNameToSchema, &s, relNames, joinMatrix);
 }
 
 TEST_F(OptimizerTest, SeparateJoinsAndSelects) {

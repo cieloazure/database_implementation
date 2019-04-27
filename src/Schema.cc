@@ -5,6 +5,12 @@
 #include <iostream>
 
 int Schema ::Find(char *attName) {
+  std::string attNameStr(attName);
+  if (IsQualifiedAtt(attNameStr)) {
+    std::pair<std::string, std::string> relAttPair =
+        SplitQualifiedAtt(attNameStr);
+    attName = (char *)relAttPair.second.c_str();
+  }
   for (int i = 0; i < numAtts; i++) {
     if (!strcmp(attName, myAtts[i].name)) {
       return i;
@@ -296,12 +302,11 @@ Schema ::Schema(char *fName, Schema *s1, Schema *s2, OrderMaker *s2OrderMaker) {
   }
 }
 
-
 Schema ::Schema(char *fName, Schema *s1, Schema *s2) {
   fileName = strdup(fName);
 
   // Initialize sizes
-  numAtts = s1->GetNumAtts() + s2->GetNumAtts(); 
+  numAtts = s1->GetNumAtts() + s2->GetNumAtts();
   myAtts = new Attribute[numAtts];
 
   // Copy s1
@@ -337,5 +342,25 @@ Schema ::Schema(char *fName, Schema *s1, Schema *s2) {
     }
     i++;
   }
+}
 
+bool Schema::IsQualifiedAtt(std::string value) {
+  return value.find('.', 0) != std::string::npos;
+}
+
+std::pair<std::string, std::string> Schema::SplitQualifiedAtt(
+    std::string value) {
+  size_t idx = value.find('.', 0);
+  std::string rel;
+  std::string att;
+  if (idx == std::string::npos) {
+    att = value;
+  } else {
+    rel = value.substr(0, idx);
+    att = value.substr(idx + 1, value.length());
+  }
+  std::pair<std::string, std::string> retPair;
+  retPair.first = rel;
+  retPair.second = att;
+  return retPair;
 }

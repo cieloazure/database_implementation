@@ -77,6 +77,9 @@ class Schema {
   void AddAttribute(Attribute a);
 
   void DifferenceWithOrderMaker(OrderMaker o, int *diff);
+
+  bool IsQualifiedAtt(std::string value);
+  std::pair<std::string, std::string> SplitQualifiedAtt(std::string value);
 };
 
 #endif

@@ -47,12 +47,18 @@ void Optimizer::OptimumOrderingOfJoin(
 
     // Set RelationNode for newMemo
     RelationNode *relNode = new RelationNode;
-    relNode->relName = (char *)relNamesSubset[0].c_str();
+    char *temp = (char *)relNamesSubset[0].c_str();
+    char *dest = new char[relNamesSubset[0].size()];
+    std::strcpy(dest, temp);
+    relNode->relName = dest;
     relNode->schema = relNameToSchema[relNode->relName];
+    relNode->nodeType = RELATION_NODE;
     // Set the root for newMemo
     BaseNode *root = new BaseNode;
     root->left = relNode;
     newMemo.root = root;
+    PrintTree(newMemo.root);
+    std::cout << std::endl;
 
     combinationToMemo[set] = newMemo;
   }
@@ -66,7 +72,7 @@ void Optimizer::OptimumOrderingOfJoin(
         GetRelNamesFromBitSet(set, relNames);
     Statistics *prevStatsCopy = new Statistics(*prevStats);
     const char *relNamesCStyle[2];
-    std::vector<BaseNode *> joinPair;
+    std::vector<BaseNode *> joinPair(2, NULL);
     int cStyleIdx = 0;
 
     for (int stridx = 0; stridx < set.size(); stridx++) {
@@ -76,8 +82,8 @@ void Optimizer::OptimumOrderingOfJoin(
         // Search the memoized table and get the size in possible cost
         struct Memo prevMemo = combinationToMemo[set];
         relNamesCStyle[cStyleIdx] = relNamesSubset[cStyleIdx].c_str();
+        joinPair[cStyleIdx] = prevMemo.root;
         cStyleIdx++;
-        joinPair.push_back(prevMemo.root);
         // Set the bit again
         set[stridx] = '\x01';
       }
@@ -86,8 +92,8 @@ void Optimizer::OptimumOrderingOfJoin(
     // Construct new memo
     struct Memo newMemo;
     newMemo.cost = 0;
-    if (!ConstructJoinCNF(relNames, joinMatrix, relNamesSubset[0],
-                          relNamesSubset[1])) {
+    if (!ConstructJoinCNF(relNames, joinMatrix, relNamesCStyle[0],
+                          relNamesCStyle[1])) {
       final = NULL;
     }
     newMemo.size = prevStatsCopy->Estimate(final, (char **)relNamesCStyle, 2);
@@ -96,21 +102,22 @@ void Optimizer::OptimumOrderingOfJoin(
 
     // Set Join Node for newMemo
     JoinNode *newJoinNode = new JoinNode;
-    RelationNode *relNode1 = (RelationNode *)joinPair[0]->left;
-    RelationNode *relNode2 = (RelationNode *)joinPair[1]->left;
+    newJoinNode->nodeType = JOIN;
+    RelationNode *relNode1 = dynamic_cast<RelationNode *>(joinPair[1]->left);
+    RelationNode *relNode2 = dynamic_cast<RelationNode *>(joinPair[0]->left);
     newJoinNode->left = relNode1;
     newJoinNode->right = relNode2;
-    if(final != NULL){
-     CNF cnf;
-     Record literal;
-     cnf.GrowFromParseTree(final, relNode1->schema, relNode2->schema, literal);
-     OrderMaker left;
-     OrderMaker right;
-     Schema s("join_schema", relNode1->schema, relNode2->schema, &right);
-     newJoinNode->schema = &s;
-     newJoinNode->cnf = &cnf;
-     newJoinNode->literal = &literal;
-    }else{
+    if (final != NULL) {
+      CNF cnf;
+      Record literal;
+      cnf.GrowFromParseTree(final, relNode1->schema, relNode2->schema, literal);
+      OrderMaker left;
+      OrderMaker right;
+      Schema s("join_schema", relNode1->schema, relNode2->schema, &right);
+      newJoinNode->schema = &s;
+      newJoinNode->cnf = &cnf;
+      newJoinNode->literal = &literal;
+    } else {
       Schema s("join_schema", relNode2->schema, relNode1->schema);
       newJoinNode->schema = &s;
     }
@@ -118,6 +125,8 @@ void Optimizer::OptimumOrderingOfJoin(
     BaseNode *root = new BaseNode;
     root->left = newJoinNode;
     newMemo.root = root;
+    PrintTree(newMemo.root);
+    std::cout << std::endl;
 
     combinationToMemo[set] = newMemo;
   }
@@ -181,22 +190,29 @@ void Optimizer::OptimumOrderingOfJoin(
       // Set join node for newMemo
       JoinNode *prevJoinNode = (JoinNode *)prevMemo.root->left;
       RelationNode *newRelNode = new RelationNode;
-      newRelNode->relName = (char *)right.c_str();
+      newRelNode->nodeType = RELATION_NODE;
+      char *temp = (char *)right.c_str();
+      char *dest = new char[right.size()];
+      std::strcpy(dest, temp);
+      newRelNode->relName = dest;
       newRelNode->schema = relNameToSchema[right];
       JoinNode *newJoinNode = new JoinNode;
+      newJoinNode->nodeType = JOIN;
       newJoinNode->left = prevJoinNode;
       newJoinNode->right = newRelNode;
-      if(final != NULL){
-       CNF cnf;
-       Record literal;
-       cnf.GrowFromParseTree(final, prevJoinNode->schema, newRelNode->schema, literal);
-       OrderMaker left;
-       OrderMaker right;
-       Schema s("join_schema", prevJoinNode->schema, newRelNode->schema, &right);
-       newJoinNode->schema = &s;
-       newJoinNode->cnf = &cnf;
-       newJoinNode->literal = &literal;
-      }else{
+      if (final != NULL) {
+        CNF cnf;
+        Record literal;
+        cnf.GrowFromParseTree(final, prevJoinNode->schema, newRelNode->schema,
+                              literal);
+        OrderMaker left;
+        OrderMaker right;
+        Schema s("join_schema", prevJoinNode->schema, newRelNode->schema,
+                 &right);
+        newJoinNode->schema = &s;
+        newJoinNode->cnf = &cnf;
+        newJoinNode->literal = &literal;
+      } else {
         Schema s("join_schema", newRelNode->schema, prevJoinNode->schema);
         newJoinNode->schema = &s;
       }
@@ -204,6 +220,8 @@ void Optimizer::OptimumOrderingOfJoin(
       BaseNode *root = new BaseNode;
       root->left = newJoinNode;
       newMemo.root = root;
+      PrintTree(newMemo.root);
+      std::cout << std::endl;
 
       combinationToMemo[set] = newMemo;
     }
@@ -374,4 +392,24 @@ bool Optimizer::IsALiteral(Operand *op) { return op->code != NAME; }
 
 bool Optimizer::ContainsLiteral(ComparisonOp *compOp) {
   return IsALiteral(compOp->left) || IsALiteral(compOp->right);
+}
+
+void Optimizer::PrintTree(BaseNode *base) {
+  if (base == NULL) return;
+  PrintTree(base->left);
+  switch (base->nodeType) {
+    case BASE_NODE:
+      std::cout << "BASE"
+                << " ";
+      break;
+    case JOIN:
+      std::cout << "JOIN"
+                << " ";
+      break;
+    case RELATION_NODE:
+      RelationNode *r = (RelationNode *)base;
+      std::cout << r->relName << " ";
+      break;
+  }
+  PrintTree(base->right);
 }

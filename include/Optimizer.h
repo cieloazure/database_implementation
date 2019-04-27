@@ -13,9 +13,9 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "QueryPlan.h"
 #include "Statistics.h"
 #include "StatisticsState.h"
-#include "QueryPlan.h"
 
 extern "C" {
 typedef struct yy_buffer_state *YY_BUFFER_STATE;
@@ -49,10 +49,9 @@ class Optimizer {
   void ReadParserDatastructures();
 
   void OptimumOrderingOfJoin(
-                             std::unordered_map<std::string, Schema *> relNameToSchema,
-                             Statistics *prevStats,
-                             std::vector<std::string> relNames,
-                             std::vector<std::vector<std::string>> joinMatrix);
+      std::unordered_map<std::string, Schema *> relNameToSchema,
+      Statistics *prevStats, std::vector<std::string> relNames,
+      std::vector<std::vector<std::string>> joinMatrix);
 
   bool ConstructJoinCNF(std::vector<std::string> relNames,
                         std::vector<std::vector<std::string>> joinMatrix,
@@ -72,6 +71,8 @@ class Optimizer {
       std::vector<std::vector<std::string>> &joinMatrix);
   bool IsALiteral(Operand *op);
   bool ContainsLiteral(ComparisonOp *compOp);
+
+  void PrintTree(BaseNode *base);
 };
 
 #endif
