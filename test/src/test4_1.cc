@@ -397,6 +397,7 @@ void q8() {
 
   s.Write(fileName);
 }
+
 void q9() {
   Statistics s;
   char *relName[] = {"part", "partsupp", "supplier"};

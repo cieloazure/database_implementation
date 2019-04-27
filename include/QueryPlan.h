@@ -1,75 +1,126 @@
 #ifndef QUERYPLAN_H
 #define QUERYPLAN_H
 
-#include <iostream>
-#include "Schema.h"
+#include "Comparison.h"
 #include "Function.h"
-#include "Optimizer.h"
-#include "Statistics.h"
+#include "Record.h"
+#include "Schema.h"
 
-enum
+enum PlanNodeType
 {
-    DUPLICATE_REMOVAL,
-    GROUP_BY,
-    JOIN,
-    PROJECT,
-    SELECT_FILE,
-    SELECT_PIPE,
-    SUM
+  BASE_NODE,
+  DUPLICATE_REMOVAL,
+  GROUP_BY,
+  JOIN,
+  PROJECT,
+  SELECT_FILE,
+  SELECT_PIPE,
+  SUM,
+  RELATION_NODE
 };
 
-typedef struct BaseNode
+class BaseNode
 {
-    int nodeType;
-    Schema *schema;
-    BaseNode *left;
-    BaseNode *right;
-} BaseNode;
+protected:
+public:
+  PlanNodeType nodeType;
+  Schema *schema;
+  BaseNode *left;
+  BaseNode *right;
+  BaseNode()
+  {
+    nodeType = BASE_NODE;
+    left = NULL;
+    right = NULL;
+  }
+  virtual void dummy(){};
+};
 
-typedef struct DuplicateRemovalNode : BaseNode
+class RelationNode : public BaseNode
 {
-} DuplicateRemovalNode;
+public:
+  char *relName;
+  Schema *schema;
+  RelationNode()
+  {
+    nodeType = RELATION_NODE;
+    relName = NULL;
+    schema = NULL;
+  }
+  void dummy() {}
+};
 
-typedef struct GroupByNode : BaseNode
+class JoinNode : public BaseNode
 {
-    OrderMaker *o;
-    Function f;
-} GroupByNode;
+public:
+  CNF *cnf;
+  Record *literal;
+  Schema *schema;
+  JoinNode()
+  {
+    nodeType = JOIN;
+    cnf = NULL;
+    literal = NULL;
+    schema = NULL;
+  }
+  void dummy() {}
+};
 
-typedef struct JoinNode : BaseNode
+class DuplicateRemovalNode : public BaseNode
 {
-    CNF *cnf;
-    Record *record;
-    Schema *schema;
-} JoinNode, SelectNode;
+public:
+  DuplicateRemovalNode();
+  void dummy() {}
+};
 
-typedef struct ProjectNode : BaseNode
+class GroupByNode : public BaseNode
 {
-    int *keepMe;
-    int numAttsInput;
-    int numAttsOutput;
-} ProjectNode;
+public:
+  OrderMaker *o;
+  Function *f;
+  GroupByNode()
+  {
+    o = NULL;
+    f = NULL;
+  }
+  void dummy() {}
+};
 
-typedef struct SumNode : BaseNode
+class ProjectNode : BaseNode
 {
-    Function *f;
-} SumNode;
+public:
+  int *keepMe;
+  int numAttsInput;
+  int numAttsOutput;
+  ProjectNode()
+  {
+    keepMe = NULL;
+    numAttsInput = 0;
+    numAttsOutput = 0;
+  }
+  void dummy() {}
+};
 
-typedef struct RelationNode : BaseNode
+class SumNode : BaseNode
 {
-    char *relName;
-    Schema *schema;
-} RelationNode;
+public:
+  Function *f;
+  SumNode()
+  {
+    f = NULL;
+  }
+  void dummy() {}
+};
+
 class QueryPlan
 {
+private:
+  BaseNode *root;
 
 public:
-    Statistics *statsObject;
-    QueryPlan(Statistics *s);
-    void generateTree(JoinNode *joinNode);
-    std::pair<std::string, std::string> SplitQualifiedAtt(
-        std::string value);
-    bool IsQualifiedAtt(std::string value);
+  QueryPlan(BaseNode *root);
+  void Execute();
+  void Print();
 };
 
 #endif

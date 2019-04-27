@@ -120,9 +120,25 @@ double Statistics::CalculateCost(AndList *parseTree, char *relNames[],
   }
 
   // ERROR CHECKING
-  // if (!CheckAttNameInRel(parseTree, relNamesVec)) {
-  //   throw std::runtime_error("ParseTree invalid!");
+  // if (disjointSetSubset.size() != 2) {
+  //   std::cout << "[Statistics]:ERROR: Estimate/Apply: ParseTree invalid! The
+  //   "
+  //                "joins meant in the parseTree does not make sense. Check if
+  //                " "the relations are not already joined. This error usually
+  //                " "occurs due to trying to join a relation which exists as
+  //                join " "and now is a subset of the joined relation"
+  //             << std::endl;
+  //   return -1.0;
   // }
+  std::vector<std::string> disjointVec(disjointSetSubset.begin(),
+                                       disjointSetSubset.end());
+  if (!CheckAttNameInRel(parseTree, disjointVec)) {
+    std::cout << "[Statistics]:ERROR: Estimate/Apply ParseTree invalid! "
+                 "Attribute name not "
+                 "present in the given relation"
+              << std::endl;
+    return -1.0;
+  }
 
   // if (!IsRelNamesValid(relNamesVec, partitions)) {
   //   throw std::runtime_error("Relation names invalid!");
@@ -346,7 +362,7 @@ Statistics ::CalculateCostJoin(ComparisonOp *op,
   AttributeStats *att1 = currentState->FindAtt(op->left->value, relNames);
   AttributeStats *att2 = currentState->FindAtt(op->right->value, relNames);
 
-  if (att1 == NULL && att2 == NULL) {
+  if (att1 == NULL || att2 == NULL) {
     throw std::runtime_error("Invalid relNames[]. Join operation failed.");
   }
 
