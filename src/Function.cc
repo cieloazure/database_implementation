@@ -195,9 +195,9 @@ void Function ::GrowFromParseTree(struct FuncOperator *parseTree,
 }
 
 void Function ::Print() {
-  // for (int i = 0; i < numOps; i++) {
-  //   struct Arithmatic a = *(opList + i);
-  // }
+  for (int i = 0; i < numOps; i++) {
+    struct Arithmatic a = *(opList + i);
+  }
 }
 
 Type Function ::Apply(Record &toMe, int &intResult, double &doubleResult) {
