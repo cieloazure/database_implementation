@@ -507,3 +507,52 @@ QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query) {
   // BaseNode *optimizedJoinNode = OptimumOrderingOfJoin(
   //     *relNameToSchema, currentStats, relNames, joinMatrix);
 }
+
+void QueryOptimizer::GenerateTree(struct JoinNode *joinNode) {
+  BaseNode *currentNode =
+      new BaseNode;  // a sentinel node that will be the root.
+
+  // Handle DISTINCT
+  if (distinctAtts == 1) {
+    BaseNode *drNode = new BaseNode;
+    if (currentNode) {
+      drNode->nodeType = DUPLICATE_REMOVAL;
+      currentNode->left = dynamic_cast<DuplicateRemovalNode *>(drNode);
+      currentNode = currentNode->left.value;
+    }
+  }
+
+  // Handle PROJECTS.
+  // if (attsToSelect)
+  // {
+  //   vector<int> keepMe;
+  //   NameList *nameList = attsToSelect;
+
+  //   while (nameList)
+  //   {
+  //     for (auto sch : statsObject->currentState->schemaList)
+  //     {
+  //       // for (auto att : sch.){}
+  //     }
+  //   }
+  // }
+
+  // Handle SELECTS.
+  if (boolean) {
+    CNF *cnf = new CNF;
+    Record *literal = new Record;
+    cnf->GrowFromParseTree(boolean, joinNode->schema, *literal);
+
+    JoinNode *selectNode = new JoinNode;
+    selectNode->nodeType = SELECT_FILE;
+    selectNode->cnf = cnf;
+    selectNode->literal = literal;
+    selectNode->schema = joinNode->schema;
+
+    currentNode->left = dynamic_cast<JoinNode *>(selectNode);
+    currentNode = currentNode->left.value;
+  }
+
+  // Finally join the JOIN subtree
+  currentNode->left = dynamic_cast<JoinNode *>(joinNode);
+}

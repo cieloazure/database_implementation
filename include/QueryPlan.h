@@ -5,8 +5,10 @@
 #include "Pipe.h"
 #include "Record.h"
 #include "Schema.h"
+#include "Function.h"
 
-enum PlanNodeType {
+enum PlanNodeType
+{
   BASE_NODE,
   DUPLICATE_REMOVAL,
   GROUP_BY,
@@ -52,11 +54,13 @@ class BaseNode {
   virtual void dummy(){};
 };
 
-class RelationNode : public BaseNode {
- public:
+class RelationNode : public BaseNode
+{
+public:
   char *relName;
   Schema *schema;
-  RelationNode() {
+  RelationNode()
+  {
     nodeType = RELATION_NODE;
     relName = NULL;
     schema = NULL;
@@ -64,12 +68,14 @@ class RelationNode : public BaseNode {
   void dummy() {}
 };
 
-class JoinNode : public BaseNode {
- public:
+class JoinNode : public BaseNode
+{
+public:
   CNF *cnf;
   Record *literal;
   Schema *schema;
-  JoinNode() {
+  JoinNode()
+  {
     nodeType = JOIN;
     cnf = NULL;
     literal = NULL;
@@ -78,29 +84,58 @@ class JoinNode : public BaseNode {
   void dummy() {}
 };
 
-// class DuplicateRemovalNode : public BaseNode {
-// } DuplicateRemovalNode;
+class DuplicateRemovalNode : public BaseNode
+{
+public:
+  DuplicateRemovalNode();
+  void dummy() {}
+};
 
-// class GroupByNode : public BaseNode {
-//   OrderMaker *o;
-//   Function f;
-// };
+class GroupByNode : public BaseNode
+{
+public:
+  OrderMaker *o;
+  Function *f;
+  GroupByNode()
+  {
+    o = NULL;
+    f = NULL;
+  }
+  void dummy() {}
+};
 
-// class ProjectNode : BaseNode {
-//   int *keepMe;
-//   int numAttsInput;
-//   int numAttsOutput;
-// } ProjectNode;
+class ProjectNode : BaseNode
+{
+public:
+  int *keepMe;
+  int numAttsInput;
+  int numAttsOutput;
+  ProjectNode()
+  {
+    keepMe = NULL;
+    numAttsInput = 0;
+    numAttsOutput = 0;
+  }
+  void dummy() {}
+};
 
-// class SumNode : BaseNode {
-//   Function *f;
-// } SumNode;
+class SumNode : BaseNode
+{
+public:
+  Function *f;
+  SumNode()
+  {
+    f = NULL;
+  }
+  void dummy() {}
+};
 
-class QueryPlan {
- private:
+class QueryPlan
+{
+private:
   BaseNode *root;
 
- public:
+public:
   QueryPlan(BaseNode *root);
   void Execute();
   void Print();
