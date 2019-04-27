@@ -4,7 +4,11 @@
 #include <iostream>
 #include "Function.h"
 #include "Optimizer.h"
+<<<<<<< HEAD
 #include "Schema.h"
+=======
+#include "Statistics.h"
+>>>>>>> query_optimizer
 
 enum {
   DUPLICATE_REMOVAL,
@@ -31,10 +35,12 @@ typedef struct GroupByNode : BaseNode {
   Function f;
 } GroupByNode;
 
-typedef struct JoinNode : BaseNode {
-  CNF *cnf;
-  Record *record;
-} JoinNode, SelectFileNode, SelectPipeNode;
+typedef struct JoinNode : BaseNode
+{
+    CNF *cnf;
+    Record *record;
+    Schema *schema;
+} JoinNode, SelectNode;
 
 typedef struct ProjectNode : BaseNode {
   int *keepMe;
@@ -46,13 +52,19 @@ typedef struct SumNode : BaseNode {
   Function *f;
 } SumNode;
 
-typedef struct RelationNode : BaseNode {
-  char *relName;
+typedef struct RelationNode : BaseNode
+{
+    char *relName;
+    Schema *schema;
 } RelationNode;
 
-class QueryPlan {
- public:
-  void generateTree(JoinNode *joinNode);
+public:
+    Statistics *statsObject;
+    QueryPlan(Statistics *s);
+    void generateTree(JoinNode *joinNode);
+    std::pair<std::string, std::string> SplitQualifiedAtt(
+        std::string value);
+    bool IsQualifiedAtt(std::string value);
 };
 
 #endif
