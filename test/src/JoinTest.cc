@@ -211,10 +211,10 @@ TEST_F(JoinTest, TEST_WHETHER_THREAD_IS_INVOKED) {
   Record outRec;
   int counter = 0;
   while (out.Remove(&outRec)) {
-    outRec.Print(&join_schema);
-    cout << endl;
-    counter++;
+    // outRec.Print(&join_schema);
+    cout << "\r" << counter++;
   }
+  cout << endl;
   cout << "Removed " << counter << " records from pipe" << endl;
 
   pthread_join(thread1, NULL);
@@ -224,8 +224,8 @@ TEST_F(JoinTest, TEST_WHETHER_THREAD_IS_INVOKED) {
 
 TEST_F(JoinTest, TEST_NESTED_LOOP_JOIN) {
   string cnf_string = "(s_suppkey > ps_suppkey)";
-  Schema ordersSchema("catalog", "supplier");
-  Schema lineItemSchema("catalog", "partsupp");
+  Schema suppSchema("catalog", "supplier");
+  Schema partSuppSchema("catalog", "partsupp");
 
   YY_BUFFER_STATE buffer = yy_scan_string(cnf_string.c_str());
   yyparse();
@@ -234,7 +234,7 @@ TEST_F(JoinTest, TEST_NESTED_LOOP_JOIN) {
   // grow the CNF expression from the parse tree
   CNF cnf;
   Record literal;
-  cnf.GrowFromParseTree(final, &ordersSchema, &lineItemSchema, literal);
+  cnf.GrowFromParseTree(final, &suppSchema, &partSuppSchema, literal);
 
   // print out the comparison to the screen
   cnf.Print();
@@ -260,13 +260,16 @@ TEST_F(JoinTest, TEST_NESTED_LOOP_JOIN) {
   pthread_create(&thread1, NULL, join_producer, (void *)thread_data1);
   pthread_create(&thread2, NULL, join_producer, (void *)thread_data2);
 
+  Schema join_schema("join_schema", &partSuppSchema, &suppSchema);
   Record outRec;
 
   int counter = 0;
   cout << "Removed:";
   while (out.Remove(&outRec)) {
+    outRec.Print(&join_schema);
     counter++;
-    cout << "\r" << counter;
+    cout << endl; 
+    cout << counter << endl; 
   }
   cout << endl;
   cout << "Removed " << counter << " records from pipe" << endl;

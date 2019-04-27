@@ -4,11 +4,7 @@
 #include <iostream>
 #include "Function.h"
 #include "Optimizer.h"
-<<<<<<< HEAD
-#include "Schema.h"
-=======
 #include "Statistics.h"
->>>>>>> query_optimizer
 
 enum {
   DUPLICATE_REMOVAL,
@@ -38,7 +34,7 @@ typedef struct GroupByNode : BaseNode {
 typedef struct JoinNode : BaseNode
 {
     CNF *cnf;
-    Record *record;
+    Record *literal;
     Schema *schema;
 } JoinNode, SelectNode;
 
@@ -58,6 +54,7 @@ typedef struct RelationNode : BaseNode
     Schema *schema;
 } RelationNode;
 
+class QueryPlan{
 public:
     Statistics *statsObject;
     QueryPlan(Statistics *s);

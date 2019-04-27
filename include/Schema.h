@@ -62,8 +62,11 @@ class Schema {
   // grouping attributes
   Schema(char *fName, OrderMaker *o, Schema *s);
 
-  // Create a schema by combining two schemas
+  // Create a schema by combining two schemas with an ordermaker(join)
   Schema(char *fName, Schema *s1, Schema *s2, OrderMaker *s2OrderMaker);
+
+  // Create a schema by combining two schemas without an ordermaker(cartesian product)
+  Schema(char *fName, Schema *s1, Schema *s2);
 
   // this composes a schema from another schema
   // copy constructor

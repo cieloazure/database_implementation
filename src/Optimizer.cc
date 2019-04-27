@@ -43,33 +43,81 @@ void Optimizer::OptimumOrderingOfJoin(
     newMemo.cost = 0;
     newMemo.size = prevStats->GetRelSize(relNamesSubset[0]);  // get from stats
     newMemo.state = prevStats;
-    RelationNode *relNode = new RelationNode;
-    relNode->relName = (char *)relNamesSubset[0].c_str();
-    BaseNode *root = new BaseNode;
-    root->left = relNode;
-    newMemo.root = root;
+
+    // Set RelationNode for newMemo
+    // RelationNode *relNode = new RelationNode;
+    // relNode->relName = (char *)relNamesSubset[0].c_str();
+    // relNode->schema = map[relname]
+    // Set the root for newMemo
+    // BaseNode *root = new BaseNode;
+    // root->left = relNode;
+    // newMemo.root = root;
+
     combinationToMemo[set] = newMemo;
   }
 
   print();
 
+  // Initialize doubletons
   auto doubletons = GenerateCombinations(length, 2);
   for (auto set : doubletons) {
     std::vector<std::string> relNamesSubset =
         GetRelNamesFromBitSet(set, relNames);
     Statistics *prevStatsCopy = new Statistics(*prevStats);
+    const char *relNamesCStyle[2];
+    std::vector<BaseNode *> joinPair;
+    int cStyleIdx = 0;
+
+    for (int stridx = 0; stridx < set.size(); stridx++) {
+      if (set[stridx]) {
+        // unset the bit if it is set
+        set[stridx] = '\0';
+        // Search the memoized table and get the size in possible cost
+        struct Memo prevMemo = combinationToMemo[set];
+        relNamesCStyle[cStyleIdx] = relNamesSubset[cStyleIdx].c_str();
+        cStyleIdx++;
+        joinPair.push_back(prevMemo.root);
+        // Set the bit again
+        set[stridx] = '\x01';
+      }
+    }
+
+    // Construct new memo
     struct Memo newMemo;
     newMemo.cost = 0;
     if (!ConstructJoinCNF(relNames, joinMatrix, relNamesSubset[0],
                           relNamesSubset[1])) {
       final = NULL;
     }
-    const char *relNamesCStyle[2];
-    relNamesCStyle[0] = relNamesSubset[0].c_str();
-    relNamesCStyle[1] = relNamesSubset[1].c_str();
     newMemo.size = prevStatsCopy->Estimate(final, (char **)relNamesCStyle, 2);
     prevStatsCopy->Apply(final, (char **)relNamesCStyle, 2);
     newMemo.state = prevStatsCopy;
+
+    // Set Join Node for newMemo
+    // JoinNode *j = new JoinNode;
+    // RelationNode *relNode1 = (RelationNode *)joinPair[0]->left;
+    // RelationNode *relNode2 = (RelationNode *)joinPair[1]->left;
+    // j->left = relNode1;
+    // j->right = relNode2;
+    // if(final != NULL){
+    //  CNF cnf;
+    //  Record literal;
+    //  cnf.GrowFromParseTree(final, relNode1->schema, relNode2->schema, literal);
+    //  OrderMaker left;
+    //  OrderMaker right;
+    //  Schema s("join_schema", relNode1->schema, relNode2->schema, right);
+    //  j->schema = s;
+    //  j->cnf = cnf;
+    //  j->literal = literal;
+    // }else{
+    //   Schema s("join_schema", relNode2->schema, relNode1->schema);
+    //   j->schema = s;
+    // }
+    // Set root node for newMemo
+    // BaseNode *root = new BaseNode;
+    // root->left = joinNode;
+    // newMemo.root = root;
+
     combinationToMemo[set] = newMemo;
   }
 
@@ -128,6 +176,33 @@ void Optimizer::OptimumOrderingOfJoin(
           prevStatsCopy->Estimate(final, (char **)relNamesCStyle, idx);
       prevStatsCopy->Apply(final, (char **)relNamesCStyle, idx);
       newMemo.state = prevStatsCopy;
+
+      // Set join node for newMemo
+      // JoinNode *prevJoinNode = (JoinNode *)prevMemo.root->left;
+      // RelationNode *newRelNode = new RelationNode;
+      // newRelNode->relName = (char *)right.c_str();
+      // newRelNode->schema = map[right];
+      // JoinNode *newJoinNode = new JoinNode;
+      // newJoinNode->left = prevJoinNode;
+      // newJoinNode->right = newRelNode;
+      // if(final != NULL){
+      //  CNF cnf;
+      //  Record literal;
+      //  cnf.GrowFromParseTree(final, prevJoinNode->schema, newRelNode->schema, literal);
+      //  OrderMaker left;
+      //  OrderMaker right;
+      //  Schema s("join_schema", prevJoinNode->schema, newRelNode->schema, right);
+      //  newJoinNode->schema = s;
+      //  newJoinNode->cnf = cnf;
+      //  newJoinNode->literal = literal;
+      // }else{
+      //   Schema s("join_schema", newRelNode->schema, prevJoinNode->schema);
+      //   newJoinNode->schema = s;
+      // }
+      // Set root node for newMemo
+      // BaseNode *root = new BaseNode;
+      // root->left = newJoinNode;
+      // newMemo.root = root;
 
       combinationToMemo[set] = newMemo;
     }

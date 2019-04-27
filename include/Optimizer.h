@@ -38,7 +38,7 @@ struct Memo {
   double cost;
   long size;
   Statistics *state;
-  BaseNode *root;
+  struct BaseNode *root;
 };
 
 class Optimizer {
