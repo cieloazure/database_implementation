@@ -259,7 +259,8 @@ TEST_F(OptimizerTest, PARSE_TEST_11)
                              finalFunction);
 }
 
-TEST_F(OptimizerTest, PARSE_TEST_12) {
+TEST_F(OptimizerTest, PARSE_TEST_12)
+{
   const char cnf_string[] =
       "SELECT a,b,c FROM d AS d1,e AS e1 WHERE (d1.a = e1.a)";
   //   "SELECT SUM DISTINCT (a + b) FROM c AS c1"
@@ -277,7 +278,8 @@ TEST_F(OptimizerTest, PARSE_TEST_12) {
                              finalFunction);
 }
 
-TEST_F(OptimizerTest, ConstructJoinCNFTest) {
+TEST_F(OptimizerTest, ConstructJoinCNFTest)
+{
   std::vector<std::vector<std::string>> joinMatrix;
   std::vector<std::string> row1;
   row1.push_back("");
@@ -314,14 +316,20 @@ TEST_F(OptimizerTest, ConstructJoinCNFTest) {
   EXPECT_TRUE(final != NULL);
 }
 
-TEST_F(OptimizerTest, PERMUTATIONS_TEST) {
+TEST_F(OptimizerTest, PERMUTATIONS_TEST)
+{
   Optimizer o;
   auto combs = o.GenerateCombinations(4, 2);
-  for (auto comb : combs) {
-    for (int i = 0; i < comb.size(); i++) {
-      if (comb[i]) {
+  for (auto comb : combs)
+  {
+    for (int i = 0; i < comb.size(); i++)
+    {
+      if (comb[i])
+      {
         std::cout << "1";
-      } else {
+      }
+      else
+      {
         std::cout << "0";
       }
     }
@@ -329,14 +337,20 @@ TEST_F(OptimizerTest, PERMUTATIONS_TEST) {
   }
 }
 
-TEST_F(OptimizerTest, PERMUTATIONS_TEST_2) {
+TEST_F(OptimizerTest, PERMUTATIONS_TEST_2)
+{
   Optimizer o;
   auto combs = o.GenerateCombinations(4, 3);
-  for (auto comb : combs) {
-    for (int i = 0; i < comb.size(); i++) {
-      if (comb[i]) {
+  for (auto comb : combs)
+  {
+    for (int i = 0; i < comb.size(); i++)
+    {
+      if (comb[i])
+      {
         std::cout << "1";
-      } else {
+      }
+      else
+      {
         std::cout << "0";
       }
     }
@@ -344,14 +358,20 @@ TEST_F(OptimizerTest, PERMUTATIONS_TEST_2) {
   }
 }
 
-TEST_F(OptimizerTest, PERMUTATIONS_TEST_3) {
+TEST_F(OptimizerTest, PERMUTATIONS_TEST_3)
+{
   Optimizer o;
   auto combs = o.GenerateCombinations(3, 2);
-  for (auto comb : combs) {
-    for (int i = 0; i < comb.size(); i++) {
-      if (comb[i]) {
+  for (auto comb : combs)
+  {
+    for (int i = 0; i < comb.size(); i++)
+    {
+      if (comb[i])
+      {
         std::cout << "1";
-      } else {
+      }
+      else
+      {
         std::cout << "0";
       }
     }
@@ -359,14 +379,20 @@ TEST_F(OptimizerTest, PERMUTATIONS_TEST_3) {
   }
 }
 
-TEST_F(OptimizerTest, PERMUTATIONS_TEST_4) {
+TEST_F(OptimizerTest, PERMUTATIONS_TEST_4)
+{
   Optimizer o;
   auto combs = o.GenerateCombinations(5, 4);
-  for (auto comb : combs) {
-    for (int i = 0; i < comb.size(); i++) {
-      if (comb[i]) {
+  for (auto comb : combs)
+  {
+    for (int i = 0; i < comb.size(); i++)
+    {
+      if (comb[i])
+      {
         std::cout << "1";
-      } else {
+      }
+      else
+      {
         std::cout << "0";
       }
     }
@@ -374,7 +400,8 @@ TEST_F(OptimizerTest, PERMUTATIONS_TEST_4) {
   }
 }
 
-TEST_F(OptimizerTest, OptimizeOrderOfRelations) {
+TEST_F(OptimizerTest, OptimizeOrderOfRelations)
+{
   Statistics s;
   char *relName[] = {"R", "S", "T", "U"};
 
@@ -430,4 +457,35 @@ TEST_F(OptimizerTest, OptimizeOrderOfRelations) {
   o.OptimumOrderingOfJoin(&s, relNames, joinMatrix);
 }
 
-}  // namespace dbi
+TEST_F(OptimizerTest, SeparateJoinsAndSelects)
+{
+  Optimizer o;
+  // Statistics s;
+  char *relName[] = {"R", "S", "T", "U"};
+
+  o.currentState->AddRel(relName[0], 1000);
+  o.currentState->AddAtt(relName[0], "a", 100);
+  o.currentState->AddAtt(relName[0], "b", 200);
+
+  o.currentState->AddRel(relName[1], 1000);
+  o.currentState->AddAtt(relName[1], "b", 100);
+  o.currentState->AddAtt(relName[1], "c", 500);
+
+  o.currentState->AddRel(relName[2], 1000);
+  o.currentState->AddAtt(relName[2], "c", 20);
+  o.currentState->AddAtt(relName[2], "d", 50);
+
+  o.currentState->AddRel(relName[3], 1000);
+  o.currentState->AddAtt(relName[3], "a", 50);
+  o.currentState->AddAtt(relName[3], "d", 1000);
+
+  const char cnf_string[] =
+      "SELECT a, b FROM R AS r, S AS s WHERE (r.a = s.b) AND (r.a > 0)";
+  YY_BUFFER_STATE buffer = yy_scan_string(cnf_string);
+  yyparse();
+
+  std::vector<std::vector<std::string>> joinList;
+  o.SeparateJoinsandSelects(joinList);
+}
+
+} // namespace dbi
