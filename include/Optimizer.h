@@ -15,6 +15,7 @@
 #include <vector>
 #include "Statistics.h"
 #include "StatisticsState.h"
+#include "QueryPlan.h"
 
 extern "C" {
 typedef struct yy_buffer_state *YY_BUFFER_STATE;
@@ -37,6 +38,7 @@ struct Memo {
   double cost;
   long size;
   Statistics *state;
+  BaseNode *root;
 };
 
 class Optimizer {

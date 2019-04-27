@@ -43,6 +43,11 @@ void Optimizer::OptimumOrderingOfJoin(
     newMemo.cost = 0;
     newMemo.size = prevStats->GetRelSize(relNamesSubset[0]);  // get from stats
     newMemo.state = prevStats;
+    RelationNode *relNode = new RelationNode;
+    relNode->relName = (char *)relNamesSubset[0].c_str();
+    BaseNode *root = new BaseNode;
+    root->left = relNode;
+    newMemo.root = root;
     combinationToMemo[set] = newMemo;
   }
 
