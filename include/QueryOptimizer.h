@@ -41,14 +41,18 @@ struct Memo {
   struct BaseNode *root;
 };
 
-class Optimizer {
+class QueryOptimizer {
  public:
-  Statistics *currentState;
-  Optimizer();
-  void Read(char *fromWhere);
-  void ReadParserDatastructures();
+  QueryOptimizer();
+  QueryOptimizer(Statistics *currentStats,
+                 std::unordered_map<std::string, Schema *> *relNameToSchema);
 
-  void OptimumOrderingOfJoin(
+  QueryPlan *GetOptimizedPlan(std::string query);
+
+  Statistics *currentStats;
+  std::unordered_map<std::string, Schema *> *relNameToSchema;
+
+  BaseNode *OptimumOrderingOfJoin(
       std::unordered_map<std::string, Schema *> relNameToSchema,
       Statistics *prevStats, std::vector<std::string> relNames,
       std::vector<std::vector<std::string>> joinMatrix);
@@ -68,10 +72,11 @@ class Optimizer {
   int BitSetDifferenceWithPrev(std::string set, std::string minCostString);
 
   void SeparateJoinsandSelects(
+      Statistics *currentStats,
       std::vector<std::vector<std::string>> &joinMatrix);
+
   bool IsALiteral(Operand *op);
   bool ContainsLiteral(ComparisonOp *compOp);
-
   void PrintTree(BaseNode *base);
 };
 

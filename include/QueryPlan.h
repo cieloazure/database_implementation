@@ -1,10 +1,9 @@
 #ifndef QUERYPLAN_H
 #define QUERYPLAN_H
 
-#include <iostream>
-#include "Function.h"
-#include "Optimizer.h"
-#include "Statistics.h"
+#include "Comparison.h"
+#include "Record.h"
+#include "Schema.h"
 
 enum PlanNodeType {
   BASE_NODE,
@@ -78,12 +77,13 @@ class JoinNode : public BaseNode {
 // } SumNode;
 
 class QueryPlan {
+ private:
+  BaseNode *root;
+
  public:
-  Statistics *statsObject;
-  QueryPlan(Statistics *s);
-  void generateTree(JoinNode *joinNode);
-  std::pair<std::string, std::string> SplitQualifiedAtt(std::string value);
-  bool IsQualifiedAtt(std::string value);
+  QueryPlan(BaseNode *root);
+  void Execute();
+  void Print();
 };
 
 #endif

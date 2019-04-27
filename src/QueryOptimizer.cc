@@ -1,14 +1,17 @@
-#include "Optimizer.h"
+#include "QueryOptimizer.h"
 
-Optimizer::Optimizer() { currentState = new Statistics(); }
-
-void Optimizer::ReadParserDatastructures() {
-  std::cout << "Here." << std::endl;
+QueryOptimizer::QueryOptimizer() {
+  currentStats = NULL;
+  relNameToSchema = NULL;
+}
+QueryOptimizer::QueryOptimizer(
+    Statistics *stats,
+    std::unordered_map<std::string, Schema *> *relNameToSchemaMap) {
+  currentStats = stats;
+  relNameToSchema = relNameToSchemaMap;
 }
 
-void Optimizer::Read(char *fromWhere) { currentState->Read(fromWhere); }
-
-void Optimizer::OptimumOrderingOfJoin(
+BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     std::unordered_map<std::string, Schema *> relNameToSchema,
     Statistics *prevStats, std::vector<std::string> relNames,
     std::vector<std::vector<std::string>> joinMatrix) {
@@ -16,6 +19,8 @@ void Optimizer::OptimumOrderingOfJoin(
 
   // Decl
   std::unordered_map<std::string, struct Memo> combinationToMemo;
+
+  // print memo
   auto print = [&combinationToMemo]() -> void {
     for (auto it = combinationToMemo.begin(); it != combinationToMemo.end();
          it++) {
@@ -36,6 +41,10 @@ void Optimizer::OptimumOrderingOfJoin(
 
   // Initialize for singletons
   int length = relNames.size();
+  if (length < 2) {
+    return NULL;
+  }
+
   auto singletons = GenerateCombinations(length, 1);
   for (auto set : singletons) {
     std::vector<std::string> relNamesSubset =
@@ -131,6 +140,9 @@ void Optimizer::OptimumOrderingOfJoin(
     std::cout << std::endl;
 
     combinationToMemo[set] = newMemo;
+    if (length == 2) {
+      return newMemo.root;
+    }
   }
 
   print();
@@ -240,9 +252,12 @@ void Optimizer::OptimumOrderingOfJoin(
   std::cout << "Order of join" << std::endl;
   PrintTree(combinationToMemo[optimalJoin].root);
   std::cout << std::endl;
+  // End Optimization
+
+  return combinationToMemo[optimalJoin].root;
 }
 
-std::vector<std::string> Optimizer::GenerateCombinations(int n, int r) {
+std::vector<std::string> QueryOptimizer::GenerateCombinations(int n, int r) {
   std::vector<std::string> combinations;
   std::string bitmask(r, 1);
   bitmask.resize(n, 0);
@@ -253,7 +268,7 @@ std::vector<std::string> Optimizer::GenerateCombinations(int n, int r) {
   return combinations;
 }
 
-std::vector<std::string> Optimizer::GetRelNamesFromBitSet(
+std::vector<std::string> QueryOptimizer::GetRelNamesFromBitSet(
     std::string bitset, std::vector<std::string> relNames) {
   std::vector<std::string> subset;
   for (int i = 0; i < bitset.size(); i++) {
@@ -264,7 +279,7 @@ std::vector<std::string> Optimizer::GetRelNamesFromBitSet(
   return subset;
 }
 
-bool Optimizer::ConstructJoinCNF(
+bool QueryOptimizer::ConstructJoinCNF(
     std::vector<std::string> relNames,
     std::vector<std::vector<std::string>> joinMatrix, std::string left,
     std::string right) {
@@ -294,7 +309,7 @@ bool Optimizer::ConstructJoinCNF(
   return true;
 }
 
-std::string Optimizer::GetMinimumOfPossibleCosts(
+std::string QueryOptimizer::GetMinimumOfPossibleCosts(
     std::map<std::string, double> possibleCosts) {
   bool begin = true;
   double min = -1.0;
@@ -311,8 +326,8 @@ std::string Optimizer::GetMinimumOfPossibleCosts(
   return minCostString;
 }
 
-int Optimizer::BitSetDifferenceWithPrev(std::string set,
-                                        std::string minCostString) {
+int QueryOptimizer::BitSetDifferenceWithPrev(std::string set,
+                                             std::string minCostString) {
   for (int i = 0; i < set.size(); i++) {
     if (set[i] != minCostString[i]) {
       return i;
@@ -321,7 +336,8 @@ int Optimizer::BitSetDifferenceWithPrev(std::string set,
   return -1;
 }
 
-void Optimizer::SeparateJoinsandSelects(
+void QueryOptimizer::SeparateJoinsandSelects(
+    Statistics *currentStats,
     std::vector<std::vector<std::string>> &joinMatrix) {
   OrList *orList;
   AndList *head = boolean;
@@ -357,9 +373,9 @@ void Optimizer::SeparateJoinsandSelects(
         char *operand2 = compOp->right->value;
 
         // find index of these operands in the tables vector
-        AttributeStats *attr1 = currentState->GetRelationNameOfAttribute(
+        AttributeStats *attr1 = currentStats->GetRelationNameOfAttribute(
             operand1, tableList, tables);
-        AttributeStats *attr2 = currentState->GetRelationNameOfAttribute(
+        AttributeStats *attr2 = currentStats->GetRelationNameOfAttribute(
             operand2, tableList, tables);
 
         if (attr1 && attr2) {
@@ -394,13 +410,13 @@ void Optimizer::SeparateJoinsandSelects(
   }
 }
 
-bool Optimizer::IsALiteral(Operand *op) { return op->code != NAME; }
+bool QueryOptimizer::IsALiteral(Operand *op) { return op->code != NAME; }
 
-bool Optimizer::ContainsLiteral(ComparisonOp *compOp) {
+bool QueryOptimizer::ContainsLiteral(ComparisonOp *compOp) {
   return IsALiteral(compOp->left) || IsALiteral(compOp->right);
 }
 
-void Optimizer::PrintTree(BaseNode *base) {
+void QueryOptimizer::PrintTree(BaseNode *base) {
   if (base == NULL) return;
   PrintTree(base->left);
   switch (base->nodeType) {
@@ -418,4 +434,41 @@ void Optimizer::PrintTree(BaseNode *base) {
       break;
   }
   PrintTree(base->right);
+}
+
+QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query) {
+  yy_scan_string(query.c_str());
+  yyparse();
+  std::vector<std::vector<std::string>> joinMatrix;
+  SeparateJoinsandSelects(currentStats, joinMatrix);
+  bool joinPresent = false;
+  for (auto iit = joinMatrix.begin(); iit != joinMatrix.end(); iit++) {
+    std::vector<std::string> row = *iit;
+    for (auto jit = row.begin(); jit != row.end(); jit++) {
+      if ((*jit).size() == 0) {
+        std::cout << "NULL"
+                  << " ";
+      } else {
+        if (!joinPresent) joinPresent = true;
+        std::cout << *jit << " ";
+      }
+    }
+    std::cout << std::endl;
+  }
+  std::cout << "Join present:" << joinPresent << std::endl;
+  if (joinPresent) {
+    std::vector<std::string> relNames;
+    struct TableList *table = tables;
+
+    while (table) {
+      relNames.push_back(table->tableName);
+      table = table->next;
+    }
+    BaseNode *join = OptimumOrderingOfJoin(*relNameToSchema, currentStats,
+                                           relNames, joinMatrix);
+  }
+  std::cout << std::endl;
+  return NULL;
+  // BaseNode *optimizedJoinNode = OptimumOrderingOfJoin(
+  //     *relNameToSchema, currentStats, relNames, joinMatrix);
 }
