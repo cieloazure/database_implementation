@@ -69,7 +69,7 @@ public:
 class DuplicateRemovalNode : public BaseNode
 {
 public:
-  DuplicateRemovalNode();
+  DuplicateRemovalNode(){};
   void dummy() {}
 };
 
@@ -86,7 +86,7 @@ public:
   void dummy() {}
 };
 
-class ProjectNode : BaseNode
+class ProjectNode : public BaseNode
 {
 public:
   int *keepMe;
@@ -101,7 +101,7 @@ public:
   void dummy() {}
 };
 
-class SumNode : BaseNode
+class SumNode : public BaseNode
 {
 public:
   Function *f;

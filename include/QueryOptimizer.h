@@ -1,6 +1,7 @@
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
 
+#include <cstring>
 #include <fcntl.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -78,8 +79,11 @@ public:
         Statistics *currentStats,
         std::vector<std::vector<std::string>> &joinMatrix);
 
-    void GenerateTree(struct JoinNode *joinNode);
+    void GenerateTree(struct BaseNode *child, std::unordered_map<std::string, Schema *> relNameToSchema);
 
+    bool IsQualifiedAtt(std::string value);
+    std::pair<std::string, std::string> SplitQualifiedAtt(
+        std::string value);
     bool IsALiteral(Operand *op);
     bool ContainsLiteral(ComparisonOp *compOp);
     void PrintTree(BaseNode *base);
