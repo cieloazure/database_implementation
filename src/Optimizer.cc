@@ -113,8 +113,10 @@ void Optimizer::OptimumOrderingOfJoin(
       cnf.GrowFromParseTree(final, relNode1->schema, relNode2->schema, literal);
       OrderMaker left;
       OrderMaker right;
-      Schema s("join_schema", relNode1->schema, relNode2->schema, &right);
-      newJoinNode->schema = &s;
+      cnf.GetSortOrders(left, right);
+      Schema *s =
+          new Schema("join_schema", relNode1->schema, relNode2->schema, &right);
+      newJoinNode->schema = s;
       newJoinNode->cnf = &cnf;
       newJoinNode->literal = &literal;
     } else {
@@ -188,7 +190,7 @@ void Optimizer::OptimumOrderingOfJoin(
       newMemo.state = prevStatsCopy;
 
       // Set join node for newMemo
-      JoinNode *prevJoinNode = (JoinNode *)prevMemo.root->left;
+      JoinNode *prevJoinNode = dynamic_cast<JoinNode *>(prevMemo.root->left);
       RelationNode *newRelNode = new RelationNode;
       newRelNode->nodeType = RELATION_NODE;
       char *temp = (char *)right.c_str();
@@ -207,9 +209,10 @@ void Optimizer::OptimumOrderingOfJoin(
                               literal);
         OrderMaker left;
         OrderMaker right;
-        Schema s("join_schema", prevJoinNode->schema, newRelNode->schema,
-                 &right);
-        newJoinNode->schema = &s;
+        cnf.GetSortOrders(left, right);
+        Schema *s = new Schema("join_schema", prevJoinNode->schema,
+                               newRelNode->schema, &right);
+        newJoinNode->schema = s;
         newJoinNode->cnf = &cnf;
         newJoinNode->literal = &literal;
       } else {
@@ -234,6 +237,9 @@ void Optimizer::OptimumOrderingOfJoin(
   std::string optimalJoin = *(GenerateCombinations(length, length).begin());
   std::cout << "Cost of optimal join:" << combinationToMemo[optimalJoin].cost
             << std::endl;
+  std::cout << "Order of join" << std::endl;
+  PrintTree(combinationToMemo[optimalJoin].root);
+  std::cout << std::endl;
 }
 
 std::vector<std::string> Optimizer::GenerateCombinations(int n, int r) {
