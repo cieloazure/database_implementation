@@ -43,9 +43,8 @@ struct Memo
 
 class Optimizer
 {
-    Statistics *currentState;
-
 public:
+    Statistics *currentState;
     Optimizer();
     void Read(char *fromWhere);
     void ReadParserDatastructures();
