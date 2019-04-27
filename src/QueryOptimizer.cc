@@ -153,6 +153,7 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     BaseNode *root = new BaseNode;
     Link sentinelLink(newJoinNode);
     root->left = sentinelLink;
+    newJoinNode->parent = sentinelLink;
 
     newMemo.root = root;
     PrintTree(newMemo.root);
@@ -459,6 +460,8 @@ void QueryOptimizer::PrintTree(BaseNode *base) {
     case JOIN:
       std::cout << "JOIN"
                 << " ";
+      std::cout << "{Input pipes: (" << base->left.id << "," << base->right.id
+                << "), Output pipe: (" << base->parent.id << ")}  ";
       break;
     case RELATION_NODE:
       RelationNode *r = (RelationNode *)base;
