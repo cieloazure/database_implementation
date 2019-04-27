@@ -54,18 +54,6 @@ public:
                                std::vector<std::string> relNames,
                                std::vector<std::vector<std::string>> joinMatrix);
 
-    void CalculateCostForGreaterThanThreeRelations(
-        std::vector<std::vector<double>> &costMatrix,
-        std::vector<std::vector<Statistics *>> &stateMatrix,
-        std::vector<std::string> &relNames,
-        std::vector<std::vector<std::string>> joinMatrix, int start, int end);
-
-    void CalculateCostForThreeRelations(
-        Statistics *prevStats, std::vector<std::vector<double>> &costMatrix,
-        std::vector<std::vector<Statistics *>> &stateMatrix,
-        std::vector<std::string> &relNames,
-        std::vector<std::vector<std::string>> joinMatrix, int start, int end);
-
     bool ConstructJoinCNF(std::vector<std::string> relNames,
                           std::vector<std::vector<std::string>> joinMatrix,
                           std::string left, std::string right);
