@@ -626,6 +626,20 @@ BaseNode *QueryOptimizer::GenerateTree(
 
   BaseNode *root = currentNode;
 
+  // Handle SUM
+  if (finalFunction)
+  {
+    SumNode *s = new SumNode;
+
+    Function f;
+    f.GrowFromParseTree(finalFunction, *child->schema);
+
+    Link link(s);
+    currentNode->left = link;
+    s->parent = link;
+    currentNode = currentNode->left.value;
+  }
+
   // Handle GROUP BY
   if (groupingAtts)
   {

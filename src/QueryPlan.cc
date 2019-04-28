@@ -53,9 +53,7 @@ void QueryPlan::PrintTree(BaseNode *base)
         JoinNode *s = dynamic_cast<JoinNode *>(base);
         std::cout << "********" << std::endl;
         std::cout << "SELECT PIPE OPERATION" << std::endl;
-        std::cout << "\tInput pipes:" << std::endl;
-        std::cout << "\t\t1." << base->left.id << std::endl;
-        std::cout << "\t\t2." << base->right.id << std::endl;
+        std::cout << "\tInput pipe:" << base->left.id << std::endl;
         std::cout << "\tOutput pipe:" << base->parent.id << std::endl;
         std::cout << "\tSelect pipe CNF:";
         // s->cnf->Print();
@@ -68,9 +66,7 @@ void QueryPlan::PrintTree(BaseNode *base)
         JoinNode *s = dynamic_cast<JoinNode *>(base);
         std::cout << "********" << std::endl;
         std::cout << "SELECT FILE OPERATION" << std::endl;
-        std::cout << "\tInput pipes:" << std::endl;
-        std::cout << "\t\t1." << base->left.id << std::endl;
-        std::cout << "\t\t2." << base->right.id << std::endl;
+        std::cout << "\tInput pipe:" << base->left.id << std::endl;
         std::cout << "\tOutput pipe:" << base->parent.id << std::endl;
         std::cout << "\tOutput Schema:" << std::endl;
         base->schema->Print("\t\t");
