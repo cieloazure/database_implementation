@@ -402,9 +402,20 @@ void Schema::Print(std::string prefixtabs) {
   std::cout << prefixtabs << "Schema name:" << fileName << std::endl;
   std::cout << prefixtabs << "Schema number of atts:" << numAtts << std::endl;
   std::cout << prefixtabs << "Schema atts details:" << std::endl;
+  std::cout << prefixtabs << "\t\tIndex\t\t\tName\t\t\tType\n";
   for (int i = 0; i < numAtts; i++) {
-    std::cout << prefixtabs << "\t"
-              << "Name:" << myAtts[i].name << ",Type:" << myAtts[i].myType
-              << std::endl;
+    std::cout << prefixtabs << "\t\t" << i << "\t\t\t" << myAtts[i].name
+              << "\t\t\t";
+    switch (myAtts[i].myType) {
+      case Int:
+        cout << "INT\n";
+        break;
+      case Double:
+        cout << "DOUBLE\n";
+        break;
+      case String:
+        cout << "STRING\n";
+        break;
+    }
   }
 }

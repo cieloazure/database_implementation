@@ -133,11 +133,11 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     newJoinNode->right = rightLink;
     relNode2->parent = rightLink;
 
-    if (final != NULL)
-    {
+    if (final != NULL) {
       CNF *cnf = new CNF;
       Record literal;
-      cnf->GrowFromParseTree(final, relNode1->schema, relNode2->schema, literal);
+      cnf->GrowFromParseTree(final, relNode1->schema, relNode2->schema,
+                             literal);
       cnf->Print();
       OrderMaker left;
       OrderMaker right;
@@ -246,8 +246,7 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       newJoinNode->right = rightLink;
       newRelNode->parent = rightLink;
 
-      if (final != NULL)
-      {
+      if (final != NULL) {
         CNF *cnf = new CNF;
         Record literal;
         cnf->GrowFromParseTree2(final, prevJoinNode->schema, newRelNode->schema,
@@ -532,6 +531,8 @@ QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query) {
   } else {
     RelationNode *relNode = new RelationNode;
     relNode->relName = tables->tableName;
+    std::string relNameStr(relNode->relName);
+    relNode->schema = (*relNameToSchema)[relNameStr];
     BaseNode *root = GenerateTree(relNode, *relNameToSchema);
     QueryPlan *q = new QueryPlan(root);
     q->PrintTree(root);
@@ -639,10 +640,9 @@ BaseNode *QueryOptimizer::GenerateTree(
   }
 
   // Handle SELECTS.
-  if (boolean)
-  {
-    CNF *cnf = new CNF;           // = new CNF;
-    Record *literal = new Record; // = new Record;
+  if (boolean) {
+    CNF *cnf = new CNF;            // = new CNF;
+    Record *literal = new Record;  // = new Record;
     cnf->GrowFromParseTree(boolean, child->schema, *literal);
 
     JoinNode *selectNode = new JoinNode;

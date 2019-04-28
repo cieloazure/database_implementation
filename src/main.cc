@@ -16,6 +16,14 @@ int main() {
   Schema nation("catalog", "nation");
 
   std::unordered_map<std::string, Schema *> relNameToSchema;
+  relNameToSchema["lineitem"] = &lineitem;
+  relNameToSchema["orders"] = &orders;
+  relNameToSchema["supplier"] = &supplier;
+  relNameToSchema["partsupp"] = &partsupp;
+  relNameToSchema["customer"] = &customer;
+  relNameToSchema["part"] = &part;
+  relNameToSchema["region"] = &region;
+  relNameToSchema["nation"] = &nation;
 
   // Load Statistics
   char *relName[] = {"supplier", "partsupp", "lineitem", "order",
@@ -57,14 +65,53 @@ int main() {
   s.AddAtt(relName[7], "p_name", 199996);
   s.AddAtt(relName[7], "p_container", 40);
 
+  char *relName2[] = {"R", "S", "T", "U"};
+  s.AddRel(relName2[0], 1000);
+  s.AddAtt(relName2[0], "a", 100);
+  s.AddAtt(relName2[0], "b", 200);
+  s.AddRel(relName2[1], 1000);
+  s.AddAtt(relName2[1], "b", 100);
+  s.AddAtt(relName2[1], "c", 500);
+  s.AddRel(relName2[2], 1000);
+  s.AddAtt(relName2[2], "c", 20);
+  s.AddAtt(relName2[2], "d", 50);
+  s.AddRel(relName2[3], 1000);
+  s.AddAtt(relName2[3], "a", 50);
+  s.AddAtt(relName2[3], "d", 1000);
+
+  Attribute IA = {(char *)"a", Int};
+  Attribute IB = {(char *)"b", Int};
+  Attribute IC = {(char *)"c", Int};
+  Attribute ID = {(char *)"d", Int};
+
+  Attribute rAtts[] = {IA, IB};
+  Schema R("R", 2, rAtts);
+  Attribute s1Atts[] = {IB, IC};
+  Schema S("S", 2, s1Atts);
+  Attribute tAtts[] = {IC, ID};
+  Schema T("T", 2, tAtts);
+  Attribute uAtts[] = {IA, ID};
+  Schema U("U", 2, uAtts);
+
+  relNameToSchema["R"] = &R;
+  relNameToSchema["S"] = &S;
+  relNameToSchema["T"] = &T;
+  relNameToSchema["U"] = &U;
+
   // Initialize query optimizer
   QueryOptimizer optimizer(&s, &relNameToSchema);
 
   // Get query from user
   cout << "Enter Query: ";
   std::string query;
-  cin >> query;
-
+  std::string line;
+  while (getline(cin, line)) {
+    if (line == "\n") {
+      break;
+    }
+    query += line;
+  }
+  cout << "Query:" << query << std::endl;
   // Run optimization to get QueryPlan
   optimizer.GetOptimizedPlan(query);
 }
