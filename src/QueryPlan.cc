@@ -77,8 +77,13 @@ void QueryPlan::PrintTree(BaseNode *base)
     }
     case SUM:
     {
+        SumNode *s = dynamic_cast<SumNode *>(base);
         std::cout << "********" << std::endl;
         std::cout << "SUM OPERATION" << std::endl;
+        std::cout << "\tInput pipe:" << base->left.id << std::endl;
+        std::cout << "\tOutput pipe:" << base->parent.id << std::endl;
+        std::cout << "\tFunction:" << std::endl;
+        s->f->Print();
         std::cout << "********" << std::endl;
         break;
     }
