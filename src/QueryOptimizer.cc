@@ -149,17 +149,17 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
 
     if (final != NULL)
     {
-      CNF cnf;
+      CNF *cnf = new CNF;
       Record literal;
-      cnf.GrowFromParseTree(final, relNode1->schema, relNode2->schema, literal);
-      cnf.Print();
+      cnf->GrowFromParseTree(final, relNode1->schema, relNode2->schema, literal);
+      cnf->Print();
       OrderMaker left;
       OrderMaker right;
-      bool status = cnf.GetSortOrders(left, right);
+      bool status = cnf->GetSortOrders(left, right);
       Schema *s =
           new Schema("join_schema", relNode1->schema, relNode2->schema, &right);
       newJoinNode->schema = s;
-      newJoinNode->cnf = &cnf;
+      newJoinNode->cnf = cnf;
       newJoinNode->literal = &literal;
     }
     else
@@ -273,18 +273,18 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
 
       if (final != NULL)
       {
-        CNF cnf;
+        CNF *cnf = new CNF;
         Record literal;
-        cnf.GrowFromParseTree2(final, prevJoinNode->schema, newRelNode->schema,
-                               literal);
-        cnf.Print();
+        cnf->GrowFromParseTree2(final, prevJoinNode->schema, newRelNode->schema,
+                                literal);
+        cnf->Print();
         OrderMaker left;
         OrderMaker right;
-        cnf.GetSortOrders(left, right);
+        cnf->GetSortOrders(left, right);
         Schema *s = new Schema("join_schema", prevJoinNode->schema,
                                newRelNode->schema, &right);
         newJoinNode->schema = s;
-        newJoinNode->cnf = &cnf;
+        newJoinNode->cnf = cnf;
         newJoinNode->literal = &literal;
       }
       else
@@ -645,14 +645,14 @@ BaseNode *QueryOptimizer::GenerateTree(
   {
     GroupByNode *groupByNode = new GroupByNode;
 
-    CNF cnf;
+    CNF *cnf = new CNF;
     Record literal;
-    cnf.GrowFromParseTree(final, child->schema, literal);
+    cnf->GrowFromParseTree(final, child->schema, literal);
 
     OrderMaker sortOrder;
     OrderMaker dummy;
 
-    cnf.GetSortOrders(sortOrder, dummy);
+    cnf->GetSortOrders(sortOrder, dummy);
 
     Function f;
     f.GrowFromParseTree(finalFunction, *child->schema);
@@ -726,13 +726,13 @@ BaseNode *QueryOptimizer::GenerateTree(
   // Handle SELECTS.
   if (boolean)
   {
-    CNF cnf;        // = new CNF;
-    Record literal; // = new Record;
-    cnf.GrowFromParseTree(boolean, child->schema, literal);
+    CNF *cnf = new CNF; // = new CNF;
+    Record literal;     // = new Record;
+    cnf->GrowFromParseTree(boolean, child->schema, literal);
 
     JoinNode *selectNode = new JoinNode;
     selectNode->nodeType = SELECT_FILE;
-    selectNode->cnf = &cnf;
+    selectNode->cnf = cnf;
     selectNode->literal = &literal;
     selectNode->schema = child->schema;
 
