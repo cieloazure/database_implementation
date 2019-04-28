@@ -18,16 +18,16 @@ class relation {
   const char *rname;
   const char *prefix;
   char rpath[100];
-  Schema *rschema;
+  Schema *R;
 
  public:
   relation(const char *_name, Schema *_schema, const char *_prefix)
-      : rname(_name), rschema(_schema), prefix(_prefix) {
+      : rname(_name), R(_schema), prefix(_prefix) {
     sprintf(rpath, "%s%s.bin", prefix, rname);
   }
   const char *name() { return rname; }
   const char *path() { return rpath; }
-  Schema *schema() { return rschema; }
+  Schema *schema() { return R; }
   void info() {
     cout << " relation info\n";
     cout << "\t name: " << name() << endl;
@@ -45,14 +45,14 @@ class relation {
   }
 };
 
- char *supplier = (char *)"supplier";
- char *partsupp = (char *)"partsupp";
- char *part = (char *)"part";
- char *nation = (char *)"nation";
- char *customer = (char *)"customer";
- char *orders = (char *)"orders";
- char *region = (char *)"region";
- char *lineitem = (char *)"lineitem";
+char *supplier = (char *)"supplier";
+char *partsupp = (char *)"partsupp";
+char *part = (char *)"part";
+char *nation = (char *)"nation";
+char *customer = (char *)"customer";
+char *orders = (char *)"orders";
+char *region = (char *)"region";
+char *lineitem = (char *)"lineitem";
 
 relation *s, *p, *ps, *n, *li, *r, *o, *c;
 

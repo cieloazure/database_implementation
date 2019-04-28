@@ -2,53 +2,46 @@
 #include "QueryOptimizer.h"
 #include "gtest/gtest.h"
 
-extern "C"
-{
-  typedef struct yy_buffer_state *YY_BUFFER_STATE;
-  int yyparse(void); // defined in y.tab.c
-  YY_BUFFER_STATE yy_scan_string(const char *str);
-  void yy_delete_buffer(YY_BUFFER_STATE buffer);
+extern "C" {
+typedef struct yy_buffer_state *YY_BUFFER_STATE;
+int yyparse(void);  // defined in y.tab.c
+YY_BUFFER_STATE yy_scan_string(const char *str);
+void yy_delete_buffer(YY_BUFFER_STATE buffer);
 }
 
 extern struct FuncOperator
-    *finalFunction;                   // the aggregate function (NULL if no agg)
-extern struct TableList *tables;      // the list of tables and aliases in the query
-extern struct AndList *boolean;       // the predicate in the WHERE clause
-extern struct NameList *groupingAtts; // grouping atts (NULL if no grouping)
+    *finalFunction;               // the aggregate function (NULL if no agg)
+extern struct TableList *tables;  // the list of tables and aliases in the query
+extern struct AndList *boolean;   // the predicate in the WHERE clause
+extern struct NameList *groupingAtts;  // grouping atts (NULL if no grouping)
 extern struct NameList *
-    attsToSelect; // the set of attributes in the SELECT (NULL if no such atts)
+    attsToSelect;  // the set of attributes in the SELECT (NULL if no such atts)
 
-namespace dbi
-{
+namespace dbi {
 
 // The fixture for testing class QueryOptimizer.
-class QueryOptimizerTest : public ::testing::Test
-{
-protected:
+class QueryOptimizerTest : public ::testing::Test {
+ protected:
   // You can remove any or all of the following functions if its body
   // is empty.
 
-  QueryOptimizerTest()
-  {
+  QueryOptimizerTest() {
     // You can do set-up work for each test here.
   }
 
-  ~QueryOptimizerTest() override
-  {
+  ~QueryOptimizerTest() override {
     // You can do clean-up work that doesn't throw exceptions here.
   }
 
   // If the constructor and destructor are not enough for setting up
   // and cleaning up each test, you can define the following methods:
 
-  void SetUp() override
-  {
+  void SetUp() override {
     // Code here will be called immediately after the constructor (right
     // before each test).
   }
 
-  void TearDown() override
-  {
+  void TearDown() override {
     // Code here will be called immediately after each test (right
     // before the destructor).
   }
@@ -56,8 +49,7 @@ protected:
   // Objects declared here can be used by all tests in the test case for Foo.
 };
 
-TEST_F(QueryOptimizerTest, PARSE_TEST)
-{
+TEST_F(QueryOptimizerTest, PARSE_TEST) {
   //   const char cnf_string[] =
   //   "SELECT SUM DISTINCT (a + b) FROM c AS c1"
   //   "WHERE ('foo' > this.that OR 2 = 3) AND (12 > 5)"
@@ -72,8 +64,7 @@ TEST_F(QueryOptimizerTest, PARSE_TEST)
                              finalFunction);
 }
 
-TEST_F(QueryOptimizerTest, PARSE_TEST_2)
-{
+TEST_F(QueryOptimizerTest, PARSE_TEST_2) {
   //   const char cnf_string[] =
   //   "SELECT SUM DISTINCT (a + b) FROM c AS c1"
   //   "WHERE ('foo' > this.that OR 2 = 3) AND (12 > 5)"
@@ -88,8 +79,7 @@ TEST_F(QueryOptimizerTest, PARSE_TEST_2)
                              finalFunction);
 }
 
-TEST_F(QueryOptimizerTest, PARSE_TEST_3)
-{
+TEST_F(QueryOptimizerTest, PARSE_TEST_3) {
   //   const char cnf_string[] =
   //   "SELECT SUM DISTINCT (a + b) FROM c AS c1"
   //   "WHERE ('foo' > this.that OR 2 = 3) AND (12 > 5)"
@@ -105,8 +95,7 @@ TEST_F(QueryOptimizerTest, PARSE_TEST_3)
                              finalFunction);
 }
 
-TEST_F(QueryOptimizerTest, PARSE_TEST_4)
-{
+TEST_F(QueryOptimizerTest, PARSE_TEST_4) {
   //   const char cnf_string[] =
   //   "SELECT SUM DISTINCT (a + b) FROM c AS c1"
   //   "WHERE ('foo' > this.that OR 2 = 3) AND (12 > 5)"
@@ -123,8 +112,7 @@ TEST_F(QueryOptimizerTest, PARSE_TEST_4)
                              finalFunction);
 }
 
-TEST_F(QueryOptimizerTest, PARSE_TEST_5)
-{
+TEST_F(QueryOptimizerTest, PARSE_TEST_5) {
   //   const char cnf_string[] =
   //   "SELECT SUM DISTINCT (a + b) FROM c AS c1"
   //   "WHERE ('foo' > this.that OR 2 = 3) AND (12 > 5)"
@@ -143,8 +131,7 @@ TEST_F(QueryOptimizerTest, PARSE_TEST_5)
                              finalFunction);
 }
 
-TEST_F(QueryOptimizerTest, PARSE_TEST_6)
-{
+TEST_F(QueryOptimizerTest, PARSE_TEST_6) {
   //   const char cnf_string[] =
   //   "SELECT SUM DISTINCT (a + b) FROM c AS c1"
   //   "WHERE ('foo' > this.that OR 2 = 3) AND (12 > 5)"
@@ -164,8 +151,7 @@ TEST_F(QueryOptimizerTest, PARSE_TEST_6)
                              finalFunction);
 }
 
-TEST_F(QueryOptimizerTest, PARSE_TEST_7)
-{
+TEST_F(QueryOptimizerTest, PARSE_TEST_7) {
   //   const char cnf_string[] =
   //   "SELECT SUM DISTINCT (a + b) FROM c AS c1"
   //   "WHERE ('foo' > this.that OR 2 = 3) AND (12 > 5)"
@@ -185,8 +171,7 @@ TEST_F(QueryOptimizerTest, PARSE_TEST_7)
                              finalFunction);
 }
 
-TEST_F(QueryOptimizerTest, PARSE_TEST_8)
-{
+TEST_F(QueryOptimizerTest, PARSE_TEST_8) {
   //   const char cnf_string[] =
   //   "SELECT SUM DISTINCT (a + b) FROM c AS c1"
   //   "WHERE ('foo' > this.that OR 2 = 3) AND (12 > 5)"
@@ -202,8 +187,7 @@ TEST_F(QueryOptimizerTest, PARSE_TEST_8)
                              finalFunction);
 }
 
-TEST_F(QueryOptimizerTest, PARSE_TEST_9)
-{
+TEST_F(QueryOptimizerTest, PARSE_TEST_9) {
   //   const char cnf_string[] =
   //   "SELECT SUM DISTINCT (a + b) FROM c AS c1"
   //   "WHERE ('foo' > this.that OR 2 = 3) AND (12 > 5)"
@@ -220,8 +204,7 @@ TEST_F(QueryOptimizerTest, PARSE_TEST_9)
                              finalFunction);
 }
 
-TEST_F(QueryOptimizerTest, PARSE_TEST_10)
-{
+TEST_F(QueryOptimizerTest, PARSE_TEST_10) {
   //   const char cnf_string[] =
   //   "SELECT SUM DISTINCT (a + b) FROM c AS c1"
   //   "WHERE ('foo' > this.that OR 2 = 3) AND (12 > 5)"
@@ -238,8 +221,7 @@ TEST_F(QueryOptimizerTest, PARSE_TEST_10)
                              finalFunction);
 }
 
-TEST_F(QueryOptimizerTest, PARSE_TEST_11)
-{
+TEST_F(QueryOptimizerTest, PARSE_TEST_11) {
   const char cnf_string[] =
       "SELECT SUM DISTINCT(a.b + b),"
       "d.g FROM a AS b WHERE('foo' > this.that OR 2 = 3) AND (12 > 5) GROUP BY "
@@ -259,8 +241,7 @@ TEST_F(QueryOptimizerTest, PARSE_TEST_11)
                              finalFunction);
 }
 
-TEST_F(QueryOptimizerTest, PARSE_TEST_12)
-{
+TEST_F(QueryOptimizerTest, PARSE_TEST_12) {
   const char cnf_string[] =
       "SELECT a,b,c FROM d AS d1,e AS e1 WHERE (d1.a = e1.a)";
   //   "SELECT SUM DISTINCT (a + b) FROM c AS c1"
@@ -278,8 +259,7 @@ TEST_F(QueryOptimizerTest, PARSE_TEST_12)
                              finalFunction);
 }
 
-TEST_F(QueryOptimizerTest, ConstructJoinCNFTest)
-{
+TEST_F(QueryOptimizerTest, ConstructJoinCNFTest) {
   std::vector<std::vector<std::string>> joinMatrix;
   std::vector<std::string> row1;
   row1.push_back("");
@@ -316,20 +296,14 @@ TEST_F(QueryOptimizerTest, ConstructJoinCNFTest)
   EXPECT_TRUE(final != NULL);
 }
 
-TEST_F(QueryOptimizerTest, PERMUTATIONS_TEST)
-{
+TEST_F(QueryOptimizerTest, PERMUTATIONS_TEST) {
   QueryOptimizer o;
   auto combs = o.GenerateCombinations(4, 2);
-  for (auto comb : combs)
-  {
-    for (int i = 0; i < comb.size(); i++)
-    {
-      if (comb[i])
-      {
+  for (auto comb : combs) {
+    for (int i = 0; i < comb.size(); i++) {
+      if (comb[i]) {
         std::cout << "1";
-      }
-      else
-      {
+      } else {
         std::cout << "0";
       }
     }
@@ -337,20 +311,14 @@ TEST_F(QueryOptimizerTest, PERMUTATIONS_TEST)
   }
 }
 
-TEST_F(QueryOptimizerTest, PERMUTATIONS_TEST_2)
-{
+TEST_F(QueryOptimizerTest, PERMUTATIONS_TEST_2) {
   QueryOptimizer o;
   auto combs = o.GenerateCombinations(4, 3);
-  for (auto comb : combs)
-  {
-    for (int i = 0; i < comb.size(); i++)
-    {
-      if (comb[i])
-      {
+  for (auto comb : combs) {
+    for (int i = 0; i < comb.size(); i++) {
+      if (comb[i]) {
         std::cout << "1";
-      }
-      else
-      {
+      } else {
         std::cout << "0";
       }
     }
@@ -358,20 +326,14 @@ TEST_F(QueryOptimizerTest, PERMUTATIONS_TEST_2)
   }
 }
 
-TEST_F(QueryOptimizerTest, PERMUTATIONS_TEST_3)
-{
+TEST_F(QueryOptimizerTest, PERMUTATIONS_TEST_3) {
   QueryOptimizer o;
   auto combs = o.GenerateCombinations(3, 2);
-  for (auto comb : combs)
-  {
-    for (int i = 0; i < comb.size(); i++)
-    {
-      if (comb[i])
-      {
+  for (auto comb : combs) {
+    for (int i = 0; i < comb.size(); i++) {
+      if (comb[i]) {
         std::cout << "1";
-      }
-      else
-      {
+      } else {
         std::cout << "0";
       }
     }
@@ -379,20 +341,14 @@ TEST_F(QueryOptimizerTest, PERMUTATIONS_TEST_3)
   }
 }
 
-TEST_F(QueryOptimizerTest, PERMUTATIONS_TEST_4)
-{
+TEST_F(QueryOptimizerTest, PERMUTATIONS_TEST_4) {
   QueryOptimizer o;
   auto combs = o.GenerateCombinations(5, 4);
-  for (auto comb : combs)
-  {
-    for (int i = 0; i < comb.size(); i++)
-    {
-      if (comb[i])
-      {
+  for (auto comb : combs) {
+    for (int i = 0; i < comb.size(); i++) {
+      if (comb[i]) {
         std::cout << "1";
-      }
-      else
-      {
+      } else {
         std::cout << "0";
       }
     }
@@ -400,8 +356,7 @@ TEST_F(QueryOptimizerTest, PERMUTATIONS_TEST_4)
   }
 }
 
-TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations)
-{
+TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations) {
   // Set up statistics
   Statistics s;
   char *relName[] = {"R", "S", "T", "U"};
@@ -462,30 +417,29 @@ TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations)
   Attribute ID = {(char *)"d", Int};
 
   Attribute rAtts[] = {IA, IB};
-  Schema rSchema("rSchema", 2, rAtts);
+  Schema R("R", 2, rAtts);
 
   Attribute s1Atts[] = {IB, IC};
-  Schema sSchema("sSchema", 2, s1Atts);
+  Schema S("S", 2, s1Atts);
 
   Attribute tAtts[] = {IC, ID};
-  Schema tSchema("tSchema", 2, tAtts);
+  Schema T("T", 2, tAtts);
 
   Attribute uAtts[] = {IA, ID};
-  Schema uSchema("uSchema", 2, uAtts);
+  Schema U("U", 2, uAtts);
 
   std::unordered_map<std::string, Schema *> relNameToSchema;
-  relNameToSchema["R"] = &rSchema;
-  relNameToSchema["S"] = &sSchema;
-  relNameToSchema["T"] = &tSchema;
-  relNameToSchema["U"] = &uSchema;
+  relNameToSchema["R"] = &R;
+  relNameToSchema["S"] = &S;
+  relNameToSchema["T"] = &T;
+  relNameToSchema["U"] = &U;
 
   // call QueryOptimizer
   QueryOptimizer o(&s, &relNameToSchema);
   o.OptimumOrderingOfJoin(relNameToSchema, &s, relNames, joinMatrix);
 }
 
-TEST_F(QueryOptimizerTest, SeparateJoinsAndSelects)
-{
+TEST_F(QueryOptimizerTest, SeparateJoinsAndSelects) {
   QueryOptimizer o;
   // Statistics s;
   char *relName[] = {"R", "S", "T", "U"};
@@ -516,8 +470,7 @@ TEST_F(QueryOptimizerTest, SeparateJoinsAndSelects)
   o.SeparateJoinsandSelects(currentStats, joinList);
 }
 
-TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations2)
-{
+TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations2) {
   // Set up statistics
   Statistics s;
   char *relName[] = {"R", "S", "T", "U"};
@@ -568,30 +521,29 @@ TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations2)
   Attribute ID = {(char *)"d", Int};
 
   Attribute rAtts[] = {IA, IB};
-  Schema rSchema("rSchema", 2, rAtts);
+  Schema R("R", 2, rAtts);
 
   Attribute s1Atts[] = {IB, IC};
-  Schema sSchema("sSchema", 2, s1Atts);
+  Schema S("S", 2, s1Atts);
 
   Attribute tAtts[] = {IC, ID};
-  Schema tSchema("tSchema", 2, tAtts);
+  Schema T("T", 2, tAtts);
 
   Attribute uAtts[] = {IA, ID};
-  Schema uSchema("uSchema", 2, uAtts);
+  Schema U("U", 2, uAtts);
 
   std::unordered_map<std::string, Schema *> relNameToSchema;
-  relNameToSchema["R"] = &rSchema;
-  relNameToSchema["S"] = &sSchema;
-  relNameToSchema["T"] = &tSchema;
-  relNameToSchema["U"] = &uSchema;
+  relNameToSchema["R"] = &R;
+  relNameToSchema["S"] = &S;
+  relNameToSchema["T"] = &T;
+  relNameToSchema["U"] = &U;
 
   // call QueryOptimizer
   QueryOptimizer o(&s, &relNameToSchema);
   o.OptimumOrderingOfJoin(relNameToSchema, &s, relNames, joinMatrix);
 }
 
-TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations3)
-{
+TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations3) {
   // Set up statistics
   Statistics s;
   char *relName[] = {"R", "S", "T", "U"};
@@ -634,30 +586,29 @@ TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations3)
   Attribute ID = {(char *)"d", Int};
 
   Attribute rAtts[] = {IA, IB};
-  Schema rSchema("rSchema", 2, rAtts);
+  Schema R("R", 2, rAtts);
 
   Attribute s1Atts[] = {IB, IC};
-  Schema sSchema("sSchema", 2, s1Atts);
+  Schema S("S", 2, s1Atts);
 
   Attribute tAtts[] = {IC, ID};
-  Schema tSchema("tSchema", 2, tAtts);
+  Schema T("T", 2, tAtts);
 
   Attribute uAtts[] = {IA, ID};
-  Schema uSchema("uSchema", 2, uAtts);
+  Schema U("U", 2, uAtts);
 
   std::unordered_map<std::string, Schema *> relNameToSchema;
-  relNameToSchema["R"] = &rSchema;
-  relNameToSchema["S"] = &sSchema;
-  relNameToSchema["T"] = &tSchema;
-  relNameToSchema["U"] = &uSchema;
+  relNameToSchema["R"] = &R;
+  relNameToSchema["S"] = &S;
+  relNameToSchema["T"] = &T;
+  relNameToSchema["U"] = &U;
 
   // call QueryOptimizer
   QueryOptimizer o(&s, &relNameToSchema);
   o.OptimumOrderingOfJoin(relNameToSchema, &s, relNames, joinMatrix);
 }
 
-TEST_F(QueryOptimizerTest, GetOptimizedPlanTest)
-{
+TEST_F(QueryOptimizerTest, GetOptimizedPlanTest) {
   char *relName[] = {"R", "S", "T", "U"};
   const char cnf_string[] =
       "SELECT a, b FROM R AS r, S AS s WHERE (r.b = s.b) AND (r.a > 0)";
@@ -685,22 +636,22 @@ TEST_F(QueryOptimizerTest, GetOptimizedPlanTest)
   Attribute ID = {(char *)"d", Int};
 
   Attribute rAtts[] = {IA, IB};
-  Schema rSchema("rSchema", 2, rAtts);
+  Schema R("R", 2, rAtts);
 
   Attribute s1Atts[] = {IB, IC};
-  Schema sSchema("sSchema", 2, s1Atts);
+  Schema S("S", 2, s1Atts);
 
   Attribute tAtts[] = {IC, ID};
-  Schema tSchema("tSchema", 2, tAtts);
+  Schema T("T", 2, tAtts);
 
   Attribute uAtts[] = {IA, ID};
-  Schema uSchema("uSchema", 2, uAtts);
+  Schema U("U", 2, uAtts);
 
   std::unordered_map<std::string, Schema *> relNameToSchema;
-  relNameToSchema["R"] = &rSchema;
-  relNameToSchema["S"] = &sSchema;
-  relNameToSchema["T"] = &tSchema;
-  relNameToSchema["U"] = &uSchema;
+  relNameToSchema["R"] = &R;
+  relNameToSchema["S"] = &S;
+  relNameToSchema["T"] = &T;
+  relNameToSchema["U"] = &U;
 
   QueryOptimizer o(currentStats, &relNameToSchema);
   std::string cnfString(cnf_string);
@@ -715,8 +666,7 @@ TEST_F(QueryOptimizerTest, GetOptimizedPlanTest)
 //   Schema *schema = new Schema("R1", 3, att3);
 // }
 
-TEST_F(QueryOptimizerTest, GenerateTree)
-{
+TEST_F(QueryOptimizerTest, GenerateTree) {
   char *relName[] = {"R", "S", "T", "U"};
   const char cnf_string[] =
       "SELECT a, b FROM R AS r, S AS s WHERE (r.b = s.b) AND (r.a > 0)";
@@ -744,25 +694,25 @@ TEST_F(QueryOptimizerTest, GenerateTree)
   Attribute ID = {(char *)"d", Int};
 
   Attribute rAtts[] = {IA, IB};
-  Schema rSchema("rSchema", 2, rAtts);
+  Schema R("R", 2, rAtts);
 
   Attribute s1Atts[] = {IB, IC};
-  Schema sSchema("sSchema", 2, s1Atts);
+  Schema S("S", 2, s1Atts);
 
   Attribute tAtts[] = {IC, ID};
-  Schema tSchema("tSchema", 2, tAtts);
+  Schema T("T", 2, tAtts);
 
   Attribute uAtts[] = {IA, ID};
-  Schema uSchema("uSchema", 2, uAtts);
+  Schema U("U", 2, uAtts);
 
   std::unordered_map<std::string, Schema *> relNameToSchema;
-  relNameToSchema["R"] = &rSchema;
-  relNameToSchema["S"] = &sSchema;
-  relNameToSchema["T"] = &tSchema;
-  relNameToSchema["U"] = &uSchema;
+  relNameToSchema["R"] = &R;
+  relNameToSchema["S"] = &S;
+  relNameToSchema["T"] = &T;
+  relNameToSchema["U"] = &U;
 
   QueryOptimizer o(currentStats, &relNameToSchema);
   std::string cnfString(cnf_string);
   o.GetOptimizedPlan(cnfString);
 }
-} // namespace dbi
+}  // namespace dbi
