@@ -631,8 +631,9 @@ BaseNode *QueryOptimizer::GenerateTree(
   {
     SumNode *s = new SumNode;
 
-    Function f;
-    f.GrowFromParseTree(finalFunction, *child->schema);
+    Function *f = new Function;
+    f->GrowFromParseTree(finalFunction, *child->schema);
+    s->f = f;
 
     Link link(s);
     currentNode->left = link;
@@ -649,17 +650,17 @@ BaseNode *QueryOptimizer::GenerateTree(
     Record literal;
     cnf->GrowFromParseTree(final, child->schema, literal);
 
-    OrderMaker sortOrder;
-    OrderMaker dummy;
+    OrderMaker *sortOrder = new OrderMaker;
+    OrderMaker *dummy = new OrderMaker;
 
-    cnf->GetSortOrders(sortOrder, dummy);
+    cnf->GetSortOrders(*sortOrder, *dummy);
 
-    Function f;
-    f.GrowFromParseTree(finalFunction, *child->schema);
+    Function *f = new Function;
+    f->GrowFromParseTree(finalFunction, *child->schema);
 
     groupByNode->nodeType = GROUP_BY;
-    groupByNode->o = &sortOrder;
-    groupByNode->f = &f;
+    groupByNode->o = sortOrder;
+    groupByNode->f = f;
 
     Link link(groupByNode);
     currentNode->left = link;
@@ -726,14 +727,14 @@ BaseNode *QueryOptimizer::GenerateTree(
   // Handle SELECTS.
   if (boolean)
   {
-    CNF *cnf = new CNF; // = new CNF;
-    Record literal;     // = new Record;
-    cnf->GrowFromParseTree(boolean, child->schema, literal);
+    CNF *cnf = new CNF;           // = new CNF;
+    Record *literal = new Record; // = new Record;
+    cnf->GrowFromParseTree(boolean, child->schema, *literal);
 
     JoinNode *selectNode = new JoinNode;
     selectNode->nodeType = SELECT_FILE;
     selectNode->cnf = cnf;
-    selectNode->literal = &literal;
+    selectNode->literal = literal;
     selectNode->schema = child->schema;
 
     Link link(selectNode);
