@@ -31,7 +31,7 @@ void QueryPlan::PrintTree(BaseNode *base)
         std::cout << "\tOutput Schema:" << std::endl;
         base->schema->Print("\t\t");
         std::cout << "\tJoin CNF:";
-        j->cnf->Print();
+        // j->cnf->Print();
         std::cout << std::endl;
         std::cout << "********" << std::endl;
         break;
@@ -58,7 +58,7 @@ void QueryPlan::PrintTree(BaseNode *base)
         std::cout << "\t\t2." << base->right.id << std::endl;
         std::cout << "\tOutput pipe:" << base->parent.id << std::endl;
         std::cout << "\tSelect pipe CNF:";
-        s->cnf->Print();
+        // s->cnf->Print();
         std::cout << std::endl;
         std::cout << "********" << std::endl;
         break;
@@ -75,7 +75,7 @@ void QueryPlan::PrintTree(BaseNode *base)
         std::cout << "\tOutput Schema:" << std::endl;
         base->schema->Print("\t\t");
         std::cout << "\tSelect file CNF:";
-        s->cnf->Print();
+        // s->cnf->Print();
         std::cout << std::endl;
         break;
     }

@@ -624,6 +624,8 @@ BaseNode *QueryOptimizer::GenerateTree(
   BaseNode *currentNode =
       new BaseNode; // a sentinel node that will be the root.
 
+  BaseNode *root = currentNode;
+
   // Handle GROUP BY
   if (groupingAtts)
   {
@@ -691,7 +693,7 @@ BaseNode *QueryOptimizer::GenerateTree(
       keepMe.push_back(attIndex);
       nameList = nameList->next;
     }
-    int keepMeArr[keepMe.size()];
+    int *keepMeArr = new int[keepMe.size()];
     for (int i = 0; i < keepMe.size(); ++i)
     {
       keepMeArr[i] = keepMe[i];
@@ -730,4 +732,6 @@ BaseNode *QueryOptimizer::GenerateTree(
   Link link(child);
   currentNode->left = link;
   child->parent = link;
+
+  return root;
 }
