@@ -137,9 +137,10 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       CNF cnf;
       Record literal;
       cnf.GrowFromParseTree(final, relNode1->schema, relNode2->schema, literal);
+      cnf.Print();
       OrderMaker left;
       OrderMaker right;
-      cnf.GetSortOrders(left, right);
+      bool status = cnf.GetSortOrders(left, right);
       Schema *s =
           new Schema("join_schema", relNode1->schema, relNode2->schema, &right);
       newJoinNode->schema = s;
@@ -161,7 +162,7 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
 
     combinationToMemo[set] = newMemo;
     if (length == 2) {
-      return newMemo.root;
+      return newMemo.root->left.value;
     }
   }
 
@@ -247,8 +248,9 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       if (final != NULL) {
         CNF cnf;
         Record literal;
-        cnf.GrowFromParseTree(final, prevJoinNode->schema, newRelNode->schema,
-                              literal);
+        cnf.GrowFromParseTree2(final, prevJoinNode->schema, newRelNode->schema,
+                               literal);
+        cnf.Print();
         OrderMaker left;
         OrderMaker right;
         cnf.GetSortOrders(left, right);
@@ -287,7 +289,7 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
   std::cout << std::endl;
   // End Optimization
 
-  return combinationToMemo[optimalJoin].root;
+  return combinationToMemo[optimalJoin].root->left.value;
 }
 
 std::vector<std::string> QueryOptimizer::GenerateCombinations(int n, int r) {
@@ -449,6 +451,26 @@ bool QueryOptimizer::ContainsLiteral(ComparisonOp *compOp) {
   return IsALiteral(compOp->left) || IsALiteral(compOp->right);
 }
 
+bool QueryOptimizer::IsQualifiedAtt(std::string value) {
+  return value.find('.', 0) != std::string::npos;
+}
+
+std::pair<std::string, std::string> QueryOptimizer::SplitQualifiedAtt(
+    std::string value) {
+  size_t idx = value.find('.', 0);
+  std::string rel;
+  std::string att;
+  if (idx == std::string::npos) {
+    att = value;
+  } else {
+    rel = value.substr(0, idx);
+    att = value.substr(idx + 1, value.length());
+  }
+  std::pair<std::string, std::string> retPair;
+  retPair.first = rel;
+  retPair.second = att;
+  return retPair;
+}
 void QueryOptimizer::PrintTree(BaseNode *base) {
   if (base == NULL) return;
   PrintTree(base->left.value);
@@ -501,6 +523,9 @@ QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query) {
     }
     BaseNode *join = OptimumOrderingOfJoin(*relNameToSchema, currentStats,
                                            relNames, joinMatrix);
+
+    GenerateTree(join, *relNameToSchema);
+  } else {
   }
   std::cout << std::endl;
   return NULL;
@@ -508,51 +533,80 @@ QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query) {
   //     *relNameToSchema, currentStats, relNames, joinMatrix);
 }
 
-void QueryOptimizer::GenerateTree(struct JoinNode *joinNode) {
+void QueryOptimizer::GenerateTree(
+    struct BaseNode *child,
+    std::unordered_map<std::string, Schema *> relNameToSchema) {
   BaseNode *currentNode =
       new BaseNode;  // a sentinel node that will be the root.
 
   // Handle DISTINCT
   if (distinctAtts == 1) {
-    BaseNode *drNode = new BaseNode;
+    DuplicateRemovalNode *drNode = new DuplicateRemovalNode();
     if (currentNode) {
       drNode->nodeType = DUPLICATE_REMOVAL;
-      currentNode->left = dynamic_cast<DuplicateRemovalNode *>(drNode);
+      Link link(drNode);
+      currentNode->left = link;
+      drNode->parent = link;
       currentNode = currentNode->left.value;
     }
   }
 
   // Handle PROJECTS.
-  // if (attsToSelect)
-  // {
-  //   vector<int> keepMe;
-  //   NameList *nameList = attsToSelect;
+  if (attsToSelect) {
+    ProjectNode *projectNode = new ProjectNode;
+    projectNode->nodeType = PROJECT;
+    vector<int> keepMe;
+    NameList *nameList = attsToSelect;
+    // Populate the keepMe array.
+    while (nameList) {
+      // If attributes are qualified
+      std::string attrName = "";
+      if (IsQualifiedAtt(nameList->name)) {
+        std::pair<std::string, std::string> attSplit =
+            SplitQualifiedAtt(std::string(nameList->name));
+        attrName += attSplit.second;
+      } else {
+        attrName = nameList->name;
+      }
+      int attIndex = child->schema->Find((char *)attrName.c_str());
+      keepMe.push_back(attIndex);
+      nameList = nameList->next;
+    }
+    int keepMeArr[keepMe.size()];
+    for (int i = 0; i < keepMe.size(); ++i) {
+      keepMeArr[i] = keepMe[i];
+    }
 
-  //   while (nameList)
-  //   {
-  //     for (auto sch : statsObject->currentState->schemaList)
-  //     {
-  //       // for (auto att : sch.){}
-  //     }
-  //   }
-  // }
+    projectNode->keepMe = keepMeArr;
+    projectNode->numAttsInput = child->schema->GetNumAtts();
+    projectNode->numAttsOutput = keepMe.size();
+
+    Link link(projectNode);
+    currentNode->left = link;
+    projectNode->parent = link;
+    currentNode = currentNode->left.value;
+  }
 
   // Handle SELECTS.
   if (boolean) {
-    CNF *cnf = new CNF;
-    Record *literal = new Record;
-    cnf->GrowFromParseTree(boolean, joinNode->schema, *literal);
+    CNF cnf;         // = new CNF;
+    Record literal;  // = new Record;
+    cnf.GrowFromParseTree(boolean, child->schema, literal);
 
     JoinNode *selectNode = new JoinNode;
     selectNode->nodeType = SELECT_FILE;
-    selectNode->cnf = cnf;
-    selectNode->literal = literal;
-    selectNode->schema = joinNode->schema;
+    selectNode->cnf = &cnf;
+    selectNode->literal = &literal;
+    selectNode->schema = child->schema;
 
-    currentNode->left = dynamic_cast<JoinNode *>(selectNode);
+    Link link(selectNode);
+    currentNode->left = link;
+    selectNode->parent = link;
     currentNode = currentNode->left.value;
   }
 
   // Finally join the JOIN subtree
-  currentNode->left = dynamic_cast<JoinNode *>(joinNode);
+  Link link(child);
+  currentNode->left = link;
+  child->parent = link;
 }

@@ -417,22 +417,22 @@ TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations) {
   Attribute ID = {(char *)"d", Int};
 
   Attribute rAtts[] = {IA, IB};
-  Schema rSchema("rSchema", 2, rAtts);
+  Schema R("R", 2, rAtts);
 
   Attribute s1Atts[] = {IB, IC};
-  Schema sSchema("sSchema", 2, s1Atts);
+  Schema S("S", 2, s1Atts);
 
   Attribute tAtts[] = {IC, ID};
-  Schema tSchema("tSchema", 2, tAtts);
+  Schema T("T", 2, tAtts);
 
   Attribute uAtts[] = {IA, ID};
-  Schema uSchema("uSchema", 2, uAtts);
+  Schema U("U", 2, uAtts);
 
   std::unordered_map<std::string, Schema *> relNameToSchema;
-  relNameToSchema["R"] = &rSchema;
-  relNameToSchema["S"] = &sSchema;
-  relNameToSchema["T"] = &tSchema;
-  relNameToSchema["U"] = &uSchema;
+  relNameToSchema["R"] = &R;
+  relNameToSchema["S"] = &S;
+  relNameToSchema["T"] = &T;
+  relNameToSchema["U"] = &U;
 
   // call QueryOptimizer
   QueryOptimizer o(&s, &relNameToSchema);
@@ -521,22 +521,22 @@ TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations2) {
   Attribute ID = {(char *)"d", Int};
 
   Attribute rAtts[] = {IA, IB};
-  Schema rSchema("rSchema", 2, rAtts);
+  Schema R("R", 2, rAtts);
 
   Attribute s1Atts[] = {IB, IC};
-  Schema sSchema("sSchema", 2, s1Atts);
+  Schema S("S", 2, s1Atts);
 
   Attribute tAtts[] = {IC, ID};
-  Schema tSchema("tSchema", 2, tAtts);
+  Schema T("T", 2, tAtts);
 
   Attribute uAtts[] = {IA, ID};
-  Schema uSchema("uSchema", 2, uAtts);
+  Schema U("U", 2, uAtts);
 
   std::unordered_map<std::string, Schema *> relNameToSchema;
-  relNameToSchema["R"] = &rSchema;
-  relNameToSchema["S"] = &sSchema;
-  relNameToSchema["T"] = &tSchema;
-  relNameToSchema["U"] = &uSchema;
+  relNameToSchema["R"] = &R;
+  relNameToSchema["S"] = &S;
+  relNameToSchema["T"] = &T;
+  relNameToSchema["U"] = &U;
 
   // call QueryOptimizer
   QueryOptimizer o(&s, &relNameToSchema);
@@ -586,22 +586,22 @@ TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations3) {
   Attribute ID = {(char *)"d", Int};
 
   Attribute rAtts[] = {IA, IB};
-  Schema rSchema("rSchema", 2, rAtts);
+  Schema R("R", 2, rAtts);
 
   Attribute s1Atts[] = {IB, IC};
-  Schema sSchema("sSchema", 2, s1Atts);
+  Schema S("S", 2, s1Atts);
 
   Attribute tAtts[] = {IC, ID};
-  Schema tSchema("tSchema", 2, tAtts);
+  Schema T("T", 2, tAtts);
 
   Attribute uAtts[] = {IA, ID};
-  Schema uSchema("uSchema", 2, uAtts);
+  Schema U("U", 2, uAtts);
 
   std::unordered_map<std::string, Schema *> relNameToSchema;
-  relNameToSchema["R"] = &rSchema;
-  relNameToSchema["S"] = &sSchema;
-  relNameToSchema["T"] = &tSchema;
-  relNameToSchema["U"] = &uSchema;
+  relNameToSchema["R"] = &R;
+  relNameToSchema["S"] = &S;
+  relNameToSchema["T"] = &T;
+  relNameToSchema["U"] = &U;
 
   // call QueryOptimizer
   QueryOptimizer o(&s, &relNameToSchema);
@@ -636,26 +636,26 @@ TEST_F(QueryOptimizerTest, GetOptimizedPlanTest) {
   Attribute ID = {(char *)"d", Int};
 
   Attribute rAtts[] = {IA, IB};
-  Schema rSchema("rSchema", 2, rAtts);
+  Schema R("R", 2, rAtts);
 
   Attribute s1Atts[] = {IB, IC};
-  Schema sSchema("sSchema", 2, s1Atts);
+  Schema S("S", 2, s1Atts);
 
   Attribute tAtts[] = {IC, ID};
-  Schema tSchema("tSchema", 2, tAtts);
+  Schema T("T", 2, tAtts);
 
   Attribute uAtts[] = {IA, ID};
-  Schema uSchema("uSchema", 2, uAtts);
+  Schema U("U", 2, uAtts);
 
   std::unordered_map<std::string, Schema *> relNameToSchema;
-  relNameToSchema["R"] = &rSchema;
-  relNameToSchema["S"] = &sSchema;
-  relNameToSchema["T"] = &tSchema;
-  relNameToSchema["U"] = &uSchema;
+  relNameToSchema["R"] = &R;
+  relNameToSchema["S"] = &S;
+  relNameToSchema["T"] = &T;
+  relNameToSchema["U"] = &U;
 
   QueryOptimizer o(currentStats, &relNameToSchema);
   std::string cnfString(cnf_string);
-  o.GetOptimizedPlan(cnfString);
+  QueryPlan *qp = o.GetOptimizedPlan(cnfString);
 }
 // TEST_F(QueryOptimizerTest, TESTSCHEMA)
 // {
@@ -665,4 +665,54 @@ TEST_F(QueryOptimizerTest, GetOptimizedPlanTest) {
 //   Attribute att3[] = {IA, SA, DA};
 //   Schema *schema = new Schema("R1", 3, att3);
 // }
+
+TEST_F(QueryOptimizerTest, GenerateTree) {
+  char *relName[] = {"R", "S", "T", "U"};
+  const char cnf_string[] =
+      "SELECT a, b FROM R AS r, S AS s WHERE (r.b = s.b) AND (r.a > 0)";
+  Statistics *currentStats = new Statistics;
+  currentStats->AddRel(relName[0], 1000);
+  currentStats->AddAtt(relName[0], "a", 100);
+  currentStats->AddAtt(relName[0], "b", 200);
+
+  currentStats->AddRel(relName[1], 1000);
+  currentStats->AddAtt(relName[1], "b", 100);
+  currentStats->AddAtt(relName[1], "c", 500);
+
+  currentStats->AddRel(relName[2], 1000);
+  currentStats->AddAtt(relName[2], "c", 20);
+  currentStats->AddAtt(relName[2], "d", 50);
+
+  currentStats->AddRel(relName[3], 1000);
+  currentStats->AddAtt(relName[3], "a", 50);
+  currentStats->AddAtt(relName[3], "d", 1000);
+
+  // Set up map of relNameToSchema
+  Attribute IA = {(char *)"a", Int};
+  Attribute IB = {(char *)"b", Int};
+  Attribute IC = {(char *)"c", Int};
+  Attribute ID = {(char *)"d", Int};
+
+  Attribute rAtts[] = {IA, IB};
+  Schema R("R", 2, rAtts);
+
+  Attribute s1Atts[] = {IB, IC};
+  Schema S("S", 2, s1Atts);
+
+  Attribute tAtts[] = {IC, ID};
+  Schema T("T", 2, tAtts);
+
+  Attribute uAtts[] = {IA, ID};
+  Schema U("U", 2, uAtts);
+
+  std::unordered_map<std::string, Schema *> relNameToSchema;
+  relNameToSchema["R"] = &R;
+  relNameToSchema["S"] = &S;
+  relNameToSchema["T"] = &T;
+  relNameToSchema["U"] = &U;
+
+  QueryOptimizer o(currentStats, &relNameToSchema);
+  std::string cnfString(cnf_string);
+  o.GetOptimizedPlan(cnfString);
+}
 }  // namespace dbi

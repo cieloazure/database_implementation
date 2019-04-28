@@ -8,7 +8,8 @@
 #include "Record.h"
 #include "Schema.h"
 
-enum PlanNodeType {
+enum PlanNodeType
+{
   BASE_NODE,
   DUPLICATE_REMOVAL,
   GROUP_BY,
@@ -22,56 +23,65 @@ enum PlanNodeType {
 
 class BaseNode;
 
-struct Link {
+struct Link
+{
   BaseNode *value;
   Pipe *pipe;
   int id;
 
   static int pool;
 
-  Link() {
+  Link()
+  {
     value = NULL;
     pipe = NULL;
     id = -1;
   }
 
-  Link(BaseNode *val) {
+  Link(BaseNode *val)
+  {
     value = val;
     id = Link::pool;
     Link::pool++;
   }
 };
 
-class BaseNode {
- protected:
- public:
+class BaseNode
+{
+protected:
+public:
   PlanNodeType nodeType;
   Schema *schema;
   Link left;
   Link right;
   Link parent;
-  BaseNode() {
+  BaseNode()
+  {
     nodeType = BASE_NODE;
     schema = NULL;
   }
   virtual void dummy(){};
 };
 
-class RelationNode : public BaseNode {
- public:
+class RelationNode : public BaseNode
+{
+public:
   char *relName;
-  RelationNode() {
+  RelationNode()
+  {
     nodeType = RELATION_NODE;
     relName = NULL;
   }
   void dummy() {}
 };
 
-class JoinNode : public BaseNode {
- public:
+class JoinNode : public BaseNode
+{
+public:
   CNF *cnf;
   Record *literal;
-  JoinNode() {
+  JoinNode()
+  {
     nodeType = JOIN;
     cnf = NULL;
     literal = NULL;
@@ -79,29 +89,34 @@ class JoinNode : public BaseNode {
   void dummy() {}
 };
 
-class DuplicateRemovalNode : public BaseNode {
- public:
-  DuplicateRemovalNode();
+class DuplicateRemovalNode : public BaseNode
+{
+public:
+  DuplicateRemovalNode(){};
   void dummy() {}
 };
 
-class GroupByNode : public BaseNode {
- public:
+class GroupByNode : public BaseNode
+{
+public:
   OrderMaker *o;
   Function *f;
-  GroupByNode() {
+  GroupByNode()
+  {
     o = NULL;
     f = NULL;
   }
   void dummy() {}
 };
 
-class ProjectNode : BaseNode {
- public:
+class ProjectNode : public BaseNode
+{
+public:
   int *keepMe;
   int numAttsInput;
   int numAttsOutput;
-  ProjectNode() {
+  ProjectNode()
+  {
     keepMe = NULL;
     numAttsInput = 0;
     numAttsOutput = 0;
@@ -109,18 +124,20 @@ class ProjectNode : BaseNode {
   void dummy() {}
 };
 
-class SumNode : BaseNode {
- public:
+class SumNode : public BaseNode
+{
+public:
   Function *f;
   SumNode() { f = NULL; }
   void dummy() {}
 };
 
-class QueryPlan {
- private:
+class QueryPlan
+{
+private:
   BaseNode *root;
 
- public:
+public:
   QueryPlan(BaseNode *root);
   void Execute();
   void Print();

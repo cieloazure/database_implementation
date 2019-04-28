@@ -9,8 +9,14 @@ int Schema ::Find(char *attName) {
   if (IsQualifiedAtt(attNameStr)) {
     std::pair<std::string, std::string> relAttPair =
         SplitQualifiedAtt(attNameStr);
+    char *relName = (char *)relAttPair.first.c_str();
     attName = (char *)relAttPair.second.c_str();
+    char *joinNodeName = "join_schema";
+    if (strcmp(fileName, joinNodeName) != 0 && strcmp(fileName, relName) != 0) {
+      return -1;
+    }
   }
+
   for (int i = 0; i < numAtts; i++) {
     if (!strcmp(attName, myAtts[i].name)) {
       return i;
@@ -19,6 +25,33 @@ int Schema ::Find(char *attName) {
 
   // if we made it here, the attribute was not found
   return -1;
+}
+
+std::pair<int, int> Schema ::FindWithStatus(char *attName) {
+  std::string attNameStr(attName);
+  bool join = false;
+  if (IsQualifiedAtt(attNameStr)) {
+    std::pair<std::string, std::string> relAttPair =
+        SplitQualifiedAtt(attNameStr);
+    char *relName = (char *)relAttPair.first.c_str();
+    attName = (char *)relAttPair.second.c_str();
+    char *joinNodeName = "join_schema";
+    if (strcmp(fileName, joinNodeName) == 0) {
+      join = true;
+    }
+    if (strcmp(fileName, joinNodeName) != 0 && strcmp(fileName, relName) != 0) {
+      return std::make_pair(-1, join);
+    }
+  }
+
+  for (int i = 0; i < numAtts; i++) {
+    if (!strcmp(attName, myAtts[i].name)) {
+      return std::make_pair(i, join);
+    }
+  }
+
+  // if we made it here, the attribute was not found
+  return std::make_pair(-1, join);
 }
 
 Type Schema ::FindType(char *attName) {
@@ -371,6 +404,7 @@ void Schema::Print(std::string prefixtabs) {
   std::cout << prefixtabs << "Schema atts details:" << std::endl;
   for (int i = 0; i < numAtts; i++) {
     std::cout << prefixtabs << "\t"
-              << "Name:" << myAtts[i].name << ",Type:" << myAtts[i].myType << std::endl;
+              << "Name:" << myAtts[i].name << ",Type:" << myAtts[i].myType
+              << std::endl;
   }
 }

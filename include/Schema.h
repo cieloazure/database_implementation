@@ -48,6 +48,8 @@ class Schema {
   // returns a -1 if the attribute is not present in the schema
   int Find(char *attName);
 
+  std::pair<int, int> FindWithStatus(char *attName);
+
   // this finds the type of the given attribute
   Type FindType(char *attName);
 
