@@ -79,7 +79,7 @@ public:
         Statistics *currentStats,
         std::vector<std::vector<std::string>> &joinMatrix);
 
-    void GenerateTree(struct BaseNode *child, std::unordered_map<std::string, Schema *> relNameToSchema);
+    BaseNode *GenerateTree(struct BaseNode *child, std::unordered_map<std::string, Schema *> relNameToSchema);
 
     bool IsQualifiedAtt(std::string value);
     std::pair<std::string, std::string> SplitQualifiedAtt(
