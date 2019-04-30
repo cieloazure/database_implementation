@@ -1,11 +1,12 @@
+#include "test4_1.h"
 #include <math.h>
 #include <stdlib.h>
 #include <iostream>
 #include "ParseTree.h"
 #include "Statistics.h"
 #include "y.tab.h"
-extern "C" struct YY_BUFFER_STATE *yy_scan_string(const char *);
-extern "C" int yyparse(void);
+// extern "C" struct YY_BUFFER_STATE *yy_scan_string(const char *);
+// extern "C" int yyparse(void);
 extern struct AndList *final;
 
 using namespace std;

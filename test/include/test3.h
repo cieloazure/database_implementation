@@ -19,7 +19,7 @@ const char *settings = (char *)"test3.cat";
 // donot change this information here
 char *catalog_path = (char *)"catalog";
 char *dbfile_dir = (char *)"";
-char *tpch_dir = (char *)"data_files/";
+char *tpch_dir = (char *)"data_files/1G/";
 
 extern "C" {
 int yyparse(void);                 // defined in y.tab.c
