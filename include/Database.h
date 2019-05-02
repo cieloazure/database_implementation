@@ -23,6 +23,7 @@ extern struct BulkLoad *bulkLoadInfo;
 extern char *whichTableToDrop;
 extern char *whereToGiveOutput;
 extern char *whichTableToUpdateStatsFor;
+extern int operationId;
 
 struct SortInfo {
   OrderMaker *sortOrder;
@@ -48,11 +49,12 @@ class Database {
   Database();
 
   void UpdateStatistics();
-  void CreateTable(std::string createTableQuery);
+  void CreateTable();
   void DropTable();
   void ExecuteQuery();
   void SetOutput();
   void BulkLoad();
+  void ExecuteCommand(std::string command);
 };
 
 #endif

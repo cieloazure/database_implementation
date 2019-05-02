@@ -8,11 +8,32 @@ Database::Database() {
   // If not create a file
 }
 
-void Database::CreateTable(std::string createTableQuery) {
-  // Scan the create table query
-  yy_scan_string(createTableQuery.c_str());
+void Database::ExecuteCommand(std::string command) {
+  yy_scan_string(command.c_str());
   yyparse();
+  switch (operationId) {
+    case 1:
+      CreateTable();
+      break;
+    case 2:
+      ExecuteQuery();
+      break;
+    case 3:
+      BulkLoad();
+      break;
+    case 4:
+      DropTable();
+      break;
+    case 5:
+      SetOutput();
+      break;
+    case 6:
+      UpdateStatistics();
+      break;
+  }
+}
 
+void Database::CreateTable() {
   // DBFile and schema instances to be persisted
   DBFile *dbFile = new DBFile();
   Schema *schema = new Schema(newTable->tName);
@@ -76,6 +97,7 @@ void Database::CreateTable(std::string createTableQuery) {
     dbFile->Create(newTable->tName, sorted, (void *)sortInfo);
   }
 
+  dbFile->Close();
   RelationTuple *relTuple = new RelationTuple;
   relTuple->relName = relName;
   relTuple->schema = schema;
@@ -83,7 +105,15 @@ void Database::CreateTable(std::string createTableQuery) {
 
   relationLookUp[relName] = relTuple;
 }
-void Database::BulkLoad() {}
+
+void Database::BulkLoad() {
+  std::string relName(bulkLoadInfo->tName);
+  RelationTuple *relTuple = relationLookUp[relName];
+  DBFile *dbFile = relTuple->dbFile;
+  dbFile->Open(relTuple->relName.c_str());
+  dbFile->Load(*relTuple->schema, bulkLoadInfo->fName);
+}
+
 void Database::DropTable() {}
 void Database::SetOutput() {}
 void Database::ExecuteQuery() {}

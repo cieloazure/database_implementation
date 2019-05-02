@@ -26,6 +26,7 @@
 	char *whichTableToUpdateStatsFor;
 	int distinctAtts; // 1 if there is a DISTINCT in a non-aggregate query 
 	int distinctFunc;  // 1 if there is a DISTINCT in an aggregate query
+	int operationId;
 %}
 
 // this stores all of the types returned by production rules
@@ -115,21 +116,25 @@ START:   SQL ';'
 UpdateStatistics: UPDATE STATISTICS FOR Name
 {
 	whichTableToUpdateStatsFor = $4;
+	operationId = 6;
 }
 
 SetOutput: SET OUTPUT String
 {
 	whereToGiveOutput = $3;
+	operationId = 5;
 }
 
 | SET OUTPUT Name
 {
 	whereToGiveOutput = $3;
+	operationId = 5;
 }
 
 DropTable: DROP TABLE Name
 {
 	whichTableToDrop = $3;
+	operationId = 4;
 }
 
 InsertFile: INSERT String INTO Name
@@ -137,6 +142,7 @@ InsertFile: INSERT String INTO Name
 	bulkLoadInfo = (struct BulkLoad *) malloc(sizeof(struct BulkLoad));
 	bulkLoadInfo->fName = $2;
 	bulkLoadInfo->tName = $4;
+	operationId = 3;
 }
 
 CreateTable: CREATE TABLE Name '(' Schema ')' AS Name
@@ -145,6 +151,7 @@ CreateTable: CREATE TABLE Name '(' Schema ')' AS Name
 	newTable->tName = $3;
 	newTable->schemaAtts = $5;
 	newTable->fileType = $8;
+	operationId = 1;
 }
 
 | CREATE TABLE Name '(' Schema ')' AS Name ON '(' Sort ')'
@@ -154,6 +161,7 @@ CreateTable: CREATE TABLE Name '(' Schema ')' AS Name
 	newTable->schemaAtts = $5;
 	newTable->fileType = $8;
 	newTable->sortAtts = $11;
+	operationId = 1;
 }
 
 Sort: Name
@@ -192,6 +200,7 @@ SQL: SELECT WhatIWant FROM Tables WHERE AndList
 	tables = $4;
 	boolean = $6;	
 	groupingAtts = NULL;
+	operationId = 2;
 }
 
 | SELECT WhatIWant FROM Tables WHERE AndList GROUP BY Atts
@@ -199,6 +208,7 @@ SQL: SELECT WhatIWant FROM Tables WHERE AndList
 	tables = $4;
 	boolean = $6;	
 	groupingAtts = $9;
+	operationId = 2;
 };
 
 WhatIWant: Function ',' Atts 

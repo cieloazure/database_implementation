@@ -150,18 +150,32 @@ TEST_F(DatabaseTest, TEST_PARSE_OF_UPDATE_STATS) {
 TEST_F(DatabaseTest, TEST_CREATE_DATABASE) {
   Database d;
   const char cnf_string[] =
-      "CREATE TABLE mytable (att1 INTEGER, att2 DOUBLE, att3 STRING) AS "
+      "CREATE TABLE mytable123 (att1 INTEGER, att2 DOUBLE, att3 STRING) AS "
       "HEAP;";
   std::string ctquery(cnf_string);
-  d.CreateTable(ctquery);
+  d.ExecuteCommand(ctquery);
 }
 
 TEST_F(DatabaseTest, TEST_CREATE_DATABASE_2) {
   Database d;
   const char cnf_string[] =
-      "CREATE TABLE mytablesort (att1 INTEGER, att2 DOUBLE, att3 STRING) AS "
+      "CREATE TABLE mytablesort456 (att1 INTEGER, att2 DOUBLE, att3 STRING) AS "
       "SORTED ON (att1, att2);";
   std::string ctquery(cnf_string);
-  d.CreateTable(ctquery);
+  d.ExecuteCommand(ctquery);
+}
+
+TEST_F(DatabaseTest, TEST_BULK_LOAD) {
+  Database d;
+  const char cnf_string[] =
+      "CREATE TABLE new_region (r_regionkey INTEGER, r_name DOUBLE,r_comment "
+      "STRING) AS "
+      "HEAP;";
+  std::string ctquery(cnf_string);
+  d.ExecuteCommand(ctquery);
+
+  const char cnf_string2[] = "INSERT 'data_files/1G/region.tbl' INTO new_region;";
+  std::string iquery(cnf_string2);
+  d.ExecuteCommand(iquery);
 }
 }  // namespace dbi
