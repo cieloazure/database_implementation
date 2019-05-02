@@ -354,10 +354,10 @@ void q7() {
 
 void q8() {
   /*
-  select l_orderkey, l_partkey, l_suppkey
-  from lineitem
-  where l_returnflag = 'R' and l_discount < 0.04 or
-  l_returnflag = 'R' and l_shipmode = 'MAIL';
+  SELECT l_orderkey, l_partkey, l_suppkey
+  FROM lineitem AS li
+  WHERE (l_returnflag = 'R') AND (l_discount < 0.04 OR
+  l_returnflag = 'R') AND (l_shipmode = 'MAIL')
 
   ANSWER: 671392 rows in set (29.45 sec)
 

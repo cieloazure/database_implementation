@@ -2,7 +2,7 @@ IDIR=include
 CC=g++
 GCC=gcc
 # CCOMPILEFLAGS=-std=c++11 -fprofile-arcs -ftest-coverage -fsanitize=address 
-CCOMPILEFLAGS=-std=c++11 -fsanitize=address -g
+CCOMPILEFLAGS= -std=c++11 -g
 
 ODIR=obj
 $(shell mkdir -p obj)
@@ -11,6 +11,7 @@ SOURCEDIR=src
 
 LIBDIR=lib
 LIBIDIR=lib/include
+INCLUDEDIR=include
 LIBFLAGS=-I$(LIBIDIR)
 
 CFLAGS=-I$(IDIR) -I$(LIBIDIR)
@@ -32,7 +33,7 @@ $(ODIR)/yyfunc.tab.c: $(LIBDIR)/ParserFunc.y
 	sed $(tag) -e "s/  __attribute__ ((__unused__))$$/# ifndef __cplusplus\n  __attribute__ ((__unused__));\n# endif/" $@
 
 $(ODIR)/y.tab.o: $(ODIR)/y.tab.c
-	$(CC) -c -o $@ $< -I$(LIBIDIR)
+	$(CC) -c -o $@ $< -I$(INCLUDEDIR)
 
 $(ODIR)/yyfunc.tab.o: $(ODIR)/yyfunc.tab.c
 	$(CC) -c -o $@ $< -I$(LIBIDIR)
@@ -58,9 +59,9 @@ OBJECTS += $(ODIR)/lex.yyfunc.o
 SOURCES=$(wildcard $(SOURCEDIR)/*.cc)
 OBJECTS += $(patsubst $(SOURCEDIR)/%.cc, $(ODIR)/%.o, $(SOURCES))
 
-TEST = clang++ 
+TEST = g++ 
 # TESTCOMPILEFLAGS= -fsanitize=address -fno-omit-frame-pointer -g -std=c++11 -stdlib=libc++ -fprofile-arcs -ftest-coverage
-TESTCOMPILEFLAGS= -fsanitize=address -g -std=c++11 -stdlib=libc++ 
+TESTCOMPILEFLAGS= -g -std=c++11  # -stdlib=libc++ 
 TESTSOURCESDIR=test/src
 TESTIDIR=test/include
 TESTFLAGS = -I$(IDIR) -I$(TESTIDIR) -I$(SOURCEDIR) -I$(LIBIDIR)  -I$(ODIR)
@@ -92,6 +93,8 @@ FILTEREDTESTOBJECTS=$(filter-out $(GIVENTESTOBJECTS), $(TESTOBJECTS))
 MAIN=$(ODIR)/main.o
 FILTERED_OBJECTS=$(filter-out $(MAIN), $(OBJECTS))
 
+main: all
+	$(CC) $(TESTCOMPILEFLAGS) -o $(BIN)/main $(FILTERED_OBJECTS) $(ODIR)/main.o $(TESTLINKFLAGS) $(TESTFLAGS)
 test: alltest
 	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test.out $(FILTERED_OBJECTS) $(FILTEREDTESTOBJECTS) $(TESTLINKFLAGS) $(TESTFLAGS)
 
@@ -105,7 +108,7 @@ test4_1: alltest
 	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test4_1.out $(FILTERED_OBJECTS) obj/test/test4_1.o $(TESTLINKFLAGS) $(TESTFLAGS)
 
 test4_1_1: alltest
-	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test4_1.out $(FILTERED_OBJECTS) obj/test/test4_1_1.o $(TESTLINKFLAGS) $(TESTFLAGS)
+	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test4_1.old.out $(FILTERED_OBJECTS) obj/test/test4_1_1.old.o $(TESTLINKFLAGS) $(TESTFLAGS)
 
 clean:
 	rm -f $(ODIR)/*.o 

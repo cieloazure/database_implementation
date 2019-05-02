@@ -1,133 +1,164 @@
-
-#include <stdlib.h>
-#include <unistd.h>
-#include <algorithm>
-#include <fstream>
 #include <iostream>
-#include <random>
-#include <string>
-#include <vector>
-#include "BigQ.h"
-#include "Comparison.h"
-#include "DBFile.h"
-#include "Defs.h"
-#include "Pipe.h"
-#include "Record.h"
-#include "SortedDBFile.h"
-#include "TwoWayList.cc"
+#include "QueryOptimizer.h"
+#include "Schema.h"
+#include "Statistics.h"
+
 using namespace std;
 
-extern "C" {
-int yyparse(void);  // defined in y.tab.c
-}
-
-extern struct AndList *final;
-
-struct SortInfo {
-  OrderMaker *sortOrder;
-  int runLength;
-
-  SortInfo(OrderMaker *so, int rl) {
-    sortOrder = so;
-    runLength = rl;
-  }
-};
-
-class Test {
- public:
-  int *num;
-  Test() { num = new int; }
-  Test(int a) {
-    num = new int;
-    (*num) = a;
-  }
-
-  void Consume(Test *fromme) { num = fromme->num; }
-};
-
-bool compare(void *i1, void *i2) {
-  Test *i = (Test *)i1;
-  Test *j = (Test *)i2;
-
-  return *(i->num) < *(j->num);
-}
-
 int main() {
-  Schema mySchema("catalog", "lineitem");
-  OrderMaker o(&mySchema);
+  // Load Schemas
+  Schema lineitem("catalog", "lineitem");
+  Schema orders("catalog", "orders");
+  Schema supplier("catalog", "supplier");
+  Schema partsupp("catalog", "partsupp");
+  Schema customer("catalog", "customer");
+  Schema part("catalog", "part");
+  Schema region("catalog", "region");
+  Schema nation("catalog", "nation");
 
-  int file_mode = O_TRUNC | O_RDWR | O_CREAT;
-  int fd = open("test.bin", file_mode, S_IRUSR | S_IWUSR);
-  o.Serialize(fd);
+  std::unordered_map<std::string, Schema *> relNameToSchema;
+  relNameToSchema["lineitem"] = &lineitem;
+  relNameToSchema["orders"] = &orders;
+  relNameToSchema["supplier"] = &supplier;
+  relNameToSchema["partsupp"] = &partsupp;
+  relNameToSchema["customer"] = &customer;
+  relNameToSchema["part"] = &part;
+  relNameToSchema["region"] = &region;
+  relNameToSchema["nation"] = &nation;
 
-  OrderMaker p;
-  lseek(fd, 0, SEEK_SET);
-  p.UnSerialize(fd);
+  // Load Statistics
+  char *relName[] = {"supplier", "partsupp", "lineitem", "orders",
+                     "customer", "nation",   "region",   "part"};
+  int tuples[] = {100, 8000, 6001215, 1500000, 150000, 25, 5, 2000};
+  Statistics s;
+  for (int i = 0; i < 8; i++) {
+    s.AddRel(relName[i], tuples[i]);
+  }
+  s.AddAtt(relName[0], "s_suppkey", 10000);
+  s.AddAtt(relName[0], "s_nationkey", 25);
+  s.AddAtt(relName[0], "s_name", 10000);
 
-  // DBFile *heapFile = new DBFile();
-  // fType t = heap;
-  // heapFile->Create("gtest.bin", t, NULL);
-  // Schema mySchema("catalog", "lineitem");
-  // const char *loadpath = "data_files/lineitem.tbl";
-  // heapFile->Load(mySchema, loadpath);
-  // heapFile->Close();
+  s.AddAtt(relName[1], "ps_suppkey", 10000);
+  s.AddAtt(relName[1], "ps_partkey", 200000);
 
-  SortInfo *si = new SortInfo(&o, 3);
+  s.AddAtt(relName[2], "l_returnflag", 3);
+  s.AddAtt(relName[2], "l_discount", 11);
+  s.AddAtt(relName[2], "l_shipmode", 7);
+  s.AddAtt(relName[2], "l_orderkey", 1500000);
+  s.AddAtt(relName[2], "l_shipinstruct", 4);
+  s.AddAtt(relName[2], "l_shipmode", 7);
+  s.AddAtt(relName[2], "l_partkey", 200000);
+  s.AddAtt(relName[2], "l_suppkey", -1);
 
-  SortedDBFile *sortedDBFile = new SortedDBFile();
-  fType t1 = sorted;
-  sortedDBFile->Create("gtest_sorted.bin", t1, (void *)si);
-  const char *loadpath = "data_files/lineitem.tbl";
-  // sortedDBFile->Load(mySchema, loadpath);
+  s.AddAtt(relName[3], "o_custkey", 150000);
+  s.AddAtt(relName[3], "o_orderdate", -1);
+  s.AddAtt(relName[3], "o_orderkey", -1);
 
-  Record *temp = new Record();
-  FILE *table_file = fopen(loadpath, "r");
+  s.AddAtt(relName[4], "c_custkey", 150000);
+  s.AddAtt(relName[4], "c_nationkey", 25);
+  s.AddAtt(relName[4], "c_mktsegment", 5);
 
-  int count = 0;
-  std::cout << "Loaded:" << endl;
-  while (temp->SuckNextRecord(&mySchema, table_file) == 1) {
-    if (temp != NULL) {
-      count++;
-      std::cout << "\r" << count;
-      sortedDBFile->Add(*temp);
-      if (count == 10) {
+  s.AddAtt(relName[5], "n_nationkey", 25);
+  s.AddAtt(relName[5], "n_regionkey", 5);
+  s.AddAtt(relName[5], "n_name", -1);
+
+  s.AddAtt(relName[6], "r_regionkey", 5);
+  s.AddAtt(relName[6], "r_name", 5);
+
+  s.AddAtt(relName[7], "p_partkey", 200000);
+  s.AddAtt(relName[7], "p_size", 50);
+  s.AddAtt(relName[7], "p_name", 199996);
+  s.AddAtt(relName[7], "p_container", 40);
+
+  char *relName2[] = {"R", "S", "T", "U"};
+  s.AddRel(relName2[0], 1000);
+  s.AddAtt(relName2[0], "a", 100);
+  s.AddAtt(relName2[0], "b", 200);
+  s.AddRel(relName2[1], 1000);
+  s.AddAtt(relName2[1], "b", 100);
+  s.AddAtt(relName2[1], "c", 500);
+  s.AddRel(relName2[2], 1000);
+  s.AddAtt(relName2[2], "c", 20);
+  s.AddAtt(relName2[2], "d", 50);
+  s.AddRel(relName2[3], 1000);
+  s.AddAtt(relName2[3], "a", 50);
+  s.AddAtt(relName2[3], "d", 1000);
+
+  Attribute IA = {(char *)"a", Int};
+  Attribute IB = {(char *)"b", Int};
+  Attribute IC = {(char *)"c", Int};
+  Attribute ID = {(char *)"d", Int};
+
+  Attribute rAtts[] = {IA, IB};
+  Schema R("R", 2, rAtts);
+  Attribute s1Atts[] = {IB, IC};
+  Schema S("S", 2, s1Atts);
+  Attribute tAtts[] = {IC, ID};
+  Schema T("T", 2, tAtts);
+  Attribute uAtts[] = {IA, ID};
+  Schema U("U", 2, uAtts);
+
+  relNameToSchema["R"] = &R;
+  relNameToSchema["S"] = &S;
+  relNameToSchema["T"] = &T;
+  relNameToSchema["U"] = &U;
+
+  // Initialize query optimizer
+  QueryOptimizer optimizer(&s, &relNameToSchema);
+
+  // Get query from user
+  std::cout << "Welcome to Database Implementation Demo v0.1" << std::endl;
+  std::cout << std::endl;
+  std::cout << "Commands end with `;`" << std::endl;
+  std::cout << std::endl;
+  std::cout << "Type `help` for help" << std::endl;
+  std::cout << "Type `Ctrl-D` or `Ctrl-C` to exit" << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
+  while (true) {
+    cout << "dbi>  ";
+    std::string query;
+    std::string line;
+    // std::cin.flush();
+    bool enter = false;
+    while (true) {
+      if (enter) {
+        query += "  ";
+        std::cout << "  ->  ";
+      }
+      std::getline(std::cin, line);
+      if (query == "" && line == "") {
         break;
       }
-    }
-  }
-  Record *second = new Record();
-  while (sortedDBFile->GetNext(*second)) {
-    second->Print(&mySchema);
-    cout << endl;
-    cout << endl;
-  };
-
-  // sleep(50000000);
-  count = 0;
-  while (temp->SuckNextRecord(&mySchema, table_file) == 1) {
-    if (temp != NULL) {
-      count++;
-      std::cout << "\r" << count;
-      sortedDBFile->Add(*temp);
-      if (count == 10) {
+      if (std::cin.eof()) {
         break;
       }
+      query += line;
+      if (query[query.size() - 1] == ';') {
+        break;
+      }
+      enter = true;
+    }
+    if (std::cin.eof()) {
+      std::cout << "Bye!" << std::endl;
+      break;
+    }
+    if (query.size() > 0) {
+      std::cout << "--------------DEBUG MODE--------------" << std::endl;
+      std::cout << "Given Query:" << query << std::endl;
+      // Run optimization to get QueryPlan
+      cout << "Query Plan:" << std::endl;
+      optimizer.GetOptimizedPlan(query);
     }
   }
-
-  Record *first = new Record();
-  count = 0;
-  while (sortedDBFile->GetNext(*first)) {
-    first->Print(&mySchema);
-    count++;
-    cout << endl;
-    cout << endl;
-  };
-  cout << count << endl;
-
-  // if (temp->SuckNextRecord(&mySchema, table_file) == 1) {
-  //   sortedDBFile->Add(*temp);
+  // std::string line;
+  // while (true) {
+  //   cout << "Enter:";
+  //   getline(cin, line);
+  //   if (cin.eof()) {
+  //     cout << "bye";
+  //     break;
+  //   }
+  //   cout << line;
   // }
-
-  return 0;
 }

@@ -41,9 +41,7 @@ void Join ::BlockNestedLoopJoinForSortMerge(
 }
 // Merge left with right
 // Need both the left and right records and their schemas
-// In order to prevent duplicate of attributes we need the order maker of right
-// to remove the grouping attributes from the right record and keep it in the
-// left record
+// This will produce a record with the right attributes after left attributes
 void Join::ComposeMergedRecord(Record &left, Record &right, Schema *leftSchema,
                                Schema *rightSchema, Record *mergedRec) {
   // num of attributes to keep is number of attributes in left schema and right

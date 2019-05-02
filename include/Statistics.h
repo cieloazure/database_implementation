@@ -91,6 +91,12 @@ class Statistics {
   void PrintAttributeStore();
   void PrintDisjointSets();
   /* Helpers end */
+
+  /* Function needed for optimization */
+  int GetRelSize(std::string rel);
+  AttributeStats *GetRelationNameOfAttribute(
+      char *att, std::vector<std::string> relNamesSubset,
+      struct TableList *tables);
 };
 
 #endif

@@ -120,22 +120,98 @@ double Statistics::CalculateCost(AndList *parseTree, char *relNames[],
   }
 
   // ERROR CHECKING
-  // if (!CheckAttNameInRel(parseTree, relNamesVec)) {
-  //   throw std::runtime_error("ParseTree invalid!");
+  // if (disjointSetSubset.size() != 2) {
+  //   std::cout << "[Statistics]:ERROR: Estimate/Apply: ParseTree invalid! The
+  //   "
+  //                "joins meant in the parseTree does not make sense. Check if
+  //                " "the relations are not already joined. This error usually
+  //                " "occurs due to trying to join a relation which exists as
+  //                join " "and now is a subset of the joined relation"
+  //             << std::endl;
+  //   return -1.0;
   // }
+  std::vector<std::string> disjointVec(disjointSetSubset.begin(),
+                                       disjointSetSubset.end());
+  if (!CheckAttNameInRel(parseTree, disjointVec)) {
+    std::cout << "[Statistics]:ERROR: Estimate/Apply ParseTree invalid! "
+                 "Attribute name not "
+                 "present in the given relation"
+              << std::endl;
+    return -1.0;
+  }
 
   // if (!IsRelNamesValid(relNamesVec, partitions)) {
   //   throw std::runtime_error("Relation names invalid!");
   //}
 
-  CalculateCostAndList(parseTree, relNameToCostMap, currentState);
-  for (auto it = relNameToCostMap.begin(); it != relNameToCostMap.end(); it++) {
-    currentState->UpdateRel((*it).first, (*it).second, false);
-  }
-  if (relNameToCostMap.size() == 1) {
-    return (*relNameToCostMap.begin()).second;
+  if (parseTree == NULL) {
+    if (disjointSetSubset.size() == 1) {
+      return -1.0;
+    } else {
+      // Calculate cross product of the relations in the relNames array
+      // Taking union of the two relations to be subjected to cross product
+      std::string rel1;
+      std::string rel2;
+      int i = 0;
+      for (auto it = disjointSetSubset.begin(); it != disjointSetSubset.end();
+           it++) {
+        if (i == 0) {
+          rel1 = *it;
+        } else {
+          rel2 = *it;
+        }
+        i++;
+      }
+      DisjointSetNode *rep = currentState->Union(rel1, rel2);
+      RelationStats *repRelStats = currentState->FindRel(rep->relName);
+      long result = relNameToCostMap[rel1] * relNameToCostMap[rel2];
+      repRelStats->numTuples = result;
+
+      RelationStats *relStats1 = currentState->SearchRelStore(rel1);
+      if (repRelStats != relStats1) {
+        // Copy all the attributes to representative
+        for (auto it = relStats1->attributes.begin();
+             it != relStats1->attributes.end(); it++) {
+          AttributeStats *attStats =
+              currentState->SearchAttStore(relStats1->relName, *it);
+          attStats->relName = rep->relName;
+          currentState->RemoveAttStore(relStats1->relName, *it);
+          currentState->InsertAtt(attStats);
+          repRelStats->attributes.insert(attStats->attName);
+        }
+        // Remove this relation
+        currentState->RemoveRel(relStats1->relName, false);
+      }
+
+      RelationStats *relStats2 = currentState->SearchRelStore(rel2);
+      if (repRelStats != relStats2) {
+        // Copy all the attributes to representative
+        for (auto it = relStats2->attributes.begin();
+             it != relStats2->attributes.end(); it++) {
+          AttributeStats *attStats =
+              currentState->SearchAttStore(relStats2->relName, *it);
+          attStats->relName = rep->relName;
+          currentState->RemoveAttStore(relStats2->relName, *it);
+          currentState->InsertAtt(attStats);
+          repRelStats->attributes.insert(attStats->attName);
+        }
+        // Remove this relation
+        currentState->RemoveRel(relStats2->relName, false);
+      }
+
+      return result;
+    }
   } else {
-    return -1.0;
+    CalculateCostAndList(parseTree, relNameToCostMap, currentState);
+    for (auto it = relNameToCostMap.begin(); it != relNameToCostMap.end();
+         it++) {
+      currentState->UpdateRel((*it).first, (*it).second, false);
+    }
+    if (relNameToCostMap.size() == 1) {
+      return (*relNameToCostMap.begin()).second;
+    } else {
+      return -1.0;
+    }
   }
 }
 
@@ -192,7 +268,6 @@ void Statistics::CalculateCostOrListHelper(
                                              currentState);
           relNameToIndependentCostsMap[relNameCostPair.first].push_back(
               relNameCostPair.second);
-
         } else {
           // Cost for join
           // T(S JOIN R) = T(S)T(R) / max(V(R,Y)V(S,Y))
@@ -287,7 +362,7 @@ Statistics ::CalculateCostJoin(ComparisonOp *op,
   AttributeStats *att1 = currentState->FindAtt(op->left->value, relNames);
   AttributeStats *att2 = currentState->FindAtt(op->right->value, relNames);
 
-  if (att1 == NULL && att2 == NULL) {
+  if (att1 == NULL || att2 == NULL) {
     throw std::runtime_error("Invalid relNames[]. Join operation failed.");
   }
 
@@ -401,6 +476,30 @@ double Statistics ::ApplySelectionOrFormula(double distinctValuesOr1,
   return totalTuples * (1 - (op1 * op2));
 }
 
+AttributeStats *Statistics::GetRelationNameOfAttribute(
+    char *att, std::vector<std::string> relNamesSubset,
+    struct TableList *tables) {
+  if (currentState->IsQualifiedAtt(att)) {
+    // replace alias with original rel name.
+    std::pair<std::string, std::string> attSplit =
+        currentState->SplitQualifiedAtt(att);
+    char *originalRelName;
+    struct TableList *curr = tables;
+    while (curr) {
+      if (curr->aliasAs == attSplit.first) {
+        originalRelName = curr->tableName;
+        break;
+      }
+      curr = curr->next;
+    }
+    if (originalRelName) {
+      return currentState->FindAtt(originalRelName, attSplit.second);
+    }
+  } else {
+    return currentState->FindAtt(att, relNamesSubset);
+  }
+}
+
 void Statistics::PrintAttributeStore() { currentState->PrintAttributeStore(); }
 void Statistics::PrintRelationStore() { currentState->PrintRelationStore(); }
 void Statistics::PrintDisjointSets() { currentState->PrintDisjointSets(); }
@@ -415,10 +514,11 @@ std::vector<std::string> Statistics::RelNamesKeySet(
   return keySet;
 }
 
-void Statistics::Read(char *fromWhere) {
-  currentState->Read(fromWhere);
-}
+void Statistics::Read(char *fromWhere) { currentState->Read(fromWhere); }
 
-void Statistics::Write(char *toWhere) {
-  currentState->Write(toWhere);
+void Statistics::Write(char *toWhere) { currentState->Write(toWhere); }
+
+int Statistics::GetRelSize(std::string rel) {
+  struct RelationStats *relStats = currentState->FindRel(rel);
+  return relStats->numTuples;
 }
