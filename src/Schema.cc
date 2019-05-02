@@ -190,6 +190,7 @@ Schema ::Schema(char *fName, char *relName) {
   }
 
   fclose(foo);
+  fileName = strdup(relName);
 }
 
 Schema ::~Schema() {

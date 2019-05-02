@@ -1,0 +1,5 @@
+SELECT l_orderkey, l_partkey, o_orderkey FROM lineitem AS li, orders AS o WHERE (li.l_orderkey = o.o_orderkey)
+SELECT a, b FROM R AS r, S AS s WHERE (r.b = s.b) AND (r.a > 0)
+
+NULL l_orderkey
+o_orderkey NULL

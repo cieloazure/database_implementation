@@ -26,7 +26,7 @@ int main() {
   relNameToSchema["nation"] = &nation;
 
   // Load Statistics
-  char *relName[] = {"supplier", "partsupp", "lineitem", "order",
+  char *relName[] = {"supplier", "partsupp", "lineitem", "orders",
                      "customer", "nation",   "region",   "part"};
   int tuples[] = {100, 8000, 6001215, 1500000, 150000, 25, 5, 2000};
   Statistics s;
@@ -35,6 +35,7 @@ int main() {
   }
   s.AddAtt(relName[0], "s_suppkey", 10000);
   s.AddAtt(relName[0], "s_nationkey", 25);
+  s.AddAtt(relName[0], "s_name", 10000);
 
   s.AddAtt(relName[1], "ps_suppkey", 10000);
   s.AddAtt(relName[1], "ps_partkey", 200000);
@@ -46,9 +47,11 @@ int main() {
   s.AddAtt(relName[2], "l_shipinstruct", 4);
   s.AddAtt(relName[2], "l_shipmode", 7);
   s.AddAtt(relName[2], "l_partkey", 200000);
+  s.AddAtt(relName[2], "l_suppkey", -1);
 
   s.AddAtt(relName[3], "o_custkey", 150000);
   s.AddAtt(relName[3], "o_orderdate", -1);
+  s.AddAtt(relName[3], "o_orderkey", -1);
 
   s.AddAtt(relName[4], "c_custkey", 150000);
   s.AddAtt(relName[4], "c_nationkey", 25);
@@ -56,6 +59,7 @@ int main() {
 
   s.AddAtt(relName[5], "n_nationkey", 25);
   s.AddAtt(relName[5], "n_regionkey", 5);
+  s.AddAtt(relName[5], "n_name", -1);
 
   s.AddAtt(relName[6], "r_regionkey", 5);
   s.AddAtt(relName[6], "r_name", 5);

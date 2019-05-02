@@ -329,15 +329,15 @@ bool QueryOptimizer::ConstructJoinCNF(
   cnfString.append("(");
   cnfString.append(left);
   cnfString.append(".");
-  if (joinMatrix[idxLeft][idxRight].size() > 0) {
-    cnfString.append(joinMatrix[idxLeft][idxRight]);
+  if (joinMatrix[idxRight][idxLeft].size() > 0) {
+    cnfString.append(joinMatrix[idxRight][idxLeft]);
   } else {
     return false;
   }
   cnfString.append(" = ");
   cnfString.append(right);
   cnfString.append(".");
-  cnfString.append(joinMatrix[idxRight][idxLeft]);
+  cnfString.append(joinMatrix[idxLeft][idxRight]);
   cnfString.append(")");
   std::cout << "Joining...." << cnfString << std::endl;
   yy_scan_string(cnfString.c_str());
