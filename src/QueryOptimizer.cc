@@ -645,7 +645,7 @@ BaseNode *QueryOptimizer::GenerateTree(
     Record *literal = new Record;  // = new Record;
     cnf->GrowFromParseTree(boolean, child->schema, *literal);
 
-    JoinNode *selectNode = new JoinNode;
+    SelectPipeNode *selectNode = new SelectPipeNode;
     selectNode->nodeType = SELECT_FILE;
     selectNode->cnf = cnf;
     selectNode->literal = literal;

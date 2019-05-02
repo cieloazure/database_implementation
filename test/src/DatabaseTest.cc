@@ -1,66 +1,58 @@
+#include "Database.h"
 #include "ParseTreePrinter.h"
 #include "QueryOptimizer.h"
 #include "gtest/gtest.h"
-#include "Database.h"
 
-extern "C"
-{
-    typedef struct yy_buffer_state *YY_BUFFER_STATE;
-    int yyparse(void); // defined in y.tab.c
-    YY_BUFFER_STATE yy_scan_string(const char *str);
-    void yy_delete_buffer(YY_BUFFER_STATE buffer);
+extern "C" {
+typedef struct yy_buffer_state *YY_BUFFER_STATE;
+int yyparse(void);  // defined in y.tab.c
+YY_BUFFER_STATE yy_scan_string(const char *str);
+void yy_delete_buffer(YY_BUFFER_STATE buffer);
 }
 
 extern struct FuncOperator
-    *finalFunction;                   // the aggregate function (NULL if no agg)
-extern struct TableList *tables;      // the list of tables and aliases in the query
-extern struct AndList *boolean;       // the predicate in the WHERE clause
-extern struct NameList *groupingAtts; // grouping atts (NULL if no grouping)
+    *finalFunction;               // the aggregate function (NULL if no agg)
+extern struct TableList *tables;  // the list of tables and aliases in the query
+extern struct AndList *boolean;   // the predicate in the WHERE clause
+extern struct NameList *groupingAtts;  // grouping atts (NULL if no grouping)
 extern struct NameList *
-    attsToSelect; // the set of attributes in the SELECT (NULL if no such atts)
+    attsToSelect;  // the set of attributes in the SELECT (NULL if no such atts)
 
-namespace dbi
-{
+namespace dbi {
 
 // The fixture for testing class QueryOptimizer.
-class DatabaseTest : public ::testing::Test
-{
-protected:
-    // You can remove any or all of the following functions if its body
-    // is empty.
+class DatabaseTest : public ::testing::Test {
+ protected:
+  // You can remove any or all of the following functions if its body
+  // is empty.
 
-    DatabaseTest()
-    {
-        // You can do set-up work for each test here.
-    }
+  DatabaseTest() {
+    // You can do set-up work for each test here.
+  }
 
-    ~DatabaseTest() override
-    {
-        // You can do clean-up work that doesn't throw exceptions here.
-    }
+  ~DatabaseTest() override {
+    // You can do clean-up work that doesn't throw exceptions here.
+  }
 
-    // If the constructor and destructor are not enough for setting up
-    // and cleaning up each test, you can define the following methods:
+  // If the constructor and destructor are not enough for setting up
+  // and cleaning up each test, you can define the following methods:
 
-    void SetUp() override
-    {
-        // Code here will be called immediately after the constructor (right
-        // before each test).
-    }
+  void SetUp() override {
+    // Code here will be called immediately after the constructor (right
+    // before each test).
+  }
 
-    void TearDown() override
-    {
-        // Code here will be called immediately after each test (right
-        // before the destructor).
-    }
+  void TearDown() override {
+    // Code here will be called immediately after each test (right
+    // before the destructor).
+  }
 
-    // Objects declared here can be used by all tests in the test case for Foo.
+  // Objects declared here can be used by all tests in the test case for Foo.
 };
 
-TEST_F(DatabaseTest, TESTSCHEMA)
-{
-    Database db;
-    const char cnf_string[] =
-        "SELECT a, b FROM R AS r, S AS s WHERE (r.b = s.b) AND (r.a > 0)";
+TEST_F(DatabaseTest, TESTSCHEMA) {
+  Database db;
+  const char cnf_string[] =
+      "SELECT a, b FROM R AS r, S AS s WHERE (r.b = s.b) AND (r.a > 0)";
 }
-} // namespace dbi
+}  // namespace dbi
