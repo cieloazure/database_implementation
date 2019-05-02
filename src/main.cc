@@ -24,17 +24,17 @@ int main() {
     exit(1);
   }
   dbFile7->Load(region, "data_files/1G/region.tbl");
-  dbFile7->Close();
-  if (!dbFile7->Open("region")) {
-    std::cout << "Error!" << std::endl;
-    exit(1);
-  }
-  DBFile dbFile7_1;
-  if (!dbFile7_1.Open("region")) {
-    std::cout << "Error!" << std::endl;
-    exit(1);
-  }
-  relNameToRelTuple["region"] = new RelationTuple(&region, &dbFile7_1);
+  // dbFile7->Close();
+  // if (!dbFile7->Open("region")) {
+  //   std::cout << "Error!" << std::endl;
+  //   exit(1);
+  // }
+  // DBFile dbFile7_1;
+  // if (!dbFile7_1.Open("region")) {
+  //   std::cout << "Error!" << std::endl;
+  //   exit(1);
+  // }
+  relNameToRelTuple["region"] = new RelationTuple(&region, dbFile7);
 
   DBFile *dbFile = new DBFile();
   dbFile->Create("lineitem", heap, NULL);
