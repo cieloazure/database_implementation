@@ -837,7 +837,7 @@ BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
       {
         for (auto it = relationsInJoin.begin(); it != relationsInJoin.end(); ++it)
         {
-          if ((*relNameToRelTuple)[*it]->schema->Find(compOp->left->value))
+          if ((*relNameToRelTuple)[*it]->schema->Find(compOp->left->value) != -1)
           {
             orToRelNameList[currOr].push_back(*it);
           }
@@ -847,7 +847,7 @@ BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
       {
         for (std::vector<std::string>::iterator it = relationsInJoin.begin(); it != relationsInJoin.end(); ++it)
         {
-          if ((*relNameToRelTuple)[*it]->schema->Find(compOp->left->value))
+          if ((*relNameToRelTuple)[*it]->schema->Find(compOp->right->value) != -1)
           {
             orToRelNameList[currOr].push_back(*it);
           }
@@ -866,6 +866,7 @@ BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
       Record *literal = new Record;
       AndList *tempAnd = new AndList;
       tempAnd->left = it.first;
+      tempAnd->rightAnd = NULL;
       cnf->GrowFromParseTree(tempAnd, childNode->schema, *literal);
 
       SelectPipeNode *newNode = new SelectPipeNode;
@@ -883,6 +884,7 @@ BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
         childNode->parent.value->right = link;
       }
       newNode->parent = childNode->parent;
+      childNode->parent = link;
       newNode->left = childNode->left;
     }
   }
