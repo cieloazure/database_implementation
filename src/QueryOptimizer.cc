@@ -1,12 +1,14 @@
 #include "QueryOptimizer.h"
 
-QueryOptimizer::QueryOptimizer() {
+QueryOptimizer::QueryOptimizer()
+{
   currentStats = NULL;
   relNameToRelTuple = NULL;
 }
 QueryOptimizer::QueryOptimizer(
     Statistics *stats,
-    std::unordered_map<std::string, RelationTuple *> *relNameToRelTupleMap) {
+    std::unordered_map<std::string, RelationTuple *> *relNameToRelTupleMap)
+{
   currentStats = stats;
   relNameToRelTuple = relNameToRelTupleMap;
 }
@@ -14,7 +16,8 @@ QueryOptimizer::QueryOptimizer(
 BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     std::unordered_map<std::string, RelationTuple *> relNameToRelTuple,
     Statistics *prevStats, std::vector<std::string> relNames,
-    std::vector<std::vector<std::string>> joinMatrix) {
+    std::vector<std::vector<std::string>> joinMatrix)
+{
   // Start Optimization
 
   // Decl
@@ -23,12 +26,17 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
   // print memo
   auto print = [&combinationToMemo]() -> void {
     for (auto it = combinationToMemo.begin(); it != combinationToMemo.end();
-         it++) {
+         it++)
+    {
       std::string key = it->first;
-      for (int i = 0; i < key.size(); i++) {
-        if (key[i]) {
+      for (int i = 0; i < key.size(); i++)
+      {
+        if (key[i])
+        {
           std::cout << "1";
-        } else {
+        }
+        else
+        {
           std::cout << "0";
         }
       }
@@ -41,17 +49,19 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
 
   // Initialize for singletons
   int length = relNames.size();
-  if (length < 2) {
+  if (length < 2)
+  {
     return NULL;
   }
 
   auto singletons = GenerateCombinations(length, 1);
-  for (auto set : singletons) {
+  for (auto set : singletons)
+  {
     std::vector<std::string> relNamesSubset =
         GetRelNamesFromBitSet(set, relNames);
     struct Memo newMemo;
     newMemo.cost = 0;
-    newMemo.size = prevStats->GetRelSize(relNamesSubset[0]);  // get from stats
+    newMemo.size = prevStats->GetRelSize(relNamesSubset[0]); // get from stats
     newMemo.state = prevStats;
 
     // Set RelationNode for newMemo
@@ -81,7 +91,8 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
 
   // Initialize doubletons
   auto doubletons = GenerateCombinations(length, 2);
-  for (auto set : doubletons) {
+  for (auto set : doubletons)
+  {
     std::vector<std::string> relNamesSubset =
         GetRelNamesFromBitSet(set, relNames);
     Statistics *prevStatsCopy = new Statistics(*prevStats);
@@ -89,8 +100,10 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     std::vector<BaseNode *> joinPair(2, NULL);
     int cStyleIdx = 0;
 
-    for (int stridx = 0; stridx < set.size(); stridx++) {
-      if (set[stridx]) {
+    for (int stridx = 0; stridx < set.size(); stridx++)
+    {
+      if (set[stridx])
+      {
         // unset the bit if it is set
         set[stridx] = '\0';
         // Search the memoized table and get the size in possible cost
@@ -107,7 +120,8 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     struct Memo newMemo;
     newMemo.cost = 0;
     if (!ConstructJoinCNF(relNames, joinMatrix, relNamesCStyle[0],
-                          relNamesCStyle[1])) {
+                          relNamesCStyle[1]))
+    {
       final = NULL;
     }
     newMemo.size = prevStatsCopy->Estimate(final, (char **)relNamesCStyle, 2);
@@ -132,7 +146,8 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     newJoinNode->right = rightLink;
     relNode2->parent = rightLink;
 
-    if (final != NULL) {
+    if (final != NULL)
+    {
       CNF *cnf = new CNF;
       Record literal;
       cnf->GrowFromParseTree(final, relNode1->schema, relNode2->schema,
@@ -146,7 +161,9 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       newJoinNode->schema = s;
       newJoinNode->cnf = cnf;
       newJoinNode->literal = &literal;
-    } else {
+    }
+    else
+    {
       Schema *s = new Schema("join_schema", relNode2->schema, relNode1->schema);
       newJoinNode->schema = s;
     }
@@ -160,7 +177,8 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     std::cout << std::endl;
 
     combinationToMemo[set] = newMemo;
-    if (length == 2) {
+    if (length == 2)
+    {
       return newMemo.root->left.value;
     }
   }
@@ -168,9 +186,11 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
   print();
 
   // DP begins
-  for (int idx = 3; idx < length + 1; idx++) {
+  for (int idx = 3; idx < length + 1; idx++)
+  {
     auto combinations = GenerateCombinations(length, idx);
-    for (auto set : combinations) {
+    for (auto set : combinations)
+    {
       std::vector<std::string> relNamesSubset =
           GetRelNamesFromBitSet(set, relNames);
       std::map<std::string, double> possibleCosts;
@@ -179,9 +199,11 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       // then choose min of the prev cost
       // Get prev combination by unsetting the bit that was previously set
       possibleCosts.clear();
-      for (int stridx = 0; stridx < set.size(); stridx++) {
+      for (int stridx = 0; stridx < set.size(); stridx++)
+      {
         // unset the bit if it is set
-        if (set[stridx]) {
+        if (set[stridx])
+        {
           set[stridx] = '\0';
           // Search the memoized table and get the size in possible cost
           struct Memo prevMemo = combinationToMemo[set];
@@ -197,17 +219,21 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       // map
       struct Memo prevMemo = combinationToMemo[minCostString];
       const char *relNamesCStyle[relNamesSubset.size()];
-      for (int i = 0; i < relNamesSubset.size(); i++) {
+      for (int i = 0; i < relNamesSubset.size(); i++)
+      {
         relNamesCStyle[i] = relNamesSubset[i].c_str();
       }
 
       int joinWith = BitSetDifferenceWithPrev(set, minCostString);
       std::string right = relNames[joinWith];
       int leftIdx = 0;
-      for (; leftIdx < minCostString.size(); leftIdx++) {
-        if (minCostString[leftIdx]) {
+      for (; leftIdx < minCostString.size(); leftIdx++)
+      {
+        if (minCostString[leftIdx])
+        {
           std::string left = relNames[leftIdx];
-          if (ConstructJoinCNF(relNames, joinMatrix, left, right)) {
+          if (ConstructJoinCNF(relNames, joinMatrix, left, right))
+          {
             break;
           }
         }
@@ -244,7 +270,8 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       newJoinNode->right = rightLink;
       newRelNode->parent = rightLink;
 
-      if (final != NULL) {
+      if (final != NULL)
+      {
         CNF *cnf = new CNF;
         Record literal;
         cnf->GrowFromParseTree2(final, prevJoinNode->schema, newRelNode->schema,
@@ -258,7 +285,9 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
         newJoinNode->schema = s;
         newJoinNode->cnf = cnf;
         newJoinNode->literal = &literal;
-      } else {
+      }
+      else
+      {
         Schema s("join_schema", newRelNode->schema, prevJoinNode->schema);
         newJoinNode->schema = &s;
       }
@@ -289,11 +318,13 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
   return combinationToMemo[optimalJoin].root->left.value;
 }
 
-std::vector<std::string> QueryOptimizer::GenerateCombinations(int n, int r) {
+std::vector<std::string> QueryOptimizer::GenerateCombinations(int n, int r)
+{
   std::vector<std::string> combinations;
   std::string bitmask(r, 1);
   bitmask.resize(n, 0);
-  do {
+  do
+  {
     combinations.push_back(bitmask);
   } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
 
@@ -301,10 +332,13 @@ std::vector<std::string> QueryOptimizer::GenerateCombinations(int n, int r) {
 }
 
 std::vector<std::string> QueryOptimizer::GetRelNamesFromBitSet(
-    std::string bitset, std::vector<std::string> relNames) {
+    std::string bitset, std::vector<std::string> relNames)
+{
   std::vector<std::string> subset;
-  for (int i = 0; i < bitset.size(); i++) {
-    if (bitset[i]) {
+  for (int i = 0; i < bitset.size(); i++)
+  {
+    if (bitset[i])
+    {
       subset.push_back(relNames[i]);
     }
   }
@@ -314,7 +348,8 @@ std::vector<std::string> QueryOptimizer::GetRelNamesFromBitSet(
 bool QueryOptimizer::ConstructJoinCNF(
     std::vector<std::string> relNames,
     std::vector<std::vector<std::string>> joinMatrix, std::string left,
-    std::string right) {
+    std::string right)
+{
   auto leftIter = std::find(relNames.begin(), relNames.end(), left);
   int idxLeft = std::distance(relNames.begin(), leftIter);
 
@@ -325,9 +360,12 @@ bool QueryOptimizer::ConstructJoinCNF(
   cnfString.append("(");
   cnfString.append(left);
   cnfString.append(".");
-  if (joinMatrix[idxRight][idxLeft].size() > 0) {
+  if (joinMatrix[idxRight][idxLeft].size() > 0)
+  {
     cnfString.append(joinMatrix[idxRight][idxLeft]);
-  } else {
+  }
+  else
+  {
     return false;
   }
   cnfString.append(" = ");
@@ -342,26 +380,33 @@ bool QueryOptimizer::ConstructJoinCNF(
 }
 
 std::string QueryOptimizer::GetMinimumOfPossibleCosts(
-    std::map<std::string, double> possibleCosts) {
+    std::map<std::string, double> possibleCosts)
+{
   bool begin = true;
   double min = -1.0;
   std::string minCostString;
 
-  for (auto it = possibleCosts.begin(); it != possibleCosts.end(); it++) {
+  for (auto it = possibleCosts.begin(); it != possibleCosts.end(); it++)
+  {
     double currCost = it->second;
-    if (begin || currCost < min) {
+    if (begin || currCost < min)
+    {
       min = currCost;
       minCostString = it->first;
-      if (begin) begin = false;
+      if (begin)
+        begin = false;
     }
   }
   return minCostString;
 }
 
 int QueryOptimizer::BitSetDifferenceWithPrev(std::string set,
-                                             std::string minCostString) {
-  for (int i = 0; i < set.size(); i++) {
-    if (set[i] != minCostString[i]) {
+                                             std::string minCostString)
+{
+  for (int i = 0; i < set.size(); i++)
+  {
+    if (set[i] != minCostString[i])
+    {
       return i;
     }
   }
@@ -370,7 +415,8 @@ int QueryOptimizer::BitSetDifferenceWithPrev(std::string set,
 
 void QueryOptimizer::SeparateJoinsandSelects(
     Statistics *currentStats,
-    std::vector<std::vector<std::string>> &joinMatrix) {
+    std::vector<std::vector<std::string>> &joinMatrix)
+{
   OrList *orList;
   AndList *head = boolean;
   AndList *current = boolean;
@@ -380,26 +426,32 @@ void QueryOptimizer::SeparateJoinsandSelects(
   std::vector<std::string> tableList;
   struct TableList *table = tables;
 
-  while (table) {
+  while (table)
+  {
     tableList.push_back(table->tableName);
     table = table->next;
   }
 
-  for (int vecSize = 0; vecSize < tableList.size(); ++vecSize) {
+  for (int vecSize = 0; vecSize < tableList.size(); ++vecSize)
+  {
     std::vector<std::string> dummy(tableList.size(), std::string(""));
     joinMatrix.push_back(dummy);
   }
 
   // start populating the matrix
-  while (current) {
+  while (current)
+  {
     orList = current->left;
-    if (!orList) {
+    if (!orList)
+    {
       // andList empty, throw error?
       return;
     }
     struct ComparisonOp *compOp = orList->left;
-    if (compOp != NULL) {
-      if (!ContainsLiteral(compOp)) {
+    if (compOp != NULL)
+    {
+      if (!ContainsLiteral(compOp))
+      {
         // join operation
         char *operand1 = compOp->left->value;
         char *operand2 = compOp->right->value;
@@ -410,7 +462,8 @@ void QueryOptimizer::SeparateJoinsandSelects(
         AttributeStats *attr2 = currentStats->GetRelationNameOfAttribute(
             operand2, tableList, tables);
 
-        if (attr1 && attr2) {
+        if (attr1 && attr2)
+        {
           std::ptrdiff_t operandOneIndex = std::distance(
               tableList.begin(),
               std::find(tableList.begin(), tableList.end(), attr1->relName));
@@ -426,40 +479,50 @@ void QueryOptimizer::SeparateJoinsandSelects(
         }
 
         // pop this join op from the andList
-        if (current == head) {
+        if (current == head)
+        {
           head = head->rightAnd;
           boolean = boolean->rightAnd;
-        } else {
+        }
+        else
+        {
           prev->rightAnd = current->rightAnd;
         }
 
-        if (current != head) {
+        if (current != head)
+        {
           prev = prev->rightAnd;
         }
       }
     }
-    current = current->rightAnd;  // else go to next AND list element.
+    current = current->rightAnd; // else go to next AND list element.
   }
 }
 
 bool QueryOptimizer::IsALiteral(Operand *op) { return op->code != NAME; }
 
-bool QueryOptimizer::ContainsLiteral(ComparisonOp *compOp) {
+bool QueryOptimizer::ContainsLiteral(ComparisonOp *compOp)
+{
   return IsALiteral(compOp->left) || IsALiteral(compOp->right);
 }
 
-bool QueryOptimizer::IsQualifiedAtt(std::string value) {
+bool QueryOptimizer::IsQualifiedAtt(std::string value)
+{
   return value.find('.', 0) != std::string::npos;
 }
 
 std::pair<std::string, std::string> QueryOptimizer::SplitQualifiedAtt(
-    std::string value) {
+    std::string value)
+{
   size_t idx = value.find('.', 0);
   std::string rel;
   std::string att;
-  if (idx == std::string::npos) {
+  if (idx == std::string::npos)
+  {
     att = value;
-  } else {
+  }
+  else
+  {
     rel = value.substr(0, idx);
     att = value.substr(idx + 1, value.length());
   }
@@ -469,7 +532,8 @@ std::pair<std::string, std::string> QueryOptimizer::SplitQualifiedAtt(
   return retPair;
 }
 
-QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query) {
+QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query)
+{
   yy_scan_string(query.c_str());
   yyparse();
   return GetOptimizedPlanUtil();
@@ -477,18 +541,25 @@ QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query) {
 
 QueryPlan *QueryOptimizer::GetOptimizedPlan() { return GetOptimizedPlanUtil(); }
 
-QueryPlan *QueryOptimizer::GetOptimizedPlanUtil() {
+QueryPlan *QueryOptimizer::GetOptimizedPlanUtil()
+{
   std::vector<std::vector<std::string>> joinMatrix;
   SeparateJoinsandSelects(currentStats, joinMatrix);
   bool joinPresent = false;
-  for (auto iit = joinMatrix.begin(); iit != joinMatrix.end(); iit++) {
+  for (auto iit = joinMatrix.begin(); iit != joinMatrix.end(); iit++)
+  {
     std::vector<std::string> row = *iit;
-    for (auto jit = row.begin(); jit != row.end(); jit++) {
-      if ((*jit).size() == 0) {
+    for (auto jit = row.begin(); jit != row.end(); jit++)
+    {
+      if ((*jit).size() == 0)
+      {
         std::cout << "NULL"
                   << " ";
-      } else {
-        if (!joinPresent) joinPresent = true;
+      }
+      else
+      {
+        if (!joinPresent)
+          joinPresent = true;
         std::cout << *jit << " ";
       }
     }
@@ -496,40 +567,48 @@ QueryPlan *QueryOptimizer::GetOptimizedPlanUtil() {
   }
   std::cout << "Join present:" << joinPresent << std::endl;
   QueryPlan *plan;
-  if (joinPresent) {
+  BaseNode *root;
+  if (joinPresent)
+  {
     std::vector<std::string> relNames;
     struct TableList *table = tables;
 
-    while (table) {
+    while (table)
+    {
       relNames.push_back(table->tableName);
       table = table->next;
     }
     BaseNode *join = OptimumOrderingOfJoin(*relNameToRelTuple, currentStats,
                                            relNames, joinMatrix);
 
-    BaseNode *root = GenerateTree(join, *relNameToRelTuple);
-    plan = new QueryPlan(root);
-  } else {
+    root = GenerateTree(join, *relNameToRelTuple);
+  }
+  else
+  {
     RelationNode *relNode = new RelationNode;
     relNode->relName = tables->tableName;
     std::string relNameStr(relNode->relName);
     relNode->schema = (*relNameToRelTuple)[relNameStr]->schema;
-    BaseNode *root = GenerateTree(relNode, *relNameToRelTuple);
-    plan = new QueryPlan(root);
+    root = GenerateTree(relNode, *relNameToRelTuple);
   }
+
+  root = OptimizeSelects(root, joinPresent);
+  plan = new QueryPlan(root);
   return plan;
 }
 
 BaseNode *QueryOptimizer::GenerateTree(
     struct BaseNode *child,
-    std::unordered_map<std::string, RelationTuple *> relNameToRelTuple) {
+    std::unordered_map<std::string, RelationTuple *> relNameToRelTuple)
+{
   BaseNode *currentNode =
-      new BaseNode;  // a sentinel node that will be the root.
+      new BaseNode; // a sentinel node that will be the root.
 
   BaseNode *root = currentNode;
 
   // Handle SUM
-  if (finalFunction) {
+  if (finalFunction)
+  {
     SumNode *s = new SumNode;
     s->schema = currentNode->schema;
 
@@ -544,7 +623,8 @@ BaseNode *QueryOptimizer::GenerateTree(
   }
 
   // Handle GROUP BY
-  if (groupingAtts) {
+  if (groupingAtts)
+  {
     GroupByNode *groupByNode = new GroupByNode;
 
     CNF *cnf = new CNF;
@@ -571,9 +651,11 @@ BaseNode *QueryOptimizer::GenerateTree(
   }
 
   // Handle DISTINCT
-  if (distinctAtts == 1) {
+  if (distinctAtts == 1)
+  {
     DuplicateRemovalNode *drNode = new DuplicateRemovalNode();
-    if (currentNode) {
+    if (currentNode)
+    {
       drNode->nodeType = DUPLICATE_REMOVAL;
       drNode->schema = currentNode->schema;
 
@@ -585,20 +667,25 @@ BaseNode *QueryOptimizer::GenerateTree(
   }
 
   // Handle PROJECTS.
-  if (attsToSelect) {
+  if (attsToSelect)
+  {
     ProjectNode *projectNode = new ProjectNode;
     projectNode->nodeType = PROJECT;
     vector<int> keepMe;
     NameList *nameList = attsToSelect;
     // Populate the keepMe array.
-    while (nameList) {
+    while (nameList)
+    {
       // If attributes are qualified
       std::string attrName = "";
-      if (IsQualifiedAtt(nameList->name)) {
+      if (IsQualifiedAtt(nameList->name))
+      {
         std::pair<std::string, std::string> attSplit =
             SplitQualifiedAtt(std::string(nameList->name));
         attrName += attSplit.second;
-      } else {
+      }
+      else
+      {
         attrName = nameList->name;
       }
       int attIndex = child->schema->Find((char *)attrName.c_str());
@@ -606,7 +693,8 @@ BaseNode *QueryOptimizer::GenerateTree(
       nameList = nameList->next;
     }
     int *keepMeArr = new int[keepMe.size()];
-    for (int i = 0; i < keepMe.size(); ++i) {
+    for (int i = 0; i < keepMe.size(); ++i)
+    {
       keepMeArr[i] = keepMe[i];
     }
 
@@ -622,13 +710,14 @@ BaseNode *QueryOptimizer::GenerateTree(
   }
 
   // Handle SELECTS.
-  if (boolean) {
-    CNF *cnf = new CNF;            // = new CNF;
-    Record *literal = new Record;  // = new Record;
+  if (boolean)
+  {
+    CNF *cnf = new CNF;           // = new CNF;
+    Record *literal = new Record; // = new Record;
     cnf->GrowFromParseTree(boolean, child->schema, *literal);
 
     SelectPipeNode *selectNode = new SelectPipeNode;
-    selectNode->nodeType = SELECT_FILE;
+    selectNode->nodeType = SELECT_PIPE;
     selectNode->cnf = cnf;
     selectNode->literal = literal;
     selectNode->schema = currentNode->schema;
@@ -644,5 +733,73 @@ BaseNode *QueryOptimizer::GenerateTree(
   currentNode->left = link;
   child->parent = link;
 
+  return root;
+}
+
+BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
+{
+  BaseNode *current = root;
+  // Traverse the tree to find the first select node.
+  while (current)
+  {
+    if (current->nodeType == SELECT_PIPE)
+    {
+      break;
+    }
+    current = current->left.value;
+  }
+  SelectPipeNode *originalNode = dynamic_cast<SelectPipeNode *>(current);
+
+  if (!joinPresent)
+  {
+    // Break the select node into multiple nodes for each object in AND list.
+    AndList *currAnd = boolean;
+    if (currAnd->rightAnd)
+    {
+      // Preserve pointers/data of child tree.
+      Link childLink = current->left;
+
+      currAnd = currAnd->rightAnd;
+      Link *link;
+      while (currAnd)
+      {
+        CNF *cnf = new CNF;
+        Record *literal = new Record;
+        SelectPipeNode *newNode = new SelectPipeNode;
+
+        AndList *tempAnd = new AndList;
+        tempAnd->left = currAnd->left;
+        tempAnd->rightAnd = NULL;
+        cnf->GrowFromParseTree(tempAnd, originalNode->schema, *literal);
+
+        newNode->nodeType = SELECT_PIPE;
+        newNode->cnf = cnf;
+        newNode->literal = literal;
+        newNode->schema = originalNode->schema;
+        newNode->parent = current;
+
+        link = new Link(newNode);
+        current->left = *link;
+
+        current = current->left.value;
+        currAnd = currAnd->rightAnd;
+      }
+      // Connect the child subtree to the current/bottom-most select node.
+      current->left = childLink;
+      childLink.value->parent = *link;
+    }
+  }
+  else
+  {
+    // handle joins present logic.
+  }
+
+  // Update CNF of the original select node.
+  CNF *cnf = new CNF;
+  AndList *tempAnd = new AndList;
+  tempAnd->left = boolean->left;
+  tempAnd->rightAnd = NULL;
+  cnf->GrowFromParseTree(tempAnd, originalNode->schema, *originalNode->literal);
+  originalNode->cnf = cnf;
   return root;
 }
