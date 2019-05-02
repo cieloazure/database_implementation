@@ -76,7 +76,7 @@
 
 %%
 
-START: SQL | AndList
+START: SQL ';' | AndList
 
 SQL: SELECT WhatIWant FROM Tables WHERE AndList
 {

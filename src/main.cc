@@ -4,6 +4,7 @@
 #include "Statistics.h"
 
 using namespace std;
+
 int main() {
   // Load Schemas
   Schema lineitem("catalog", "lineitem");
@@ -106,16 +107,58 @@ int main() {
   QueryOptimizer optimizer(&s, &relNameToSchema);
 
   // Get query from user
-  cout << "Enter Query: ";
-  std::string query;
-  std::string line;
-  while (getline(cin, line)) {
-    if (line == "\n") {
+  std::cout << "Welcome to Database Implementation Demo v0.1" << std::endl;
+  std::cout << std::endl;
+  std::cout << "Commands end with `;`" << std::endl;
+  std::cout << std::endl;
+  std::cout << "Type `help` for help" << std::endl;
+  std::cout << "Type `Ctrl-D` or `Ctrl-C` to exit" << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
+  while (true) {
+    cout << "dbi>  ";
+    std::string query;
+    std::string line;
+    // std::cin.flush();
+    bool enter = false;
+    while (true) {
+      if (enter) {
+        query += "  ";
+        std::cout << "  ->  ";
+      }
+      std::getline(std::cin, line);
+      if (query == "" && line == "") {
+        break;
+      }
+      if (std::cin.eof()) {
+        break;
+      }
+      query += line;
+      if (query[query.size() - 1] == ';') {
+        break;
+      }
+      enter = true;
+    }
+    if (std::cin.eof()) {
+      std::cout << "Bye!" << std::endl;
       break;
     }
-    query += line;
+    if (query.size() > 0) {
+      std::cout << "--------------DEBUG MODE--------------" << std::endl;
+      std::cout << "Given Query:" << query << std::endl;
+      // Run optimization to get QueryPlan
+      cout << "Query Plan:" << std::endl;
+      optimizer.GetOptimizedPlan(query);
+    }
   }
-  cout << "Query:" << query << std::endl;
-  // Run optimization to get QueryPlan
-  optimizer.GetOptimizedPlan(query);
+  // std::string line;
+  // while (true) {
+  //   cout << "Enter:";
+  //   getline(cin, line);
+  //   if (cin.eof()) {
+  //     cout << "bye";
+  //     break;
+  //   }
+  //   cout << line;
+  // }
 }

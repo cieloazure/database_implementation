@@ -76,7 +76,9 @@
 			"*.tcc": "cpp",
 			"clocale": "cpp",
 			"optional": "cpp",
-			"cinttypes": "cpp"
+			"cinttypes": "cpp",
+			"__errc": "cpp",
+			"__node_handle": "cpp"
 		},
 		"editor.formatOnSave": true
 	}

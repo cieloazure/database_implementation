@@ -78,6 +78,8 @@ void close_lexical_parser () { yy_delete_buffer (yylex_buf_state); }
 
 ","    	        	return(',');
 
+";"              return(';');
+
 -?[0-9]+ 	       {yylval.actualChars = strdup(yytext);
   			return(Int); 
 		        }
