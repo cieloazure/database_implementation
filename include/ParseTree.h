@@ -87,4 +87,28 @@ struct AndList {
   struct AndList *rightAnd;
 };
 
+struct NewTable {
+  char *tName;
+  char *fileType;
+
+  struct SchemaAtts *schemaAtts;
+  struct SortAtts *sortAtts;
+};
+
+struct SchemaAtts {
+  char *attName;
+  char *attType;
+
+  struct SchemaAtts *next;
+};
+
+struct SortAtts {
+  char *name;
+  struct SortAtts *next;
+};
+
+struct BulkLoad {
+  char *fName;
+  char *tName;
+};
 #endif

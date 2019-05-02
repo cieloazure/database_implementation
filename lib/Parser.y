@@ -19,9 +19,13 @@
 	struct AndList *boolean; // the predicate in the WHERE clause
 	struct NameList *groupingAtts; // grouping atts (NULL if no grouping)
 	struct NameList *attsToSelect; // the set of attributes in the SELECT (NULL if no such atts)
+	struct NewTable *newTable;
+	struct BulkLoad *bulkLoadInfo;
+	char *whichTableToDrop;
+	char *whereToGiveOutput;
+	char *whichTableToUpdateStatsFor;
 	int distinctAtts; // 1 if there is a DISTINCT in a non-aggregate query 
 	int distinctFunc;  // 1 if there is a DISTINCT in an aggregate query
-
 %}
 
 // this stores all of the types returned by production rules
@@ -34,6 +38,10 @@
 	struct OrList *myOrList;
 	struct AndList *myAndList;
 	struct NameList *myNames;
+	struct SortAtts *mySortAtts;
+	struct SchemaAtts *mySchemaAtts;
+	struct NewTable *myNewTable;
+	struct BulkLoad *myBulkLoad;
 	char *actualChars;
 	char whichOne;
 }
@@ -52,6 +60,17 @@
 %token AS
 %token AND
 %token OR
+%token CREATE
+%token TABLE
+%token ON
+%token INSERT
+%token INTO
+%token DROP
+%token SET
+%token OUTPUT
+%token UPDATE
+%token STATISTICS
+%token FOR
 
 %type <myOrList> OrList
 %type <myAndList> AndList
@@ -63,6 +82,14 @@
 %type <myTables> Tables
 %type <myBoolOperand> Literal
 %type <myNames> Atts
+%type <myNewTable> CreateTable
+%type <mySortAtts> Sort;
+%type <mySchemaAtts> Schema;
+%type <myBulkLoad> InsertFile;
+%type <actualChars> DropTable;
+%type <actualChars> SetOutput;
+%type <actualChars> UpdateStatistics;
+
 
 %start START
 
@@ -76,7 +103,88 @@
 
 %%
 
-START: SQL ';' | AndList
+START:   SQL ';' 
+	   | CreateTable ';' 
+	   | InsertFile ';' 
+	   | DropTable ';' 
+	   | SetOutput ';' 
+	   | UpdateStatistics ';'
+	   | AndList 
+
+
+UpdateStatistics: UPDATE STATISTICS FOR Name
+{
+	whichTableToUpdateStatsFor = $4;
+}
+
+SetOutput: SET OUTPUT String
+{
+	whereToGiveOutput = $3;
+}
+
+| SET OUTPUT Name
+{
+	whereToGiveOutput = $3;
+}
+
+DropTable: DROP TABLE Name
+{
+	whichTableToDrop = $3;
+}
+
+InsertFile: INSERT String INTO Name
+{
+	bulkLoadInfo->fName = $2;
+	bulkLoadInfo->tName = $4;
+}
+
+CreateTable: CREATE TABLE Name '(' Schema ')' AS Name
+{
+	newTable = (struct NewTable *) malloc(sizeof(struct NewTable));
+	newTable->tName = $3;
+	newTable->schemaAtts = $5;
+	newTable->fileType = $8;
+}
+
+| CREATE TABLE Name '(' Schema ')' AS Name ON '(' Sort ')'
+{
+	newTable = (struct NewTable *) malloc(sizeof(struct NewTable));
+	newTable->tName = $3;
+	newTable->schemaAtts = $5;
+	newTable->fileType = $8;
+	newTable->sortAtts = $11;
+}
+
+Sort: Name
+{
+	$$ = (struct SortAtts *) malloc(sizeof(struct SortAtts));
+	$$->name = $1;
+	$$->next = NULL;
+}
+
+| Sort ',' Name
+{
+	$$ = (struct SortAtts *) malloc(sizeof(struct SortAtts));
+	$$->name = $3;
+	$$->next = $1;
+}
+
+
+Schema: Name Name
+{
+	$$ = (struct SchemaAtts *) malloc(sizeof(struct SchemaAtts));
+	$$->attName = $1;
+	$$->attType = $2;
+	$$->next = NULL;
+}
+
+| Schema ',' Name Name
+{
+	$$ = (struct SchemaAtts *) malloc(sizeof(struct SchemaAtts));
+	$$->attName = $3;
+	$$->attType = $4;
+	$$->next = $1;
+}
 
 SQL: SELECT WhatIWant FROM Tables WHERE AndList
 {

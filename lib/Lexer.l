@@ -58,6 +58,28 @@ void close_lexical_parser () { yy_delete_buffer (yylex_buf_state); }
 
 "AS"			return(AS);
 
+"CREATE" return(CREATE);
+
+"TABLE" return(TABLE);
+
+"ON" return(ON);
+
+"INSERT" return(INSERT);
+
+"INTO" return(INTO);
+
+"DROP" return(DROP);
+
+"SET" return(SET);
+
+"OUTPUT" return(OUTPUT);
+
+"UPDATE" return(UPDATE);
+
+"STATISTICS" return(STATISTICS);
+
+"FOR" return(FOR);
+
 "("			return('(');
 
 "<"                     return('<');

@@ -17,6 +17,7 @@ extern struct AndList *boolean;   // the predicate in the WHERE clause
 extern struct NameList *groupingAtts;  // grouping atts (NULL if no grouping)
 extern struct NameList *
     attsToSelect;  // the set of attributes in the SELECT (NULL if no such atts)
+extern struct NewTable *newTable;
 
 namespace dbi {
 
@@ -50,9 +51,24 @@ class DatabaseTest : public ::testing::Test {
   // Objects declared here can be used by all tests in the test case for Foo.
 };
 
-TEST_F(DatabaseTest, TESTSCHEMA) {
-  Database db;
+TEST_F(DatabaseTest, TEST_CREATE_TABLE_SCHEMA) {
   const char cnf_string[] =
-      "SELECT a, b FROM R AS r, S AS s WHERE (r.b = s.b) AND (r.a > 0)";
+      "CREATE TABLE mytable (att1 INTEGER, att2 DOUBLE, att3 STRING) AS "
+      "HEAP;";
+  yy_scan_string(cnf_string);
+  yyparse();
+  EXPECT_TRUE(newTable != NULL);
+  std::cout << newTable->tName << std::endl;
+  std::string s1(newTable->tName);
+  EXPECT_EQ(s1, "mytable");
+  std::cout << newTable->fileType << std::endl;
+  std::string s2(newTable->fileType);
+  EXPECT_EQ(s2, "HEAP");
+
+  struct SchemaAtts *head = newTable->schemaAtts;
+  while (head != NULL) {
+    std::cout << head->attName << head->attType << std::endl;
+    head = head->next;
+  }
 }
 }  // namespace dbi
