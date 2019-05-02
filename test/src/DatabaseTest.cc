@@ -18,6 +18,10 @@ extern struct NameList *groupingAtts;  // grouping atts (NULL if no grouping)
 extern struct NameList *
     attsToSelect;  // the set of attributes in the SELECT (NULL if no such atts)
 extern struct NewTable *newTable;
+extern struct BulkLoad *bulkLoadInfo;
+extern char *whichTableToDrop;
+extern char *whereToGiveOutput;
+extern char *whichTableToUpdateStatsFor;
 
 namespace dbi {
 
@@ -67,8 +71,79 @@ TEST_F(DatabaseTest, TEST_CREATE_TABLE_SCHEMA) {
 
   struct SchemaAtts *head = newTable->schemaAtts;
   while (head != NULL) {
-    std::cout << head->attName << head->attType << std::endl;
+    std::cout << head->attName << " " << head->attType << std::endl;
     head = head->next;
   }
+}
+
+TEST_F(DatabaseTest, TEST_CREATE_TABLE_SCHEMA_2) {
+  const char cnf_string[] =
+      "CREATE TABLE mytable (att1 INTEGER, att2 DOUBLE, att3 STRING) AS "
+      "SORTED ON (att1, att2);";
+  yy_scan_string(cnf_string);
+  yyparse();
+  EXPECT_TRUE(newTable != NULL);
+  std::cout << newTable->tName << std::endl;
+  std::string s1(newTable->tName);
+  EXPECT_EQ(s1, "mytable");
+  std::cout << newTable->fileType << std::endl;
+  std::string s2(newTable->fileType);
+  EXPECT_EQ(s2, "SORTED");
+
+  struct SchemaAtts *head = newTable->schemaAtts;
+  while (head != NULL) {
+    std::cout << head->attName << " " << head->attType << std::endl;
+    head = head->next;
+  }
+
+  struct SortAtts *head2 = newTable->sortAtts;
+  while (head2 != NULL) {
+    std::cout << head2->name << std::endl;
+    head2 = head2->next;
+  }
+}
+
+TEST_F(DatabaseTest, TEST_INSERT_INTO_QUERY) {
+  const char cnf_string[] = "INSERT 'myFile' INTO mytable;";
+  yy_scan_string(cnf_string);
+  yyparse();
+  EXPECT_TRUE(bulkLoadInfo != NULL);
+  std::cout << bulkLoadInfo->fName << std::endl;
+  std::cout << bulkLoadInfo->tName << std::endl;
+}
+
+TEST_F(DatabaseTest, TEST_PARSE_OF_DROP) {
+  const char cnf_string[] = "DROP TABLE myTable;";
+  yy_scan_string(cnf_string);
+  yyparse();
+  std::cout << whichTableToDrop << std::endl;
+}
+
+TEST_F(DatabaseTest, TEST_PARSE_OF_OUTPUT) {
+  const char cnf_string[] = "SET OUTPUT STDOUT;";
+  yy_scan_string(cnf_string);
+  yyparse();
+  std::cout << whereToGiveOutput << std::endl;
+}
+
+TEST_F(DatabaseTest, TEST_PARSE_OF_OUTPUT_2) {
+  const char cnf_string[] = "SET OUTPUT 'myFile';";
+  yy_scan_string(cnf_string);
+  yyparse();
+  std::cout << whereToGiveOutput << std::endl;
+}
+
+TEST_F(DatabaseTest, TEST_PARSE_OF_OUTPUT_3) {
+  const char cnf_string[] = "SET OUTPUT NONE;";
+  yy_scan_string(cnf_string);
+  yyparse();
+  std::cout << whereToGiveOutput << std::endl;
+}
+
+TEST_F(DatabaseTest, TEST_PARSE_OF_UPDATE_STATS) {
+  const char cnf_string[] = "UPDATE STATISTICS FOR myTable;";
+  yy_scan_string(cnf_string);
+  yyparse();
+  std::cout << whichTableToUpdateStatsFor << std::endl;
 }
 }  // namespace dbi

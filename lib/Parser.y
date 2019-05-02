@@ -134,6 +134,7 @@ DropTable: DROP TABLE Name
 
 InsertFile: INSERT String INTO Name
 {
+	bulkLoadInfo = (struct BulkLoad *) malloc(sizeof(struct BulkLoad));
 	bulkLoadInfo->fName = $2;
 	bulkLoadInfo->tName = $4;
 }
