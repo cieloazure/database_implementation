@@ -742,13 +742,13 @@ BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
   // Traverse the tree to find the first select node.
   while (current)
   {
-    if (current->nodeType == SELECT_PIPE)
+    if (current->left.value->nodeType == SELECT_PIPE)
     {
       break;
     }
     current = current->left.value;
   }
-  SelectPipeNode *originalNode = dynamic_cast<SelectPipeNode *>(current);
+  SelectPipeNode *originalNode = dynamic_cast<SelectPipeNode *>(current->left.value);
 
   if (!joinPresent)
   {
@@ -757,10 +757,11 @@ BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
     if (currAnd->rightAnd)
     {
       // Preserve pointers/data of child tree.
-      Link childLink = current->left;
-
-      currAnd = currAnd->rightAnd;
+      Link childLink = current->left.value->left;
       Link *link;
+      // Create a new select tree.
+      SelectPipeNode *selectRoot = NULL;
+      SelectPipeNode *currentOfNewTree;
       while (currAnd)
       {
         CNF *cnf = new CNF;
@@ -776,16 +777,28 @@ BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
         newNode->cnf = cnf;
         newNode->literal = literal;
         newNode->schema = originalNode->schema;
-        newNode->parent = current;
+        // newNode->parent = current;
 
-        link = new Link(newNode);
-        current->left = *link;
+        if (!selectRoot)
+        {
+          selectRoot = newNode;
+          currentOfNewTree = newNode;
+          link = new Link(newNode);
+          current->left = *link;
+          newNode->parent = *link;
+        }
+        else
+        {
+          link = new Link(newNode);
+          currentOfNewTree->left = *link;
+          newNode->parent = *link;
+          currentOfNewTree = (SelectPipeNode *)currentOfNewTree->left.value;
+        }
 
-        current = current->left.value;
         currAnd = currAnd->rightAnd;
       }
-      // Connect the child subtree to the current/bottom-most select node.
-      current->left = childLink;
+
+      currentOfNewTree->left = childLink;
       childLink.value->parent = *link;
     }
   }
@@ -793,13 +806,5 @@ BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
   {
     // handle joins present logic.
   }
-
-  // Update CNF of the original select node.
-  CNF *cnf = new CNF;
-  AndList *tempAnd = new AndList;
-  tempAnd->left = boolean->left;
-  tempAnd->rightAnd = NULL;
-  cnf->GrowFromParseTree(tempAnd, originalNode->schema, *originalNode->literal);
-  originalNode->cnf = cnf;
   return root;
 }
