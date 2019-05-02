@@ -45,9 +45,9 @@ void Database::CreateTable() {
     Attribute a;
     a.name = strdup(head->attName);
     std::string attType(head->attType);
-    if (attType == "INTEGER") {
+    if (!strcmp(attType.c_str(), "INTEGER")) {
       a.myType = Int;
-    } else if (attType == "DOUBLE") {
+    } else if (!strcmp(attType.c_str(), "DOUBLE")) {
       a.myType = Double;
     } else {
       a.myType = String;
@@ -77,7 +77,7 @@ void Database::CreateTable() {
           sortCNFString += " AND ";
         }
         std::string temp(relName + "." + *it);
-        sortCNFString += "(" + temp + "=" + temp + ")";
+        sortCNFString += "(" + temp + " = " + temp + ")";
       }
 
       // Getting sortOrder for sorted File
@@ -114,7 +114,22 @@ void Database::BulkLoad() {
   dbFile->Load(*relTuple->schema, bulkLoadInfo->fName);
 }
 
+void Database::SetOutput() {
+  if (!strcmp(whereToGiveOutput, "STDOUT")) {
+    op = StdOut;
+  } else if (!strcmp(whereToGiveOutput, "NONE")) {
+    op = None;
+  } else {
+    op = File;
+  }
+}
+
+void Database::ExecuteQuery() {
+  QueryPlan *plan = optimizer.GetOptimizedPlan();
+  plan->SetOutput(op);
+  plan->Print();
+  // plan->Execute();
+}
+
 void Database::DropTable() {}
-void Database::SetOutput() {}
-void Database::ExecuteQuery() {}
 void Database::UpdateStatistics() {}

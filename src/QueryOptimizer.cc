@@ -2,17 +2,17 @@
 
 QueryOptimizer::QueryOptimizer() {
   currentStats = NULL;
-  relNameToSchema = NULL;
+  relNameToRelTuple = NULL;
 }
 QueryOptimizer::QueryOptimizer(
     Statistics *stats,
-    std::unordered_map<std::string, Schema *> *relNameToSchemaMap) {
+    std::unordered_map<std::string, RelationTuple *> *relNameToRelTupleMap) {
   currentStats = stats;
-  relNameToSchema = relNameToSchemaMap;
+  relNameToRelTuple = relNameToRelTupleMap;
 }
 
 BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
-    std::unordered_map<std::string, Schema *> relNameToSchema,
+    std::unordered_map<std::string, RelationTuple *> relNameToRelTuple,
     Statistics *prevStats, std::vector<std::string> relNames,
     std::vector<std::vector<std::string>> joinMatrix) {
   // Start Optimization
@@ -60,7 +60,7 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     char *dest = new char[relNamesSubset[0].size()];
     std::strcpy(dest, temp);
     relNode->relName = dest;
-    relNode->schema = relNameToSchema[relNode->relName];
+    relNode->schema = relNameToRelTuple[relNode->relName]->schema;
     relNode->nodeType = RELATION_NODE;
 
     // Set the root for newMemo
@@ -72,7 +72,6 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     relNode->parent = sentinelLink;
 
     newMemo.root = root;
-    PrintTree(newMemo.root);
     std::cout << std::endl;
 
     combinationToMemo[set] = newMemo;
@@ -158,7 +157,6 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     newJoinNode->parent = sentinelLink;
 
     newMemo.root = root;
-    PrintTree(newMemo.root);
     std::cout << std::endl;
 
     combinationToMemo[set] = newMemo;
@@ -232,7 +230,7 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       char *dest = new char[right.size()];
       std::strcpy(dest, temp);
       newRelNode->relName = dest;
-      newRelNode->schema = relNameToSchema[right];
+      newRelNode->schema = relNameToRelTuple[right]->schema;
       JoinNode *newJoinNode = new JoinNode;
       newJoinNode->nodeType = JOIN;
 
@@ -271,7 +269,6 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       newJoinNode->parent = sentinelLink;
 
       newMemo.root = root;
-      PrintTree(newMemo.root);
       std::cout << std::endl;
 
       combinationToMemo[set] = newMemo;
@@ -286,7 +283,6 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
   std::cout << "Cost of optimal join:" << combinationToMemo[optimalJoin].cost
             << std::endl;
   std::cout << "Order of join" << std::endl;
-  PrintTree(combinationToMemo[optimalJoin].root);
   std::cout << std::endl;
   // End Optimization
 
@@ -472,31 +468,16 @@ std::pair<std::string, std::string> QueryOptimizer::SplitQualifiedAtt(
   retPair.second = att;
   return retPair;
 }
-void QueryOptimizer::PrintTree(BaseNode *base) {
-  if (base == NULL) return;
-  PrintTree(base->left.value);
-  switch (base->nodeType) {
-    case BASE_NODE:
-      std::cout << "BASE"
-                << " ";
-      break;
-    case JOIN:
-      std::cout << "JOIN"
-                << " ";
-      std::cout << "{Input pipes: (" << base->left.id << "," << base->right.id
-                << "), Output pipe: (" << base->parent.id << ")}  ";
-      break;
-    case RELATION_NODE:
-      RelationNode *r = (RelationNode *)base;
-      std::cout << r->relName << " ";
-      break;
-  }
-  PrintTree(base->right.value);
-}
 
 QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query) {
   yy_scan_string(query.c_str());
   yyparse();
+  return GetOptimizedPlanUtil();
+}
+
+QueryPlan *QueryOptimizer::GetOptimizedPlan() { return GetOptimizedPlanUtil(); }
+
+QueryPlan *QueryOptimizer::GetOptimizedPlanUtil() {
   std::vector<std::vector<std::string>> joinMatrix;
   SeparateJoinsandSelects(currentStats, joinMatrix);
   bool joinPresent = false;
@@ -514,6 +495,7 @@ QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query) {
     std::cout << std::endl;
   }
   std::cout << "Join present:" << joinPresent << std::endl;
+  QueryPlan *plan;
   if (joinPresent) {
     std::vector<std::string> relNames;
     struct TableList *table = tables;
@@ -522,30 +504,25 @@ QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query) {
       relNames.push_back(table->tableName);
       table = table->next;
     }
-    BaseNode *join = OptimumOrderingOfJoin(*relNameToSchema, currentStats,
+    BaseNode *join = OptimumOrderingOfJoin(*relNameToRelTuple, currentStats,
                                            relNames, joinMatrix);
 
-    BaseNode *root = GenerateTree(join, *relNameToSchema);
-    QueryPlan *q = new QueryPlan(root);
-    q->PrintTree(root);
+    BaseNode *root = GenerateTree(join, *relNameToRelTuple);
+    plan = new QueryPlan(root);
   } else {
     RelationNode *relNode = new RelationNode;
     relNode->relName = tables->tableName;
     std::string relNameStr(relNode->relName);
-    relNode->schema = (*relNameToSchema)[relNameStr];
-    BaseNode *root = GenerateTree(relNode, *relNameToSchema);
-    QueryPlan *q = new QueryPlan(root);
-    q->PrintTree(root);
+    relNode->schema = (*relNameToRelTuple)[relNameStr]->schema;
+    BaseNode *root = GenerateTree(relNode, *relNameToRelTuple);
+    plan = new QueryPlan(root);
   }
-  std::cout << std::endl;
-  return NULL;
-  // BaseNode *optimizedJoinNode = OptimumOrderingOfJoin(
-  //     *relNameToSchema, currentStats, relNames, joinMatrix);
+  return plan;
 }
 
 BaseNode *QueryOptimizer::GenerateTree(
     struct BaseNode *child,
-    std::unordered_map<std::string, Schema *> relNameToSchema) {
+    std::unordered_map<std::string, RelationTuple *> relNameToRelTuple) {
   BaseNode *currentNode =
       new BaseNode;  // a sentinel node that will be the root.
 
@@ -554,6 +531,7 @@ BaseNode *QueryOptimizer::GenerateTree(
   // Handle SUM
   if (finalFunction) {
     SumNode *s = new SumNode;
+    s->schema = currentNode->schema;
 
     Function *f = new Function;
     f->GrowFromParseTree(finalFunction, *child->schema);
@@ -584,6 +562,7 @@ BaseNode *QueryOptimizer::GenerateTree(
     groupByNode->nodeType = GROUP_BY;
     groupByNode->o = sortOrder;
     groupByNode->f = f;
+    groupByNode->schema = currentNode->schema;
 
     Link link(groupByNode);
     currentNode->left = link;
@@ -596,6 +575,8 @@ BaseNode *QueryOptimizer::GenerateTree(
     DuplicateRemovalNode *drNode = new DuplicateRemovalNode();
     if (currentNode) {
       drNode->nodeType = DUPLICATE_REMOVAL;
+      drNode->schema = currentNode->schema;
+
       Link link(drNode);
       currentNode->left = link;
       drNode->parent = link;
@@ -632,6 +613,7 @@ BaseNode *QueryOptimizer::GenerateTree(
     projectNode->keepMe = keepMeArr;
     projectNode->numAttsInput = child->schema->GetNumAtts();
     projectNode->numAttsOutput = keepMe.size();
+    projectNode->schema = child->schema;
 
     Link link(projectNode);
     currentNode->left = link;
@@ -649,7 +631,7 @@ BaseNode *QueryOptimizer::GenerateTree(
     selectNode->nodeType = SELECT_FILE;
     selectNode->cnf = cnf;
     selectNode->literal = literal;
-    selectNode->schema = child->schema;
+    selectNode->schema = currentNode->schema;
 
     Link link(selectNode);
     currentNode->left = link;

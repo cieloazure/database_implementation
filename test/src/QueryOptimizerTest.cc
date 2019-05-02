@@ -410,7 +410,7 @@ TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations) {
   relNames.push_back("T");
   relNames.push_back("U");
 
-  // Set up map of relNameToSchema
+  // Set up map of relNameToRelTuple
   Attribute IA = {(char *)"a", Int};
   Attribute IB = {(char *)"b", Int};
   Attribute IC = {(char *)"c", Int};
@@ -428,15 +428,15 @@ TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations) {
   Attribute uAtts[] = {IA, ID};
   Schema U("U", 2, uAtts);
 
-  std::unordered_map<std::string, Schema *> relNameToSchema;
-  relNameToSchema["R"] = &R;
-  relNameToSchema["S"] = &S;
-  relNameToSchema["T"] = &T;
-  relNameToSchema["U"] = &U;
+  std::unordered_map<std::string, RelationTuple *> relNameToRelTuple;
+  relNameToRelTuple["R"] = new RelationTuple(&R);
+  relNameToRelTuple["S"] = new RelationTuple(&S);
+  relNameToRelTuple["T"] = new RelationTuple(&T);
+  relNameToRelTuple["U"] = new RelationTuple(&U);
 
   // call QueryOptimizer
-  QueryOptimizer o(&s, &relNameToSchema);
-  o.OptimumOrderingOfJoin(relNameToSchema, &s, relNames, joinMatrix);
+  QueryOptimizer o(&s, &relNameToRelTuple);
+  o.OptimumOrderingOfJoin(relNameToRelTuple, &s, relNames, joinMatrix);
 }
 
 TEST_F(QueryOptimizerTest, SeparateJoinsAndSelects) {
@@ -514,7 +514,7 @@ TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations2) {
   relNames.push_back("S");
   relNames.push_back("T");
 
-  // Set up map of relNameToSchema
+  // Set up map of relNameToRelTuple
   Attribute IA = {(char *)"a", Int};
   Attribute IB = {(char *)"b", Int};
   Attribute IC = {(char *)"c", Int};
@@ -532,15 +532,15 @@ TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations2) {
   Attribute uAtts[] = {IA, ID};
   Schema U("U", 2, uAtts);
 
-  std::unordered_map<std::string, Schema *> relNameToSchema;
-  relNameToSchema["R"] = &R;
-  relNameToSchema["S"] = &S;
-  relNameToSchema["T"] = &T;
-  relNameToSchema["U"] = &U;
+  std::unordered_map<std::string, RelationTuple *> relNameToRelTuple;
+  relNameToRelTuple["R"] = new RelationTuple(&R);
+  relNameToRelTuple["S"] = new RelationTuple(&S);
+  relNameToRelTuple["T"] = new RelationTuple(&T);
+  relNameToRelTuple["U"] = new RelationTuple(&U);
 
   // call QueryOptimizer
-  QueryOptimizer o(&s, &relNameToSchema);
-  o.OptimumOrderingOfJoin(relNameToSchema, &s, relNames, joinMatrix);
+  QueryOptimizer o(&s, &relNameToRelTuple);
+  o.OptimumOrderingOfJoin(relNameToRelTuple, &s, relNames, joinMatrix);
 }
 
 TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations3) {
@@ -579,7 +579,7 @@ TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations3) {
   relNames.push_back("R");
   relNames.push_back("S");
 
-  // Set up map of relNameToSchema
+  // Set up map of relNameToRelTuple
   Attribute IA = {(char *)"a", Int};
   Attribute IB = {(char *)"b", Int};
   Attribute IC = {(char *)"c", Int};
@@ -597,15 +597,15 @@ TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations3) {
   Attribute uAtts[] = {IA, ID};
   Schema U("U", 2, uAtts);
 
-  std::unordered_map<std::string, Schema *> relNameToSchema;
-  relNameToSchema["R"] = &R;
-  relNameToSchema["S"] = &S;
-  relNameToSchema["T"] = &T;
-  relNameToSchema["U"] = &U;
+  std::unordered_map<std::string, RelationTuple *> relNameToRelTuple;
+  relNameToRelTuple["R"] = new RelationTuple(&R);
+  relNameToRelTuple["S"] = new RelationTuple(&S);
+  relNameToRelTuple["T"] = new RelationTuple(&T);
+  relNameToRelTuple["U"] = new RelationTuple(&U);
 
   // call QueryOptimizer
-  QueryOptimizer o(&s, &relNameToSchema);
-  o.OptimumOrderingOfJoin(relNameToSchema, &s, relNames, joinMatrix);
+  QueryOptimizer o(&s, &relNameToRelTuple);
+  o.OptimumOrderingOfJoin(relNameToRelTuple, &s, relNames, joinMatrix);
 }
 
 TEST_F(QueryOptimizerTest, GetOptimizedPlanTest) {
@@ -629,7 +629,7 @@ TEST_F(QueryOptimizerTest, GetOptimizedPlanTest) {
   currentStats->AddAtt(relName[3], "a", 50);
   currentStats->AddAtt(relName[3], "d", 1000);
 
-  // Set up map of relNameToSchema
+  // Set up map of relNameToRelTuple
   Attribute IA = {(char *)"a", Int};
   Attribute IB = {(char *)"b", Int};
   Attribute IC = {(char *)"c", Int};
@@ -647,15 +647,17 @@ TEST_F(QueryOptimizerTest, GetOptimizedPlanTest) {
   Attribute uAtts[] = {IA, ID};
   Schema U("U", 2, uAtts);
 
-  std::unordered_map<std::string, Schema *> relNameToSchema;
-  relNameToSchema["R"] = &R;
-  relNameToSchema["S"] = &S;
-  relNameToSchema["T"] = &T;
-  relNameToSchema["U"] = &U;
+  std::unordered_map<std::string, RelationTuple *> relNameToRelTuple;
+  relNameToRelTuple["R"] = new RelationTuple(&R);
+  relNameToRelTuple["S"] = new RelationTuple(&S);
+  relNameToRelTuple["T"] = new RelationTuple(&T);
+  relNameToRelTuple["U"] = new RelationTuple(&U);
 
-  QueryOptimizer o(currentStats, &relNameToSchema);
+  QueryOptimizer o(currentStats, &relNameToRelTuple);
   std::string cnfString(cnf_string);
   QueryPlan *qp = o.GetOptimizedPlan(cnfString);
+  qp->SetOutput(StdOut);
+  qp->Print();
 }
 // TEST_F(QueryOptimizerTest, TESTSCHEMA)
 // {
@@ -687,7 +689,7 @@ TEST_F(QueryOptimizerTest, GenerateTree) {
   currentStats->AddAtt(relName[3], "a", 50);
   currentStats->AddAtt(relName[3], "d", 1000);
 
-  // Set up map of relNameToSchema
+  // Set up map of relNameToRelTuple
   Attribute IA = {(char *)"a", Int};
   Attribute IB = {(char *)"b", Int};
   Attribute IC = {(char *)"c", Int};
@@ -705,14 +707,16 @@ TEST_F(QueryOptimizerTest, GenerateTree) {
   Attribute uAtts[] = {IA, ID};
   Schema U("U", 2, uAtts);
 
-  std::unordered_map<std::string, Schema *> relNameToSchema;
-  relNameToSchema["R"] = &R;
-  relNameToSchema["S"] = &S;
-  relNameToSchema["T"] = &T;
-  relNameToSchema["U"] = &U;
+  std::unordered_map<std::string, RelationTuple *> relNameToRelTuple;
+  relNameToRelTuple["R"] = new RelationTuple(&R);
+  relNameToRelTuple["S"] = new RelationTuple(&S);
+  relNameToRelTuple["T"] = new RelationTuple(&T);
+  relNameToRelTuple["U"] = new RelationTuple(&U);
 
-  QueryOptimizer o(currentStats, &relNameToSchema);
+  QueryOptimizer o(currentStats, &relNameToRelTuple);
   std::string cnfString(cnf_string);
-  o.GetOptimizedPlan(cnfString);
+  QueryPlan *qp = o.GetOptimizedPlan(cnfString);
+  qp->SetOutput(StdOut);
+  qp->Print();
 }
 }  // namespace dbi

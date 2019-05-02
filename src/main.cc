@@ -16,15 +16,15 @@ int main() {
   Schema region("catalog", "region");
   Schema nation("catalog", "nation");
 
-  std::unordered_map<std::string, Schema *> relNameToSchema;
-  relNameToSchema["lineitem"] = &lineitem;
-  relNameToSchema["orders"] = &orders;
-  relNameToSchema["supplier"] = &supplier;
-  relNameToSchema["partsupp"] = &partsupp;
-  relNameToSchema["customer"] = &customer;
-  relNameToSchema["part"] = &part;
-  relNameToSchema["region"] = &region;
-  relNameToSchema["nation"] = &nation;
+  std::unordered_map<std::string, RelationTuple *> relNameToRelTuple;
+  relNameToRelTuple["lineitem"] = new RelationTuple(&lineitem);
+  relNameToRelTuple["orders"] = new RelationTuple(&orders);
+  relNameToRelTuple["supplier"] = new RelationTuple(&supplier);
+  relNameToRelTuple["partsupp"] = new RelationTuple(&partsupp);
+  relNameToRelTuple["customer"] = new RelationTuple(&customer);
+  relNameToRelTuple["part"] = new RelationTuple(&part);
+  relNameToRelTuple["region"] = new RelationTuple(&region);
+  relNameToRelTuple["nation"] = new RelationTuple(&nation);
 
   // Load Statistics
   char *relName[] = {"supplier", "partsupp", "lineitem", "orders",
@@ -98,13 +98,13 @@ int main() {
   Attribute uAtts[] = {IA, ID};
   Schema U("U", 2, uAtts);
 
-  relNameToSchema["R"] = &R;
-  relNameToSchema["S"] = &S;
-  relNameToSchema["T"] = &T;
-  relNameToSchema["U"] = &U;
+  relNameToRelTuple["R"] = new RelationTuple(&R);
+  relNameToRelTuple["S"] = new RelationTuple(&S);
+  relNameToRelTuple["T"] = new RelationTuple(&T);
+  relNameToRelTuple["U"] = new RelationTuple(&U);
 
   // Initialize query optimizer
-  QueryOptimizer optimizer(&s, &relNameToSchema);
+  QueryOptimizer optimizer(&s, &relNameToRelTuple);
 
   // Get query from user
   std::cout << "Welcome to Database Implementation Demo v0.1" << std::endl;

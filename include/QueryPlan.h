@@ -3,10 +3,12 @@
 
 #include <iostream>
 #include "Comparison.h"
+#include "DBFile.h"
 #include "Function.h"
 #include "Pipe.h"
 #include "Record.h"
 #include "Schema.h"
+extern char *whereToGiveOutput;
 
 enum PlanNodeType {
   BASE_NODE,
@@ -17,7 +19,8 @@ enum PlanNodeType {
   SELECT_FILE,
   SELECT_PIPE,
   SUM,
-  RELATION_NODE
+  RELATION_NODE,
+  WRITE_OUT
 };
 
 class BaseNode;
@@ -60,6 +63,9 @@ class BaseNode {
 class RelationNode : public BaseNode {
  public:
   char *relName;
+  DBFile *dbFile;
+  CNF *cnf;
+  Record *literal;
   RelationNode() {
     nodeType = RELATION_NODE;
     relName = NULL;
@@ -92,6 +98,7 @@ class GroupByNode : public BaseNode {
   OrderMaker *o;
   Function *f;
   GroupByNode() {
+    nodeType = GROUP_BY;
     o = NULL;
     f = NULL;
   }
@@ -104,6 +111,7 @@ class ProjectNode : public BaseNode {
   int numAttsInput;
   int numAttsOutput;
   ProjectNode() {
+    nodeType = PROJECT;
     keepMe = NULL;
     numAttsInput = 0;
     numAttsOutput = 0;
@@ -114,8 +122,45 @@ class ProjectNode : public BaseNode {
 class SumNode : public BaseNode {
  public:
   Function *f;
-  SumNode() { f = NULL; }
+  SumNode() {
+    nodeType = SUM;
+    f = NULL;
+  }
   void dummy() {}
+};
+
+class WriteOutNode : public BaseNode {
+ public:
+  FILE *file;
+  WriteOutNode() {
+    nodeType = WRITE_OUT;
+    file = NULL;
+  }
+  void dummy() {}
+};
+
+enum WhereOutput { StdOut, None, File, Undefined };
+
+struct SortInfo {
+  OrderMaker *sortOrder;
+  int runLength;
+
+  SortInfo(OrderMaker *so, int rl) {
+    sortOrder = so;
+    runLength = rl;
+  }
+};
+
+struct RelationTuple {
+  std::string relName;
+  Schema *schema;
+  DBFile *dbFile;
+  RelationTuple(){}
+  RelationTuple(Schema *s, DBFile *db) {
+    schema = s;
+    dbFile = db;
+  }
+  RelationTuple(Schema *s) { schema = s; }
 };
 
 class QueryPlan {
@@ -127,5 +172,6 @@ class QueryPlan {
   void Execute();
   void Print();
   void PrintTree(BaseNode *base);
+  void SetOutput(WhereOutput op);
 };
 #endif

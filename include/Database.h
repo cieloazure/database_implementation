@@ -25,29 +25,15 @@ extern char *whereToGiveOutput;
 extern char *whichTableToUpdateStatsFor;
 extern int operationId;
 
-struct SortInfo {
-  OrderMaker *sortOrder;
-  int runLength;
-
-  SortInfo(OrderMaker *so, int rl) {
-    sortOrder = so;
-    runLength = rl;
-  }
-};
-
-struct RelationTuple {
-  std::string relName;
-  Schema *schema;
-  DBFile *dbFile;
-};
-
 class Database {
  public:
   static int runLength;
   Statistics *currentStats;
   std::unordered_map<std::string, RelationTuple *> relationLookUp;
-  Database();
+  WhereOutput op;
+  QueryOptimizer optimizer;
 
+  Database();
   void UpdateStatistics();
   void CreateTable();
   void DropTable();

@@ -4,8 +4,12 @@ int Link::pool = 0;
 
 QueryPlan::QueryPlan(BaseNode *r) { root = r; }
 
-void QueryPlan::Execute() {}
-void QueryPlan::Print() {}
+void QueryPlan::Execute() {
+  // Create concrete pipes for the plan
+  // Store it in a map
+  // Traverse the tree and create RelationalOp instances
+}
+void QueryPlan::Print() { PrintTree(root); }
 
 void QueryPlan::PrintTree(BaseNode *base) {
   if (base == NULL) return;
@@ -36,7 +40,8 @@ void QueryPlan::PrintTree(BaseNode *base) {
     case RELATION_NODE: {
       std::cout << "********" << std::endl;
       RelationNode *r = dynamic_cast<RelationNode *>(base);
-      std::cout << "RELATION NODE(LEAF)" << std::endl;
+      std::cout << "RELATION NODE(LEAF)(SELECT FILE with special CNF OPERATION)"
+                << std::endl;
       std::cout << "\tName:" << r->relName << std::endl;
       std::cout << "\tRecords on output pipe:" << r->parent.id << std::endl;
       std::cout << "\tRelation schema" << std::endl;
@@ -110,7 +115,18 @@ void QueryPlan::PrintTree(BaseNode *base) {
     case DUPLICATE_REMOVAL: {
       DuplicateRemovalNode *d = dynamic_cast<DuplicateRemovalNode *>(base);
       std::cout << "********" << std::endl;
-      std::cout << "DUPLICATE REMOVAL" << std::endl;
+      std::cout << "DUPLICATE REMOVAL OPERATION" << std::endl;
+      std::cout << "\tInput pipe:" << base->left.id << std::endl;
+      std::cout << "\tOutput pipe:" << base->parent.id << std::endl;
+      std::cout << "\tOutput Schema:" << std::endl;
+      base->schema->Print("\t\t");
+      std::cout << "********" << std::endl;
+      break;
+    }
+    case WRITE_OUT: {
+      WriteOutNode *w = dynamic_cast<WriteOutNode *>(base);
+      std::cout << "********" << std::endl;
+      std::cout << "WRITE OUT OPERATION" << std::endl;
       std::cout << "\tInput pipe:" << base->left.id << std::endl;
       std::cout << "\tOutput pipe:" << base->parent.id << std::endl;
       std::cout << "\tOutput Schema:" << std::endl;
@@ -121,4 +137,34 @@ void QueryPlan::PrintTree(BaseNode *base) {
     default: { std::cout << "ERROR or NOT HANDLED!" << std::endl; }
   }
   PrintTree(base->right.value);
+}
+
+void QueryPlan::SetOutput(WhereOutput op) {
+  FILE *file;
+  switch (op) {
+    case StdOut:
+      file = stdout;
+      break;
+    case None:
+      file = NULL;
+      break;
+    case File:
+      file = fopen(whereToGiveOutput, "w");
+      break;
+  }
+
+  if (file != NULL) {
+    BaseNode *child = root->left.value;
+    WriteOutNode *writeOutNode = new WriteOutNode;
+    writeOutNode->file = file;
+    writeOutNode->schema = child->schema;
+
+    Link writeToChild(child);
+    writeOutNode->left = writeToChild;
+    child->parent = writeToChild;
+
+    Link sentinelToWrite(writeOutNode);
+    root->left = sentinelToWrite;
+    writeOutNode->parent = sentinelToWrite;
+  }
 }
