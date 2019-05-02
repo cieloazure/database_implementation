@@ -31,9 +31,13 @@ class Database {
   Statistics *currentStats;
   std::unordered_map<std::string, RelationTuple *> relationLookUp;
   WhereOutput op;
-  QueryOptimizer optimizer;
+  QueryOptimizer *optimizer;
 
   Database();
+  Database(Statistics *stats,
+           std::unordered_map<std::string, RelationTuple *> relNameToTuple);
+  void Start();
+  void End();
   void UpdateStatistics();
   void CreateTable();
   void DropTable();

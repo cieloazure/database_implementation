@@ -4,3 +4,5 @@ SELECT a, b FROM R AS r, S AS s WHERE (r.b = s.b) AND (r.a > 0)
   FROM lineitem AS li
   WHERE (l_returnflag = 'R') AND (l_discount < 0.04 OR
   l_returnflag = 'R') AND (l_shipmode = 'MAIL')
+ 
+ SELECT r_name FROM region AS r WHERE (r_regionkey < 3);

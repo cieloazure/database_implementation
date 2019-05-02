@@ -77,6 +77,8 @@ class Schema {
   // copy constructor
   Schema(char *fName, Schema *other);
 
+  Schema(char *fName, Schema *other, std::vector<int> keepMe);
+
   ~Schema();
 
   void AddAttribute(Attribute a);

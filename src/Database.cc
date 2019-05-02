@@ -125,11 +125,69 @@ void Database::SetOutput() {
 }
 
 void Database::ExecuteQuery() {
-  QueryPlan *plan = optimizer.GetOptimizedPlan();
+  QueryPlan *plan = optimizer->GetOptimizedPlan();
   plan->SetOutput(op);
   plan->Print();
-  // plan->Execute();
+  plan->Execute();
 }
 
 void Database::DropTable() {}
 void Database::UpdateStatistics() {}
+
+void Database::Start() {
+  // Get query from user
+  std::cout << "Welcome to Database Implementation Demo v0.1" << std::endl;
+  std::cout << std::endl;
+  std::cout << "Commands end with `;`" << std::endl;
+  std::cout << std::endl;
+  std::cout << "Type `help` for help" << std::endl;
+  std::cout << "Type `Ctrl-D` or `Ctrl-C` to exit" << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
+  while (true) {
+    cout << "dbi>  ";
+    std::string query;
+    std::string line;
+    // std::cin.flush();
+    bool enter = false;
+    while (true) {
+      if (enter) {
+        query += "  ";
+        std::cout << "  ->  ";
+      }
+      std::getline(std::cin, line);
+      if (query == "" && line == "") {
+        break;
+      }
+      if (std::cin.eof()) {
+        break;
+      }
+      query += line;
+      if (query[query.size() - 1] == ';') {
+        break;
+      }
+      enter = true;
+    }
+    if (std::cin.eof()) {
+      std::cout << "Bye!" << std::endl;
+      break;
+    }
+    if (query.size() > 0) {
+      std::cout << "--------------DEBUG MODE--------------" << std::endl;
+      std::cout << "Given Query:" << query << std::endl;
+      // Run optimization to get QueryPlan
+      cout << "Query Plan:" << std::endl;
+      QueryPlan *qp = optimizer->GetOptimizedPlan(query);
+      qp->Print();
+      qp->SetOutput(StdOut);
+      qp->Execute();
+    }
+  }
+}
+
+Database::Database(
+    Statistics *stats,
+    std::unordered_map<std::string, RelationTuple *> relNameToTuple) {
+  currentStats = stats;
+  relationLookUp = relNameToTuple;
+}

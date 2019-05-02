@@ -48,8 +48,9 @@ class QueryOptimizer
 {
 public:
     QueryOptimizer();
-    QueryOptimizer(Statistics *currentStats,
-                   std::unordered_map<std::string, RelationTuple *> *relNameToRelTuple);
+    QueryOptimizer(
+        Statistics *currentStats,
+        std::unordered_map<std::string, RelationTuple *> *relNameToRelTuple);
 
     QueryPlan *GetOptimizedPlan(std::string query);
     QueryPlan *GetOptimizedPlan();
@@ -67,6 +68,8 @@ public:
     bool ConstructJoinCNF(std::vector<std::string> relNames,
                           std::vector<std::vector<std::string>> joinMatrix,
                           std::string left, std::string right);
+
+    bool ConstructSelectFileAllTuplesCNF(Schema *schema, std::string relName);
 
     std::vector<std::string> GenerateCombinations(int n, int r);
 

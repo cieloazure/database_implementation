@@ -174,8 +174,33 @@ TEST_F(DatabaseTest, TEST_BULK_LOAD) {
   std::string ctquery(cnf_string);
   d.ExecuteCommand(ctquery);
 
-  const char cnf_string2[] = "INSERT 'data_files/1G/region.tbl' INTO new_region;";
+  const char cnf_string2[] =
+      "INSERT 'data_files/1G/region.tbl' INTO new_region;";
   std::string iquery(cnf_string2);
   d.ExecuteCommand(iquery);
+}
+
+TEST_F(DatabaseTest, TEST_BULK_LOAD2) {
+  Database d;
+  const char cnf_string[] =
+      "CREATE TABLE new_region (r_regionkey INTEGER, r_name DOUBLE,r_comment "
+      "STRING) AS "
+      "HEAP;";
+  std::string ctquery(cnf_string);
+  d.ExecuteCommand(ctquery);
+
+  const char cnf_string2[] =
+      "INSERT 'data_files/1G/region.tbl' INTO new_region;";
+  std::string iquery(cnf_string2);
+  d.ExecuteCommand(iquery);
+
+  const char cnf_string3[] = "SET OUTPUT STDOUT";
+  std::string opquery(cnf_string3);
+  d.ExecuteCommand(opquery);
+
+  // const char cnf_string4[] =
+  //     "SELECT r_name FROM new_region AS r WHERE (r_regionkey < 3);";
+  // std::string query(cnf_string4);
+  // d.ExecuteCommand(query);
 }
 }  // namespace dbi

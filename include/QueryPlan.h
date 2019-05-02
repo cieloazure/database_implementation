@@ -2,12 +2,19 @@
 #define QUERYPLAN_H
 
 #include <iostream>
+#include <unordered_map>
 #include "Comparison.h"
 #include "DBFile.h"
 #include "Function.h"
+#include "Join.h"
 #include "Pipe.h"
+#include "Project.h"
 #include "Record.h"
 #include "Schema.h"
+#include "SelectFile.h"
+#include "SelectPipe.h"
+#include "WriteOut.h"
+
 extern char *whereToGiveOutput;
 
 enum PlanNodeType {
@@ -27,6 +34,7 @@ class BaseNode;
 
 struct Link {
   BaseNode *value;
+  BaseNode *rvalue;
   Pipe *pipe;
   int id;
 
@@ -38,10 +46,12 @@ struct Link {
     id = -1;
   }
 
-  Link(BaseNode *val) {
+  Link(BaseNode *val, BaseNode *rval) {
     value = val;
+    rvalue = rval;
     id = Link::pool;
     Link::pool++;
+    pipe = NULL;
   }
 };
 
@@ -155,7 +165,7 @@ struct RelationTuple {
   std::string relName;
   Schema *schema;
   DBFile *dbFile;
-  RelationTuple(){}
+  RelationTuple() {}
   RelationTuple(Schema *s, DBFile *db) {
     schema = s;
     dbFile = db;
@@ -173,5 +183,11 @@ class QueryPlan {
   void Print();
   void PrintTree(BaseNode *base);
   void SetOutput(WhereOutput op);
+  void CreateConcretePipes(BaseNode *iter,
+                           std::unordered_map<int, Pipe *> &idToPipe);
+
+  void CreateRelationalOperators(BaseNode *iter,
+                                 std::unordered_map<int, Pipe *> &idToPipe,
+                                 std::vector<RelationalOp *> &operators);
 };
 #endif
