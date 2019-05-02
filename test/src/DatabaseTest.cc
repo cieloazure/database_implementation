@@ -146,4 +146,22 @@ TEST_F(DatabaseTest, TEST_PARSE_OF_UPDATE_STATS) {
   yyparse();
   std::cout << whichTableToUpdateStatsFor << std::endl;
 }
+
+TEST_F(DatabaseTest, TEST_CREATE_DATABASE) {
+  Database d;
+  const char cnf_string[] =
+      "CREATE TABLE mytable (att1 INTEGER, att2 DOUBLE, att3 STRING) AS "
+      "HEAP;";
+  std::string ctquery(cnf_string);
+  d.CreateTable(ctquery);
+}
+
+TEST_F(DatabaseTest, TEST_CREATE_DATABASE_2) {
+  Database d;
+  const char cnf_string[] =
+      "CREATE TABLE mytablesort (att1 INTEGER, att2 DOUBLE, att3 STRING) AS "
+      "SORTED ON (att1, att2);";
+  std::string ctquery(cnf_string);
+  d.CreateTable(ctquery);
+}
 }  // namespace dbi

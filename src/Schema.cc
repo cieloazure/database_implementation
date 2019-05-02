@@ -89,6 +89,8 @@ void Schema ::Init(char *fpath, int num_atts, Attribute *atts) {
   }
 }
 
+Schema::Schema(char *relName) { fileName = strdup(relName); }
+
 Schema ::Schema(char *fpath, int num_atts, Attribute *atts) {
   Init(fpath, num_atts, atts);
 }

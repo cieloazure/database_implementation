@@ -53,6 +53,8 @@ class Schema {
   // this finds the type of the given attribute
   Type FindType(char *attName);
 
+  Schema(char *relName);
+
   // this reads the specification for the schema in from a file
   Schema(char *fName, char *relName);
 
