@@ -61,6 +61,17 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     std::strcpy(dest, temp);
     relNode->relName = dest;
     relNode->schema = relNameToRelTuple[relNode->relName]->schema;
+    relNode->dbFile = relNameToRelTuple[relNode->relName]->dbFile;
+    CNF *cnf = new CNF;
+    Record *literal = new Record;
+    if (ConstructSelectFileAllTuplesCNF(relNode->schema, relNamesSubset[0])) {
+      cnf->GrowFromParseTree(final, relNode->schema, *literal);
+      relNode->cnf = cnf;
+      relNode->cnf->Print();
+      relNode->literal = literal;
+    } else {
+      // error ?
+    }
     relNode->nodeType = RELATION_NODE;
 
     // Set the root for newMemo
@@ -224,6 +235,8 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       // Set join node for newMemo
       JoinNode *prevJoinNode =
           dynamic_cast<JoinNode *>(prevMemo.root->left.value);
+
+      // construct new RelationNode which is an alias for SelectFile operation
       RelationNode *newRelNode = new RelationNode;
       newRelNode->nodeType = RELATION_NODE;
       char *temp = (char *)right.c_str();
@@ -231,9 +244,21 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       std::strcpy(dest, temp);
       newRelNode->relName = dest;
       newRelNode->schema = relNameToRelTuple[right]->schema;
+      newRelNode->dbFile = relNameToRelTuple[right]->dbFile;
+      CNF *cnf = new CNF;
+      Record *literal = new Record;
+      if (ConstructSelectFileAllTuplesCNF(newRelNode->schema, right)) {
+        cnf->GrowFromParseTree(final, newRelNode->schema, *literal);
+        newRelNode->cnf = cnf;
+        newRelNode->cnf->Print();
+        newRelNode->literal = literal;
+      } else {
+        // TODO
+        // error ?
+      }
+
       JoinNode *newJoinNode = new JoinNode;
       newJoinNode->nodeType = JOIN;
-
       // Set left link of new join node
       Link leftLink(prevJoinNode);
       newJoinNode->left = leftLink;
@@ -514,6 +539,16 @@ QueryPlan *QueryOptimizer::GetOptimizedPlanUtil() {
     relNode->relName = tables->tableName;
     std::string relNameStr(relNode->relName);
     relNode->schema = (*relNameToRelTuple)[relNameStr]->schema;
+    CNF *cnf = new CNF;
+    Record *literal = new Record;
+    if (ConstructSelectFileAllTuplesCNF(relNode->schema, relNameStr)) {
+      cnf->GrowFromParseTree(final, relNode->schema, *literal);
+      relNode->cnf = cnf;
+      relNode->cnf->Print();
+      relNode->literal = literal;
+    } else {
+      // error ?
+    }
     BaseNode *root = GenerateTree(relNode, *relNameToRelTuple);
     plan = new QueryPlan(root);
   }
@@ -645,4 +680,24 @@ BaseNode *QueryOptimizer::GenerateTree(
   child->parent = link;
 
   return root;
+}
+
+bool QueryOptimizer::ConstructSelectFileAllTuplesCNF(Schema *schema,
+                                                     std::string relName) {
+  if (schema == NULL || schema->GetNumAtts() == 0) {
+    return false;
+  }
+
+  Attribute *atts = schema->GetAtts();
+  std::string attStr;
+  Attribute a = atts[0];
+  attStr += relName;
+  attStr += ".";
+  attStr += a.name;
+
+  std::string cnfStr;
+  cnfStr = "(" + attStr + " = " + attStr + ")";
+  yy_scan_string(cnfStr.c_str());
+  yyparse();
+  return true;
 }
