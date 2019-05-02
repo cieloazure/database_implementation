@@ -87,6 +87,9 @@ public:
         std::unordered_map<std::string, RelationTuple *> relNameToRelTuple);
 
     BaseNode *OptimizeSelects(BaseNode *root, bool joinPresent);
+    void GetRelationsinJoin(BaseNode *root, std::vector<std::string> &relationsInJoin);
+    void GetRelationsinJoin2(BaseNode *root, std::unordered_map<BaseNode *, std::vector<std::string>> &joinNodeMap);
+    BaseNode *GetNodeForOr(std::vector<std::string> relationList, std::unordered_map<BaseNode *, std::vector<std::string>> &joinNodeMap);
 
     bool IsQualifiedAtt(std::string value);
     std::pair<std::string, std::string> SplitQualifiedAtt(std::string value);

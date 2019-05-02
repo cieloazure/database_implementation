@@ -738,6 +738,14 @@ BaseNode *QueryOptimizer::GenerateTree(
 
 BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
 {
+
+  // Testing
+  // Schema lineitem("catalog", "R");
+  // Schema orders("catalog", "S");
+
+  // (*relNameToRelTuple)["R"] = new RelationTuple(&lineitem);
+  // (*relNameToRelTuple)["S"] = new RelationTuple(&orders);
+
   BaseNode *current = root;
   // Traverse the tree to find the first select node.
   while (current)
@@ -804,7 +812,137 @@ BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
   }
   else
   {
-    // handle joins present logic.
+    // handle 'joins present' logic.
+    while (current)
+    {
+      if (current->left.value->nodeType == JOIN)
+      {
+        break;
+      }
+      current = current->left.value;
+    }
+
+    JoinNode *jRoot = dynamic_cast<JoinNode *>(current->left.value);
+    std::vector<std::string> relationsInJoin;
+    GetRelationsinJoin(jRoot, relationsInJoin);
+
+    std::unordered_map<OrList *, std::vector<std::string>> orToRelNameList;
+    AndList *currAnd = boolean;
+    while (currAnd)
+    {
+      OrList *currOr = currAnd->left;
+      ComparisonOp *compOp = currOr->left;
+
+      if (!IsALiteral(compOp->left))
+      {
+        for (auto it = relationsInJoin.begin(); it != relationsInJoin.end(); ++it)
+        {
+          if ((*relNameToRelTuple)[*it]->schema->Find(compOp->left->value))
+          {
+            orToRelNameList[currOr].push_back(*it);
+          }
+        }
+      }
+      if (!IsALiteral(compOp->right))
+      {
+        for (std::vector<std::string>::iterator it = relationsInJoin.begin(); it != relationsInJoin.end(); ++it)
+        {
+          if ((*relNameToRelTuple)[*it]->schema->Find(compOp->left->value))
+          {
+            orToRelNameList[currOr].push_back(*it);
+          }
+        }
+      }
+
+      currAnd = currAnd->rightAnd;
+    }
+    std::unordered_map<BaseNode *, std::vector<std::string>> joinNodeMap;
+    GetRelationsinJoin2(jRoot, joinNodeMap);
+    for (auto it : orToRelNameList)
+    {
+      BaseNode *childNode = GetNodeForOr(it.second, joinNodeMap);
+
+      CNF *cnf = new CNF;
+      Record *literal = new Record;
+      AndList *tempAnd = new AndList;
+      tempAnd->left = it.first;
+      cnf->GrowFromParseTree(tempAnd, childNode->schema, *literal);
+
+      SelectPipeNode *newNode = new SelectPipeNode;
+      newNode->cnf = cnf;
+      newNode->nodeType = SELECT_PIPE;
+      newNode->literal = literal;
+
+      Link link(newNode);
+      if (childNode->parent.value->left.value == childNode)
+      {
+        childNode->parent.value->left = link;
+      }
+      else if (childNode->parent.value->right.value == childNode)
+      {
+        childNode->parent.value->right = link;
+      }
+      newNode->parent = childNode->parent;
+      newNode->left = childNode->left;
+    }
   }
   return root;
+}
+
+void QueryOptimizer::GetRelationsinJoin(BaseNode *root, std::vector<std::string> &relationsInJoin)
+{
+  if (root == NULL)
+    return;
+  GetRelationsinJoin(root->left.value, relationsInJoin);
+
+  if (root->nodeType == RELATION_NODE)
+  {
+    RelationNode *temp = dynamic_cast<RelationNode *>(root);
+    relationsInJoin.push_back(std::string(temp->relName));
+  }
+  GetRelationsinJoin(root->right.value, relationsInJoin);
+}
+
+void QueryOptimizer::GetRelationsinJoin2(BaseNode *root, std::unordered_map<BaseNode *, std::vector<std::string>> &joinNodeMap)
+{
+  if (root == NULL)
+    return;
+  GetRelationsinJoin2(root->left.value, joinNodeMap);
+
+  if (root->nodeType == JOIN)
+  {
+    JoinNode *temp = dynamic_cast<JoinNode *>(root);
+    std::vector<std::string> relationsInJoin;
+    GetRelationsinJoin(root, relationsInJoin);
+    joinNodeMap[temp] = relationsInJoin;
+  }
+  else if (root->nodeType == RELATION_NODE)
+  {
+    RelationNode *temp = dynamic_cast<RelationNode *>(root);
+    std::vector<std::string> v;
+    v.push_back(temp->relName);
+    joinNodeMap[temp] = v;
+  }
+  GetRelationsinJoin2(root->right.value, joinNodeMap);
+}
+
+BaseNode *QueryOptimizer::GetNodeForOr(std::vector<std::string> relationList, std::unordered_map<BaseNode *, std::vector<std::string>> &joinNodeMap)
+{
+  int size = 999;
+  BaseNode *retVal;
+
+  for (auto it : joinNodeMap)
+  {
+    auto res = std::search(it.second.begin(), it.second.end(), relationList.begin(), relationList.end());
+
+    if (res != it.second.end())
+    {
+      if (it.second.size() < size)
+      {
+        retVal = it.first;
+        size = it.second.size();
+      }
+    }
+  }
+  return retVal;
 }

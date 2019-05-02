@@ -774,7 +774,7 @@ TEST_F(QueryOptimizerTest, OptimizeSelectsNoJoins)
 {
   char *relName[] = {"R", "S", "T", "U"};
   const char cnf_string[] =
-      "SELECT a, b FROM R AS r WHERE (a > 0) AND (b > 0)";
+      "SELECT a, b FROM R AS r, S AS s WHERE (r.b = s.b) AND (a > 0) AND (b > 0)";
   Statistics *currentStats = new Statistics;
   currentStats->AddRel(relName[0], 1000);
   currentStats->AddAtt(relName[0], "a", 100);
