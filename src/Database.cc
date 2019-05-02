@@ -125,7 +125,7 @@ void Database::SetOutput() {
 }
 
 void Database::ExecuteQuery() {
-  QueryPlan *plan = optimizer.GetOptimizedPlan();
+  QueryPlan *plan = optimizer->GetOptimizedPlan();
   plan->SetOutput(op);
   plan->Print();
   // plan->Execute();

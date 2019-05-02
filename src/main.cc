@@ -17,14 +17,59 @@ int main() {
   Schema nation("catalog", "nation");
 
   std::unordered_map<std::string, RelationTuple *> relNameToRelTuple;
-  relNameToRelTuple["lineitem"] = new RelationTuple(&lineitem);
-  relNameToRelTuple["orders"] = new RelationTuple(&orders);
-  relNameToRelTuple["supplier"] = new RelationTuple(&supplier);
-  relNameToRelTuple["partsupp"] = new RelationTuple(&partsupp);
-  relNameToRelTuple["customer"] = new RelationTuple(&customer);
-  relNameToRelTuple["part"] = new RelationTuple(&part);
-  relNameToRelTuple["region"] = new RelationTuple(&region);
-  relNameToRelTuple["nation"] = new RelationTuple(&nation);
+
+  DBFile *dbFile7 = new DBFile();
+  if (!dbFile7->Create("region", heap, NULL)) {
+    std::cout << "Error!" << std::endl;
+    exit(1);
+  }
+  dbFile7->Load(region, "data_files/1G/region.tbl");
+  dbFile7->Close();
+  if (!dbFile7->Open("region")) {
+    std::cout << "Error!" << std::endl;
+    exit(1);
+  }
+  DBFile dbFile7_1;
+  if (!dbFile7_1.Open("region")) {
+    std::cout << "Error!" << std::endl;
+    exit(1);
+  }
+  relNameToRelTuple["region"] = new RelationTuple(&region, &dbFile7_1);
+
+  DBFile *dbFile = new DBFile();
+  dbFile->Create("lineitem", heap, NULL);
+  dbFile->Load(lineitem, "data_files/1G/lineitem.tbl");
+  relNameToRelTuple["lineitem"] = new RelationTuple(&lineitem, dbFile);
+
+  DBFile *dbFile2 = new DBFile();
+  dbFile2->Create("orders", heap, NULL);
+  dbFile2->Load(orders, "data_files/1G/orders.tbl");
+  relNameToRelTuple["orders"] = new RelationTuple(&orders, dbFile2);
+
+  DBFile *dbFile3 = new DBFile();
+  dbFile3->Create("supplier", heap, NULL);
+  dbFile3->Load(supplier, "data_files/1G/supplier.tbl");
+  relNameToRelTuple["supplier"] = new RelationTuple(&supplier, dbFile3);
+
+  DBFile *dbFile4 = new DBFile();
+  dbFile4->Create("partsupp", heap, NULL);
+  dbFile4->Load(partsupp, "data_files/1G/partsupp.tbl");
+  relNameToRelTuple["partsupp"] = new RelationTuple(&partsupp, dbFile4);
+
+  DBFile *dbFile5 = new DBFile();
+  dbFile5->Create("customer", heap, NULL);
+  dbFile5->Load(customer, "data_files/1G/customer.tbl");
+  relNameToRelTuple["customer"] = new RelationTuple(&customer, dbFile5);
+
+  DBFile *dbFile6 = new DBFile();
+  dbFile6->Create("part", heap, NULL);
+  dbFile6->Load(part, "data_files/1G/part.tbl");
+  relNameToRelTuple["part"] = new RelationTuple(&part, dbFile6);
+
+  DBFile *dbFile8 = new DBFile();
+  dbFile8->Create("nation", heap, NULL);
+  dbFile8->Load(nation, "data_files/1G/nation.tbl");
+  relNameToRelTuple["nation"] = new RelationTuple(&nation, dbFile8);
 
   // Load Statistics
   char *relName[] = {"supplier", "partsupp", "lineitem", "orders",
@@ -148,7 +193,10 @@ int main() {
       std::cout << "Given Query:" << query << std::endl;
       // Run optimization to get QueryPlan
       cout << "Query Plan:" << std::endl;
-      optimizer.GetOptimizedPlan(query);
+      QueryPlan *qp = optimizer.GetOptimizedPlan(query);
+      qp->Print();
+      qp->SetOutput(StdOut);
+      qp->Execute();
     }
   }
   // std::string line;

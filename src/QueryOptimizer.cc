@@ -78,7 +78,7 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     BaseNode *root = new BaseNode;
 
     // Set links of root
-    Link sentinelLink(relNode);
+    Link sentinelLink(relNode, root);
     root->left = sentinelLink;
     relNode->parent = sentinelLink;
 
@@ -134,12 +134,12 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
         dynamic_cast<RelationNode *>(joinPair[0]->left.value);
 
     // Set left link of new join node
-    Link leftLink(relNode1);
+    Link leftLink(relNode1, newJoinNode);
     newJoinNode->left = leftLink;
     relNode1->parent = leftLink;
 
     // Set right link of new join node
-    Link rightLink(relNode2);
+    Link rightLink(relNode2, newJoinNode);
     newJoinNode->right = rightLink;
     relNode2->parent = rightLink;
 
@@ -163,7 +163,7 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     }
     // Set root node for newMemo
     BaseNode *root = new BaseNode;
-    Link sentinelLink(newJoinNode);
+    Link sentinelLink(newJoinNode, root);
     root->left = sentinelLink;
     newJoinNode->parent = sentinelLink;
 
@@ -260,12 +260,12 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       JoinNode *newJoinNode = new JoinNode;
       newJoinNode->nodeType = JOIN;
       // Set left link of new join node
-      Link leftLink(prevJoinNode);
+      Link leftLink(prevJoinNode, newJoinNode);
       newJoinNode->left = leftLink;
       prevJoinNode->parent = leftLink;
 
       // Set right link of new join node
-      Link rightLink(newRelNode);
+      Link rightLink(newRelNode, newJoinNode);
       newJoinNode->right = rightLink;
       newRelNode->parent = rightLink;
 
@@ -289,7 +289,7 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       }
       // Set root node for newMemo
       BaseNode *root = new BaseNode;
-      Link sentinelLink(newJoinNode);
+      Link sentinelLink(newJoinNode, root);
       root->left = sentinelLink;
       newJoinNode->parent = sentinelLink;
 
@@ -539,6 +539,7 @@ QueryPlan *QueryOptimizer::GetOptimizedPlanUtil() {
     relNode->relName = tables->tableName;
     std::string relNameStr(relNode->relName);
     relNode->schema = (*relNameToRelTuple)[relNameStr]->schema;
+    relNode->dbFile = (*relNameToRelTuple)[relNameStr]->dbFile;
     CNF *cnf = new CNF;
     Record *literal = new Record;
     if (ConstructSelectFileAllTuplesCNF(relNode->schema, relNameStr)) {
@@ -558,65 +559,25 @@ QueryPlan *QueryOptimizer::GetOptimizedPlanUtil() {
 BaseNode *QueryOptimizer::GenerateTree(
     struct BaseNode *child,
     std::unordered_map<std::string, RelationTuple *> relNameToRelTuple) {
-  BaseNode *currentNode =
-      new BaseNode;  // a sentinel node that will be the root.
+  BaseNode *currentNode = child;
 
-  BaseNode *root = currentNode;
+  // Handle SELECTS.
+  if (boolean) {
+    CNF *cnf = new CNF;            // = new CNF;
+    Record *literal = new Record;  // = new Record;
+    cnf->GrowFromParseTree(boolean, child->schema, *literal);
 
-  // Handle SUM
-  if (finalFunction) {
-    SumNode *s = new SumNode;
-    s->schema = currentNode->schema;
+    SelectPipeNode *selectNode = new SelectPipeNode;
+    selectNode->nodeType = SELECT_PIPE;
+    selectNode->cnf = cnf;
+    selectNode->literal = literal;
+    selectNode->schema = currentNode->schema;
 
-    Function *f = new Function;
-    f->GrowFromParseTree(finalFunction, *child->schema);
-    s->f = f;
+    Link link(currentNode, selectNode);
+    selectNode->left = link;
+    currentNode->parent = link;
 
-    Link link(s);
-    currentNode->left = link;
-    s->parent = link;
-    currentNode = currentNode->left.value;
-  }
-
-  // Handle GROUP BY
-  if (groupingAtts) {
-    GroupByNode *groupByNode = new GroupByNode;
-
-    CNF *cnf = new CNF;
-    Record literal;
-    cnf->GrowFromParseTree(final, child->schema, literal);
-
-    OrderMaker *sortOrder = new OrderMaker;
-    OrderMaker *dummy = new OrderMaker;
-
-    cnf->GetSortOrders(*sortOrder, *dummy);
-
-    Function *f = new Function;
-    f->GrowFromParseTree(finalFunction, *child->schema);
-
-    groupByNode->nodeType = GROUP_BY;
-    groupByNode->o = sortOrder;
-    groupByNode->f = f;
-    groupByNode->schema = currentNode->schema;
-
-    Link link(groupByNode);
-    currentNode->left = link;
-    groupByNode->parent = link;
-    currentNode = currentNode->left.value;
-  }
-
-  // Handle DISTINCT
-  if (distinctAtts == 1) {
-    DuplicateRemovalNode *drNode = new DuplicateRemovalNode();
-    if (currentNode) {
-      drNode->nodeType = DUPLICATE_REMOVAL;
-      drNode->schema = currentNode->schema;
-
-      Link link(drNode);
-      currentNode->left = link;
-      drNode->parent = link;
-      currentNode = currentNode->left.value;
-    }
+    currentNode = currentNode->parent.rvalue;
   }
 
   // Handle PROJECTS.
@@ -646,39 +607,79 @@ BaseNode *QueryOptimizer::GenerateTree(
     }
 
     projectNode->keepMe = keepMeArr;
-    projectNode->numAttsInput = child->schema->GetNumAtts();
+    projectNode->numAttsInput = currentNode->schema->GetNumAtts();
     projectNode->numAttsOutput = keepMe.size();
-    projectNode->schema = child->schema;
+    projectNode->schema =
+        new Schema("project_schema", currentNode->schema, keepMe);
 
-    Link link(projectNode);
-    currentNode->left = link;
-    projectNode->parent = link;
-    currentNode = currentNode->left.value;
+    Link link(currentNode, projectNode);
+    projectNode->left = link;
+    currentNode->parent = link;
+
+    currentNode = currentNode->parent.rvalue;
   }
 
-  // Handle SELECTS.
-  if (boolean) {
-    CNF *cnf = new CNF;            // = new CNF;
-    Record *literal = new Record;  // = new Record;
-    cnf->GrowFromParseTree(boolean, child->schema, *literal);
+  // Handle SUM
+  // if (finalFunction) {
+  //   SumNode *s = new SumNode;
+  //   s->schema = currentNode->schema;
 
-    SelectPipeNode *selectNode = new SelectPipeNode;
-    selectNode->nodeType = SELECT_FILE;
-    selectNode->cnf = cnf;
-    selectNode->literal = literal;
-    selectNode->schema = currentNode->schema;
+  //   Function *f = new Function;
+  //   f->GrowFromParseTree(finalFunction, *child->schema);
+  //   s->f = f;
 
-    Link link(selectNode);
-    currentNode->left = link;
-    selectNode->parent = link;
-    currentNode = currentNode->left.value;
-  }
+  //   Link link(s);
+  //   currentNode->left = link;
+  //   s->parent = link;
+  //   currentNode = currentNode->left.value;
+  // }
+
+  // Handle GROUP BY
+  // if (groupingAtts) {
+  //   GroupByNode *groupByNode = new GroupByNode;
+
+  //   CNF *cnf = new CNF;
+  //   Record literal;
+  //   cnf->GrowFromParseTree(final, child->schema, literal);
+
+  //   OrderMaker *sortOrder = new OrderMaker;
+  //   OrderMaker *dummy = new OrderMaker;
+
+  //   cnf->GetSortOrders(*sortOrder, *dummy);
+
+  //   Function *f = new Function;
+  //   f->GrowFromParseTree(finalFunction, *child->schema);
+
+  //   groupByNode->nodeType = GROUP_BY;
+  //   groupByNode->o = sortOrder;
+  //   groupByNode->f = f;
+  //   groupByNode->schema = currentNode->schema;
+
+  //   Link link(groupByNode);
+  //   currentNode->left = link;
+  //   groupByNode->parent = link;
+  //   currentNode = currentNode->left.value;
+  // }
+
+  // Handle DISTINCT
+  // if (distinctAtts == 1) {
+  //   DuplicateRemovalNode *drNode = new DuplicateRemovalNode();
+  //   if (currentNode) {
+  //     drNode->nodeType = DUPLICATE_REMOVAL;
+  //     drNode->schema = currentNode->schema;
+
+  //     Link link(drNode);
+  //     currentNode->left = link;
+  //     drNode->parent = link;
+  //     currentNode = currentNode->left.value;
+  //   }
+  // }
 
   // Finally join the JOIN subtree
-  Link link(child);
-  currentNode->left = link;
-  child->parent = link;
-
+  BaseNode *root = new BaseNode();
+  Link sentinelLink(currentNode, root);
+  root->left = sentinelLink;
+  currentNode->parent = sentinelLink;
   return root;
 }
 

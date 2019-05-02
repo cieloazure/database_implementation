@@ -422,3 +422,18 @@ void Schema::Print(std::string prefixtabs) {
     }
   }
 }
+
+Schema::Schema(char *fName, Schema *other, std::vector<int> keepMe) {
+  numAtts = keepMe.size();
+  fileName = strdup(fName);
+  myAtts = new Attribute[numAtts];
+
+  Attribute *hisAtts = other->GetAtts();
+  int myIdx = 0;
+  for (int idx : keepMe) {
+    Attribute hisAtt = hisAtts[idx];
+    myAtts[myIdx].name = strdup(hisAtt.name);
+    myAtts[myIdx].myType = hisAtt.myType;
+    myIdx++;
+  }
+}

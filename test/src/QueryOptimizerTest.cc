@@ -658,6 +658,7 @@ TEST_F(QueryOptimizerTest, GetOptimizedPlanTest) {
   QueryPlan *qp = o.GetOptimizedPlan(cnfString);
   qp->SetOutput(StdOut);
   qp->Print();
+  // qp->Execute();
 }
 // TEST_F(QueryOptimizerTest, TESTSCHEMA)
 // {
@@ -718,5 +719,6 @@ TEST_F(QueryOptimizerTest, GenerateTree) {
   QueryPlan *qp = o.GetOptimizedPlan(cnfString);
   qp->SetOutput(StdOut);
   qp->Print();
+  // qp->Execute();
 }
 }  // namespace dbi
