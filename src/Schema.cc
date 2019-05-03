@@ -291,14 +291,7 @@ Schema ::Schema(char *fName, Schema *s1, Schema *s2, OrderMaker *s2OrderMaker) {
 
   // Copy s1
   for (int i = 0; i < s1->GetNumAtts(); i++) {
-    std::string attNameStr(s1->myAtts[i].name);
-    if (IsQualifiedAtt(attNameStr)) {
-      std::pair<std::string, std::string> relAttPair =
-          SplitQualifiedAtt(attNameStr);
-      myAtts[i].name = strdup(relAttPair.first.c_str());
-    } else {
-      myAtts[i].name = strdup(s1->myAtts[i].name);
-    }
+    myAtts[i].name = strdup(s1->myAtts[i].name);
     switch (s1->myAtts[i].myType) {
       case Int:
         myAtts[i].myType = Int;
@@ -328,14 +321,7 @@ Schema ::Schema(char *fName, Schema *s1, Schema *s2, OrderMaker *s2OrderMaker) {
   int contIndex = s1->GetNumAtts();
   for (int i = 0; i < s2->GetNumAtts(); i++) {
     if (uniqueAttribute(i)) {
-      std::string attNameStr(s2->myAtts[i].name);
-      if (IsQualifiedAtt(attNameStr)) {
-        std::pair<std::string, std::string> relAttPair =
-            SplitQualifiedAtt(attNameStr);
-        myAtts[contIndex].name = strdup(relAttPair.first.c_str());
-      } else {
-        myAtts[contIndex].name = strdup(s2->myAtts[i].name);
-      }
+      myAtts[contIndex].name = strdup(s2->myAtts[i].name);
       switch (s2->myAtts[i].myType) {
         case Int:
           myAtts[contIndex].myType = Int;
@@ -362,15 +348,7 @@ Schema ::Schema(char *fName, Schema *s1, Schema *s2) {
   // Copy s1
   int i = 0;
   for (; i < s1->GetNumAtts(); i++) {
-    std::string attNameStr(s1->myAtts[i].name);
-    if (IsQualifiedAtt(attNameStr)) {
-      std::pair<std::string, std::string> relAttPair =
-          SplitQualifiedAtt(attNameStr);
-      myAtts[i].name = strdup(relAttPair.first.c_str());
-    } else {
-      myAtts[i].name = strdup(s1->myAtts[i].name);
-    }
-    // myAtts[i].name = strdup(s1->myAtts[i].name);
+    myAtts[i].name = strdup(s1->myAtts[i].name);
     switch (s1->myAtts[i].myType) {
       case Int:
         myAtts[i].myType = Int;
@@ -386,15 +364,7 @@ Schema ::Schema(char *fName, Schema *s1, Schema *s2) {
 
   // Copy s2
   for (int j = 0; j < s2->GetNumAtts(); j++) {
-    std::string attNameStr(s2->myAtts[j].name);
-    if (IsQualifiedAtt(attNameStr)) {
-      std::pair<std::string, std::string> relAttPair =
-          SplitQualifiedAtt(attNameStr);
-      myAtts[i].name = strdup(relAttPair.first.c_str());
-    } else {
-      myAtts[i].name = strdup(s2->myAtts[j].name);
-    }
-    // myAtts[i].name = strdup(s2->myAtts[j].name);
+    myAtts[i].name = strdup(s2->myAtts[j].name);
     switch (s2->myAtts[j].myType) {
       case Int:
         myAtts[i].myType = Int;
