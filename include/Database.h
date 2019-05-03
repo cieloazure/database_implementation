@@ -50,9 +50,8 @@ public:
   void ExecuteCommand(std::string command);
 
   // Helpers
-  void ReadPersistantFromData(char *indexFromWhere, char *schemaFromWhere);
-  void WritePersistantDataToFile(char *indexToWhere, char *schemaToWhere);
-  void WriteRelationLookUpNode(std::string relName, RelationTuple *relTuple, std::ofstream &toWhere);
+  void ReadPersistantFromData(char *indexFromWhere, char *schemaFromWhere, char *statsFromWhere);
+  void WritePersistantDataToFile(char *indexToWhere, char *schemaToWhere, char *statsToWhere);
 };
 
 #endif

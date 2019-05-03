@@ -5,7 +5,22 @@ int Database::runLength = 5;
 Database::Database()
 {
   // See if a persistent file exists
+  ifstream indexFile("indexFile.txt");
+  ifstream catalogFile("schemaFile.txt");
+  ifstream statsFile("Statistics.txt");
+
+  bool good = indexFile.good() && catalogFile.good() && statsFile.good();
+  indexFile.close();
+  catalogFile.close();
+  statsFile.close();
+
+  currentStats = new Statistics();
   // If yes load the data structures from those files
+  if (good)
+  {
+    ReadPersistantFromData("indexFile.txt", "schemaFile.txt", "Statistics.txt");
+  }
+
   // If not create a file
 }
 
@@ -227,12 +242,10 @@ Database::Database(
   relationLookUp = *relNameToTuple;
 }
 
-void Database::ReadPersistantFromData(char *indexFromWhere, char *schemaFromWhere)
+void Database::ReadPersistantFromData(char *indexFromWhere, char *schemaFromWhere, char *statsFromWhere)
 {
   // Read statistics object.
-  char *statsFile = "Statistics.txt";
-  currentStats = new Statistics();
-  currentStats->Read(statsFile);
+  currentStats->Read(statsFromWhere);
 
   // Read relationLookup map.
   std::ifstream indexFile(indexFromWhere);
@@ -247,26 +260,24 @@ void Database::ReadPersistantFromData(char *indexFromWhere, char *schemaFromWher
   }
 }
 
-void Database::WritePersistantDataToFile(char *indexToWhere, char *schemaToWhere)
+void Database::WritePersistantDataToFile(char *indexToWhere, char *schemaToWhere, char *statsToWhere)
 {
   // Write statistics to file.
-  char *statsFile = "Statistics.txt";
-  currentStats->Write(statsFile);
+  currentStats->Write(statsToWhere);
 
   std::ofstream indexFileDes(indexToWhere);
 
   std::ofstream catalogFileDes(schemaToWhere);
 
   // Write relationLookUp map to file.
-  // Iterate through the disjoint set vector and write all the disjoint sets.
-  // std::unordered_map<std::string, RelationTuple *> *it = (*relationLookUp).begin();
+  // Iterate through the map and write all the relation tuples.
+
   for (auto it : relationLookUp)
   {
-    // it.second->relName;
     // Write relName to index file.
     indexFileDes << it.first << std::endl;
-    // Write disjoint set node to file
-    // WriteRelationLookUpNode(it.first, it.second, catalogFileDes);
+
+    // Write relationLookUp map to file
     catalogFileDes << "BEGIN" << std::endl;
     catalogFileDes << it.first << std::endl;
     catalogFileDes << it.first << ".tbl" << std::endl;
@@ -275,7 +286,7 @@ void Database::WritePersistantDataToFile(char *indexToWhere, char *schemaToWhere
     Attribute *sAtts = s->GetAtts();
     for (int i = 0; i < s->GetNumAtts(); i++)
     {
-      catalogFileDes << sAtts[i].name << "  "; // << sAtts[i].myType << std::endl;
+      catalogFileDes << sAtts[i].name << "  ";
 
       switch (sAtts[i].myType)
       {
@@ -297,36 +308,7 @@ void Database::WritePersistantDataToFile(char *indexToWhere, char *schemaToWhere
     catalogFileDes << "END" << std::endl
                    << std::endl;
   }
-  // fclose(indexFileDes);
-  // fclose(catalogFileDes);
+
   indexFileDes.close();
   catalogFileDes.close();
-}
-
-void Database::WriteRelationLookUpNode(std::string relName, RelationTuple *relTuple, std::ofstream &toWhere)
-{
-  // toWhere << "BEGIN" << std::endl;
-  // toWhere << relName << std::endl;
-  // toWhere << relName << ".tbl" << std::endl;
-
-  // for (int i = 0; i < relTuple->schema->numAtts; ++i)
-  // {
-  //   toWhere << relTuple->schema->myAtts[i].name << " " << relTuple->schema->myAtts[i].myType << std::endl;
-  // }
-  // toWhere << "END" << std::endl;
-  // Get length of the relation name &
-  // Write the length of relation name string
-  // size_t relNameLen = relName.size();
-  // write(statisticsFileDes, &relNameLen, sizeof(size_t));
-
-  // // Write the actual string of the relation name
-  // write(statisticsFileDes, relName.c_str(), relNameLen);
-
-  // // Get length of the relation name of parent&
-  // // Write the length of relation name string
-  // size_t parentRelNameLen = disjointSetNode->parent->relName.size();
-  // write(statisticsFileDes, &parentRelNameLen, sizeof(size_t));
-
-  // // Write the actual string of the relation name
-  // write(statisticsFileDes, disjointSetNode->parent->relName.c_str(), parentRelNameLen);
 }
