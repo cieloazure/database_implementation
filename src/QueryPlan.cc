@@ -88,6 +88,12 @@ void QueryPlan::CreateRelationalOperators(
       break;
     }
     case DUPLICATE_REMOVAL: {
+      DuplicateRemoval *dupRemovalOp = new DuplicateRemoval();
+      operators.push_back(dupRemovalOp);
+      DuplicateRemovalNode *dupRemovalNode = dynamic_cast<DuplicateRemovalNode *>(iter);
+      Pipe *in = idToPipe[dupRemovalNode->left.id];
+      Pipe *out = idToPipe[dupRemovalNode->parent.id];
+      dupRemovalOp->Run(*in, *out, *dupRemovalNode->schema);
       break;
     }
     case WRITE_OUT: {

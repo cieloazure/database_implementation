@@ -133,15 +133,18 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     RelationNode *relNode2 =
         dynamic_cast<RelationNode *>(joinPair[0]->left.value);
 
+    RelationNode *relNode1Copy = new RelationNode(relNode1);
+    RelationNode *relNode2Copy = new RelationNode(relNode2);
+
     // Set left link of new join node
-    Link leftLink(relNode1, newJoinNode);
+    Link leftLink(relNode1Copy, newJoinNode);
     newJoinNode->left = leftLink;
-    relNode1->parent = leftLink;
+    relNode1Copy->parent = leftLink;
 
     // Set right link of new join node
-    Link rightLink(relNode2, newJoinNode);
+    Link rightLink(relNode2Copy, newJoinNode);
     newJoinNode->right = rightLink;
-    relNode2->parent = rightLink;
+    relNode2Copy->parent = rightLink;
 
     if (final != NULL) {
       CNF *cnf = new CNF;
@@ -177,6 +180,19 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
   }
 
   print();
+  std::string idx1;
+  idx1 += '\x01';
+  idx1 += '\x01';
+  idx1 += '\0';
+  std::string idx2;
+  idx2 += '\x01';
+  idx2 += '\0';
+  idx2 += '\x01';
+  struct Memo memo1 = combinationToMemo[idx1];
+  struct Memo memo2 = combinationToMemo[idx2];
+
+  BaseNode *j1 = memo1.root->left.value;
+  BaseNode *j2 = memo2.root->left.value;
 
   // DP begins
   for (int idx = 3; idx < length + 1; idx++) {
@@ -236,6 +252,8 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       JoinNode *prevJoinNode =
           dynamic_cast<JoinNode *>(prevMemo.root->left.value);
 
+      JoinNode *prevJoinNodeCopy = new JoinNode(prevJoinNode);
+
       // construct new RelationNode which is an alias for SelectFile operation
       RelationNode *newRelNode = new RelationNode;
       newRelNode->nodeType = RELATION_NODE;
@@ -260,9 +278,9 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       JoinNode *newJoinNode = new JoinNode;
       newJoinNode->nodeType = JOIN;
       // Set left link of new join node
-      Link leftLink(prevJoinNode, newJoinNode);
+      Link leftLink(prevJoinNodeCopy, newJoinNode);
       newJoinNode->left = leftLink;
-      prevJoinNode->parent = leftLink;
+      prevJoinNodeCopy->parent = leftLink;
 
       // Set right link of new join node
       Link rightLink(newRelNode, newJoinNode);
@@ -307,8 +325,6 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
   std::string optimalJoin = *(GenerateCombinations(length, length).begin());
   std::cout << "Cost of optimal join:" << combinationToMemo[optimalJoin].cost
             << std::endl;
-  std::cout << "Order of join" << std::endl;
-  std::cout << std::endl;
   // End Optimization
 
   return combinationToMemo[optimalJoin].root->left.value;
@@ -645,7 +661,6 @@ BaseNode *QueryOptimizer::GenerateTree(
     cnf->GrowFromParseTree(final, currentNode->schema, *literal);
     // cnf->Print();
 
-
     OrderMaker *groupAtts = new OrderMaker;
     OrderMaker *dummy = new OrderMaker;
     cnf->GetSortOrders(*groupAtts, *dummy);
@@ -704,6 +719,8 @@ BaseNode *QueryOptimizer::GenerateTree(
     Link link(currentNode, dupRemovalNode);
     dupRemovalNode->left = link;
     currentNode->parent = link;
+
+    currentNode = currentNode->parent.rvalue;
   }
 
   // Set up the sentinel node

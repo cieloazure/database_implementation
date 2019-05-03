@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include "Comparison.h"
 #include "DBFile.h"
+#include "DuplicateRemoval.h"
 #include "Function.h"
 #include "GroupBy.h"
 #include "Join.h"
@@ -69,6 +70,11 @@ class BaseNode {
     nodeType = BASE_NODE;
     schema = NULL;
   }
+  BaseNode(struct BaseNode *copy) {
+    left = copy->left;
+    right = copy->right;
+    schema = copy->schema;
+  }
   virtual void dummy(){};
 };
 
@@ -82,6 +88,14 @@ class RelationNode : public BaseNode {
     nodeType = RELATION_NODE;
     relName = NULL;
   }
+
+  RelationNode(struct RelationNode *copy) : BaseNode(copy) {
+    nodeType = RELATION_NODE;
+    relName = copy->relName;
+    dbFile = copy->dbFile;
+    cnf = copy->cnf;
+    literal = copy->literal;
+  }
   void dummy() {}
 };
 
@@ -94,6 +108,13 @@ class JoinNode : public BaseNode {
     cnf = NULL;
     literal = NULL;
   }
+  JoinNode(struct JoinNode *copy) : BaseNode(copy) {
+    nodeType = JOIN;
+    cnf = copy->cnf;
+    literal = copy->literal;
+    // left = copy->left;
+    // right = copy->right;
+  }
   void dummy() {}
 };
 
@@ -101,7 +122,7 @@ class SelectPipeNode : public JoinNode {};
 
 class DuplicateRemovalNode : public BaseNode {
  public:
-  DuplicateRemovalNode(){};
+  DuplicateRemovalNode() { nodeType = DUPLICATE_REMOVAL; };
   void dummy() {}
 };
 
