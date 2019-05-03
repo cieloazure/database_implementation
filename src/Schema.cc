@@ -55,6 +55,18 @@ std::pair<int, int> Schema ::FindWithStatus(char *attName) {
 }
 
 Type Schema ::FindType(char *attName) {
+  std::string attNameStr(attName);
+  if (IsQualifiedAtt(attNameStr)) {
+    std::pair<std::string, std::string> relAttPair =
+        SplitQualifiedAtt(attNameStr);
+    char *relName = (char *)relAttPair.first.c_str();
+    attName = (char *)relAttPair.second.c_str();
+    char *joinNodeName = "join_schema";
+    if (strcmp(fileName, joinNodeName) != 0 && strcmp(fileName, relName) != 0) {
+      return Int;
+    }
+  }
+
   for (int i = 0; i < numAtts; i++) {
     if (!strcmp(attName, myAtts[i].name)) {
       return myAtts[i].myType;
