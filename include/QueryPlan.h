@@ -13,6 +13,7 @@
 #include "Schema.h"
 #include "SelectFile.h"
 #include "SelectPipe.h"
+#include "Sum.h"
 #include "WriteOut.h"
 
 extern char *whereToGiveOutput;
@@ -105,12 +106,12 @@ class DuplicateRemovalNode : public BaseNode {
 
 class GroupByNode : public BaseNode {
  public:
-  OrderMaker *o;
-  Function *f;
+  OrderMaker *groupAtts;
+  Function *computeMe;
   GroupByNode() {
     nodeType = GROUP_BY;
-    o = NULL;
-    f = NULL;
+    groupAtts = NULL;
+    computeMe = NULL;
   }
   void dummy() {}
 };
@@ -131,10 +132,10 @@ class ProjectNode : public BaseNode {
 
 class SumNode : public BaseNode {
  public:
-  Function *f;
+  Function *computeMe;
   SumNode() {
     nodeType = SUM;
-    f = NULL;
+    computeMe = NULL;
   }
   void dummy() {}
 };

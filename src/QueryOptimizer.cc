@@ -619,47 +619,61 @@ BaseNode *QueryOptimizer::GenerateTree(
     currentNode = currentNode->parent.rvalue;
   }
 
-  // Handle SUM
-  // if (finalFunction) {
-  //   SumNode *s = new SumNode;
-  //   s->schema = currentNode->schema;
-
-  //   Function *f = new Function;
-  //   f->GrowFromParseTree(finalFunction, *child->schema);
-  //   s->f = f;
-
-  //   Link link(s);
-  //   currentNode->left = link;
-  //   s->parent = link;
-  //   currentNode = currentNode->left.value;
-  // }
-
   // Handle GROUP BY
-  // if (groupingAtts) {
-  //   GroupByNode *groupByNode = new GroupByNode;
+  if (groupingAtts) {
+    GroupByNode *groupByNode = new GroupByNode;
 
-  //   CNF *cnf = new CNF;
-  //   Record literal;
-  //   cnf->GrowFromParseTree(final, child->schema, literal);
+    CNF *cnf = new CNF;
+    Record literal;
+    cnf->GrowFromParseTree(final, currentNode->schema, literal);
 
-  //   OrderMaker *sortOrder = new OrderMaker;
-  //   OrderMaker *dummy = new OrderMaker;
+    OrderMaker *groupAtts = new OrderMaker;
+    OrderMaker *dummy = new OrderMaker;
+    cnf->GetSortOrders(*groupAtts, *dummy);
 
-  //   cnf->GetSortOrders(*sortOrder, *dummy);
+    Function *computeMe = new Function;
+    computeMe->GrowFromParseTree(finalFunction, *currentNode->schema);
 
-  //   Function *f = new Function;
-  //   f->GrowFromParseTree(finalFunction, *child->schema);
+    groupByNode->nodeType = GROUP_BY;
+    groupByNode->groupAtts = groupAtts;
+    groupByNode->computeMe = computeMe;
 
-  //   groupByNode->nodeType = GROUP_BY;
-  //   groupByNode->o = sortOrder;
-  //   groupByNode->f = f;
-  //   groupByNode->schema = currentNode->schema;
+    Schema only_group_attributes_schema("group_schema", groupAtts,
+                                        computeMe->GetSchema());
+    Attribute sum_attr;
+    sum_attr.name = "sum";
+    sum_attr.myType = computeMe->GetReturnsInt() ? Int : Double;
+    Schema *group_by_schema = new Schema(only_group_attributes_schema);
+    group_by_schema->AddAttribute(sum_attr);
+    groupByNode->schema = group_by_schema;
 
-  //   Link link(groupByNode);
-  //   currentNode->left = link;
-  //   groupByNode->parent = link;
-  //   currentNode = currentNode->left.value;
-  // }
+    Link link(currentNode, groupByNode);
+    groupByNode->left = link;
+    currentNode->parent = link;
+
+    currentNode = currentNode->parent.rvalue;
+  }
+
+  // Handle SUM
+  if (finalFunction) {
+    SumNode *sumNode = new SumNode;
+
+    Function *computeMe = new Function;
+    computeMe->GrowFromParseTree(finalFunction, *currentNode->schema);
+    sumNode->computeMe = computeMe;
+
+    Attribute sum_attr[1];
+    sum_attr[0].name = "SUM(attr)";
+    sum_attr[0].myType = computeMe->GetReturnsInt() ? Int : Double;
+    Schema *sumSchema = new Schema("sum", 1, sum_attr);
+    sumNode->schema = sumSchema;
+
+    Link link(currentNode, sumNode);
+    sumNode->left = link;
+    currentNode->parent = link;
+
+    currentNode = currentNode->parent.rvalue;
+  }
 
   // Handle DISTINCT
   // if (distinctAtts == 1) {

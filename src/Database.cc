@@ -131,11 +131,10 @@ void Database::ExecuteQuery() {
   QueryPlan *plan = optimizer->GetOptimizedPlan();
   plan->SetOutput(op);
   plan->Print();
-  plan->Execute();
+  if (op != None) {
+    plan->Execute();
+  }
 }
-
-void Database::DropTable() {}
-void Database::UpdateStatistics() {}
 
 void Database::Start() {
   // Get query from user
@@ -197,3 +196,6 @@ Database::Database(
 }
 
 Database::Database(QueryOptimizer *op) { optimizer = op; }
+
+void Database::DropTable() {}
+void Database::UpdateStatistics() {}

@@ -197,7 +197,7 @@ void Function ::GrowFromParseTree(struct FuncOperator *parseTree,
 void Function ::Print() {
   for (int i = 0; i < numOps; i++) {
     struct Arithmatic a = *(opList + i);
-    std::cout << "\tArithmatic op:";
+    std::cout << "\t\t-Arithmatic op:";
     switch (a.myOp) {
       case PushInt:
         std::cout << "\tPushInt" << std::endl;
@@ -242,7 +242,7 @@ void Function ::Print() {
         std::cout << "\tDblMultiply" << std::endl;
         break;
     }
-    std::cout << "\tRec Input:" << a.recInput << std::endl;
+    std::cout << "\t\t-Rec Input:" << a.recInput << std::endl;
   }
 }
 

@@ -52,6 +52,12 @@ void QueryPlan::CreateRelationalOperators(
       break;
     }
     case SUM: {
+      Sum *sumOp = new Sum();
+      operators.push_back(sumOp);
+      SumNode *sumNode = dynamic_cast<SumNode *>(iter);
+      Pipe *in = idToPipe[sumNode->left.id];
+      Pipe *out = idToPipe[sumNode->parent.id];
+      sumOp->Run(*in, *out, *sumNode->computeMe);
       break;
     }
     case PROJECT: {
@@ -151,6 +157,9 @@ void QueryPlan::PrintTree(BaseNode *base) {
       std::cout << "\tSelect pipe CNF:";
       s->cnf->Print();
       std::cout << std::endl;
+      std::cout << "\tSelect Schema:" << std::endl;
+      base->schema->Print("\t\t");
+      std::cout << std::endl;
       std::cout << "********" << std::endl;
       break;
     }
@@ -160,10 +169,10 @@ void QueryPlan::PrintTree(BaseNode *base) {
       std::cout << "SELECT FILE OPERATION" << std::endl;
       std::cout << "\tInput pipe:" << base->left.id << std::endl;
       std::cout << "\tOutput pipe:" << base->parent.id << std::endl;
-      std::cout << "\tOutput Schema:" << std::endl;
-      base->schema->Print("\t\t");
       std::cout << "\tSelect file CNF:";
       s->cnf->Print();
+      std::cout << "\tSelect Schema:" << std::endl;
+      base->schema->Print("\t\t");
       std::cout << std::endl;
       break;
     }
@@ -174,7 +183,7 @@ void QueryPlan::PrintTree(BaseNode *base) {
       std::cout << "\tInput pipe:" << base->left.id << std::endl;
       std::cout << "\tOutput pipe:" << base->parent.id << std::endl;
       std::cout << "\tFunction:" << std::endl;
-      s->f->Print();
+      s->computeMe->Print();
       std::cout << "********" << std::endl;
       break;
     }
@@ -185,9 +194,11 @@ void QueryPlan::PrintTree(BaseNode *base) {
       std::cout << "\tInput pipe:" << base->left.id << std::endl;
       std::cout << "\tOutput pipe:" << base->parent.id << std::endl;
       std::cout << "\tOrder Maker:" << std::endl;
-      g->o->Print();
+      g->groupAtts->Print();
       std::cout << "\tFunction:" << std::endl;
-      g->f->Print();
+      g->computeMe->Print();
+      std::cout << "\tGroupBy Schema:" << std::endl;
+      base->schema->Print("\t\t");
       std::cout << "********" << std::endl;
       break;
     }
