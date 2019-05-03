@@ -11,3 +11,9 @@ SELECT SUM (l.l_discount) FROM customer AS c, orders AS o, lineitem AS l WHERE (
 SELECT DISTINCT s.s_name FROM supplier AS s, part AS p, partsupp AS ps WHERE (s.s_suppkey = ps.ps_suppkey) AND (p.p_partkey = ps.ps_partkey) AND (p.p_mfgr = 'Manufacturer#4') AND (ps.ps_supplycost < 350.0);
 
 SELECT l.l_extendedprice, l.l_discount, o.o_orderdate, o.o_shippriority FROM customer AS c, orders AS o, lineitem AS l WHERE (c.c_mktsegment = 'BUILDING') AND (c.c_custkey = o.o_custkey) AND (l.l_orderkey = o.o_orderkey)  GROUP BY l.l_orderkey, o.o_orderdate, o.o_shippriority;
+
+CREATE TABLE new_region (r_regionkey INTEGER, r_name DOUBLE,r_comment STRING) AS HEAP;
+
+INSERT 'data_files/region.tbl' INTO new_region;
+
+SELECT r_regionkey FROM new_region AS nr WHERE (nr.r_regionkey < 3);
