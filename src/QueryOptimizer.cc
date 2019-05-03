@@ -782,7 +782,7 @@ BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
 {
   BaseNode *current = root;
   // Traverse the tree to find the first select node.
-  while (current)
+  while (current->left.value)
   {
     if (current->left.value->nodeType == SELECT_PIPE)
     {
@@ -853,7 +853,7 @@ BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
   else
   {
     // handle 'joins present' logic.
-    while (current)
+    while (current->left.value)
     {
       if (current->left.value->nodeType == JOIN)
       {

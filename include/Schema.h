@@ -10,20 +10,20 @@
 #include "File.h"
 #include "Schema.h"
 
-struct att_pair {
+struct att_pair
+{
   char *name;
   Type type;
 };
-struct Attribute {
+struct Attribute
+{
   char *name;
   Type myType;
 };
 
 class OrderMaker;
-class Schema {
-  // gives the attributes in the schema
-  int numAtts;
-  Attribute *myAtts;
+class Schema
+{
 
   // gives the physical location of the binary file storing the relation
   char *fileName;
@@ -36,9 +36,13 @@ class Schema {
 
   void GetDifference(Schema *s, OrderMaker o, int *diff);
 
- public:
+public:
   // gets the set of attributes, but be careful with this, since it leads
   // to aliasing!!!
+  // gives the attributes in the schema
+  int numAtts;
+  Attribute *myAtts;
+
   Attribute *GetAtts();
 
   // returns the number of attributes

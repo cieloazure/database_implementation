@@ -2,6 +2,7 @@
 #define DATABASE_H
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -11,11 +12,12 @@
 #include "Schema.h"
 #include "Statistics.h"
 
-extern "C" {
-typedef struct yy_buffer_state *YY_BUFFER_STATE;
-int yyparse(void);  // defined in y.tab.c
-YY_BUFFER_STATE yy_scan_string(const char *str);
-void yy_delete_buffer(YY_BUFFER_STATE buffer);
+extern "C"
+{
+  typedef struct yy_buffer_state *YY_BUFFER_STATE;
+  int yyparse(void); // defined in y.tab.c
+  YY_BUFFER_STATE yy_scan_string(const char *str);
+  void yy_delete_buffer(YY_BUFFER_STATE buffer);
 }
 
 extern struct NewTable *newTable;
@@ -25,17 +27,18 @@ extern char *whereToGiveOutput;
 extern char *whichTableToUpdateStatsFor;
 extern int operationId;
 
-class Database {
- public:
+class Database
+{
+public:
   static int runLength;
   Statistics *currentStats;
-  std::unordered_map<std::string, RelationTuple *> relationLookUp;
+  std::unordered_map<std::string, RelationTuple *> *relationLookUp;
   WhereOutput op;
   QueryOptimizer *optimizer;
 
   Database();
   Database(Statistics *stats,
-           std::unordered_map<std::string, RelationTuple *> relNameToTuple);
+           std::unordered_map<std::string, RelationTuple *> *relNameToTuple);
   void Start();
   void End();
   void UpdateStatistics();
@@ -45,6 +48,11 @@ class Database {
   void SetOutput();
   void BulkLoad();
   void ExecuteCommand(std::string command);
+
+  // Helpers
+  void ReadPersistantFromData();
+  void WritePersistantDataToFile(char *indexToWhere, char *schemaToWhere);
+  void WriteRelationLookUpNode(std::string relName, RelationTuple *relTuple, std::ofstream &toWhere);
 };
 
 #endif
