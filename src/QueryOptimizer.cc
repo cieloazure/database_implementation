@@ -574,6 +574,7 @@ BaseNode *QueryOptimizer::GenerateTree(
 
   // Handle SELECTS.
   if (boolean) {
+    ReplaceAliasByRelationName(boolean);
     CNF *cnf = new CNF;            // = new CNF;
     Record *literal = new Record;  // = new Record;
     cnf->GrowFromParseTree(boolean, child->schema, *literal);
@@ -744,4 +745,72 @@ bool QueryOptimizer::ConstructSelectFileAllTuplesCNF(Schema *schema,
   yy_scan_string(cnfStr.c_str());
   yyparse();
   return true;
+}
+
+void QueryOptimizer::ReplaceAliasByRelationName(struct AndList *boolean) {
+  std::map<std::string, std::string> aliasToRelName;
+  TableList *current = tables;
+  while (current) {
+    aliasToRelName[std::string(current->aliasAs)] =
+        std::string(current->tableName);
+    current = current->next;
+  }
+  CheckAndList(boolean, aliasToRelName);
+}
+
+void QueryOptimizer::CheckAndList(
+    struct AndList *andList,
+    std::map<std::string, std::string> aliasToRelName) {
+  if (andList != NULL) {
+    struct OrList *orList = andList->left;
+    CheckOrList(orList, aliasToRelName);
+    if (andList->rightAnd) {
+      CheckAndList(andList->rightAnd, aliasToRelName);
+    }
+  }
+}
+
+void QueryOptimizer::CheckOrList(
+    struct OrList *orList, std::map<std::string, std::string> aliasToRelName) {
+  if (orList != NULL) {
+    struct ComparisonOp *compOp = orList->left;
+    CheckCompOp(compOp, aliasToRelName);
+    // check compOp
+    if (orList->rightOr) {
+      CheckOrList(orList->rightOr, aliasToRelName);
+    }
+  }
+}
+
+void QueryOptimizer::CheckCompOp(
+    struct ComparisonOp *compOp,
+    std::map<std::string, std::string> aliasToRelName) {
+  if (compOp) {
+    CheckOperand(compOp->left, aliasToRelName);
+    CheckOperand(compOp->right, aliasToRelName);
+  }
+}
+
+void QueryOptimizer::CheckOperand(
+    struct Operand *op, std::map<std::string, std::string> aliasToRelName) {
+  if (op) {
+    if (!IsALiteral(op)) {
+      std::string value(op->value);
+      size_t idx = value.find('.', 0);
+      std::string rel;
+      std::string att;
+      if (idx == std::string::npos) {
+        att = value;
+      } else {
+        rel = value.substr(0, idx);
+        att = value.substr(idx + 1, value.length());
+
+        std::string completeRelName = aliasToRelName[rel];
+        completeRelName += "." + att;
+        op->value = strdup(completeRelName.c_str());
+      }
+      // Replace string before '.' by relName
+      // by lookup
+    }
+  }
 }

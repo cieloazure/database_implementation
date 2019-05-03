@@ -101,6 +101,15 @@ class QueryOptimizer {
   bool IsALiteral(Operand *op);
   bool ContainsLiteral(ComparisonOp *compOp);
   // Utility functions end
+  void ReplaceAliasByRelationName(struct AndList *boolean);
+  void CheckAndList(struct AndList *boolean,
+                    std::map<std::string, std::string> aliasToRelName);
+  void CheckOrList(struct OrList *orList,
+                   std::map<std::string, std::string> aliasToRelName);
+  void CheckCompOp(struct ComparisonOp *compOp,
+                   std::map<std::string, std::string> aliasToRelName);
+  void CheckOperand(struct Operand *op,
+                    std::map<std::string, std::string> aliasToRelName);
 };
 
 #endif

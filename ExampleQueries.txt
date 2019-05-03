@@ -7,3 +7,4 @@ SELECT SUM(s_acctbal + (s_acctbal * 1.05)) FROM supplier AS s WHERE (s.suppkey =
 SELECT DISTINCT ps_suppkey FROM partsupp AS ps WHERE (ps_supplycost < 100.11);
 SELECT SUM(ps.ps_supplycost) FROM part AS p, supplier AS s, partsupp AS ps WHERE (p.p_partkey = ps.ps_partkey) AND (s.s_suppkey = ps.ps_suppkey) AND (s.s_acctbal > 2500.0);
 SELECT l_orderkey, l_partkey, l_suppkey FROM lineitem AS li WHERE (l_returnflag = 'R') AND (l_discount < 0.04 OR l_returnflag = 'R') AND (l_shipmode = 'MAIL');
+SELECT l.l_orderkey, l.l_partkey, l.l_suppkey FROM lineitem AS l WHERE (l.l_returnflag = 'R') AND (l.l_discount < 0.04 OR l.l_shipmode = 'MAIL') AND (l.l_orderkey > 5000) AND (l.l_orderkey < 6000);
