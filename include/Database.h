@@ -32,7 +32,7 @@ class Database
 public:
   static int runLength;
   Statistics *currentStats;
-  std::unordered_map<std::string, RelationTuple *> *relationLookUp;
+  std::unordered_map<std::string, RelationTuple *> relationLookUp;
   WhereOutput op;
   QueryOptimizer *optimizer;
 
@@ -50,7 +50,7 @@ public:
   void ExecuteCommand(std::string command);
 
   // Helpers
-  void ReadPersistantFromData();
+  void ReadPersistantFromData(char *indexFromWhere, char *schemaFromWhere);
   void WritePersistantDataToFile(char *indexToWhere, char *schemaToWhere);
   void WriteRelationLookUpNode(std::string relName, RelationTuple *relTuple, std::ofstream &toWhere);
 };

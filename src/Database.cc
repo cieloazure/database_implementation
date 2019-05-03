@@ -120,13 +120,13 @@ void Database::CreateTable()
   relTuple->schema = schema;
   relTuple->dbFile = dbFile;
 
-  (*relationLookUp)[relName] = relTuple;
+  relationLookUp[relName] = relTuple;
 }
 
 void Database::BulkLoad()
 {
   std::string relName(bulkLoadInfo->tName);
-  RelationTuple *relTuple = (*relationLookUp)[relName];
+  RelationTuple *relTuple = relationLookUp[relName];
   DBFile *dbFile = relTuple->dbFile;
   dbFile->Open(relTuple->relName.c_str());
   dbFile->Load(*relTuple->schema, bulkLoadInfo->fName);
@@ -224,11 +224,27 @@ Database::Database(
     std::unordered_map<std::string, RelationTuple *> *relNameToTuple)
 {
   currentStats = stats;
-  relationLookUp = relNameToTuple;
+  relationLookUp = *relNameToTuple;
 }
 
-void Database::ReadPersistantFromData()
+void Database::ReadPersistantFromData(char *indexFromWhere, char *schemaFromWhere)
 {
+  // Read statistics object.
+  char *statsFile = "Statistics.txt";
+  currentStats = new Statistics();
+  currentStats->Read(statsFile);
+
+  // Read relationLookup map.
+  std::ifstream indexFile(indexFromWhere);
+  std::string relName;
+  while (std::getline(indexFile, relName))
+  {
+    // Read token from catalog.
+    Schema *s = new Schema(schemaFromWhere, (char *)relName.c_str());
+    DBFile *db = new DBFile();
+    db->Open((char *)relName.c_str());
+    relationLookUp[relName] = new RelationTuple(s, db);
+  }
 }
 
 void Database::WritePersistantDataToFile(char *indexToWhere, char *schemaToWhere)
@@ -243,28 +259,61 @@ void Database::WritePersistantDataToFile(char *indexToWhere, char *schemaToWhere
 
   // Write relationLookUp map to file.
   // Iterate through the disjoint set vector and write all the disjoint sets.
-  for (std::unordered_map<std::string, RelationTuple *> it = (*relationLookUp).begin())
+  // std::unordered_map<std::string, RelationTuple *> *it = (*relationLookUp).begin();
+  for (auto it : relationLookUp)
   {
+    // it.second->relName;
     // Write relName to index file.
     indexFileDes << it.first << std::endl;
-    // Write disjoint set noe to file
-    WriteRelationLookUpNode(it.first, it.second, catalogFileDes);
+    // Write disjoint set node to file
+    // WriteRelationLookUpNode(it.first, it.second, catalogFileDes);
+    catalogFileDes << "BEGIN" << std::endl;
+    catalogFileDes << it.first << std::endl;
+    catalogFileDes << it.first << ".tbl" << std::endl;
+
+    Schema *s = it.second->schema;
+    Attribute *sAtts = s->GetAtts();
+    for (int i = 0; i < s->GetNumAtts(); i++)
+    {
+      catalogFileDes << sAtts[i].name << "  "; // << sAtts[i].myType << std::endl;
+
+      switch (sAtts[i].myType)
+      {
+      case Int:
+        catalogFileDes << "Int";
+        break;
+      case Double:
+        catalogFileDes << "Double";
+        break;
+      case String:
+        catalogFileDes << "String";
+        break;
+      default:
+        catalogFileDes << "Int";
+        break;
+      }
+      catalogFileDes << std::endl;
+    }
+    catalogFileDes << "END" << std::endl
+                   << std::endl;
   }
   // fclose(indexFileDes);
   // fclose(catalogFileDes);
+  indexFileDes.close();
+  catalogFileDes.close();
 }
 
 void Database::WriteRelationLookUpNode(std::string relName, RelationTuple *relTuple, std::ofstream &toWhere)
 {
-  toWhere << "BEGIN" << std::endl;
-  toWhere << relName << std::endl;
-  toWhere << relName << ".tbl" << std::endl;
+  // toWhere << "BEGIN" << std::endl;
+  // toWhere << relName << std::endl;
+  // toWhere << relName << ".tbl" << std::endl;
 
-  for (int i = 0; i < relTuple->schema->numAtts; ++i)
-  {
-    toWhere << relTuple->schema->myAtts->name << " " << relTuple->schema->myAtts->myType << std::endl;
-  }
-  toWhere << "END" << std::endl;
+  // for (int i = 0; i < relTuple->schema->numAtts; ++i)
+  // {
+  //   toWhere << relTuple->schema->myAtts[i].name << " " << relTuple->schema->myAtts[i].myType << std::endl;
+  // }
+  // toWhere << "END" << std::endl;
   // Get length of the relation name &
   // Write the length of relation name string
   // size_t relNameLen = relName.size();

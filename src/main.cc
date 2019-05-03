@@ -29,41 +29,50 @@ int main()
   dbFile7->Load(region, "data_files/data_files/region.tbl");
 
   relNameToRelTuple["region"] = new RelationTuple(&region, dbFile7);
+  dbFile7->Close();
 
   DBFile *dbFile = new DBFile();
   dbFile->Create("lineitem", heap, NULL);
   dbFile->Load(lineitem, "data_files/data_files/lineitem.tbl");
   relNameToRelTuple["lineitem"] = new RelationTuple(&lineitem, dbFile);
+  dbFile->Close();
 
   DBFile *dbFile2 = new DBFile();
   dbFile2->Create("orders", heap, NULL);
   dbFile2->Load(orders, "data_files/data_files/orders.tbl");
   relNameToRelTuple["orders"] = new RelationTuple(&orders, dbFile2);
+  dbFile2->Close();
 
   DBFile *dbFile3 = new DBFile();
   dbFile3->Create("supplier", heap, NULL);
   dbFile3->Load(supplier, "data_files/data_files/supplier.tbl");
   relNameToRelTuple["supplier"] = new RelationTuple(&supplier, dbFile3);
+  dbFile3->Close();
 
   DBFile *dbFile4 = new DBFile();
   dbFile4->Create("partsupp", heap, NULL);
   dbFile4->Load(partsupp, "data_files/data_files/partsupp.tbl");
   relNameToRelTuple["partsupp"] = new RelationTuple(&partsupp, dbFile4);
+  dbFile4->Close();
 
   DBFile *dbFile5 = new DBFile();
   dbFile5->Create("customer", heap, NULL);
   dbFile5->Load(customer, "data_files/data_files/customer.tbl");
   relNameToRelTuple["customer"] = new RelationTuple(&customer, dbFile5);
+  dbFile5->Close();
 
   DBFile *dbFile6 = new DBFile();
   dbFile6->Create("part", heap, NULL);
   dbFile6->Load(part, "data_files/data_files/part.tbl");
-  relNameToRelTuple["part"] = new RelationTuple(&part, dbFile6);
+  RelationTuple *temp = new RelationTuple(&part, dbFile6);
+  relNameToRelTuple["part"] = temp;
+  dbFile6->Close();
 
   DBFile *dbFile8 = new DBFile();
   dbFile8->Create("nation", heap, NULL);
   dbFile8->Load(nation, "data_files/data_files/nation.tbl");
   relNameToRelTuple["nation"] = new RelationTuple(&nation, dbFile8);
+  dbFile8->Close();
 
   // Load Statistics
   char *relName[] = {"supplier", "partsupp", "lineitem", "orders",
@@ -110,68 +119,70 @@ int main()
   s.AddAtt(relName[7], "p_name", 199996);
   s.AddAtt(relName[7], "p_container", 40);
 
-  // Initialize query optimizer
-  QueryOptimizer optimizer(&s, &relNameToRelTuple);
-  Database *db = new Database(&s, &relNameToRelTuple);
+  // // // Initialize query optimizer
+  // // QueryOptimizer optimizer(&s, &relNameToRelTuple);
+  // Database *db = new Database(&s, &relNameToRelTuple);
+  // db->WritePersistantDataToFile("indexFile.txt", "schemaFile.txt");
+  Database *db = new Database();
+  db->ReadPersistantFromData("indexFile.txt", "schemaFile.txt");
 
   // Get query from user
-  std::cout
-      << "Welcome to Database Implementation Demo v0.1" << std::endl;
-  std::cout << std::endl;
-  std::cout << "Commands end with `;`" << std::endl;
-  std::cout << std::endl;
-  std::cout << "Type `help` for help" << std::endl;
-  std::cout << "Type `Ctrl-D` or `Ctrl-C` to exit" << std::endl;
-  std::cout << std::endl;
-  std::cout << std::endl;
-  while (true)
-  {
-    cout << "dbi>  ";
-    std::string query;
-    std::string line;
-    // std::cin.flush();
-    bool enter = false;
-    while (true)
-    {
-      if (enter)
-      {
-        query += "  ";
-        std::cout << "  ->  ";
-      }
-      std::getline(std::cin, line);
-      if (query == "" && line == "")
-      {
-        break;
-      }
-      if (std::cin.eof())
-      {
-        break;
-      }
-      query += line;
-      if (query[query.size() - 1] == ';')
-      {
-        break;
-      }
-      enter = true;
-    }
-    if (std::cin.eof())
-    {
-      std::cout << "Bye!" << std::endl;
-      break;
-    }
-    if (query.size() > 0)
-    {
-      std::cout << "--------------DEBUG MODE--------------" << std::endl;
-      std::cout << "Given Query:" << query << std::endl;
-      // Run optimization to get QueryPlan
-      cout << "Query Plan:" << std::endl;
-      QueryPlan *qp = optimizer.GetOptimizedPlan(query);
-      qp->Print();
-      qp->SetOutput(StdOut);
-      qp->Execute();
-      db->WritePersistantDataToFile("indexFile.txt", "schemaFile.txt");
-    }
-  }
+  // std::cout
+  //     << "Welcome to Database Implementation Demo v0.1" << std::endl;
+  // std::cout << std::endl;
+  // std::cout << "Commands end with `;`" << std::endl;
+  // std::cout << std::endl;
+  // std::cout << "Type `help` for help" << std::endl;
+  // std::cout << "Type `Ctrl-D` or `Ctrl-C` to exit" << std::endl;
+  // std::cout << std::endl;
+  // std::cout << std::endl;
+  // while (true)
+  // {
+  //   cout << "dbi>  ";
+  //   std::string query;
+  //   std::string line;
+  //   // std::cin.flush();
+  //   bool enter = false;
+  //   while (true)
+  //   {
+  //     if (enter)
+  //     {
+  //       query += "  ";
+  //       std::cout << "  ->  ";
+  //     }
+  //     std::getline(std::cin, line);
+  //     if (query == "" && line == "")
+  //     {
+  //       break;
+  //     }
+  //     if (std::cin.eof())
+  //     {
+  //       break;
+  //     }
+  //     query += line;
+  //     if (query[query.size() - 1] == ';')
+  //     {
+  //       break;
+  //     }
+  //     enter = true;
+  //   }
+  //   if (std::cin.eof())
+  //   {
+  //     std::cout << "Bye!" << std::endl;
+  //     break;
+  //   }
+  //   if (query.size() > 0)
+  //   {
+  //     std::cout << "--------------DEBUG MODE--------------" << std::endl;
+  //     // std::cout << "Given Query:" << query << std::endl;
+  //     // Run optimization to get QueryPlan
+  //     // cout << "Query Plan:" << std::endl;
+  //     // QueryPlan *qp = optimizer.GetOptimizedPlan(query);
+  //     // qp->Print();
+  //     // qp->SetOutput(StdOut);
+  //     // qp->Execute();
+  //   }
+  // }
   // std::string line;
   // while (true) {
   //   cout << "Enter:";
