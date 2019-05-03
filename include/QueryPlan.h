@@ -6,6 +6,7 @@
 #include "Comparison.h"
 #include "DBFile.h"
 #include "Function.h"
+#include "GroupBy.h"
 #include "Join.h"
 #include "Pipe.h"
 #include "Project.h"

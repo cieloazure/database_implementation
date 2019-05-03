@@ -37,6 +37,13 @@ void QueryPlan::CreateRelationalOperators(
       break;
     }
     case GROUP_BY: {
+      GroupBy *groupByOp = new GroupBy();
+      operators.push_back(groupByOp);
+      GroupByNode *groupByNode = dynamic_cast<GroupByNode *>(iter);
+      Pipe *in = idToPipe[groupByNode->left.id];
+      Pipe *out = idToPipe[groupByNode->parent.id];
+      groupByOp->Run(*in, *out, *groupByNode->groupAtts,
+                     *groupByNode->computeMe);
       break;
     }
     case SELECT_FILE: {

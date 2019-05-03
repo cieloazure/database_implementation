@@ -655,7 +655,7 @@ BaseNode *QueryOptimizer::GenerateTree(
   }
 
   // Handle SUM
-  if (finalFunction) {
+  if (groupingAtts == NULL && finalFunction != NULL) {
     SumNode *sumNode = new SumNode;
 
     Function *computeMe = new Function;
