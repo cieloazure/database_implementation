@@ -624,12 +624,31 @@ BaseNode *QueryOptimizer::GenerateTree(
     GroupByNode *groupByNode = new GroupByNode;
 
     CNF *cnf = new CNF;
-    Record literal;
-    cnf->GrowFromParseTree(final, currentNode->schema, literal);
+    Record *literal = new Record;
+
+    struct NameList *head = groupingAtts;
+    std::string groupCnf;
+    bool firstIterDone = false;
+    while (head != NULL) {
+      std::string newString(head->name);
+      if (firstIterDone) {
+        groupCnf += " AND ";
+      }
+      groupCnf += "(" + newString + " = " + newString + ")";
+      head = head->next;
+      if (!firstIterDone) {
+        firstIterDone = true;
+      }
+    }
+    yy_scan_string(groupCnf.c_str());
+    yyparse();
+    cnf->GrowFromParseTree(final, currentNode->schema, *literal);
+    cnf->Print();
 
     OrderMaker *groupAtts = new OrderMaker;
     OrderMaker *dummy = new OrderMaker;
     cnf->GetSortOrders(*groupAtts, *dummy);
+    groupAtts->Print();
 
     Function *computeMe = new Function;
     computeMe->GrowFromParseTree(finalFunction, *currentNode->schema);
@@ -646,6 +665,7 @@ BaseNode *QueryOptimizer::GenerateTree(
     Schema *group_by_schema = new Schema(only_group_attributes_schema);
     group_by_schema->AddAttribute(sum_attr);
     groupByNode->schema = group_by_schema;
+    groupByNode->schema->Print("\t\t");
 
     Link link(currentNode, groupByNode);
     groupByNode->left = link;
