@@ -697,20 +697,16 @@ BaseNode *QueryOptimizer::GenerateTree(
   }
 
   // Handle DISTINCT
-  // if (distinctAtts == 1) {
-  //   DuplicateRemovalNode *drNode = new DuplicateRemovalNode();
-  //   if (currentNode) {
-  //     drNode->nodeType = DUPLICATE_REMOVAL;
-  //     drNode->schema = currentNode->schema;
+  if (distinctAtts == 1) {
+    DuplicateRemovalNode *dupRemovalNode = new DuplicateRemovalNode();
+    dupRemovalNode->schema = currentNode->schema;
 
-  //     Link link(drNode);
-  //     currentNode->left = link;
-  //     drNode->parent = link;
-  //     currentNode = currentNode->left.value;
-  //   }
-  // }
+    Link link(currentNode, dupRemovalNode);
+    dupRemovalNode->left = link;
+    currentNode->parent = link;
+  }
 
-  // Finally join the JOIN subtree
+  // Set up the sentinel node
   BaseNode *root = new BaseNode();
   Link sentinelLink(currentNode, root);
   root->left = sentinelLink;
