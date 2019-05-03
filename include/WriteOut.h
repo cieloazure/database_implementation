@@ -7,6 +7,8 @@
 #include "RelationalOp.h"
 
 class WriteOut : public RelationalOp {
+  // Physical operator to write the contents of the inPipe in outFile using
+  // mySchema
  private:
   static void *WriteOutWorkerThreadRoutine(void *threadparams);
 

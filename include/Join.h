@@ -6,6 +6,9 @@
 #include "RelationalOp.h"
 
 class Join : public RelationalOp {
+  // Physical operator for join operations. It is quite involved in how it
+  // performs. Depending on whether sortOrder can be constructred from cnf
+  // Sort-Merge Join or Block-Nested Loop join is performed
  private:
   static void *JoinWorkerThreadRoutine(void *threadparams);
 
@@ -13,7 +16,7 @@ class Join : public RelationalOp {
                                   Schema *leftSchema, Schema *rightSchema,
                                   OrderMaker &rightOrderMaker,
                                   Record *mergedRec);
-                  
+
   static void ComposeMergedRecord(Record &left, Record &right,
                                   Schema *leftSchema, Schema *rightSchema,
                                   Record *mergedRec);

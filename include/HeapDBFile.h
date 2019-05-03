@@ -16,6 +16,9 @@
 // typedef enum { reading, writing, idle } modeType;
 
 class HeapDBFile : public GenericDBFile {
+  // HeapDBFile is a sort of file in which records are always appended to the
+  // end. In order to find a record in such a file linear access needs to be
+  // made. This is the simplest file one could implement.
  private:
   const char *file_path; /* The destination of the file */
   fType type;            /* Type of file (enum) */

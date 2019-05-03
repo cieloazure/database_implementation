@@ -77,6 +77,7 @@ class Schema {
   // copy constructor
   Schema(char *fName, Schema *other);
 
+  // Creating a schema for project operation
   Schema(char *fName, Schema *other, std::vector<int> keepMe);
 
   ~Schema();

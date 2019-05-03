@@ -290,8 +290,8 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       if (final != NULL) {
         CNF *cnf = new CNF;
         Record literal;
-        cnf->GrowFromParseTree2(final, prevJoinNode->schema, newRelNode->schema,
-                                literal);
+        cnf->GrowFromParseTreeForJoins(final, prevJoinNode->schema,
+                                       newRelNode->schema, literal);
         cnf->Print();
         OrderMaker left;
         OrderMaker right;

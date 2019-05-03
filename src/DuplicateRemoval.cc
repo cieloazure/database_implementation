@@ -17,9 +17,9 @@ void *DuplicateRemoval ::DuplicateRemovalWorkerThreadRoutine(
 
   Record *prev = new Record();
   if (!sortedOutPipe->Remove(prev)) {
-    cout << "No records in input pipe/ BigQ input pipe close/No records to "
-            "remove"
-         << endl;
+    // cout << "No records in input pipe/ BigQ input pipe close/No records to "
+    //         "remove"
+    //      << endl;
     pthread_exit(NULL);
   }
   Record *copy = new Record();
@@ -73,8 +73,8 @@ void DuplicateRemoval ::Run(Pipe &inPipe, Pipe &outPipe, Schema &mySchema) {
 DuplicateRemoval ::DuplicateRemoval() {}
 DuplicateRemoval ::~DuplicateRemoval() {}
 void DuplicateRemoval ::WaitUntilDone() {
-  cout << "Duplicate removal waiting..." << endl;
+  // cout << "Duplicate removal waiting..." << endl;
   pthread_join(threadid, NULL);
-  cout << "Duplcate removal done!" << endl;
+  // cout << "Duplcate removal done!" << endl;
 }
 void DuplicateRemoval ::Use_n_Pages(int n) {}

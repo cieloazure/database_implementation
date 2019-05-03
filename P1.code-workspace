@@ -78,7 +78,8 @@
 			"optional": "cpp",
 			"cinttypes": "cpp",
 			"__errc": "cpp",
-			"__node_handle": "cpp"
+			"__node_handle": "cpp",
+			"hash_map": "cpp"
 		},
 		"editor.formatOnSave": true
 	}

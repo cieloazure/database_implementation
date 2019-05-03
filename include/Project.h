@@ -6,6 +6,7 @@
 #include "RelationalOp.h"
 
 class Project : public RelationalOp {
+  // Phyical operator for Project relations
  private:
   static void *ProjectWorkerThreadRoutine(void *threadparams);
 

@@ -75,9 +75,9 @@ Sum ::Sum() {}
 Sum ::~Sum() {}
 
 void Sum ::WaitUntilDone() {
-  std::cout << "Sum waiting...." << std::endl;
+  // std::cout << "Sum waiting...." << std::endl;
   pthread_join(threadid, NULL);
-  std::cout << "Sum done!" << std::endl;
+  // std::cout << "Sum done!" << std::endl;
 }
 
 void Sum ::Use_n_Pages(int n) {}

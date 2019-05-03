@@ -206,6 +206,8 @@ class QueryPlan {
   void Print();
   void PrintTree(BaseNode *base);
   void SetOutput(WhereOutput op);
+
+ private:
   void CreateConcretePipes(BaseNode *iter,
                            std::unordered_map<int, Pipe *> &idToPipe);
 

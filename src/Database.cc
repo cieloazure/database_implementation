@@ -9,6 +9,8 @@ Database::Database() {
 }
 
 void Database::ExecuteCommand(std::string command) {
+  std::chrono::time_point<std::chrono::system_clock> start, end;
+  start = std::chrono::system_clock::now();
   yy_scan_string(command.c_str());
   yyparse();
   switch (operationId) {
@@ -31,6 +33,9 @@ void Database::ExecuteCommand(std::string command) {
       UpdateStatistics();
       break;
   }
+  end = std::chrono::system_clock::now();
+  std::chrono::duration<double> elapsedSeconds = end - start;
+  std::cout << "(" << elapsedSeconds.count() << " secs)" << std::endl;
 }
 
 void Database::CreateTable() {
@@ -104,7 +109,7 @@ void Database::CreateTable() {
   relTuple->dbFile = dbFile;
 
   relationLookUp[relName] = relTuple;
-  std::cout << "Executed `CREATE TABLE` successfully" << std::endl;
+  std::cout << "OK(0 rows affected)(0.0s)" << std::endl;
 }
 
 void Database::BulkLoad() {

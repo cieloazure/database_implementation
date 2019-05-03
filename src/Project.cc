@@ -57,9 +57,9 @@ void Project ::Run(Pipe &inPipe, Pipe &outPipe, int *keepMe, int numAttsInput,
 }
 
 void Project::WaitUntilDone() {
-  cout << "Project Waiting...." << endl;
+  // cout << "Project Waiting...." << endl;
   pthread_join(threadid, NULL);
-  cout << "Project done waiting!" << endl;
+  // cout << "Project done waiting!" << endl;
 }
 
 void Project::Use_n_Pages(int n) {}

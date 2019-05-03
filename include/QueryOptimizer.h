@@ -43,25 +43,39 @@ struct Memo {
 };
 
 class QueryOptimizer {
+  // Class which helps us get to a optimzed version of a  query plan.
+ private:
+  Statistics *currentStats;
+  std::unordered_map<std::string, RelationTuple *> *relNameToRelTuple;
+
  public:
   QueryOptimizer();
   QueryOptimizer(
       Statistics *currentStats,
       std::unordered_map<std::string, RelationTuple *> *relNameToRelTuple);
 
-  QueryPlan *GetOptimizedPlan(std::string query);
+  // TODO: Only need this function to remain public
   QueryPlan *GetOptimizedPlan();
 
+  // Helper functions(Temporarily public for testing)
+  // Will be made private in future
+
+  QueryPlan *GetOptimizedPlan(std::string query);
   QueryPlan *GetOptimizedPlanUtil();
 
-  Statistics *currentStats;
-  std::unordered_map<std::string, RelationTuple *> *relNameToRelTuple;
-
+  // Find the best order in which relations can be combined using Dynamic
+  // programming
   BaseNode *OptimumOrderingOfJoin(
       std::unordered_map<std::string, RelationTuple *> relNameToRelTuple,
       Statistics *prevStats, std::vector<std::string> relNames,
       std::vector<std::vector<std::string>> joinMatrix);
 
+  // Append all other nodes in the given command on top of this node
+  BaseNode *GenerateTree(
+      struct BaseNode *child,
+      std::unordered_map<std::string, RelationTuple *> relNameToRelTuple);
+
+  // Utility functions begin
   bool ConstructJoinCNF(std::vector<std::string> relNames,
                         std::vector<std::vector<std::string>> joinMatrix,
                         std::string left, std::string right);
@@ -82,14 +96,11 @@ class QueryOptimizer {
       Statistics *currentStats,
       std::vector<std::vector<std::string>> &joinMatrix);
 
-  BaseNode *GenerateTree(
-      struct BaseNode *child,
-      std::unordered_map<std::string, RelationTuple *> relNameToRelTuple);
-
   bool IsQualifiedAtt(std::string value);
   std::pair<std::string, std::string> SplitQualifiedAtt(std::string value);
   bool IsALiteral(Operand *op);
   bool ContainsLiteral(ComparisonOp *compOp);
+  // Utility functions end
 };
 
 #endif

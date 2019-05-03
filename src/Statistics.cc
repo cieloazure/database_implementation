@@ -133,10 +133,10 @@ double Statistics::CalculateCost(AndList *parseTree, char *relNames[],
   std::vector<std::string> disjointVec(disjointSetSubset.begin(),
                                        disjointSetSubset.end());
   if (!CheckAttNameInRel(parseTree, disjointVec)) {
-    std::cout << "[Statistics]:ERROR: Estimate/Apply ParseTree invalid! "
-                 "Attribute name not "
-                 "present in the given relation"
-              << std::endl;
+    // std::cout << "[Statistics]:ERROR: Estimate/Apply ParseTree invalid! "
+    //              "Attribute name not "
+    //              "present in the given relation"
+    //           << std::endl;
     return -1.0;
   }
 

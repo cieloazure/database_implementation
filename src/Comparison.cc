@@ -699,8 +699,9 @@ void CNF::BuildQueryOrderMaker(OrderMaker &fileSortOrder,
   }
 }
 
-void CNF::GrowFromParseTree2(struct AndList *parseTree, Schema *leftSchema,
-                             Schema *rightSchema, Record &literal) {
+void CNF::GrowFromParseTreeForJoins(struct AndList *parseTree,
+                                    Schema *leftSchema, Schema *rightSchema,
+                                    Record &literal) {
   this->leftSchema = leftSchema;
   this->rightSchema = rightSchema;
   CNF &cnf = *this;

@@ -126,8 +126,11 @@ class CNF {
   // this takes a parse tree for a CNF and converts it into a 2-D
   // matrix storing the same CNF expression.  This function is applicable
   // specifically to the case where there are two relations involved
-  void GrowFromParseTree2(struct AndList *parseTree, Schema *leftSchema,
-                          Schema *rightSchema, Record &literal);
+  // This is helpful for finding attributes in joined relations if there is a
+  // possblity of it being present in both the left and right schema
+  // In, that case one is taken as left and other as right
+  void GrowFromParseTreeForJoins(struct AndList *parseTree, Schema *leftSchema,
+                                 Schema *rightSchema, Record &literal);
   // Getters
   // GetLeftSchema()
   // GetSchema()

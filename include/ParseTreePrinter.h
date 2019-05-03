@@ -13,6 +13,7 @@ extern struct NameList *
     attsToSelect;  // the set of attributes in the SELECT (NULL if no such atts)
 
 class ParseTreePrinter {
+  // Utility functions to print the parsing strucutres
  public:
   static void PrintAndList(struct AndList *boolean);
   static void PrintFuncOperator(struct FuncOperator *finalFunction);

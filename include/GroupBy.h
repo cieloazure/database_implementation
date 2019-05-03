@@ -7,6 +7,7 @@
 #include "RelationalOp.h"
 
 class GroupBy : public RelationalOp {
+  // Physical operator for Group By operation. Is quite involved in its operation.
  private:
   static void computeAndAggregate(Function *computeMe, Record *temp,
                                   int *intAggregator, double *doubleAggregator);

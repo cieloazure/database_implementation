@@ -96,6 +96,8 @@ struct NewTable {
 };
 
 struct SchemaAtts {
+  // A structure to represent schema attributes in a create table command
+  // Is represented as a singly linked list.
   char *attName;
   char *attType;
 
@@ -103,11 +105,14 @@ struct SchemaAtts {
 };
 
 struct SortAtts {
+  // A structure to represent sort attributes in a create table command with
+  // SortedDBFile type Is represented as a singly linked list
   char *name;
   struct SortAtts *next;
 };
 
 struct BulkLoad {
+  // Structure to encapsulate which file is being loaded to which relation
   char *fName;
   char *tName;
 };

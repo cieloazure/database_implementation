@@ -125,7 +125,7 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
   Pipe *sortedOutPipeRight = new Pipe(100);
   if (selOp->GetSortOrders(leftOrderMaker, rightOrderMaker)) {
     // sort-merge join start
-    cout << "[JOIN]: Starting sort-merge join..." << endl;
+    // cout << "[JOIN]: Starting sort-merge join..." << endl;
 
     Schema *leftSchema = leftOrderMaker.GetSchema();
     Schema *rightSchema = rightOrderMaker.GetSchema();
@@ -268,7 +268,7 @@ Join::~Join() {}
 
 void Join::Run(Pipe &inPipeL, Pipe &inPipeR, Pipe &outPipe, CNF &selOp,
                Record &literal) {
-  cout << "Run started" << endl;
+  // cout << "Run started" << endl;
   pthread_attr_t attr;
 
   if (pthread_attr_init(&attr) == 0) {
@@ -295,9 +295,9 @@ void Join::Run(Pipe &inPipeL, Pipe &inPipeR, Pipe &outPipe, CNF &selOp,
 }
 
 void Join::WaitUntilDone() {
-  cout << "Join waiting....." << endl;
+  // cout << "Join waiting....." << endl;
   pthread_join(threadid, NULL);
-  cout << "Join done!" << endl;
+  // cout << "Join done!" << endl;
 }
 
 void Join::Use_n_Pages(int n) {}
