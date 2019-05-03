@@ -644,7 +644,7 @@ BaseNode *QueryOptimizer::GenerateTree(
     yyparse();
     cnf->GrowFromParseTree(final, currentNode->schema, *literal);
     // cnf->Print();
-    
+
 
     OrderMaker *groupAtts = new OrderMaker;
     OrderMaker *dummy = new OrderMaker;
@@ -666,7 +666,7 @@ BaseNode *QueryOptimizer::GenerateTree(
     Schema *group_by_schema = new Schema(only_group_attributes_schema);
     group_by_schema->AddAttribute(sum_attr);
     groupByNode->schema = group_by_schema;
-    groupByNode->schema->Print("\t\t");
+    // groupByNode->schema->Print("\t\t");
 
     Link link(currentNode, groupByNode);
     groupByNode->left = link;
