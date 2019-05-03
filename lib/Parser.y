@@ -72,6 +72,7 @@
 %token UPDATE
 %token STATISTICS
 %token FOR
+%token help
 
 %type <myOrList> OrList
 %type <myAndList> AndList
@@ -90,6 +91,7 @@
 %type <actualChars> DropTable;
 %type <actualChars> SetOutput;
 %type <actualChars> UpdateStatistics;
+%type <actualChars> Help
 
 
 %start START
@@ -111,7 +113,13 @@ START:   SQL ';'
 	   | SetOutput ';' 
 	   | UpdateStatistics ';'
 	   | AndList 
+	   | Help ';'
 
+
+Help: help
+{
+	operationId = 7;
+}
 
 UpdateStatistics: UPDATE STATISTICS FOR Name
 {

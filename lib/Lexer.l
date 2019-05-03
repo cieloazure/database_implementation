@@ -18,6 +18,7 @@ void yyerror(char*s);
 static YY_BUFFER_STATE yylex_buf_state;
 void init_lexical_parser (char *src) { yylex_buf_state = yy_scan_string (src); }
 void close_lexical_parser () { yy_delete_buffer (yylex_buf_state); }
+int errorflag = 0;
 
 %}
 
@@ -80,6 +81,8 @@ void close_lexical_parser () { yy_delete_buffer (yylex_buf_state); }
 
 "FOR" return(FOR);
 
+"help" return(help);
+
 "("			return('(');
 
 "<"                     return('<');
@@ -138,6 +141,8 @@ void close_lexical_parser () { yy_delete_buffer (yylex_buf_state); }
 
 void yyerror(char *s) {
   printf("%d: %s at %s\n", lineno, s, yytext);
+  printf("[ERROR]: Syntax error occured while parsing query! Type `help` for more info\n");
+  errorflag = 1;
 }
 
 int yywrap(void){

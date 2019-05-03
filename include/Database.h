@@ -26,6 +26,7 @@ extern char *whichTableToDrop;
 extern char *whereToGiveOutput;
 extern char *whichTableToUpdateStatsFor;
 extern int operationId;
+extern int errorflag;
 
 class Database {
  private:
@@ -62,6 +63,8 @@ class Database {
   void UpdateStatistics();
   // Close the database application
   void End();
+  // Displays help
+  void DisplayHelp();
 };
 
 #endif

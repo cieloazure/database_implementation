@@ -10,32 +10,37 @@ Database::Database() {
 
 void Database::ExecuteCommand(std::string command) {
   std::chrono::time_point<std::chrono::system_clock> start, end;
-  start = std::chrono::system_clock::now();
   yy_scan_string(command.c_str());
   yyparse();
-  switch (operationId) {
-    case 1:
-      CreateTable();
-      break;
-    case 2:
-      ExecuteQuery();
-      break;
-    case 3:
-      BulkLoad();
-      break;
-    case 4:
-      DropTable();
-      break;
-    case 5:
-      SetOutput();
-      break;
-    case 6:
-      UpdateStatistics();
-      break;
+  start = std::chrono::system_clock::now();
+  if (!errorflag) {
+    switch (operationId) {
+      case 1:
+        CreateTable();
+        break;
+      case 2:
+        ExecuteQuery();
+        break;
+      case 3:
+        BulkLoad();
+        break;
+      case 4:
+        DropTable();
+        break;
+      case 5:
+        SetOutput();
+        break;
+      case 6:
+        UpdateStatistics();
+        break;
+      case 7:
+        DisplayHelp();
+        break;
+    }
+    end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsedSeconds = end - start;
+    std::cout << "(" << elapsedSeconds.count() << " secs)" << std::endl;
   }
-  end = std::chrono::system_clock::now();
-  std::chrono::duration<double> elapsedSeconds = end - start;
-  std::cout << "(" << elapsedSeconds.count() << " secs)" << std::endl;
 }
 
 void Database::CreateTable() {
@@ -109,7 +114,7 @@ void Database::CreateTable() {
   relTuple->dbFile = dbFile;
 
   relationLookUp[relName] = relTuple;
-  std::cout << "OK(0 rows affected)(0.0s)" << std::endl;
+  std::cout << "OK, (0 rows affected)" << std::endl;
 }
 
 void Database::BulkLoad() {
@@ -118,7 +123,7 @@ void Database::BulkLoad() {
   DBFile *dbFile = relTuple->dbFile;
   // dbFile->Open(relTuple->relName.c_str());
   dbFile->Load(*relTuple->schema, bulkLoadInfo->fName);
-  std::cout << "Executed `INSERT INTO` successfully" << std::endl;
+  std::cout << "OK, Bulk load done!" << std::endl;
 }
 
 void Database::SetOutput() {
@@ -129,7 +134,7 @@ void Database::SetOutput() {
   } else {
     op = File;
   }
-  std::cout << "Executed `SET OUTPUT` successfully" << std::endl;
+  std::cout << "OK, SetOutput done!" << std::endl;
 }
 
 void Database::ExecuteQuery() {
@@ -143,7 +148,8 @@ void Database::ExecuteQuery() {
 
 void Database::Start() {
   // Get query from user
-  std::cout << "Welcome to Database Implementation Demo v0.1" << std::endl;
+  std::cout << "\n\n\n\nWelcome to Database Implementation Demo v0.1"
+            << std::endl;
   std::cout << std::endl;
   std::cout << "Commands end with `;`" << std::endl;
   std::cout << std::endl;
@@ -181,8 +187,9 @@ void Database::Start() {
       break;
     }
     if (query.size() > 0) {
-      std::cout << "--------------DEBUG MODE--------------" << std::endl;
-      std::cout << "Given Query:" << query << std::endl;
+      std::cout << "------------------------DEBUG MODE----------------------"
+                << std::endl;
+      std::cout << "Executing Command -> " << query << std::endl;
       ExecuteCommand(query);
     }
   }
@@ -204,3 +211,20 @@ Database::Database(QueryOptimizer *op) { optimizer = op; }
 
 void Database::DropTable() {}
 void Database::UpdateStatistics() {}
+
+void Database::DisplayHelp() {
+  std::string helpText(
+      "\n\n\n\n1. CREATE TABLE [<table name>] ([<attribute name> <attribute "
+      "type>], "
+      "[<attribute name> <attribute type>],....) AS [HEAP|SORTED];"
+      "\n2. SET OUTPUT [<file name> | STDOUT | NONE];"
+      "\n3. INSERT ['file'] INTO [<table name>]"
+      "\n4. DROP TABLE [<table name>]"
+      "\n5. SELECT [DISTINCT] [<attribute>, <attribute>...] FROM [<table name> "
+      "AS <alias name>, ...] WHERE [<or condition | join> AND <or condition | "
+      "join> AND ...]"
+      "\n5. SELECT [DISTINCT] [<attribute>, <attribute>....] FROM [<table "
+      "name> AS <alias name>,....] WHERE [<or condition | join> AND <or "
+      "condition | join> AND ...] GROUP BY [<attribute>, <attribute>]\n\n\n\n");
+  std::cout << helpText << std::endl;
+}
