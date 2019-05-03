@@ -140,7 +140,7 @@ void Database::SetOutput() {
 }
 
 void Database::ExecuteQuery() {
-  QueryPlan *plan = optimizer->GetOptimizedPlan();
+  QueryPlan *plan = optimizer->GetOptimizedPlan(relationLookUp);
   if (plan != NULL) {
     plan->SetOutput(op);
     plan->Print();
@@ -208,12 +208,27 @@ Database::Database(
     std::unordered_map<std::string, RelationTuple *> relNameToTuple) {
   currentStats = stats;
   relationLookUp = relNameToTuple;
-  optimizer = new QueryOptimizer(currentStats, &relationLookUp);
+  optimizer = new QueryOptimizer(currentStats);
 }
 
 Database::Database(QueryOptimizer *op) { optimizer = op; }
 
-void Database::DropTable() {}
+void Database::DropTable() {
+  relationLookUp.erase(whichTableToDrop);
+
+  // Delete physical files.
+  if (remove(whichTableToDrop) != 0) {
+    cout << "Error deleting table. Cannot delete file from disk.";
+  }
+  // Delete header file.
+  std::string hStr = std::string(whichTableToDrop);
+
+  hStr = hStr + ".header";
+  // Delete physical files.
+  if (remove((char *)hStr.c_str()) != 0) {
+    cout << "Error deleting table header file. Cannot delete file from disk.";
+  }
+}
 void Database::UpdateStatistics() {}
 
 void Database::DisplayHelp() {

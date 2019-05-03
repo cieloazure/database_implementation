@@ -1,15 +1,7 @@
 #include "QueryOptimizer.h"
 
-QueryOptimizer::QueryOptimizer() {
-  currentStats = NULL;
-  relNameToRelTuple = NULL;
-}
-QueryOptimizer::QueryOptimizer(
-    Statistics *stats,
-    std::unordered_map<std::string, RelationTuple *> *relNameToRelTupleMap) {
-  currentStats = stats;
-  relNameToRelTuple = relNameToRelTupleMap;
-}
+QueryOptimizer::QueryOptimizer() { currentStats = NULL; }
+QueryOptimizer::QueryOptimizer(Statistics *stats) { currentStats = stats; }
 
 BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     std::unordered_map<std::string, RelationTuple *> relNameToRelTuple,
@@ -495,15 +487,16 @@ std::pair<std::string, std::string> QueryOptimizer::SplitQualifiedAtt(
   return retPair;
 }
 
-QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query) {
-  yy_scan_string(query.c_str());
-  yyparse();
-  return GetOptimizedPlanUtil();
-}
+// QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query) {
+//   yy_scan_string(query.c_str());
+//   yyparse();
+//   return GetOptimizedPlanUtil();
+// }
 
-QueryPlan *QueryOptimizer::GetOptimizedPlan() {
+QueryPlan *QueryOptimizer::GetOptimizedPlan(
+    std::unordered_map<std::string, RelationTuple *> relNameToRelTuple) {
   try {
-    return GetOptimizedPlanUtil();
+    return GetOptimizedPlanUtil(relNameToRelTuple);
   } catch (std::runtime_error &e) {
     std::cout << "Error in executing query! Please check your relations, "
                  "schemas and statistics."
@@ -513,7 +506,8 @@ QueryPlan *QueryOptimizer::GetOptimizedPlan() {
   }
 }
 
-QueryPlan *QueryOptimizer::GetOptimizedPlanUtil() {
+QueryPlan *QueryOptimizer::GetOptimizedPlanUtil(
+    std::unordered_map<std::string, RelationTuple *> relNameToRelTuple) {
   std::vector<std::vector<std::string>> joinMatrix;
   SeparateJoinsandSelects(currentStats, joinMatrix);
   bool joinPresent = false;
@@ -540,17 +534,22 @@ QueryPlan *QueryOptimizer::GetOptimizedPlanUtil() {
       relNames.push_back(table->tableName);
       table = table->next;
     }
-    BaseNode *join = OptimumOrderingOfJoin(*relNameToRelTuple, currentStats,
+    BaseNode *join = OptimumOrderingOfJoin(relNameToRelTuple, currentStats,
                                            relNames, joinMatrix);
 
-    BaseNode *root = GenerateTree(join, *relNameToRelTuple);
+    BaseNode *root = GenerateTree(join, relNameToRelTuple);
     plan = new QueryPlan(root);
   } else {
     RelationNode *relNode = new RelationNode;
     relNode->relName = tables->tableName;
     std::string relNameStr(relNode->relName);
-    relNode->schema = (*relNameToRelTuple)[relNameStr]->schema;
-    relNode->dbFile = (*relNameToRelTuple)[relNameStr]->dbFile;
+    RelationTuple *relTuple = relNameToRelTuple[relNameStr];
+    if (relTuple == NULL) {
+      std::cout << "Table does not exist!";
+      exit(1);
+    }
+    relNode->schema = relNameToRelTuple[relNameStr]->schema;
+    relNode->dbFile = relNameToRelTuple[relNameStr]->dbFile;
     CNF *cnf = new CNF;
     Record *literal = new Record;
     if (ConstructSelectFileAllTuplesCNF(relNode->schema, relNameStr)) {
@@ -561,7 +560,7 @@ QueryPlan *QueryOptimizer::GetOptimizedPlanUtil() {
     } else {
       // error ?
     }
-    BaseNode *root = GenerateTree(relNode, *relNameToRelTuple);
+    BaseNode *root = GenerateTree(relNode, relNameToRelTuple);
     plan = new QueryPlan(root);
   }
   return plan;

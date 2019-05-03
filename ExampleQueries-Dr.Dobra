@@ -16,4 +16,6 @@ CREATE TABLE new_region (r_regionkey INTEGER, r_name DOUBLE,r_comment STRING) AS
 
 INSERT 'data_files/region.tbl' INTO new_region;
 
-SELECT r_regionkey FROM new_region AS nr WHERE (nr.r_regionkey < 3);
+SELECT r_regionkey FROM new_region AS nr WHERE (r_regionkey < 3);
+
+DROP TABLE new_region;

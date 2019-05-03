@@ -137,7 +137,7 @@ int main() {
   relNameToRelTuple["U"] = new RelationTuple(&U);
 
   // Initialize query optimizer
-  QueryOptimizer *optimizer = new QueryOptimizer(&s, &relNameToRelTuple);
-  Database d(optimizer);
+  QueryOptimizer *optimizer = new QueryOptimizer(&s);
+  Database d(&s, relNameToRelTuple);
   d.Start();
 }

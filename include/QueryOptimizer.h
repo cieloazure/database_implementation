@@ -46,22 +46,21 @@ class QueryOptimizer {
   // Class which helps us get to a optimzed version of a  query plan.
  private:
   Statistics *currentStats;
-  std::unordered_map<std::string, RelationTuple *> *relNameToRelTuple;
 
  public:
   QueryOptimizer();
-  QueryOptimizer(
-      Statistics *currentStats,
-      std::unordered_map<std::string, RelationTuple *> *relNameToRelTuple);
+  QueryOptimizer(Statistics *currentStats);
 
   // TODO: Only need this function to remain public
-  QueryPlan *GetOptimizedPlan();
+  QueryPlan *GetOptimizedPlan(
+      std::unordered_map<std::string, RelationTuple *> relNameToRelTuple);
 
   // Helper functions(Temporarily public for testing)
   // Will be made private in future
 
-  QueryPlan *GetOptimizedPlan(std::string query);
-  QueryPlan *GetOptimizedPlanUtil();
+  //   QueryPlan *GetOptimizedPlan(std::string query);
+  QueryPlan *GetOptimizedPlanUtil(
+      std::unordered_map<std::string, RelationTuple *> relNameToRelTuple);
 
   // Find the best order in which relations can be combined using Dynamic
   // programming
