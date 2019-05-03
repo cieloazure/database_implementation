@@ -232,7 +232,7 @@ void *BigQ ::WorkerThreadRoutine(void *threadparams) {
 
   if (runlen == NULL || *runlen <= 0 || in == NULL || out == NULL ||
       sortOrder == NULL) {
-    std::cout << "Argument Error in BigQ!" << std::endl;
+    // std::cout << "Argument Error in BigQ!" << std::endl;
     out->ShutDown();
     pthread_exit(NULL);
   }

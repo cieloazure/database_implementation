@@ -67,7 +67,7 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     if (ConstructSelectFileAllTuplesCNF(relNode->schema, relNamesSubset[0])) {
       cnf->GrowFromParseTree(final, relNode->schema, *literal);
       relNode->cnf = cnf;
-      relNode->cnf->Print();
+      // relNode->cnf->Print();
       relNode->literal = literal;
     } else {
       // error ?
@@ -83,12 +83,12 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     relNode->parent = sentinelLink;
 
     newMemo.root = root;
-    std::cout << std::endl;
+    // std::cout << std::endl;
 
     combinationToMemo[set] = newMemo;
   }
 
-  print();
+  // print();
 
   // Initialize doubletons
   auto doubletons = GenerateCombinations(length, 2);
@@ -151,7 +151,7 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       Record literal;
       cnf->GrowFromParseTree(final, relNode1->schema, relNode2->schema,
                              literal);
-      cnf->Print();
+      // cnf->Print();
       OrderMaker left;
       OrderMaker right;
       bool status = cnf->GetSortOrders(left, right);
@@ -171,7 +171,7 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     newJoinNode->parent = sentinelLink;
 
     newMemo.root = root;
-    std::cout << std::endl;
+    // std::cout << std::endl;
 
     combinationToMemo[set] = newMemo;
     if (length == 2) {
@@ -179,20 +179,7 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
     }
   }
 
-  print();
-  std::string idx1;
-  idx1 += '\x01';
-  idx1 += '\x01';
-  idx1 += '\0';
-  std::string idx2;
-  idx2 += '\x01';
-  idx2 += '\0';
-  idx2 += '\x01';
-  struct Memo memo1 = combinationToMemo[idx1];
-  struct Memo memo2 = combinationToMemo[idx2];
-
-  BaseNode *j1 = memo1.root->left.value;
-  BaseNode *j2 = memo2.root->left.value;
+  // print();
 
   // DP begins
   for (int idx = 3; idx < length + 1; idx++) {
@@ -268,7 +255,6 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       if (ConstructSelectFileAllTuplesCNF(newRelNode->schema, right)) {
         cnf->GrowFromParseTree(final, newRelNode->schema, *literal);
         newRelNode->cnf = cnf;
-        newRelNode->cnf->Print();
         newRelNode->literal = literal;
       } else {
         // TODO
@@ -292,7 +278,6 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
         Record literal;
         cnf->GrowFromParseTreeForJoins(final, prevJoinNode->schema,
                                        newRelNode->schema, literal);
-        cnf->Print();
         OrderMaker left;
         OrderMaker right;
         cnf->GetSortOrders(left, right);
@@ -312,19 +297,19 @@ BaseNode *QueryOptimizer::OptimumOrderingOfJoin(
       newJoinNode->parent = sentinelLink;
 
       newMemo.root = root;
-      std::cout << std::endl;
+      // std::cout << std::endl;
 
       combinationToMemo[set] = newMemo;
     }
 
-    print();
+    // print();
   }
   // DP ends
 
   // Return result
   std::string optimalJoin = *(GenerateCombinations(length, length).begin());
-  std::cout << "Cost of optimal join:" << combinationToMemo[optimalJoin].cost
-            << std::endl;
+  // std::cout << "Cost of optimal join:" << combinationToMemo[optimalJoin].cost
+  //           << std::endl;
   // End Optimization
 
   return combinationToMemo[optimalJoin].root->left.value;
@@ -376,7 +361,7 @@ bool QueryOptimizer::ConstructJoinCNF(
   cnfString.append(".");
   cnfString.append(joinMatrix[idxLeft][idxRight]);
   cnfString.append(")");
-  std::cout << "Joining...." << cnfString << std::endl;
+  // std::cout << "Joining...." << cnfString << std::endl;
   yy_scan_string(cnfString.c_str());
   yyparse();
   return true;
@@ -526,16 +511,16 @@ QueryPlan *QueryOptimizer::GetOptimizedPlanUtil() {
     std::vector<std::string> row = *iit;
     for (auto jit = row.begin(); jit != row.end(); jit++) {
       if ((*jit).size() == 0) {
-        std::cout << "NULL"
-                  << " ";
+        // std::cout << "NULL"
+        //           << " ";
       } else {
         if (!joinPresent) joinPresent = true;
-        std::cout << *jit << " ";
+        // std::cout << *jit << " ";
       }
     }
-    std::cout << std::endl;
+    // std::cout << std::endl;
   }
-  std::cout << "Join present:" << joinPresent << std::endl;
+  // std::cout << "Join present:" << joinPresent << std::endl;
   QueryPlan *plan;
   if (joinPresent) {
     std::vector<std::string> relNames;
@@ -561,7 +546,7 @@ QueryPlan *QueryOptimizer::GetOptimizedPlanUtil() {
     if (ConstructSelectFileAllTuplesCNF(relNode->schema, relNameStr)) {
       cnf->GrowFromParseTree(final, relNode->schema, *literal);
       relNode->cnf = cnf;
-      relNode->cnf->Print();
+      // relNode->cnf->Print();
       relNode->literal = literal;
     } else {
       // error ?

@@ -59,9 +59,10 @@ void *GroupBy ::GroupByWorkerThreadRoutine(void *threadparams) {
   // Create a schema to group records
   Schema *schema = computeMe->GetSchema();
   if (schema == NULL) {
-    std::cout
-        << "Abort GroupBy! Schema not present to project and compose grouping"
-        << std::endl;
+    // std::cout
+    //     << "Abort GroupBy! Schema not present to project and compose
+    //     grouping"
+    //     << std::endl;
     pthread_exit(NULL);
   }
 
