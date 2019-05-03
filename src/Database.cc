@@ -39,7 +39,9 @@ void Database::ExecuteCommand(std::string command) {
     }
     end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsedSeconds = end - start;
-    std::cout << "(" << elapsedSeconds.count() << " secs)" << std::endl;
+    if (operationId < 5) {
+      std::cout << "(" << elapsedSeconds.count() << " secs)" << std::endl;
+    }
   }
 }
 
@@ -139,10 +141,12 @@ void Database::SetOutput() {
 
 void Database::ExecuteQuery() {
   QueryPlan *plan = optimizer->GetOptimizedPlan();
-  plan->SetOutput(op);
-  plan->Print();
-  if (op != None) {
-    plan->Execute();
+  if (plan != NULL) {
+    plan->SetOutput(op);
+    plan->Print();
+    if (op != None) {
+      plan->Execute();
+    }
   }
 }
 

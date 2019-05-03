@@ -501,7 +501,17 @@ QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query) {
   return GetOptimizedPlanUtil();
 }
 
-QueryPlan *QueryOptimizer::GetOptimizedPlan() { return GetOptimizedPlanUtil(); }
+QueryPlan *QueryOptimizer::GetOptimizedPlan() {
+  try {
+    return GetOptimizedPlanUtil();
+  } catch (std::runtime_error &e) {
+    std::cout << "Error in executing query! Please check your relations, "
+                 "schemas and statistics."
+              << std::endl;
+    std::cout << "TODO: Add functionality to check that" << std::endl;
+    return NULL;
+  }
+}
 
 QueryPlan *QueryOptimizer::GetOptimizedPlanUtil() {
   std::vector<std::vector<std::string>> joinMatrix;
