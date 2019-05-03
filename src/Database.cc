@@ -97,21 +97,23 @@ void Database::CreateTable() {
     dbFile->Create(newTable->tName, sorted, (void *)sortInfo);
   }
 
-  dbFile->Close();
+  // dbFile->Close();
   RelationTuple *relTuple = new RelationTuple;
   relTuple->relName = relName;
   relTuple->schema = schema;
   relTuple->dbFile = dbFile;
 
   relationLookUp[relName] = relTuple;
+  std::cout << "Executed `CREATE TABLE` successfully" << std::endl;
 }
 
 void Database::BulkLoad() {
   std::string relName(bulkLoadInfo->tName);
   RelationTuple *relTuple = relationLookUp[relName];
   DBFile *dbFile = relTuple->dbFile;
-  dbFile->Open(relTuple->relName.c_str());
+  // dbFile->Open(relTuple->relName.c_str());
   dbFile->Load(*relTuple->schema, bulkLoadInfo->fName);
+  std::cout << "Executed `INSERT INTO` successfully" << std::endl;
 }
 
 void Database::SetOutput() {
@@ -122,6 +124,7 @@ void Database::SetOutput() {
   } else {
     op = File;
   }
+  std::cout << "Executed `SET OUTPUT` successfully" << std::endl;
 }
 
 void Database::ExecuteQuery() {
@@ -169,20 +172,20 @@ void Database::Start() {
       enter = true;
     }
     if (std::cin.eof()) {
+      End();
       std::cout << "Bye!" << std::endl;
       break;
     }
     if (query.size() > 0) {
       std::cout << "--------------DEBUG MODE--------------" << std::endl;
       std::cout << "Given Query:" << query << std::endl;
-      // Run optimization to get QueryPlan
-      cout << "Query Plan:" << std::endl;
-      QueryPlan *qp = optimizer->GetOptimizedPlan(query);
-      qp->Print();
-      qp->SetOutput(StdOut);
-      qp->Execute();
+      ExecuteCommand(query);
     }
   }
+}
+
+void Database::End() {
+  // Save state
 }
 
 Database::Database(
@@ -190,4 +193,7 @@ Database::Database(
     std::unordered_map<std::string, RelationTuple *> relNameToTuple) {
   currentStats = stats;
   relationLookUp = relNameToTuple;
+  optimizer = new QueryOptimizer(currentStats, &relationLookUp);
 }
+
+Database::Database(QueryOptimizer *op) { optimizer = op; }

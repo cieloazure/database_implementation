@@ -1,4 +1,5 @@
 #include <iostream>
+#include "Database.h"
 #include "QueryOptimizer.h"
 #include "Schema.h"
 #include "Statistics.h"
@@ -17,24 +18,6 @@ int main() {
   Schema nation("catalog", "nation");
 
   std::unordered_map<std::string, RelationTuple *> relNameToRelTuple;
-
-  DBFile *dbFile7 = new DBFile();
-  if (!dbFile7->Create("region", heap, NULL)) {
-    std::cout << "Error!" << std::endl;
-    exit(1);
-  }
-  dbFile7->Load(region, "data_files/1G/region.tbl");
-  // dbFile7->Close();
-  // if (!dbFile7->Open("region")) {
-  //   std::cout << "Error!" << std::endl;
-  //   exit(1);
-  // }
-  // DBFile dbFile7_1;
-  // if (!dbFile7_1.Open("region")) {
-  //   std::cout << "Error!" << std::endl;
-  //   exit(1);
-  // }
-  relNameToRelTuple["region"] = new RelationTuple(&region, dbFile7);
 
   DBFile *dbFile = new DBFile();
   dbFile->Create("lineitem", heap, NULL);
@@ -65,6 +48,11 @@ int main() {
   dbFile6->Create("part", heap, NULL);
   dbFile6->Load(part, "data_files/1G/part.tbl");
   relNameToRelTuple["part"] = new RelationTuple(&part, dbFile6);
+
+  DBFile *dbFile7 = new DBFile();
+  dbFile7->Create("region", heap, NULL);
+  dbFile7->Load(region, "data_files/1G/region.tbl");
+  relNameToRelTuple["region"] = new RelationTuple(&region, dbFile7);
 
   DBFile *dbFile8 = new DBFile();
   dbFile8->Create("nation", heap, NULL);
@@ -149,64 +137,7 @@ int main() {
   relNameToRelTuple["U"] = new RelationTuple(&U);
 
   // Initialize query optimizer
-  QueryOptimizer optimizer(&s, &relNameToRelTuple);
-
-  // Get query from user
-  std::cout << "Welcome to Database Implementation Demo v0.1" << std::endl;
-  std::cout << std::endl;
-  std::cout << "Commands end with `;`" << std::endl;
-  std::cout << std::endl;
-  std::cout << "Type `help` for help" << std::endl;
-  std::cout << "Type `Ctrl-D` or `Ctrl-C` to exit" << std::endl;
-  std::cout << std::endl;
-  std::cout << std::endl;
-  while (true) {
-    cout << "dbi>  ";
-    std::string query;
-    std::string line;
-    // std::cin.flush();
-    bool enter = false;
-    while (true) {
-      if (enter) {
-        query += "  ";
-        std::cout << "  ->  ";
-      }
-      std::getline(std::cin, line);
-      if (query == "" && line == "") {
-        break;
-      }
-      if (std::cin.eof()) {
-        break;
-      }
-      query += line;
-      if (query[query.size() - 1] == ';') {
-        break;
-      }
-      enter = true;
-    }
-    if (std::cin.eof()) {
-      std::cout << "Bye!" << std::endl;
-      break;
-    }
-    if (query.size() > 0) {
-      std::cout << "--------------DEBUG MODE--------------" << std::endl;
-      std::cout << "Given Query:" << query << std::endl;
-      // Run optimization to get QueryPlan
-      cout << "Query Plan:" << std::endl;
-      QueryPlan *qp = optimizer.GetOptimizedPlan(query);
-      qp->Print();
-      qp->SetOutput(StdOut);
-      qp->Execute();
-    }
-  }
-  // std::string line;
-  // while (true) {
-  //   cout << "Enter:";
-  //   getline(cin, line);
-  //   if (cin.eof()) {
-  //     cout << "bye";
-  //     break;
-  //   }
-  //   cout << line;
-  // }
+  QueryOptimizer *optimizer = new QueryOptimizer(&s, &relNameToRelTuple);
+  Database d(optimizer);
+  d.Start();
 }
