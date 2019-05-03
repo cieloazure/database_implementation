@@ -42,7 +42,7 @@ void GroupBy ::composeAggregateRecord(Record *example_rec,
 
   // ### DANGER ###
   // TODO: Remove this print!!!!
-  aggregateRec.Print(group_by_schema);
+  // aggregateRec.Print(group_by_schema);
   out->Insert(&aggregateRec);
 }
 

@@ -643,12 +643,13 @@ BaseNode *QueryOptimizer::GenerateTree(
     yy_scan_string(groupCnf.c_str());
     yyparse();
     cnf->GrowFromParseTree(final, currentNode->schema, *literal);
-    cnf->Print();
+    // cnf->Print();
+    
 
     OrderMaker *groupAtts = new OrderMaker;
     OrderMaker *dummy = new OrderMaker;
     cnf->GetSortOrders(*groupAtts, *dummy);
-    groupAtts->Print();
+    // groupAtts->Print();
 
     Function *computeMe = new Function;
     computeMe->GrowFromParseTree(finalFunction, *currentNode->schema);
