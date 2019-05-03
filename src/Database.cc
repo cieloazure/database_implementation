@@ -171,7 +171,26 @@ void Database::ExecuteQuery()
   plan->Execute();
 }
 
-void Database::DropTable() {}
+void Database::DropTable()
+{
+  // Delete from relation map.
+  relationLookUp.erase(whichTableToDrop);
+
+  // Delete physical files.
+  if (remove(whichTableToDrop) != 0)
+  {
+    cout << "Error deleting table. Cannot delete file from disk.";
+  }
+  // Delete header file.
+  std::string hStr = std::string(whichTableToDrop);
+
+  hStr = hStr + ".header";
+  // Delete physical files.
+  if (remove((char *)hStr.c_str()) != 0)
+  {
+    cout << "Error deleting table header file. Cannot delete file from disk.";
+  }
+}
 void Database::UpdateStatistics() {}
 
 void Database::Start()
