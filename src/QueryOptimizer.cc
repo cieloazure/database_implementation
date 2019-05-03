@@ -634,7 +634,7 @@ QueryPlan *QueryOptimizer::GetOptimizedPlanUtil()
     {
       // error ?
     }
-    BaseNode *root = GenerateTree(relNode, *relNameToRelTuple);
+    root = GenerateTree(relNode, *relNameToRelTuple);
     plan = new QueryPlan(root);
   }
 
@@ -780,14 +780,6 @@ BaseNode *QueryOptimizer::GenerateTree(
 
 BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
 {
-
-  // Testing
-  // Schema lineitem("catalog", "R");
-  // Schema orders("catalog", "S");
-
-  // (*relNameToRelTuple)["R"] = new RelationTuple(&lineitem);
-  // (*relNameToRelTuple)["S"] = new RelationTuple(&orders);
-
   BaseNode *current = root;
   // Traverse the tree to find the first select node.
   while (current)
@@ -807,11 +799,11 @@ BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
     if (currAnd->rightAnd)
     {
       // Preserve pointers/data of child tree.
-      Link childLink = current->left.value->left;
+      BaseNode *child = current->left.value->left.value;
       Link *link;
       // Create a new select tree.
       SelectPipeNode *selectRoot = NULL;
-      SelectPipeNode *currentOfNewTree;
+      BaseNode *currentOfNewTree;
       while (currAnd)
       {
         CNF *cnf = new CNF;
@@ -833,23 +825,29 @@ BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
         {
           selectRoot = newNode;
           currentOfNewTree = newNode;
-          link = new Link(newNode);
-          current->left = *link;
-          newNode->parent = *link;
+          // link = new Link(newNode, current);
+          // current->left = *link;
         }
         else
         {
-          link = new Link(newNode);
-          currentOfNewTree->left = *link;
-          newNode->parent = *link;
-          currentOfNewTree = (SelectPipeNode *)currentOfNewTree->left.value;
+          link = new Link(newNode, currentOfNewTree);
+          Link link(newNode, currentOfNewTree);
+          currentOfNewTree->left = link;
+          newNode->parent = link;
+          currentOfNewTree = currentOfNewTree->left.value;
         }
 
         currAnd = currAnd->rightAnd;
       }
 
-      currentOfNewTree->left = childLink;
-      childLink.value->parent = *link;
+      Link link1(selectRoot, current);
+      selectRoot->parent = link1;
+      current->left = link1;
+      Link link2(child, currentOfNewTree);
+      currentOfNewTree->left = link2;
+      child->parent = link2;
+      // currentOfNewTree->left = childLink;
+      // childLink.value->parent = *link;
     }
   }
   else
@@ -916,18 +914,29 @@ BaseNode *QueryOptimizer::OptimizeSelects(BaseNode *root, bool joinPresent)
       newNode->nodeType = SELECT_PIPE;
       newNode->literal = literal;
 
-      Link link(newNode);
-      if (childNode->parent.value->left.value == childNode)
+      Link link1(newNode, childNode->parent.rvalue);
+      Link link2(childNode, newNode);
+      if (childNode->parent.rvalue->left.value == childNode)
       {
-        childNode->parent.value->left = link;
+        childNode->parent.rvalue->left = link1;
       }
-      else if (childNode->parent.value->right.value == childNode)
+      else if (childNode->parent.rvalue->right.value == childNode)
       {
-        childNode->parent.value->right = link;
+        childNode->parent.rvalue->right = link1;
       }
-      newNode->parent = childNode->parent;
-      childNode->parent = link;
-      newNode->left = childNode->left;
+      newNode->parent = link1;
+      newNode->left = link2;
+      childNode->parent = link2;
+    }
+
+    // delete the old select node from the tree.
+    // delete 'current' node.
+    // verify it is a select node.
+    if (current->nodeType == SELECT_PIPE)
+    {
+      Link link(current->left.value, current->parent.rvalue);
+      current->left.value->parent = link;
+      current->parent.rvalue->left = link;
     }
   }
   return root;
@@ -989,24 +998,26 @@ BaseNode *QueryOptimizer::GetNodeForOr(std::vector<std::string> relationList, st
     }
   }
   return retVal;
-  bool QueryOptimizer::ConstructSelectFileAllTuplesCNF(Schema * schema,
-                                                       std::string relName)
+}
+
+bool QueryOptimizer::ConstructSelectFileAllTuplesCNF(Schema *schema,
+                                                     std::string relName)
+{
+  if (schema == NULL || schema->GetNumAtts() == 0)
   {
-    if (schema == NULL || schema->GetNumAtts() == 0)
-    {
-      return false;
-    }
-
-    Attribute *atts = schema->GetAtts();
-    std::string attStr;
-    Attribute a = atts[0];
-    attStr += relName;
-    attStr += ".";
-    attStr += a.name;
-
-    std::string cnfStr;
-    cnfStr = "(" + attStr + " = " + attStr + ")";
-    yy_scan_string(cnfStr.c_str());
-    yyparse();
-    return true;
+    return false;
   }
+
+  Attribute *atts = schema->GetAtts();
+  std::string attStr;
+  Attribute a = atts[0];
+  attStr += relName;
+  attStr += ".";
+  attStr += a.name;
+
+  std::string cnfStr;
+  cnfStr = "(" + attStr + " = " + attStr + ")";
+  yy_scan_string(cnfStr.c_str());
+  yyparse();
+  return true;
+}

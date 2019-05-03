@@ -776,7 +776,7 @@ TEST_F(QueryOptimizerTest, OptimizeSelectsNoJoins)
 {
   char *relName[] = {"R", "S", "T", "U"};
   const char cnf_string[] =
-      "SELECT a, b FROM R AS r, S AS s WHERE (r.b = s.b) AND (a > 0) AND (b > 0)";
+      "SELECT a, b FROM R AS r WHERE (a > 0) AND (b > 0)";
   Statistics *currentStats = new Statistics;
   currentStats->AddRel(relName[0], 1000);
   currentStats->AddAtt(relName[0], "a", 100);
@@ -824,4 +824,58 @@ TEST_F(QueryOptimizerTest, OptimizeSelectsNoJoins)
   qp->SetOutput(StdOut);
   qp->Print();
 }
+
+TEST_F(QueryOptimizerTest, OptimizeSelectsWithJoins)
+{
+  char *relName[] = {"R", "S", "T", "U"};
+  const char cnf_string[] =
+      "SELECT a, b FROM R AS r, S AS s WHERE (r.b = s.b) AND (a > 0) AND (c > 0)";
+  Statistics *currentStats = new Statistics;
+  currentStats->AddRel(relName[0], 1000);
+  currentStats->AddAtt(relName[0], "a", 100);
+  currentStats->AddAtt(relName[0], "b", 200);
+
+  currentStats->AddRel(relName[1], 1000);
+  currentStats->AddAtt(relName[1], "b", 100);
+  currentStats->AddAtt(relName[1], "c", 500);
+
+  currentStats->AddRel(relName[2], 1000);
+  currentStats->AddAtt(relName[2], "c", 20);
+  currentStats->AddAtt(relName[2], "d", 50);
+
+  currentStats->AddRel(relName[3], 1000);
+  currentStats->AddAtt(relName[3], "a", 50);
+  currentStats->AddAtt(relName[3], "d", 1000);
+
+  // Set up map of relNameToRelTuple
+  Attribute IA = {(char *)"a", Int};
+  Attribute IB = {(char *)"b", Int};
+  Attribute IC = {(char *)"c", Int};
+  Attribute ID = {(char *)"d", Int};
+
+  Attribute rAtts[] = {IA, IB};
+  Schema R("R", 2, rAtts);
+
+  Attribute s1Atts[] = {IB, IC};
+  Schema S("S", 2, s1Atts);
+
+  Attribute tAtts[] = {IC, ID};
+  Schema T("T", 2, tAtts);
+
+  Attribute uAtts[] = {IA, ID};
+  Schema U("U", 2, uAtts);
+
+  std::unordered_map<std::string, RelationTuple *> relNameToRelTuple;
+  relNameToRelTuple["R"] = new RelationTuple(&R);
+  relNameToRelTuple["S"] = new RelationTuple(&S);
+  relNameToRelTuple["T"] = new RelationTuple(&T);
+  relNameToRelTuple["U"] = new RelationTuple(&U);
+
+  QueryOptimizer o(currentStats, &relNameToRelTuple);
+  std::string cnfString(cnf_string);
+  QueryPlan *qp = o.GetOptimizedPlan(cnfString);
+  qp->SetOutput(StdOut);
+  qp->Print();
+}
+
 } // namespace dbi
