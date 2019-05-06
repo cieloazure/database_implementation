@@ -487,11 +487,13 @@ std::pair<std::string, std::string> QueryOptimizer::SplitQualifiedAtt(
   return retPair;
 }
 
-// QueryPlan *QueryOptimizer::GetOptimizedPlan(std::string query) {
-//   yy_scan_string(query.c_str());
-//   yyparse();
-//   return GetOptimizedPlanUtil();
-// }
+QueryPlan *QueryOptimizer::GetOptimizedPlan(
+    std::string query,
+    std::unordered_map<std::string, RelationTuple *> relNameToRelTuple) {
+  yy_scan_string(query.c_str());
+  yyparse();
+  return GetOptimizedPlanUtil(relNameToRelTuple);
+}
 
 QueryPlan *QueryOptimizer::GetOptimizedPlan(
     std::unordered_map<std::string, RelationTuple *> relNameToRelTuple) {

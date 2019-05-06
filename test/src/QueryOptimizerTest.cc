@@ -435,7 +435,7 @@ TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations) {
   relNameToRelTuple["U"] = new RelationTuple(&U);
 
   // call QueryOptimizer
-  QueryOptimizer o(&s, &relNameToRelTuple);
+  QueryOptimizer o(&s);
   o.OptimumOrderingOfJoin(relNameToRelTuple, &s, relNames, joinMatrix);
 }
 
@@ -539,7 +539,7 @@ TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations2) {
   relNameToRelTuple["U"] = new RelationTuple(&U);
 
   // call QueryOptimizer
-  QueryOptimizer o(&s, &relNameToRelTuple);
+  QueryOptimizer o(&s);
   o.OptimumOrderingOfJoin(relNameToRelTuple, &s, relNames, joinMatrix);
 }
 
@@ -604,7 +604,7 @@ TEST_F(QueryOptimizerTest, OptimizeOrderOfRelations3) {
   relNameToRelTuple["U"] = new RelationTuple(&U);
 
   // call QueryOptimizer
-  QueryOptimizer o(&s, &relNameToRelTuple);
+  QueryOptimizer o(&s);
   o.OptimumOrderingOfJoin(relNameToRelTuple, &s, relNames, joinMatrix);
 }
 
@@ -653,9 +653,9 @@ TEST_F(QueryOptimizerTest, GetOptimizedPlanTest) {
   relNameToRelTuple["T"] = new RelationTuple(&T);
   relNameToRelTuple["U"] = new RelationTuple(&U);
 
-  QueryOptimizer o(currentStats, &relNameToRelTuple);
+  QueryOptimizer o(currentStats);
   std::string cnfString(cnf_string);
-  QueryPlan *qp = o.GetOptimizedPlan(cnfString);
+  QueryPlan *qp = o.GetOptimizedPlan(cnfString, relNameToRelTuple);
   qp->SetOutput(StdOut);
   qp->Print();
   // qp->Execute();
@@ -714,9 +714,9 @@ TEST_F(QueryOptimizerTest, GenerateTree) {
   relNameToRelTuple["T"] = new RelationTuple(&T);
   relNameToRelTuple["U"] = new RelationTuple(&U);
 
-  QueryOptimizer o(currentStats, &relNameToRelTuple);
+  QueryOptimizer o(currentStats);
   std::string cnfString(cnf_string);
-  QueryPlan *qp = o.GetOptimizedPlan(cnfString);
+  QueryPlan *qp = o.GetOptimizedPlan(cnfString, relNameToRelTuple);
   qp->SetOutput(StdOut);
   qp->Print();
   // qp->Execute();

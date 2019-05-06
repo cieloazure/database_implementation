@@ -54,11 +54,13 @@ class QueryOptimizer {
   // TODO: Only need this function to remain public
   QueryPlan *GetOptimizedPlan(
       std::unordered_map<std::string, RelationTuple *> relNameToRelTuple);
+  QueryPlan *GetOptimizedPlan(
+      std::string query,
+      std::unordered_map<std::string, RelationTuple *> relNameToRelTuple);
 
   // Helper functions(Temporarily public for testing)
   // Will be made private in future
 
-  //   QueryPlan *GetOptimizedPlan(std::string query);
   QueryPlan *GetOptimizedPlanUtil(
       std::unordered_map<std::string, RelationTuple *> relNameToRelTuple);
 
