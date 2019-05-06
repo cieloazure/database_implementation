@@ -5,6 +5,18 @@
 #include <iostream>
 
 int Schema ::Find(char *attName) {
+  std::string attNameStr(attName);
+  if (IsQualifiedAtt(attNameStr)) {
+    std::pair<std::string, std::string> relAttPair =
+        SplitQualifiedAtt(attNameStr);
+    char *relName = (char *)relAttPair.first.c_str();
+    attName = (char *)relAttPair.second.c_str();
+    char *joinNodeName = "join_schema";
+    if (strcmp(fileName, joinNodeName) != 0 && strcmp(fileName, relName) != 0) {
+      return -1;
+    }
+  }
+
   for (int i = 0; i < numAtts; i++) {
     if (!strcmp(attName, myAtts[i].name)) {
       return i;
@@ -15,7 +27,46 @@ int Schema ::Find(char *attName) {
   return -1;
 }
 
+std::pair<int, int> Schema ::FindWithStatus(char *attName) {
+  std::string attNameStr(attName);
+  bool join = false;
+  if (IsQualifiedAtt(attNameStr)) {
+    std::pair<std::string, std::string> relAttPair =
+        SplitQualifiedAtt(attNameStr);
+    char *relName = (char *)relAttPair.first.c_str();
+    attName = (char *)relAttPair.second.c_str();
+    char *joinNodeName = "join_schema";
+    if (strcmp(fileName, joinNodeName) == 0) {
+      join = true;
+    }
+    if (strcmp(fileName, joinNodeName) != 0 && strcmp(fileName, relName) != 0) {
+      return std::make_pair(-1, join);
+    }
+  }
+
+  for (int i = 0; i < numAtts; i++) {
+    if (!strcmp(attName, myAtts[i].name)) {
+      return std::make_pair(i, join);
+    }
+  }
+
+  // if we made it here, the attribute was not found
+  return std::make_pair(-1, join);
+}
+
 Type Schema ::FindType(char *attName) {
+  std::string attNameStr(attName);
+  if (IsQualifiedAtt(attNameStr)) {
+    std::pair<std::string, std::string> relAttPair =
+        SplitQualifiedAtt(attNameStr);
+    char *relName = (char *)relAttPair.first.c_str();
+    attName = (char *)relAttPair.second.c_str();
+    char *joinNodeName = "join_schema";
+    if (strcmp(fileName, joinNodeName) != 0 && strcmp(fileName, relName) != 0) {
+      return Int;
+    }
+  }
+
   for (int i = 0; i < numAtts; i++) {
     if (!strcmp(attName, myAtts[i].name)) {
       return myAtts[i].myType;
@@ -49,6 +100,8 @@ void Schema ::Init(char *fpath, int num_atts, Attribute *atts) {
     myAtts[i].name = strdup(atts[i].name);
   }
 }
+
+Schema::Schema(char *relName) { fileName = strdup(relName); }
 
 Schema ::Schema(char *fpath, int num_atts, Attribute *atts) {
   Init(fpath, num_atts, atts);
@@ -151,6 +204,7 @@ Schema ::Schema(char *fName, char *relName) {
   }
 
   fclose(foo);
+  fileName = strdup(relName);
 }
 
 Schema ::~Schema() {
@@ -293,5 +347,105 @@ Schema ::Schema(char *fName, Schema *s1, Schema *s2, OrderMaker *s2OrderMaker) {
       }
       contIndex++;
     }
+  }
+}
+
+Schema ::Schema(char *fName, Schema *s1, Schema *s2) {
+  fileName = strdup(fName);
+
+  // Initialize sizes
+  numAtts = s1->GetNumAtts() + s2->GetNumAtts();
+  myAtts = new Attribute[numAtts];
+
+  // Copy s1
+  int i = 0;
+  for (; i < s1->GetNumAtts(); i++) {
+    myAtts[i].name = strdup(s1->myAtts[i].name);
+    switch (s1->myAtts[i].myType) {
+      case Int:
+        myAtts[i].myType = Int;
+        break;
+      case Double:
+        myAtts[i].myType = Double;
+        break;
+      case String:
+        myAtts[i].myType = String;
+        break;
+    }
+  }
+
+  // Copy s2
+  for (int j = 0; j < s2->GetNumAtts(); j++) {
+    myAtts[i].name = strdup(s2->myAtts[j].name);
+    switch (s2->myAtts[j].myType) {
+      case Int:
+        myAtts[i].myType = Int;
+        break;
+      case Double:
+        myAtts[i].myType = Double;
+        break;
+      case String:
+        myAtts[i].myType = String;
+        break;
+    }
+    i++;
+  }
+}
+
+bool Schema::IsQualifiedAtt(std::string value) {
+  return value.find('.', 0) != std::string::npos;
+}
+
+std::pair<std::string, std::string> Schema::SplitQualifiedAtt(
+    std::string value) {
+  size_t idx = value.find('.', 0);
+  std::string rel;
+  std::string att;
+  if (idx == std::string::npos) {
+    att = value;
+  } else {
+    rel = value.substr(0, idx);
+    att = value.substr(idx + 1, value.length());
+  }
+  std::pair<std::string, std::string> retPair;
+  retPair.first = rel;
+  retPair.second = att;
+  return retPair;
+}
+
+void Schema::Print(std::string prefixtabs) {
+  std::cout << prefixtabs << "Schema name:" << fileName << std::endl;
+  std::cout << prefixtabs << "Schema number of atts:" << numAtts << std::endl;
+  std::cout << prefixtabs << "Schema atts details:" << std::endl;
+  std::cout << prefixtabs << "\t\tIndex\t\t\tName\t\t\tType\n";
+  for (int i = 0; i < numAtts; i++) {
+    std::cout << prefixtabs << "\t\t" << i << "\t\t\t" << myAtts[i].name
+              << "\t\t\t";
+    switch (myAtts[i].myType) {
+      case Int:
+        cout << "INT\n";
+        break;
+      case Double:
+        cout << "DOUBLE\n";
+        break;
+      case String:
+        cout << "STRING\n";
+        break;
+    }
+  }
+}
+
+Schema::Schema(char *fName, Schema *other, std::vector<int> keepMe) {
+  numAtts = keepMe.size();
+  fileName = strdup(fName);
+  myAtts = new Attribute[numAtts];
+
+  Attribute *hisAtts = other->GetAtts();
+  int myIdx = 0;
+  for (int idx : keepMe) {
+    Attribute hisAtt = hisAtts[idx];
+    myAtts[myIdx].name = strdup(hisAtt.name);
+    myAtts[myIdx].myType = hisAtt.myType;
+    myIdx++;
   }
 }

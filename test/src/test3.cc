@@ -102,7 +102,7 @@ void init_SF_c(char *pred_str, int numpgs) {
 // select * from partsupp where ps_supplycost <1.03
 // expected output: 31 records
 void q1() {
-  char *pred_ps = (char *)"(ps_partkey > 1000)";
+  char *pred_ps = (char *)"(ps_supplycost < 1.03)";
   init_SF_ps(pred_ps, 100);
 
   SF_ps.Run(dbf_ps, _ps, cnf_ps, lit_ps);
@@ -118,7 +118,7 @@ void q1() {
 // (p_retailprice > 931.01) AND (p_retailprice < 931.3); expected output: 22
 // records
 void q2() {
-  char *pred_p = (char *)"(p_retailprice > 1000.0)";
+  char *pred_p = (char *)"(p_retailprice > 931.01) AND (p_retailprice < 931.3)";
   init_SF_p(pred_p, 100);
 
   Project P_p;
@@ -354,10 +354,10 @@ void q7() {
 
 void q8() {
   /*
-  select l_orderkey, l_partkey, l_suppkey
-  from lineitem
-  where l_returnflag = 'R' and l_discount < 0.04 or
-  l_returnflag = 'R' and l_shipmode = 'MAIL';
+  SELECT l_orderkey, l_partkey, l_suppkey
+  FROM lineitem AS li
+  WHERE (l_returnflag = 'R') AND (l_discount < 0.04 OR
+  l_returnflag = 'R') AND (l_shipmode = 'MAIL')
 
   ANSWER: 671392 rows in set (29.45 sec)
 

@@ -194,7 +194,57 @@ void Function ::GrowFromParseTree(struct FuncOperator *parseTree,
     returnsInt = 0;
 }
 
-void Function ::Print() {}
+void Function ::Print() {
+  for (int i = 0; i < numOps; i++) {
+    struct Arithmatic a = *(opList + i);
+    std::cout << "\t\t-Arithmatic op:";
+    switch (a.myOp) {
+      case PushInt:
+        std::cout << "\tPushInt" << std::endl;
+        break;
+      case PushDouble:
+        std::cout << "\tPushDouble" << std::endl;
+        break;
+      case ToDouble:
+        std::cout << "\tToDouble" << std::endl;
+        break;
+      case ToDouble2Down:
+        std::cout << "\tToDouble2Down" << std::endl;
+        break;
+      case IntUnaryMinus:
+        std::cout << "\tIntUnaryMinus" << std::endl;
+        break;
+      case IntMinus:
+        std::cout << "\tIntMinus" << std::endl;
+        break;
+      case IntPlus:
+        std::cout << "\tIntPlus" << std::endl;
+        break;
+      case IntDivide:
+        std::cout << "\tIntDivide" << std::endl;
+        break;
+      case IntMultiply:
+        std::cout << "\tIntMultiply" << std::endl;
+        break;
+      case DblUnaryMinus:
+        std::cout << "\tDblUnaryMinus" << std::endl;
+        break;
+      case DblMinus:
+        std::cout << "\tDblMinus" << std::endl;
+        break;
+      case DblPlus:
+        std::cout << "\tDblPlus" << std::endl;
+        break;
+      case DblDivide:
+        std::cout << "\tDblDivide" << std::endl;
+        break;
+      case DblMultiply:
+        std::cout << "\tDblMultiply" << std::endl;
+        break;
+    }
+    std::cout << "\t\t-Rec Input:" << a.recInput << std::endl;
+  }
+}
 
 Type Function ::Apply(Record &toMe, int &intResult, double &doubleResult) {
   // this is rather simple; we just loop through and apply all of the
@@ -339,6 +389,4 @@ Type Function ::Apply(Record &toMe, int &intResult, double &doubleResult) {
 
 int Function::GetReturnsInt() { return returnsInt; }
 
-Schema *Function::GetSchema() {
-  return mySchema;
-}
+Schema *Function::GetSchema() { return mySchema; }

@@ -11,6 +11,9 @@
 
 typedef std::pair<Record *, int> pq_elem_t;
 
+// Generate random files names
+// Required in order to prevent clash of file names in cases when multiple
+// instances of bigq is running on different threads simultaneously
 std::string BigQ ::random_string(size_t length) {
   auto randchar = []() -> char {
     const char charset[] =
@@ -122,8 +125,8 @@ void BigQ ::CreateRun(std::vector<Page *> &input, int k, File *runFile,
 // Phase 2
 void BigQ ::StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
                               OrderMaker sortOrder, Pipe *out) {
-  std::cout << "[BigQ]: Streaming K=" << runsCreated << " sorted runs"
-            << std::endl;
+  // std::cout << "[BigQ]: Streaming K=" << runsCreated << " sorted runs"
+  //           << std::endl;
 
   // priority queue initialization
   // Priority queue comparator has reverse order than the sort order required
@@ -154,7 +157,7 @@ void BigQ ::StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
       run++;
     }
   } else {
-    cout << "Runs are empty" << endl;
+    // cout << "Runs are empty" << endl;
     return;
   }
 
@@ -215,7 +218,7 @@ void BigQ ::StreamKSortedRuns(File *runFile, int runsCreated, int runLength,
       }
     }
   }
-  cout << "[BigQ]: Added " << record_count << " to output pipe." << endl;
+  // cout << "[BigQ]: Added " << record_count << " to output pipe." << endl;
 }
 // End of phase 2
 
@@ -229,7 +232,7 @@ void *BigQ ::WorkerThreadRoutine(void *threadparams) {
 
   if (runlen == NULL || *runlen <= 0 || in == NULL || out == NULL ||
       sortOrder == NULL) {
-    std::cout << "Argument Error in BigQ!" << std::endl;
+    // std::cout << "Argument Error in BigQ!" << std::endl;
     out->ShutDown();
     pthread_exit(NULL);
   }
@@ -291,8 +294,9 @@ void *BigQ ::WorkerThreadRoutine(void *threadparams) {
     inputPagesForRun.clear();
   }
 
-  std::cout << "[BigQ]: Merging and Streaming " << runs << " runs "
-            << " containing " << total_record_count << " records" << std::endl;
+  // std::cout << "[BigQ]: Merging and Streaming " << runs << " runs "
+  //           << " containing " << total_record_count << " records" <<
+  //           std::endl;
 
   // Ready for phase 2
   // Run Phase 2
@@ -301,7 +305,7 @@ void *BigQ ::WorkerThreadRoutine(void *threadparams) {
 
   // CleanUp
   runFile->Close();
-  cout << "Trying to remove runFile " << rand_str << endl;
+  // cout << "Trying to remove runFile " << rand_str << endl;
   remove(rand_str);
 
   out->ShutDown();

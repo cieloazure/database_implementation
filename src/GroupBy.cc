@@ -42,7 +42,7 @@ void GroupBy ::composeAggregateRecord(Record *example_rec,
 
   // ### DANGER ###
   // TODO: Remove this print!!!!
-  aggregateRec.Print(group_by_schema);
+  // aggregateRec.Print(group_by_schema);
   out->Insert(&aggregateRec);
 }
 
@@ -59,9 +59,10 @@ void *GroupBy ::GroupByWorkerThreadRoutine(void *threadparams) {
   // Create a schema to group records
   Schema *schema = computeMe->GetSchema();
   if (schema == NULL) {
-    std::cout
-        << "Abort GroupBy! Schema not present to project and compose grouping"
-        << std::endl;
+    // std::cout
+    //     << "Abort GroupBy! Schema not present to project and compose
+    //     grouping"
+    //     << std::endl;
     pthread_exit(NULL);
   }
 
@@ -101,8 +102,8 @@ void *GroupBy ::GroupByWorkerThreadRoutine(void *threadparams) {
   // Get the first record in the pipe
   Record *prev = new Record();
   if (!sortedOutPipe->Remove(prev)) {
-    std::cout << "cannot sort! Internal BigQ pipe to GroupBy is closed"
-              << std::endl;
+    // std::cout << "cannot sort! Internal BigQ pipe to GroupBy is closed"
+    // << std::endl;
     pthread_exit(NULL);
   }
 
@@ -173,8 +174,8 @@ GroupBy ::GroupBy() {}
 GroupBy ::~GroupBy() {}
 
 void GroupBy ::WaitUntilDone() {
-  cout << "Group By waiting....." << endl;
+  // cout << "Group By waiting....." << endl;
   pthread_join(threadid, NULL);
-  cout << "Group by done...." << endl;
+  // cout << "Group by done...." << endl;
 }
 void GroupBy ::Use_n_Pages(int n) {}

@@ -2,7 +2,7 @@
 #include <iostream>
 
 void *SelectFile::SelectFileWorkerThreadRoutine(void *threadparams) {
-  std::cout << "Spawned select file worker thread" << std::endl;
+  // std::cout << "Spawned select file worker thread" << std::endl;
   struct SelectFileWorkerThreadParams *params;
   params = (struct SelectFileWorkerThreadParams *)threadparams;
   DBFile *in = params->in;
@@ -59,9 +59,9 @@ SelectFile ::SelectFile() = default;
 SelectFile ::~SelectFile() {}
 
 void SelectFile ::WaitUntilDone() {
-  cout << "Select File Waiting..." << endl;
+  // cout << "Select File Waiting..." << endl;
   pthread_join(threadid, NULL);
-  cout << "Select File done!" << endl;
+  // cout << "Select File done!" << endl;
 }
 
 void SelectFile ::Use_n_Pages(int n) {}

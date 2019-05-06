@@ -1,0 +1,13 @@
+SELECT o_orderkey, l_partkey, o_orderdate FROM lineitem AS li, orders AS o WHERE (li.l_orderkey = o.o_orderkey);
+SELECT l_orderkey, l_partkey, l_suppkey FROM lineitem AS li WHERE (l_returnflag = 'R') AND (l_discount < 0.04 OR l_returnflag = 'R') AND (l_shipmode = 'MAIL');
+SELECT r_name FROM region AS r WHERE (r_regionkey < 3);
+SELECT SUM(ps_supplycost) FROM supplier AS s, partsupp AS ps WHERE (s.s_suppkey = ps.ps_suppkey) GROUP BY s_nationkey;
+SELECT SUM(ps_supplycost) FROM supplier AS s,partsupp AS ps WHERE (s.s_suppkey = ps.ps_suppkey);
+SELECT SUM(s_acctbal + (s_acctbal * 1.05)) FROM supplier AS s WHERE (s.suppkey = s.suppkey);
+SELECT DISTINCT ps_suppkey FROM partsupp AS ps WHERE (ps_supplycost < 100.11);
+SELECT SUM(ps.ps_supplycost) FROM part AS p, supplier AS s, partsupp AS ps WHERE (p.p_partkey = ps.ps_partkey) AND (s.s_suppkey = ps.ps_suppkey) AND (s.s_acctbal > 2500.0);
+SELECT l_orderkey, l_partkey, l_suppkey FROM lineitem AS li WHERE (l_returnflag = 'R') AND (l_discount < 0.04 OR l_returnflag = 'R') AND (l_shipmode = 'MAIL');
+SELECT l.l_orderkey, l.l_partkey, l.l_suppkey FROM lineitem AS l WHERE (l.l_returnflag = 'R') AND (l.l_discount < 0.04 OR l.l_shipmode = 'MAIL') AND (l.l_orderkey > 5000) AND (l.l_orderkey < 6000);
+
+SELECT ps.ps_partkey, ps.ps_suppkey, ps.ps_availability FROM partsupp AS ps WHERE (ps.ps_partkey < 100) AND (ps.ps_suppkey < 50);
+

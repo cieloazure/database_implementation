@@ -277,7 +277,7 @@ void File ::Open(int fileLen, char *fName) {
   }
 
 #ifdef verbose
-  cout << "Opening file " << fName << " with " << curLength << " pages.\n";
+  // cout << "Opening file " << fName << " with " << curLength << " pages.\n";
 #endif
 }
 

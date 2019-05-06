@@ -6,6 +6,8 @@
 #include "RelationalOp.h"
 
 class SelectFile : public RelationalOp {
+  // Physical relational operator for getting input from an existing, already
+  // OPENED DBFile
  private:
   static void *SelectFileWorkerThreadRoutine(void *threadparams);
 

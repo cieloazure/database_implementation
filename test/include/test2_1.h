@@ -12,8 +12,9 @@ using namespace std;
 // make sure that the information below is correct
 
 char *catalog_path = (char *)"catalog";
-char *tpch_dir = (char *)"/data_files/1G/";  // dir where dbgen tpch files (extension
-                                     // *.tbl) can be found
+char *tpch_dir =
+    (char *)"/data_files/1G/";  // dir where dbgen tpch files (extension
+                                // *.tbl) can be found
 char *dbfile_dir = (char *)"";
 
 extern "C" {
@@ -34,16 +35,16 @@ class relation {
   char *rname;
   char *prefix;
   char rpath[100];
-  Schema *rschema;
+  Schema *R;
 
  public:
   relation(char *_name, Schema *_schema, char *_prefix)
-      : rname(_name), rschema(_schema), prefix(_prefix) {
+      : rname(_name), R(_schema), prefix(_prefix) {
     sprintf(rpath, "%s%s.bin", prefix, rname);
   }
   char *name() { return rname; }
   char *path() { return rpath; }
-  Schema *schema() { return rschema; }
+  Schema *schema() { return R; }
   void info() {
     cout << " relation info\n";
     cout << "\t name: " << name() << endl;

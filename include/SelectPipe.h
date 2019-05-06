@@ -5,6 +5,8 @@
 #include "RelationalOp.h"
 
 class SelectPipe : public RelationalOp {
+  // Physical operator to get the record from input pipe which match cnf and put
+  // them on output pipe
  private:
   static void *SelectPipeWorkerThreadRoutine(void *threadparams);
 

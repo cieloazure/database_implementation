@@ -10,10 +10,13 @@ void *WriteOut ::WriteOutWorkerThreadRoutine(void *threadparams) {
 
   // WriteOut logic
   Record *temp = new Record();
+  int count = 0;
   while (in->Remove(temp) != 0) {
     string s = temp->TextFileVersion(mySchema);
     fprintf(file, "%s\n", s.c_str());
+    count++;
   }
+  std::cout << "OK, " << count << " rows returned";
   // WriteOut logic end here
 
   pthread_exit(NULL);
@@ -46,8 +49,8 @@ void WriteOut::Run(Pipe &inPipe, FILE *outFile, Schema &mySchema) {
 WriteOut::WriteOut() {}
 WriteOut::~WriteOut() {}
 void WriteOut::WaitUntilDone() {
-  cout << "Write out waiting...." << endl;
+  // cout << "Write out waiting...." << endl;
   pthread_join(threadid, NULL);
-  cout << "Write out done!" << endl;
+  // cout << "Write out done!" << endl;
 }
 void WriteOut::Use_n_Pages(int n) {}

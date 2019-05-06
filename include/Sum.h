@@ -6,6 +6,7 @@
 #include "RelationalOp.h"
 
 class Sum : public RelationalOp {
+  // Physical operator for performed sum of an attribute over a relation
  private:
   static void *SumWorkerThreadRoutine(void *threadparams);
 

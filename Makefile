@@ -59,7 +59,7 @@ OBJECTS += $(ODIR)/lex.yyfunc.o
 SOURCES=$(wildcard $(SOURCEDIR)/*.cc)
 OBJECTS += $(patsubst $(SOURCEDIR)/%.cc, $(ODIR)/%.o, $(SOURCES))
 
-TEST = clang++ 
+TEST = g++ 
 # TESTCOMPILEFLAGS= -fsanitize=address -fno-omit-frame-pointer -g -std=c++11 -stdlib=libc++ -fprofile-arcs -ftest-coverage
 TESTCOMPILEFLAGS= -g -std=c++11  # -stdlib=libc++ 
 TESTSOURCESDIR=test/src
@@ -94,7 +94,7 @@ MAIN=$(ODIR)/main.o
 FILTERED_OBJECTS=$(filter-out $(MAIN), $(OBJECTS))
 
 main: all
-	$(CC) $(TESTCOMPILEFLAGS) -o $(BIN)/main $(FILTERED_OBJECTS) $(ODIR)/main.o $(TESTLINKFLAGS) $(TESTFLAGS)
+	$(CC) $(TESTCOMPILEFLAGS) -o $(BIN)/dbi $(FILTERED_OBJECTS) $(ODIR)/main.o $(TESTLINKFLAGS) $(TESTFLAGS)
 test: alltest
 	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test.out $(FILTERED_OBJECTS) $(FILTEREDTESTOBJECTS) $(TESTLINKFLAGS) $(TESTFLAGS)
 
@@ -108,7 +108,7 @@ test4_1: alltest
 	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test4_1.out $(FILTERED_OBJECTS) obj/test/test4_1.o $(TESTLINKFLAGS) $(TESTFLAGS)
 
 test4_1_1: alltest
-	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test4_1.out $(FILTERED_OBJECTS) obj/test/test4_1_1.o $(TESTLINKFLAGS) $(TESTFLAGS)
+	$(TEST) $(TESTCOMPILEFLAGS) -o $(BIN)/test4_1.old.out $(FILTERED_OBJECTS) obj/test/test4_1_1.old.o $(TESTLINKFLAGS) $(TESTFLAGS)
 
 clean:
 	rm -f $(ODIR)/*.o 

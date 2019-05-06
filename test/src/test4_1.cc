@@ -1,9 +1,10 @@
-#include "test4_1.h"
+// #include "test4_1.h"
 #include <math.h>
 #include <stdlib.h>
 #include <iostream>
 #include "ParseTree.h"
 #include "Statistics.h"
+#include "test4_1.h"
 #include "y.tab.h"
 
 extern "C" struct YY_BUFFER_STATE *yy_scan_string(const char *);
@@ -397,6 +398,7 @@ void q8() {
 
   s.Write(fileName);
 }
+
 void q9() {
   Statistics s;
   char *relName[] = {"part", "partsupp", "supplier"};

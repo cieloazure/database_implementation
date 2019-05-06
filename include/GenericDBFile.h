@@ -6,6 +6,8 @@ typedef enum { heap, sorted, tree } fType;
 typedef enum { reading, writing, idle } modeType;
 
 class GenericDBFile {
+  // Abstract base class of HeapDBFile and SortedDBFile
+  // IF a new type of DBFile emerges it will have to inherit this class
  public:
   virtual int Create(const char *fpath, fType file_type, void *startup) = 0;
   virtual int Open(const char *fpath) = 0;

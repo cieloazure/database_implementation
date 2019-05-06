@@ -6,6 +6,7 @@
 #include "RelationalOp.h"
 
 class DuplicateRemoval : public RelationalOp {
+  // Physical Operator to remove duplicates in a stream
  private:
   static void *DuplicateRemovalWorkerThreadRoutine(
       void *threadparams);

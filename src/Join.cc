@@ -41,9 +41,7 @@ void Join ::BlockNestedLoopJoinForSortMerge(
 }
 // Merge left with right
 // Need both the left and right records and their schemas
-// In order to prevent duplicate of attributes we need the order maker of right
-// to remove the grouping attributes from the right record and keep it in the
-// left record
+// This will produce a record with the right attributes after left attributes
 void Join::ComposeMergedRecord(Record &left, Record &right, Schema *leftSchema,
                                Schema *rightSchema, Record *mergedRec) {
   // num of attributes to keep is number of attributes in left schema and right
@@ -127,7 +125,7 @@ void *Join ::JoinWorkerThreadRoutine(void *threadparams) {
   Pipe *sortedOutPipeRight = new Pipe(100);
   if (selOp->GetSortOrders(leftOrderMaker, rightOrderMaker)) {
     // sort-merge join start
-    cout << "[JOIN]: Starting sort-merge join..." << endl;
+    // cout << "[JOIN]: Starting sort-merge join..." << endl;
 
     Schema *leftSchema = leftOrderMaker.GetSchema();
     Schema *rightSchema = rightOrderMaker.GetSchema();
@@ -270,7 +268,7 @@ Join::~Join() {}
 
 void Join::Run(Pipe &inPipeL, Pipe &inPipeR, Pipe &outPipe, CNF &selOp,
                Record &literal) {
-  cout << "Run started" << endl;
+  // cout << "Run started" << endl;
   pthread_attr_t attr;
 
   if (pthread_attr_init(&attr) == 0) {
@@ -297,9 +295,9 @@ void Join::Run(Pipe &inPipeL, Pipe &inPipeR, Pipe &outPipe, CNF &selOp,
 }
 
 void Join::WaitUntilDone() {
-  cout << "Join waiting....." << endl;
+  // cout << "Join waiting....." << endl;
   pthread_join(threadid, NULL);
-  cout << "Join done!" << endl;
+  // cout << "Join done!" << endl;
 }
 
 void Join::Use_n_Pages(int n) {}

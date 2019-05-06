@@ -5,10 +5,10 @@
 #include <stdio.h>
 
 #include "Record.h"
-#include "Schema.h"
-#include "File.h"
 #include "Comparison.h"
 #include "ComparisonEngine.h"
+#include "File.h"
+#include "Schema.h"
 
 struct att_pair {
   char *name;
@@ -48,8 +48,12 @@ class Schema {
   // returns a -1 if the attribute is not present in the schema
   int Find(char *attName);
 
+  std::pair<int, int> FindWithStatus(char *attName);
+
   // this finds the type of the given attribute
   Type FindType(char *attName);
+
+  Schema(char *relName);
 
   // this reads the specification for the schema in from a file
   Schema(char *fName, char *relName);
@@ -62,18 +66,30 @@ class Schema {
   // grouping attributes
   Schema(char *fName, OrderMaker *o, Schema *s);
 
-  // Create a schema by combining two schemas
+  // Create a schema by combining two schemas with an ordermaker(join)
   Schema(char *fName, Schema *s1, Schema *s2, OrderMaker *s2OrderMaker);
+
+  // Create a schema by combining two schemas without an ordermaker(cartesian
+  // product)
+  Schema(char *fName, Schema *s1, Schema *s2);
 
   // this composes a schema from another schema
   // copy constructor
   Schema(char *fName, Schema *other);
+
+  // Creating a schema for project operation
+  Schema(char *fName, Schema *other, std::vector<int> keepMe);
 
   ~Schema();
 
   void AddAttribute(Attribute a);
 
   void DifferenceWithOrderMaker(OrderMaker o, int *diff);
+
+  bool IsQualifiedAtt(std::string value);
+  std::pair<std::string, std::string> SplitQualifiedAtt(std::string value);
+
+  void Print(std::string prefix);
 };
 
 #endif

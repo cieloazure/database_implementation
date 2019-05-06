@@ -34,7 +34,8 @@ class Statistics {
   void Write(char *toWhere);
   /* Core functions ends */
 
-  /* Helper functions */
+  // TODO: Remove public access from helper functions
+  /* Helper functions(Temporarily public for testing) */
 
   // Helpers to check errors in relNames for Estimate/Apply
   bool CheckAttNameInRel(struct AndList *parseTree,
@@ -91,6 +92,12 @@ class Statistics {
   void PrintAttributeStore();
   void PrintDisjointSets();
   /* Helpers end */
+
+  /* Function needed for optimization */
+  int GetRelSize(std::string rel);
+  AttributeStats *GetRelationNameOfAttribute(
+      char *att, std::vector<std::string> relNamesSubset,
+      struct TableList *tables);
 };
 
 #endif

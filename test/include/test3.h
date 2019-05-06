@@ -19,7 +19,7 @@ const char *settings = (char *)"test3.cat";
 // donot change this information here
 char *catalog_path = (char *)"catalog";
 char *dbfile_dir = (char *)"";
-char *tpch_dir = (char *)"data_files/";
+char *tpch_dir = (char *)"data_files/1G/";
 
 extern "C" {
 int yyparse(void);                 // defined in y.tab.c
@@ -47,16 +47,16 @@ class relation {
   char *rname;
   char *prefix;
   char rpath[100];
-  Schema *rschema;
+  Schema *R;
 
  public:
   relation(char *_name, Schema *_schema, char *_prefix)
-      : rname(_name), rschema(_schema), prefix(_prefix) {
+      : rname(_name), R(_schema), prefix(_prefix) {
     sprintf(rpath, "%s%s.bin", prefix, rname);
   }
   char *name() { return rname; }
   char *path() { return rpath; }
-  Schema *schema() { return rschema; }
+  Schema *schema() { return R; }
   void info() {
     cout << " relation info\n";
     cout << "\t name: " << name() << endl;
